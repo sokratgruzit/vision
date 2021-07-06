@@ -46,7 +46,7 @@ export default {
       this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
       this.camera.position.z = 18;
 
-      this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+      this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
       this.renderer.setSize( width, height );
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
@@ -57,7 +57,6 @@ export default {
 
       var aLight = new THREE.AmbientLight( 0xffffff );
       this.scene.add( aLight );
-
     },
     spinner: function () {
       var geometry = new THREE.BoxGeometry(1,1,1);
@@ -70,6 +69,30 @@ export default {
 
       spinner.add(cube);
       this.scene.add(spinner);
+    },
+    stars: function() {
+      //David star bg
+      let starGeo = new THREE.Geometry();
+      for(let i=0;i<6000;i++) {
+          let star = new THREE.Vector3(
+          Math.random() * 600 - 300,
+          Math.random() * 600 - 300,
+          Math.random() * 600 - 300
+        );
+        starGeo.vertices.push(star);
+      }
+
+      let sprite = new THREE.TextureLoader().load(require("@/assets/circle.jpg"));
+      console.log('fuck', sprite);
+      let starMaterial = new THREE.PointsMaterial({
+        color: 0xaaaaaa,
+        size: 0.7,
+        map: sprite
+      });
+
+      let stars = new THREE.Points(starGeo, starMaterial);
+      this.scene.add(stars);
+      //end David star bg
     },
     addHolder: function () {
       this.holder = new THREE.Object3D();
@@ -243,6 +266,7 @@ export default {
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
 
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
+    this.stars();
     this.myScene();
     console.log(this.clock)
     this.addHolder();
@@ -257,7 +281,7 @@ export default {
   body {
     margin: 0;
     padding: 0;
-    background-color: #eee;
+    background-color: #000;
     color: #333;
     font-family: helvetica;
   }

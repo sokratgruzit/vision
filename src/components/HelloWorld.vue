@@ -120,14 +120,15 @@ export default {
 
       //David code
       const loader = new THREE.TextureLoader();
-      const textureSphereBg = loader.load('https://i.ibb.co/4gHcRZD/bg3-je3ddz.jpg');
-      const texturenucleus = loader.load('https://i.ibb.co/hcN2qXk/star-nc8wkw.jpg');
-      const textureStar = loader.load("https://i.ibb.co/ZKsdYSz/p1-g3zb2a.png");
-      const texture1 = loader.load("https://i.ibb.co/F8by6wW/p2-b3gnym.png");  
-      const texture2 = loader.load("https://i.ibb.co/yYS2yx5/p3-ttfn70.png");
-      const texture4 = loader.load("https://i.ibb.co/yWfKkHh/p4-avirap.png");
-      
-      /*  Nucleus  */   
+      const textureSphereBg = loader.load(require(`@/assets/sphere.jpeg`));
+      const texturenucleus = loader.load(require(`@/assets/nucleus.jpeg`));
+      const textureStar = loader.load(require(`@/assets/txtStar.png`));
+      const texture1 = loader.load(require(`@/assets/star1.png`));
+      const texture2 = loader.load(require(`@/assets/star2.png`));
+      const texture4 = loader.load(require(`@/assets/star3.png`));
+      console.log(loader)
+
+      /*  Nucleus  */
       texturenucleus.anisotropy = 16;
       let icosahedronGeometry = new THREE.IcosahedronGeometry(30, 10);
       let lambertMaterial = new THREE.MeshPhongMaterial({ map: texturenucleus });
@@ -149,7 +150,7 @@ export default {
       const points = [];
 
       for (let i = 0; i < 50; i++) {
-        let particleStar = this.randomPointSphere(150); 
+        let particleStar = this.randomPointSphere(150);
         points.push(new THREE.Vector3(particleStar.x, particleStar.y, particleStar.z));
         particleStar.velocity = THREE.MathUtils.randInt(50, 200);
       }
@@ -163,11 +164,11 @@ export default {
         blending: THREE.AdditiveBlending,
       });
 
-      this.scene.add(this.createStars(texture1, 15, 20));   
+      this.scene.add(this.createStars(texture1, 15, 20));
       this.scene.add(this.createStars(texture2, 5, 5));
       this.scene.add(this.createStars(texture4, 7, 5));
 
-      starsMaterial.depthWrite = false;  
+      starsMaterial.depthWrite = false;
       this.stars = new THREE.Points(starsGeometry, starsMaterial);
       this.scene.add(this.stars);
 
@@ -179,11 +180,11 @@ export default {
       let pointMaterial = new THREE.PointsMaterial({
         size: size,
         map: texture,
-        blending: THREE.AdditiveBlending,                      
+        blending: THREE.AdditiveBlending,
       });
       let points = [];
       for (let i = 0; i < total; i++) {
-        let radius = THREE.MathUtils.randInt(149, 70); 
+        let radius = THREE.MathUtils.randInt(149, 70);
         let particles = this.randomPointSphere(radius);
         points.push(new THREE.Vector3(particles.x, particles.y, particles.z));
       }

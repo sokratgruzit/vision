@@ -1,5 +1,9 @@
 <template>
-  <div>
+  <div :style="{
+    backgroundImage: 'url(' + require(`@/assets/space.jpg`) + ')',
+    backgroundSize: 'cover'
+    }"
+  >
     <div class="hud">
       <h1 id="level"></h1>
       <p>Click on the boxes to make them go away!</p>
@@ -17,24 +21,31 @@ export default {
   name: 'ThreeTest',
   data () {
     return {
-       scene: null,
-       cube: null,
-       camera: null,
-       renderer: null,
-       clock: null,
-       holder: null,
-       intersects: null,
-       particles: [],
-       level: 1,
-       totalLevels: 4,
-       score: 0,
-       totalTargets: 3,
-       speed: 0.01,
-       complete: false,
-       comments: ['Easy', 'Tricky', 'Careful now', 'INSANITY'],
-       myLevel: document.getElementById('level'),
-       myScore: document.getElementById('score'),
-       mouse: new THREE.Vector2()
+      scene: null,
+      cube: null,
+      camera: null,
+      renderer: null,
+      clock: null,
+      holder: null,
+      intersects: null,
+      particles: [],
+      level: 1,
+      totalLevels: 4,
+      score: 0,
+      totalTargets: 3,
+      speed: 0.01,
+      complete: false,
+      comments: ['Easy', 'Tricky', 'Careful now', 'INSANITY'],
+      myLevel: document.getElementById('level'),
+      myScore: document.getElementById('score'),
+      mouse: new THREE.Vector2(),
+      sphereBg: null,
+      nucleus: null,
+      stars: null,
+      controls: null,
+      timeout_Debounce: null,
+      //noise: new SimplexNoise(),
+      blobScale: 3
     }
   },
   methods: {
@@ -46,17 +57,22 @@ export default {
       this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
       this.camera.position.z = 18;
 
-      this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: false } );
+      this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
       this.renderer.setSize( width, height );
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
 
       var sLight = new THREE.SpotLight( 0xffffff );
       sLight.position.set( -100, 100, 100 );
-      this.scene.add( sLight );
+      this.scene.add(sLight);
 
       var aLight = new THREE.AmbientLight( 0xffffff );
-      this.scene.add( aLight );
+      this.scene.add(aLight);
+      //David code
+      var directionalLight = new THREE.DirectionalLight("#fff", 2);
+      directionalLight.position.set(0, 50, -20);
+      this.scene.add(directionalLight);
+      //End David code
     },
     spinner: function () {
       var geometry = new THREE.BoxGeometry(1,1,1);
@@ -70,29 +86,13 @@ export default {
       spinner.add(cube);
       this.scene.add(spinner);
     },
-    stars: function() {
-      //David star bg
-      let starGeo = new THREE.Geometry();
-      for(let i=0;i<6000;i++) {
-          let star = new THREE.Vector3(
-          Math.random() * 600 - 300,
-          Math.random() * 600 - 300,
-          Math.random() * 600 - 300
-        );
-        starGeo.vertices.push(star);
-      }
-
-      let sprite = new THREE.TextureLoader().load(require("@/assets/circle.jpg"));
-      console.log('fuck', sprite);
-      let starMaterial = new THREE.PointsMaterial({
-        color: 0xaaaaaa,
-        size: 0.7,
-        map: sprite
-      });
-
-      let stars = new THREE.Points(starGeo, starMaterial);
-      this.scene.add(stars);
-      //end David star bg
+    randomPointSphere: function (radius) {
+      let theta = 2 * Math.PI * Math.random();
+      let phi = Math.acos(2 * Math.random() - 1);
+      let dx = 0 + (radius * Math.sin(phi) * Math.cos(theta));
+      let dy = 0 + (radius * Math.sin(phi) * Math.sin(theta));
+      let dz = 0 + (radius * Math.cos(phi));
+      return new THREE.Vector3(dx, dy, dz);
     },
     addHolder: function () {
       this.holder = new THREE.Object3D();
@@ -117,8 +117,95 @@ export default {
         this.holder.add(spinner);
       };
       this.scene.add(this.holder);
+
+      //David code
+      const loader = new THREE.TextureLoader();
+      const textureSphereBg = loader.load('https://i.ibb.co/4gHcRZD/bg3-je3ddz.jpg');
+      const texturenucleus = loader.load('https://i.ibb.co/hcN2qXk/star-nc8wkw.jpg');
+      const textureStar = loader.load("https://i.ibb.co/ZKsdYSz/p1-g3zb2a.png");
+      const texture1 = loader.load("https://i.ibb.co/F8by6wW/p2-b3gnym.png");  
+      const texture2 = loader.load("https://i.ibb.co/yYS2yx5/p3-ttfn70.png");
+      const texture4 = loader.load("https://i.ibb.co/yWfKkHh/p4-avirap.png");
+      
+      /*  Nucleus  */   
+      texturenucleus.anisotropy = 16;
+      let icosahedronGeometry = new THREE.IcosahedronGeometry(30, 10);
+      let lambertMaterial = new THREE.MeshPhongMaterial({ map: texturenucleus });
+      this.nucleus = new THREE.Mesh(icosahedronGeometry, lambertMaterial);
+      this.scene.add(this.nucleus);
+
+      /*    Sphere  Background   */
+      textureSphereBg.anisotropy = 16;
+      let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
+      let materialSphereBg = new THREE.MeshBasicMaterial({
+        side: THREE.BackSide,
+        map: textureSphereBg,
+      });
+      this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
+      this.scene.add(this.sphereBg);
+
+      /*    Moving Stars   */
+      let starsGeometry = new THREE.BufferGeometry();
+      const points = [];
+
+      for (let i = 0; i < 50; i++) {
+        let particleStar = this.randomPointSphere(150); 
+        points.push(new THREE.Vector3(particleStar.x, particleStar.y, particleStar.z));
+        particleStar.velocity = THREE.MathUtils.randInt(50, 200);
+      }
+      starsGeometry.setFromPoints(points);
+      let starsMaterial = new THREE.PointsMaterial({
+        size: 5,
+        color: "#ffffff",
+        transparent: true,
+        opacity: 0.8,
+        map: textureStar,
+        blending: THREE.AdditiveBlending,
+      });
+
+      this.scene.add(this.createStars(texture1, 15, 20));   
+      this.scene.add(this.createStars(texture2, 5, 5));
+      this.scene.add(this.createStars(texture4, 7, 5));
+
+      starsMaterial.depthWrite = false;  
+      this.stars = new THREE.Points(starsGeometry, starsMaterial);
+      this.scene.add(this.stars);
+
+      //End David code
+    },
+    createStars: function (texture, size, total) {
+      console.log(texture, size, total);
+      let pointGeometry = new THREE.BufferGeometry();
+      let pointMaterial = new THREE.PointsMaterial({
+        size: size,
+        map: texture,
+        blending: THREE.AdditiveBlending,                      
+      });
+      let points = [];
+      for (let i = 0; i < total; i++) {
+        let radius = THREE.MathUtils.randInt(149, 70); 
+        let particles = this.randomPointSphere(radius);
+        points.push(new THREE.Vector3(particles.x, particles.y, particles.z));
+      }
+      pointGeometry.setFromPoints(points);
+      return new THREE.Points(pointGeometry, pointMaterial);
     },
     animate: function() {
+      //Stars  Animation
+      this.stars.forEach(function (v) {
+        v.x += (0 - v.x) / v.velocity;
+        v.y += (0 - v.y) / v.velocity;
+        v.z += (0 - v.z) / v.velocity;
+
+        v.velocity -= 0.3;
+
+        if (v.x <= 5 && v.x >= -5 && v.z <= 5 && v.z >= -5) {
+          v.x = v.startX;
+          v.y = v.startY;
+          v.z = v.startZ;
+          v.velocity = THREE.MathUtils.randInt(50, 300);
+        }
+      });
       requestAnimationFrame( this.animate );
       this.render();
     },
@@ -158,6 +245,7 @@ export default {
         this.scene = scene;
         this.particles = particles;
       };
+      this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
     },
     addExplosion: function (point) {
@@ -266,7 +354,6 @@ export default {
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
 
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
-    this.stars();
     this.myScene();
     console.log(this.clock)
     this.addHolder();
@@ -281,7 +368,6 @@ export default {
   body {
     margin: 0;
     padding: 0;
-    background-color: #000;
     color: #333;
     font-family: helvetica;
   }

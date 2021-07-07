@@ -15,7 +15,8 @@
 </template>
 
 <script>
-import * as THREE from 'three'
+import * as THREE from 'three';
+import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 
 export default {
   name: 'ThreeTest',
@@ -40,12 +41,10 @@ export default {
       myScore: document.getElementById('score'),
       mouse: new THREE.Vector2(),
       sphereBg: null,
-      nucleus: null,
-      stars: null,
-      controls: null,
-      timeout_Debounce: null,
-      //noise: new SimplexNoise(),
-      blobScale: 3
+      mouseX: 0, 
+      mouseY: 0,
+			windowHalfX: window.innerWidth / 2,
+			windowHalfY: window.innerHeight / 2
     }
   },
   methods: {
@@ -103,7 +102,10 @@ export default {
         ranCol.setRGB( Math.random(), Math.random(), Math.random() );
 
         var geometry = new THREE.BoxGeometry(2,2,2);
-        var material = new THREE.MeshPhongMaterial( {color: ranCol, ambient: ranCol } );
+        var material = new THREE.MeshPhongMaterial({
+          color: ranCol, 
+          ambient: ranCol
+        });
 
         var cube = new THREE.Mesh(geometry, material);
         cube.position.x = i * 5;
@@ -120,22 +122,13 @@ export default {
 
       //David code
       const loader = new THREE.TextureLoader();
-      const textureSphereBg = loader.load(require(`@/assets/sphere.jpeg`));
-      const texturenucleus = loader.load(require(`@/assets/nucleus.jpeg`));
-      const textureStar = loader.load(require(`@/assets/txtStar.png`));
-      const texture1 = loader.load(require(`@/assets/star1.png`));
-      const texture2 = loader.load(require(`@/assets/star2.png`));
-      const texture4 = loader.load(require(`@/assets/star3.png`));
-      console.log(loader)
+      const textureSphereBg = loader.load(require("../assets/sphere.jpeg"));
+      const txtStar = loader.load(require("../assets/txtStar.png"));
+      const texture1 = loader.load(require( "../assets/star1.png" ));
+      const texture2 = loader.load(require("../assets/star2.png"));
+      const texture4 = loader.load(require("../assets/star3.png"));
 
-      /*  Nucleus  */
-      texturenucleus.anisotropy = 16;
-      let icosahedronGeometry = new THREE.IcosahedronGeometry(30, 10);
-      let lambertMaterial = new THREE.MeshPhongMaterial({ map: texturenucleus });
-      this.nucleus = new THREE.Mesh(icosahedronGeometry, lambertMaterial);
-      this.scene.add(this.nucleus);
-
-      /*    Sphere  Background   */
+      /* Sphere  Background */
       textureSphereBg.anisotropy = 16;
       let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
       let materialSphereBg = new THREE.MeshBasicMaterial({
@@ -145,72 +138,80 @@ export default {
       this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
       this.scene.add(this.sphereBg);
 
-      /*    Moving Stars   */
+      /* Moving Stars */
       let starsGeometry = new THREE.BufferGeometry();
-      const points = [];
+      const vertices = [];
+      const materials = [];
 
-      for (let i = 0; i < 50; i++) {
-        let particleStar = this.randomPointSphere(150);
-        points.push(new THREE.Vector3(particleStar.x, particleStar.y, particleStar.z));
-        particleStar.velocity = THREE.MathUtils.randInt(50, 200);
-      }
-      starsGeometry.setFromPoints(points);
-      let starsMaterial = new THREE.PointsMaterial({
-        size: 5,
-        color: "#ffffff",
-        transparent: true,
-        opacity: 0.8,
-        map: textureStar,
-        blending: THREE.AdditiveBlending,
-      });
+      for (let i = 0; i < 5000; i++) {
+        const x = Math.random() * 2000 - 1000;
+        const y = Math.random() * 2000 - 1000;
+        const z = Math.random() * 2000 - 1000;
 
-      this.scene.add(this.createStars(texture1, 15, 20));
-      this.scene.add(this.createStars(texture2, 5, 5));
-      this.scene.add(this.createStars(texture4, 7, 5));
+        vertices.push( x, y, z );
+			}
 
-      starsMaterial.depthWrite = false;
-      this.stars = new THREE.Points(starsGeometry, starsMaterial);
-      this.scene.add(this.stars);
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+
+      const parameters = [
+        [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
+        [[ 0.95, 0.1, 0.5 ], texture2, 15 ],
+        [[ 0.90, 0.05, 0.5 ], texture4, 10 ],
+        [[ 0.85, 0, 0.5 ], txtStar, 8 ],
+        [[ 0.80, 0, 0.5 ], texture1, 5 ]
+      ];
+  
+      for ( let i = 0; i < parameters.length; i ++ ) {
+        const color = parameters[i][0];
+        const sprite = parameters[i][1];
+        const size = parameters[i][2];
+
+        materials[i] = new THREE.PointsMaterial({ 
+          size: size, 
+          map: sprite, 
+          blending: THREE.AdditiveBlending, 
+          depthTest: false, 
+          transparent: true 
+        });
+        materials[i].color.setHSL(color[0], color[1], color[2]);
+
+        const particles = new THREE.Points(starsGeometry, materials[i]);
+
+        particles.rotation.x = Math.random() * 6;
+        particles.rotation.y = Math.random() * 6;
+        particles.rotation.z = Math.random() * 6;
+
+        this.scene.add(particles);
+			}
 
       //End David code
     },
-    createStars: function (texture, size, total) {
-      console.log(texture, size, total);
-      let pointGeometry = new THREE.BufferGeometry();
-      let pointMaterial = new THREE.PointsMaterial({
-        size: size,
-        map: texture,
-        blending: THREE.AdditiveBlending,
-      });
-      let points = [];
-      for (let i = 0; i < total; i++) {
-        let radius = THREE.MathUtils.randInt(149, 70);
-        let particles = this.randomPointSphere(radius);
-        points.push(new THREE.Vector3(particles.x, particles.y, particles.z));
-      }
-      pointGeometry.setFromPoints(points);
-      return new THREE.Points(pointGeometry, pointMaterial);
-    },
     animate: function() {
+      //Sphere Beckground Animation
+      this.sphereBg.rotation.x += 0.005;
+      this.sphereBg.rotation.y += 0.002;
+      this.sphereBg.rotation.z += 0.002;
+
       //Stars  Animation
-      this.stars.forEach(function (v) {
-        v.x += (0 - v.x) / v.velocity;
-        v.y += (0 - v.y) / v.velocity;
-        v.z += (0 - v.z) / v.velocity;
-
-        v.velocity -= 0.3;
-
-        if (v.x <= 5 && v.x >= -5 && v.z <= 5 && v.z >= -5) {
-          v.x = v.startX;
-          v.y = v.startY;
-          v.z = v.startZ;
-          v.velocity = THREE.MathUtils.randInt(50, 300);
-        }
-      });
       requestAnimationFrame( this.animate );
       this.render();
     },
     render: function () {
+      const time = Date.now() * 0.00005;
+
+      this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
+			this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+
+			this.camera.lookAt(this.scene.position);
+
+      for (let i = 0; i < this.scene.children.length; i++) {
+        const object = this.scene.children[ i ];
+
+        if ( object instanceof THREE.Points ) {
+          object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+        }
+			}
+
       this.holder.children.forEach(function (elem, index, array) {
         elem.rotation.y += (0.01 * (6 - index));
         elem.children[0].rotation.x += 0.01;
@@ -349,10 +350,17 @@ export default {
       this.renderer.setSize( window.innerWidth, window.innerHeight );
 
       this.render();
-    }
+    },
+    onPointerMove: function (event) {
+      if (event.isPrimary === false) return;
+
+      this.mouseX = event.clientX - this.windowHalfX;
+      this.mouseY = event.clientY - this.windowHalfY;
+		}
   },
   mounted() {
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.body.addEventListener('pointermove', this.onPointerMove);
 
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
     this.myScene();

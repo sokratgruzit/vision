@@ -1,0 +1,78 @@
+@font-face {
+    font-family: "Kanit-Regular";
+    src: url('../font/Kanit-Regular.eot');
+    src: url("../font/Kanit-Regular.eot?#iefix") format("embedded-opentype"),
+    url("../font/Kanit-Regular.svg#Lack-Regular") format("svg"),
+    url("../font/Kanit-Regular.ttf") format("truetype"),
+    url("../font/Kanit-Regular.woff") format("woff"),
+    url("../font/Kanit-Regular.woff2") format("woff2");
+    font-weight: normal;
+    font-style: normal;
+}
+
+* {
+    font-family: "Kanit-Regular";
+    font-size: 18px;
+    line-height: 28px;
+    color: rgba(255,255,255,1);
+    text-decoration: none;
+    outline-color: none;
+    box-sizing: border-box;
+}
+html {
+    overflow-x: hidden;
+    -webkit-text-size-adjust: none;
+    text-size-adjust: none;
+}
+body {
+    margin: 0;
+    -webkit-text-size-adjust:100%;
+    -moz-text-size-adjust:100%;
+    -ms-text-size-adjust:100%;
+    text-size-adjust: 100%;
+    /*padding-bottom: 200vh;*/
+    background: #00050F;
+    /*dont use overflow hidden to body*/
+}
+ul,li,p,img,h1,h2,h3,h4,h5,h6,input,button,nav {
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    font-weight: normal;
+}
+input , textarea {
+    outline: none;
+    box-shadow: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+}
+button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    outline: none;
+}
+.font-20{
+    font-size: 20px;
+    line-height: 30px;
+}
+.font-12{
+    font-size: 12px;
+    line-height: 20px;
+}
+.font-72{
+    font-size: 72px;
+    line-height: 80px;
+    color: #fff;
+}
+.container{
+    width: 100%;
+    max-width: 1920px;
+    padding: 0px 80px;
+    margin: 0px auto;
+    display: flex;
+    position: relative;
+    z-index: 5;
+}
+

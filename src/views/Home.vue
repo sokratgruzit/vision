@@ -11,7 +11,7 @@
         slide 3
       </slide>
     </hooper>
-    <Game v-if="false"/>
+    <Game v-if="true"/>
   </div>
 </template>
 

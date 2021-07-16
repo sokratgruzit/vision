@@ -42,7 +42,7 @@ export default {
       myScore: document.getElementById('score'),
       mouse: new THREE.Vector2(),
       sphereBg: null,
-      mouseX: 0, 
+      mouseX: 0,
       mouseY: 0,
 			windowHalfX: window.innerWidth / 2,
 			windowHalfY: window.innerHeight / 2,
@@ -157,7 +157,7 @@ export default {
 
         var geometry = new THREE.BoxGeometry(2,2,2);
         var material = new THREE.MeshPhongMaterial({
-          color: ranCol, 
+          color: ranCol,
           ambient: ranCol
         });
 
@@ -197,7 +197,7 @@ export default {
       const vertices = [];
       const materials = [];
 
-      for (let i = 0; i < 1000; i++) {
+      for (let i = 0; i < 100; i++) {
         const x = Math.random() * 2000 - 1000;
         const y = Math.random() * 2000 - 1000;
         const z = Math.random() * 2000 - 1000;
@@ -205,7 +205,7 @@ export default {
         vertices.push( x, y, z );
 			}
 
-      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
 
       const parameters = [
         [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
@@ -214,18 +214,18 @@ export default {
         [[ 0.85, 0, 0.5 ], txtStar, 8 ],
         [[ 0.80, 0, 0.5 ], texture1, 5 ]
       ];
-  
+
       for ( let i = 0; i < parameters.length; i ++ ) {
         const color = parameters[i][0];
         const sprite = parameters[i][1];
         const size = parameters[i][2];
 
-        materials[i] = new THREE.PointsMaterial({ 
-          size: size, 
-          map: sprite, 
-          blending: THREE.AdditiveBlending, 
-          depthTest: false, 
-          transparent: true 
+        materials[i] = new THREE.PointsMaterial({
+          size: size,
+          map: sprite,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          transparent: true
         });
         materials[i].color.setHSL(color[0], color[1], color[2]);
 
@@ -265,8 +265,6 @@ export default {
         mesh.position.add(dv);
         mesh.material.emissiveIntensity = this.tMath.clamp(40 * dv.length() / this.maxLength, this.conf.minIntensity, this.conf.maxIntensity);
       }
-
-      //Stars  Animation
       requestAnimationFrame( this.animate );
       this.render();
     },

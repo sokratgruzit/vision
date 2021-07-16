@@ -18,6 +18,7 @@
 import * as THREE from 'three';
 import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 
 export default {
   name: 'ThreeTest',
@@ -46,25 +47,8 @@ export default {
       mouseY: 0,
 			windowHalfX: window.innerWidth / 2,
 			windowHalfY: window.innerHeight / 2,
-      tMath: THREE.Math,
-      conf: {
-        n: 7,
-        objectWidth: 0.1,
-        objectMargin: 0.5,
-        minIntensity: 0.02,
-        maxIntensity: 0.8,
-        color: 0x707070,
-        randomColor: true,
-        emissiveColor: 0xff3030,
-        randomEmissiveColor: false
-      },
-      pointerMeshes: [],
-      maxLength: null,
-      mouseOver: true,
-      pointer: new THREE.Vector2(),
-      pointerPlane: new THREE.Plane(new THREE.Vector3(0, 0, 1), 0),
-      pointerPosition: new THREE.Vector3(),
-      raycaster: new THREE.Raycaster()
+      pointerMouse: { x: 0, y: 0 },
+      pointer: null
     }
   },
   methods: {
@@ -76,7 +60,7 @@ export default {
       this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
       this.camera.position.z = 18;
 
-      this.renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize( width, height );
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
@@ -91,41 +75,7 @@ export default {
       var directionalLight = new THREE.DirectionalLight("#fff", 2);
       directionalLight.position.set(0, 50, -20);
       this.scene.add(directionalLight);
-
-      this.maxLength = (new THREE.Vector3(1, 1, 1)).multiplyScalar((this.conf.n * (this.conf.objectWidth + this.conf.objectMargin)) / 2).length();
-      let geo = new THREE.BoxBufferGeometry(this.conf.objectWidth, this.conf.objectWidth, this.conf.objectWidth);
-      let pos = new THREE.Vector3();
-      let color, emissive;
-      for (let i = 0; i < this.conf.n; i++) {
-        for (let j = 0; j < this.conf.n; j++) {
-          for (let k = 0; k < this.conf.n; k++) {
-            color = this.conf.randomColor ? this.conf.color : this.conf.color;
-            emissive = this.conf.randomEmissiveColor ? this.conf.emissiveColor : this.conf.emissiveColor;
-            let mesh = new THREE.Mesh(geo, new THREE.MeshLambertMaterial({ color, emissive, emissiveIntensity: 0 }));
-            pos.x = (-this.conf.n / 2 + i) * (this.conf.objectWidth + this.conf.objectMargin);
-            pos.y = (-this.conf.n / 2 + j) * (this.conf.objectWidth + this.conf.objectMargin);
-            pos.z = (-this.conf.n / 2 + k) * (this.conf.objectWidth + this.conf.objectMargin);
-            mesh.rotation.set(0, Math.PI/4, Math.PI/4);
-            mesh.destination = pos.clone();
-            mesh.vcoef = 0.05 - pos.length() * ((0.05 - 0.005) / this.maxLength);
-            this.pointerMeshes.push(mesh);
-            this.scene.add(mesh);
-          }
-        }
-      }
       //End David code
-    },
-    initGUI: function () {
-      const gui = new GUI();
-      gui.add(this.conf, 'n', 2, 16, 1).onChange(this.myScene);
-      gui.add(this.conf, 'objectWidth', 1, 20, 0.5).onChange(this.myScene);
-      gui.add(this.conf, 'objectMargin', 0, 10, 0.5).onChange(this.myScene);
-      gui.add(this.conf, 'maxIntensity', this.conf.minIntensity, 1, 0.1);
-      gui.add(this.conf, 'randomColor').listen().onChange(this.myScene);
-      gui.addColor(this.conf, 'color').onChange(v => { conf.randomColor = false; this.myScene(); });
-      gui.add(this.conf, 'randomEmissiveColor').listen().onChange(this.myScene);
-      gui.addColor(this.conf, 'emissiveColor').onChange(v => { this.conf.randomEmissiveColor = false; this.myScene(); });
-      gui.close();
     },
     spinner: function () {
       var geometry = new THREE.BoxGeometry(1,1,1);
@@ -147,18 +97,23 @@ export default {
       let dz = 0 + (radius * Math.cos(phi));
       return new THREE.Vector3(dx, dy, dz);
     },
+    mathRandom: function (num = 1) {
+      var setNumber = - Math.random() * num + Math.random() * num;
+      return setNumber;
+    },
     addHolder: function () {
       this.holder = new THREE.Object3D();
       this.holder.name = "holder"
 
       for (var i = 0; i < this.totalTargets; i++) {
         var ranCol = new THREE.Color();
-        ranCol.setRGB( Math.random(), Math.random(), Math.random() );
+        ranCol.setRGB(Math.random(), Math.random(), Math.random());
 
-        var geometry = new THREE.BoxGeometry(2,2,2);
+        var geometry = new THREE.IcosahedronGeometry(1,0);
         var material = new THREE.MeshPhongMaterial({
           color: ranCol,
-          ambient: ranCol
+          ambient: ranCol,
+          wireframe: true
         });
 
         var cube = new THREE.Mesh(geometry, material);
@@ -171,8 +126,18 @@ export default {
 
         spinner.add(cube);
         this.holder.add(spinner);
-      };
+      }
       this.scene.add(this.holder);
+      var rC = new THREE.Color();
+      rC.setRGB(Math.random(), Math.random(), Math.random());
+      var pg = new THREE.IcosahedronGeometry(1,0);
+      var pm = new THREE.MeshPhongMaterial({
+        color: rC,
+        ambient: rC
+      });
+
+      this.pointer = new THREE.Mesh(pg, pm);
+      this.scene.add(this.pointer);
 
       //David code
       const loader = new THREE.TextureLoader();
@@ -231,41 +196,22 @@ export default {
 
         const particles = new THREE.Points(starsGeometry, materials[i]);
 
-        particles.rotation.x = Math.random() * 6;
-        particles.rotation.y = Math.random() * 6;
-        particles.rotation.z = Math.random() * 6;
+        //particles.rotation.x = Math.random() * 6;
+        //particles.rotation.y = Math.random() * 6;
+        //particles.rotation.z = Math.random() * 6;
 
         this.scene.add(particles);
 			}
-      this.mouseOver = false;
       //End David code
     },
     animate: function() {
       //Sphere Beckground Animation
-      this.sphereBg.rotation.x += 0.005;
-      this.sphereBg.rotation.y += 0.002;
-      this.sphereBg.rotation.z += 0.002;
 
-      let origin = this.pointerPosition;
-      if (!this.mouseOver) {
-        const time = Date.now() * 0.001;
-        const d = this.maxLength * 0.7;
-        origin = new THREE.Vector3();
-        origin.x = Math.sin(time * 0.9) * d;
-        origin.y = Math.cos(time * 1.2) * d;
-        origin.z = Math.cos(time * 0.7) * d;
-      }
+      this.sphereBg.rotation.x += 0.003;
+      this.sphereBg.rotation.y += 0.001;
+      this.sphereBg.rotation.z += 0.001;
 
-      let mesh, dv, d;
-      for (let i = 0; i < this.pointerMeshes.length; i++) {
-        mesh = this.pointerMeshes[i];
-        dv = mesh.destination.clone().add(origin).sub(mesh.position);
-        d = dv.length();
-        dv.normalize().multiplyScalar(d * mesh.vcoef);
-        mesh.position.add(dv);
-        mesh.material.emissiveIntensity = this.tMath.clamp(40 * dv.length() / this.maxLength, this.conf.minIntensity, this.conf.maxIntensity);
-      }
-      requestAnimationFrame( this.animate );
+      requestAnimationFrame(this.animate)
       this.render();
     },
     render: function () {
@@ -277,9 +223,9 @@ export default {
 			this.camera.lookAt(this.scene.position);
 
       for (let i = 0; i < this.scene.children.length; i++) {
-        const object = this.scene.children[ i ];
+        const object = this.scene.children[i];
 
-        if ( object instanceof THREE.Points ) {
+        if (object instanceof THREE.Points) {
           object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
         }
 			}
@@ -354,8 +300,8 @@ export default {
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
       // update the picking ray with the camera and mouse position
-      let raycaster = new THREE.Raycaster()
-      raycaster.setFromCamera( this.mouse, this.camera );
+      let raycaster = new THREE.Raycaster();
+      raycaster.setFromCamera(this.mouse, this.camera);
 
       if (this.score < this.totalTargets) {
         let addExplosion = this.addExplosion;
@@ -425,22 +371,21 @@ export default {
     },
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
+      var raycaster = new THREE.Raycaster();
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
 
-      const v = new THREE.Vector3();
-      this.camera.getWorldDirection(v);
-      v.normalize();
-      this.pointerPlane.normal = v;
+      this.pointerMouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      this.pointerMouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+      raycaster.setFromCamera(this.pointerMouse, this.camera);
+      var intersects = raycaster.intersectObjects(this.scene.children);
+      for (var i = 0; i < intersects.length; i++) {
 
-      this.mouseOver = true;
-
-      this.pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
-      this.pointer.y = - (event.clientY / window.innerHeight) * 2 + 1;
-
-      this.raycaster.setFromCamera(this.pointer, this.camera);
-      this.raycaster.ray.intersectPlane(this.pointerPlane, this.pointerPosition);
+      }
+      this.pointer.position.x = this.mouseX / 10;
+      this.pointer.position.y = this.mouseY / 10;
+      this.pointer.position.z = 0;
 		}
   },
   mounted() {
@@ -449,7 +394,6 @@ export default {
 
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
     this.myScene();
-    this.initGUI();
     this.addHolder();
     this.animate();
 

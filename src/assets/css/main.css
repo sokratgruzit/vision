@@ -75,4 +75,6 @@ button {
     position: relative;
     z-index: 5;
 }
-
+.dg.ac{
+    display: none;
+}

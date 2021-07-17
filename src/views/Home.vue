@@ -5,13 +5,12 @@
         <MainSlide/>
       </slide>
       <slide>
-        slide 2
+        <Game v-if="true"/>
       </slide>
       <slide>
         slide 3
       </slide>
     </hooper>
-    <Game v-if="true"/>
   </div>
 </template>
 

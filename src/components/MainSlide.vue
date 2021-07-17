@@ -50,6 +50,7 @@ export default {
   }
   .main-slide__title-out:last-child .main-slide__title-in{
     color: rgba(255, 113, 82, 1);
+    padding-left: 110px;
   }
   .main-slide__title-out{
     display: flex;
@@ -76,6 +77,7 @@ export default {
     border: 1px solid rgba(255, 255, 255, .1);
     margin-right: auto;
     position: relative;
+    cursor: pointer;
   }
   .explore-button span:nth-child(1){
     top: -1px;
@@ -105,5 +107,8 @@ export default {
     height: 9px;
     width: 9px;
     position: absolute;
+  }
+  .main-slide__description .explore-button{
+    margin-top: 60px;
   }
 </style>

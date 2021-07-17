@@ -1,13 +1,14 @@
 <template>
-  <div :style="{
+  <div class="game__container" :style="{
     backgroundImage: 'url(' + require(`@/assets/space.jpg`) + ')',
     backgroundSize: 'cover'
     }"
   >
     <div class="hud">
-      <h1 id="level"></h1>
+      <p>Level: <span>{{level}}</span></p>
+      <p>Score: <span>{{this.score}}</span></p>
+      <p>Difficult: <span>{{this.commentNow}}</span></p>
       <p>Click on the boxes to make them go away!</p>
-      <p id="score"></p>
     </div>
 
     <div id="webgl-container"></div>
@@ -37,12 +38,14 @@ export default {
       totalTargets: 3,
       speed: 0.01,
       complete: false,
+      commentNow: 'Easy',
       comments: ['Easy', 'Tricky', 'Careful now', 'INSANITY'],
+      levelAbout:'',
       myLevel: document.getElementById('level'),
       myScore: document.getElementById('score'),
       mouse: new THREE.Vector2(),
       sphereBg: null,
-      mouseX: 0, 
+      mouseX: 0,
       mouseY: 0,
 			windowHalfX: window.innerWidth / 2,
 			windowHalfY: window.innerHeight / 2,
@@ -117,7 +120,7 @@ export default {
         var texture = lo.load(require("../assets/sphere.jpeg"));
 
         /*var material = new THREE.MeshPhongMaterial({
-          color: ranCol, 
+          color: ranCol,
           ambient: ranCol,
           wireframe: true
         });*/
@@ -166,7 +169,7 @@ export default {
       rC.setRGB(Math.random(), Math.random(), Math.random());
       var pg = new THREE.IcosahedronGeometry(1,0);
       var pm = new THREE.MeshPhongMaterial({
-        color: rC, 
+        color: rC,
         ambient: rC
       });
 
@@ -204,7 +207,7 @@ export default {
         vertices.push( x, y, z );
 			}
 
-      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
 
       const parameters = [
         [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
@@ -213,18 +216,18 @@ export default {
         [[ 0.85, 0, 0.5 ], txtStar, 8 ],
         [[ 0.80, 0, 0.5 ], texture1, 5 ]
       ];
-  
+
       for ( let i = 0; i < parameters.length; i ++ ) {
         const color = parameters[i][0];
         const sprite = parameters[i][1];
         const size = parameters[i][2];
 
-        materials[i] = new THREE.PointsMaterial({ 
-          size: size, 
-          map: sprite, 
-          blending: THREE.AdditiveBlending, 
-          depthTest: false, 
-          transparent: true 
+        materials[i] = new THREE.PointsMaterial({
+          size: size,
+          map: sprite,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          transparent: true
         });
         materials[i].color.setHSL(color[0], color[1], color[2]);
 
@@ -240,11 +243,12 @@ export default {
     },
     animate: function() {
       //Sphere Beckground Animation
+
       this.sphereBg.rotation.x += 0.003;
       this.sphereBg.rotation.y += 0.001;
       this.sphereBg.rotation.z += 0.001;
 
-      requestAnimationFrame(this.animate);
+      requestAnimationFrame(this.animate)
       this.render();
     },
     render: function () {
@@ -345,7 +349,7 @@ export default {
       this.uniforms = {
 				amplitude: { value: 0.0 }
 			};
-      
+
       const material = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
         vertexShader: this.vertex,
@@ -369,7 +373,6 @@ export default {
         this.restartScene();
         return;
       }
-
       // calculate mouse position in normalized device coordinates
       // (-1 to +1) for both components
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -434,6 +437,7 @@ export default {
 
       // this.myLevel.innerText = this.comments[level-1] +  ": Level " + this.level + " of " + this.totalLevels;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
+      this.commentNow = this.comments[this.level-1];
       this.scene.remove(this.holder);
       this.scene.remove(this.pointer);
       this.addHolder();
@@ -491,7 +495,20 @@ export default {
 
   .hud {
     position: absolute;
-    margin-left: 1em;
+    display: flex;
+    flex-direction: column;
+    top: 10px;
+    left: 10px;
+    align-items: flex-start;
+    top: 150px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+  }
+  .hud p span{
+    color: #FF7152;
+  }
+  .game__container{
+    position: relative;
   }
 
   .hit {

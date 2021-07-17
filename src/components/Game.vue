@@ -326,7 +326,7 @@ export default {
         const l = 0.5 + 0.5 * Math.random();
 
         color.setHSL(h, s, l);
-        const d = 10 * (0.5 - Math.random());
+        const d = 50 * (0.5 - Math.random());
 
         for (let j = 0; j < 3; j++) {
           colors[index + (3 * j)] = color.r;
@@ -359,20 +359,6 @@ export default {
       part.name = "part0";
       part.birthDay = timeNow;
       this.scene.add(part);
-      /*
-
-      for (var i = 0; i < 4; i++) {
-        var geometry = new THREE.BoxGeometry(1,1,1);
-        var material = new THREE.MeshBasicMaterial({color: 0x999999});
-        var part = new THREE.Mesh(geometry, material);
-        part.position.x = point.x;
-        part.position.y = point.y;
-        part.position.z = point.z;
-        part.name = "part" + i;
-        part.birthDay = timeNow;
-        this.scene.add(part);
-        this.particles.push(part);
-      };*/
     },
     onDocumentMouseDown: function(event) {
       event.preventDefault();

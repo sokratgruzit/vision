@@ -1,13 +1,14 @@
 <template>
-  <div :style="{
+  <div class="game__container" :style="{
     backgroundImage: 'url(' + require(`@/assets/space.jpg`) + ')',
     backgroundSize: 'cover'
     }"
   >
     <div class="hud">
-      <h1 id="level"></h1>
+      <p>Level: <span>{{level}}</span></p>
+      <p>Score: <span>{{this.score}}</span></p>
+      <p>Difficult: <span>{{this.commentNow}}</span></p>
       <p>Click on the boxes to make them go away!</p>
-      <p id="score"></p>
     </div>
 
     <div id="webgl-container"></div>
@@ -16,9 +17,8 @@
 
 <script>
 import * as THREE from 'three';
-import { FBXLoader } from 'three/examples/jsm/loaders/FBXLoader.js';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 
 export default {
   name: 'ThreeTest',
@@ -38,7 +38,9 @@ export default {
       totalTargets: 3,
       speed: 0.01,
       complete: false,
+      commentNow: 'Easy',
       comments: ['Easy', 'Tricky', 'Careful now', 'INSANITY'],
+      levelAbout:'',
       myLevel: document.getElementById('level'),
       myScore: document.getElementById('score'),
       mouse: new THREE.Vector2(),
@@ -48,7 +50,11 @@ export default {
 			windowHalfX: window.innerWidth / 2,
 			windowHalfY: window.innerHeight / 2,
       pointerMouse: { x: 0, y: 0 },
-      pointer: null
+      pointer: null,
+      uniforms: null,
+      geometry: null,
+      vertex: "uniform float amplitude;attribute vec3 customColor;attribute vec3 displacement;varying vec3 vNormal;varying vec3 vColor;void main() {vNormal = normal;vColor = customColor;vec3 newPosition = position + normal * amplitude * displacement;gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );}",
+      fragment: "varying vec3 vNormal;varying vec3 vColor;void main() {const float ambient = 0.4;vec3 light = vec3( 1.0 );light = normalize( light );float directional = max( dot( vNormal, light ), 0.0 );gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );}",
     }
   },
   methods: {
@@ -106,17 +112,48 @@ export default {
       this.holder.name = "holder"
 
       for (var i = 0; i < this.totalTargets; i++) {
-        var ranCol = new THREE.Color();
-        ranCol.setRGB(Math.random(), Math.random(), Math.random());
+        this.geometry = new THREE.IcosahedronGeometry(1,0);
+        const numFaces = this.geometry.attributes.position.count / 3;
+				const colors = new Float32Array( numFaces * 3 * 3 );
+        var color = new THREE.Color();
+        var lo = new THREE.TextureLoader();
+        var texture = lo.load(require("../assets/sphere.jpeg"));
 
-        var geometry = new THREE.IcosahedronGeometry(1,0);
-        var material = new THREE.MeshPhongMaterial({
+        /*var material = new THREE.MeshPhongMaterial({
           color: ranCol,
           ambient: ranCol,
           wireframe: true
-        });
+        });*/
 
-        var cube = new THREE.Mesh(geometry, material);
+        for (let f = 0; f < numFaces; f++) {
+          const index = 9 * f;
+          const h = 0.2 * Math.random();
+					const s = 0.5 + 0.5 * Math.random();
+					const l = 0.5 + 0.5 * Math.random();
+
+					color.setHSL(h, s, l);
+
+          for (let j = 0; j < 3; j++) {
+            colors[index + (3 * j)] = color.r;
+						colors[index + (3 * j) + 1] = color.g;
+						colors[index + (3 * j) + 2] = color.b;
+          }
+        }
+
+        this.geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+
+        this.uniforms = {
+          texture:		 { type: "t", value: texture},
+					amplitude: { value: 0.0 }
+				};
+
+        const material = new THREE.ShaderMaterial({
+					uniforms: this.uniforms,
+					vertexShader: this.vertex,
+					fragmentShader: this.fragment
+				});
+
+        var cube = new THREE.Mesh(this.geometry, material);
         cube.position.x = i * 5;
         cube.name = "cubeName" + i;
 
@@ -216,6 +253,9 @@ export default {
     },
     render: function () {
       const time = Date.now() * 0.00005;
+      const dTime = Date.now() * 0.001;
+
+      this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
 
       this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
 			this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
@@ -265,11 +305,65 @@ export default {
         this.scene = scene;
         this.particles = particles;
       };
+
+      this.pointer.rotation.x += 0.01;
+      this.pointer.rotation.y += 0.01;
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
     },
     addExplosion: function (point) {
+      var geometry = new THREE.IcosahedronGeometry(1,0);
+      const numFaces = geometry.attributes.position.count / 3;
+      const colors = new Float32Array(numFaces * 3 * 3);
+      var color = new THREE.Color();
       var timeNow = this.clock.getElapsedTime();
+
+      const tessellateModifier = new TessellateModifier(8, 6);
+			geometry = tessellateModifier.modify(geometry);
+			const displacement = new Float32Array(numFaces * 3 * 3);
+
+      for (let f = 0; f < numFaces; f++) {
+        const index = 9 * f;
+        const h = 0.2 * Math.random();
+        const s = 0.5 + 0.5 * Math.random();
+        const l = 0.5 + 0.5 * Math.random();
+
+        color.setHSL(h, s, l);
+        const d = 10 * (0.5 - Math.random());
+
+        for (let j = 0; j < 3; j++) {
+          colors[index + (3 * j)] = color.r;
+          colors[index + (3 * j) + 1] = color.g;
+          colors[index + (3 * j) + 2] = color.b;
+
+          displacement[index + (3 * j)] = d;
+					displacement[index + (3 * j) + 1] = d;
+					displacement[index + (3 * j) + 2] = d;
+        }
+      }
+
+      geometry.setAttribute('customColor', new THREE.BufferAttribute(colors, 3));
+      geometry.setAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
+
+      this.uniforms = {
+				amplitude: { value: 0.0 }
+			};
+
+      const material = new THREE.ShaderMaterial({
+        uniforms: this.uniforms,
+        vertexShader: this.vertex,
+        fragmentShader: this.fragment
+      });
+
+      var part = new THREE.Mesh(geometry, material);
+      part.position.x = point.x;
+      part.position.y = point.y;
+      part.position.z = point.z;
+      part.name = "part0";
+      part.birthDay = timeNow;
+      this.scene.add(part);
+      /*
 
       for (var i = 0; i < 4; i++) {
         var geometry = new THREE.BoxGeometry(1,1,1);
@@ -282,7 +376,7 @@ export default {
         part.birthDay = timeNow;
         this.scene.add(part);
         this.particles.push(part);
-      };
+      };*/
     },
     onDocumentMouseDown: function(event) {
       event.preventDefault();
@@ -293,7 +387,6 @@ export default {
         this.restartScene();
         return;
       }
-
       // calculate mouse position in normalized device coordinates
       // (-1 to +1) for both components
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -358,7 +451,9 @@ export default {
 
       // this.myLevel.innerText = this.comments[level-1] +  ": Level " + this.level + " of " + this.totalLevels;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
+      this.commentNow = this.comments[this.level-1];
       this.scene.remove(this.holder);
+      this.scene.remove(this.pointer);
       this.addHolder();
     },
     onWindowResize: function() {
@@ -414,7 +509,20 @@ export default {
 
   .hud {
     position: absolute;
-    margin-left: 1em;
+    display: flex;
+    flex-direction: column;
+    top: 10px;
+    left: 10px;
+    align-items: flex-start;
+    top: 150px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 20px;
+  }
+  .hud p span{
+    color: #FF7152;
+  }
+  .game__container{
+    position: relative;
   }
 
   .hit {

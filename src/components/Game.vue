@@ -312,7 +312,7 @@ export default {
         let level = this.level;
         let totalLevels = this.totalLevels;
         this.holder.children.forEach(function (elem, index, array) {
-          let intersects = raycaster.intersectObjects( elem.children );
+          let intersects = raycaster.intersectObjects(elem.children);
           if (intersects.length > 0 && intersects[0].object.visible) {
             intersects[0].object.visible = false;
 
@@ -371,21 +371,19 @@ export default {
     },
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
-      var raycaster = new THREE.Raycaster();
+
+      this.pointerMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+	    this.pointerMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
 
-      this.pointerMouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-      this.pointerMouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-      raycaster.setFromCamera(this.pointerMouse, this.camera);
-      var intersects = raycaster.intersectObjects(this.scene.children);
-      for (var i = 0; i < intersects.length; i++) {
-
-      }
-      this.pointer.position.x = this.mouseX / 10;
-      this.pointer.position.y = this.mouseY / 10;
-      this.pointer.position.z = 0;
+      let vector = new THREE.Vector3(this.pointerMouse.x, this.pointerMouse.y, 0.5);
+      vector.unproject(this.camera);
+      let dir = vector.sub(this.camera.position).normalize();
+      let distance = -this.camera.position.z / dir.z;
+      let pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
+      this.pointer.position.copy(pos);
 		}
   },
   mounted() {

@@ -47,6 +47,20 @@
           </div>
         </router-link>
       </div>
+      <div class="navigation__right">
+        <router-link to="/" class="navigation__news">
+          <div class="navigation__news-date">Today, 22:10</div>
+          <div class="navigation__news-text">8 years of Nightingale in retrospect</div>
+        </router-link>
+        <router-link to="/" class="navigation__news">
+          <div class="navigation__news-date">Yesterday, 07:15</div>
+          <div class="navigation__news-text">Nightingale rides with Piaggio Group</div>
+        </router-link>
+        <router-link to="/" class="navigation__news">
+          <div class="avigation__news-daten">22 june</div>
+          <div class="navigation__news-text">8 years of Nightingale in retrospect</div>
+        </router-link>
+      </div>
     </div>
   </div>
 </template>
@@ -59,6 +73,31 @@ export default {
 }
 </script>
 <style scoped>
+  .navigation__news-date{
+    color: rgba(171, 176, 188, 1);
+  }
+  .navigation__news{
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    margin-right: auto;
+    margin-bottom: 30px;
+  }
+  .navigation__right{
+    width: 50%;
+    display: flex;
+    flex-direction: column;
+  }
+  .navigation__link .arrow{
+    margin-left: 25px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateX(0px);
+    opacity: 0;
+  }
+  .navigation__link:hover .arrow{
+    transform: translateX(10px);
+    opacity: 1;
+  }
   .navigation__container{
     position: fixed;
     top: 0px;

@@ -56,6 +56,40 @@ export default {
       geometry: null,
       vertex: "uniform float amplitude;attribute vec3 customColor;attribute vec3 displacement;varying vec3 vNormal;varying vec3 vColor;void main() {vNormal = normal;vColor = customColor;vec3 newPosition = position + normal * amplitude * displacement;gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );}",
       fragment: "varying vec3 vNormal;varying vec3 vColor;void main() {const float ambient = 0.4;vec3 light = vec3( 1.0 );light = normalize( light );float directional = max( dot( vNormal, light ), 0.0 );gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );}",
+      waveVertex: `
+      varying vec2 vUv;
+      void main() 
+      { 
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      }`,
+      waveFragment: `
+      uniform sampler2D baseTexture;
+      uniform float baseSpeed;
+      uniform sampler2D noiseTexture;
+      uniform float noiseScale;
+      uniform float alpha;
+      uniform float time;
+
+      varying vec2 vUv;
+      void main() 
+      {
+        vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;	
+        vec4 noiseGeneratorTimeShift = texture2D( noiseTexture, uvTimeShift );
+        vec2 uvNoiseTimeShift = vUv + noiseScale * vec2( noiseGeneratorTimeShift.r, noiseGeneratorTimeShift.b );
+        vec4 baseColor = texture2D( baseTexture, uvNoiseTimeShift );
+
+        baseColor.a = alpha;
+        gl_FragColor = baseColor;
+      }`,
+      waveUniforms: {
+        baseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/sphere.jpeg"))},
+        baseSpeed: 		{ type: "f", value: 0.05 },
+        noiseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/cloud.png"))},
+        noiseScale:		{ type: "f", value: 0.5337 },
+        alpha: 			{ type: "f", value: 1.0 },
+        time: 			{ type: "f", value: 1.0 }
+      }
     }
   },
   methods: {
@@ -310,10 +344,12 @@ export default {
       this.pointer.rotation.x += 0.01;
       this.pointer.rotation.y += 0.01;
 
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.render(this.scene, this.camera);
+      var delta = this.clock.getDelta();
+	    this.waveUniforms.time.value += delta;
 
-      TWEEN.update();
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.render(this.scene, this.camera);
     },
     addExplosion: function (point) {
       //Object Explosion
@@ -370,67 +406,16 @@ export default {
       //End of Object Explosion
 
       //Waves
-      var materialShader;
-      var waveGeo = new THREE.CircleGeometry( 10, 32 );
-      var waveMat = new THREE.MeshStandardMaterial({
-        map: new THREE.TextureLoader().load(
-          require("../assets/sphere.jpeg")
-        ),
+      var waveGeo = new THREE.PlaneGeometry(10, 10);
+      var waveMat = new THREE.ShaderMaterial({
+        uniforms: this.waveUniforms,
+        vertexShader: this.waveVertex,
+        fragmentShader: this.waveFragment,
+        side: THREE.DoubleSide
       });
-      waveMat.onBeforeCompile = shader => {
-        shader.uniforms.impactPosition = {
-          value: new THREE.Vector3().setFromSphericalCoords(
-            point.x,
-            point.y,
-            point.z
-          )
-        };
-        shader.uniforms.impactMaxRadius = { value: waveGeo.parameters.radius * 3 };
-        shader.uniforms.impactRatio = { value: 0.25 };
-        shader.vertexShader = "varying vec3 vPosition;\n" + shader.vertexShader;
-        shader.vertexShader = shader.vertexShader.replace(
-          "#include <worldpos_vertex>",
-          `#include <worldpos_vertex>
-          vPosition = transformed.xyz;`
-        );
-        shader.fragmentShader =
-          `uniform vec3 impactPosition;\nuniform float impactMaxRadius;\nuniform float impactRatio;\nvarying vec3 vPosition;\n` +
-          shader.fragmentShader;
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "#include <dithering_fragment>",
-          `#include <dithering_fragment>
-            float dist = distance(vPosition, impactPosition);
-            float curRadius = impactMaxRadius * impactRatio;
-            float sstep = smoothstep(0., curRadius, dist) - smoothstep(curRadius - ( 0.99 * impactRatio ), curRadius, dist);
-            sstep = 1. - sstep * (1. - impactRatio);
-            vec3 col = mix(vec3(1., 0.5, 0.0625), vec3(1., 0.25, 0.125), impactRatio);
-            gl_FragColor = vec4( mix( col, gl_FragColor.rgb, sstep), diffuseColor.a );`
-        );
-        materialShader = shader;
-      };
 
-      var globe = new THREE.Mesh(waveGeo, waveMat);
-      this.scene.add(globe);
-
-      function runTween() {
-        var tween = new TWEEN.Tween({value: 0})
-          .to({ value: 1 }, 3000)
-          //.easing(TWEEN.Easing.Quintic.Out)
-          .onUpdate(val => {
-            if (materialShader) materialShader.uniforms.impactRatio.value = val.value;
-          })
-          .onComplete((val) => {
-            if (materialShader) materialShader.uniforms.impactPosition.value.setFromSphericalCoords(
-              point.x,
-              point.y,
-              point.z
-            );
-            runTween();
-          });
-        tween.start();
-      }
-
-      runTween();
+      var waveMesh = new THREE.Mesh( waveGeo, waveMat );
+      this.scene.add( waveMesh );
       //End of Waves
     },
     onDocumentMouseDown: function(event) {

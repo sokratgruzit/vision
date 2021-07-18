@@ -5,10 +5,10 @@
     }"
   >
     <div class="hud">
-      <p>Level: <span>{{level}}</span></p>
-      <p>Score: <span>{{this.score}}</span></p>
-      <p>Difficult: <span>{{this.commentNow}}</span></p>
-      <p>Click on the boxes to make them go away!</p>
+      <p>Level<span>{{level}}</span></p>
+      <p>Difficult<span>{{this.commentNow}}</span></p>
+      <p>Time<span>0:19</span></p>
+      <p>My Score<span>{{this.score}}</span></p>
     </div>
 
     <div id="webgl-container"></div>
@@ -58,8 +58,8 @@ export default {
       fragment: "varying vec3 vNormal;varying vec3 vColor;void main() {const float ambient = 0.4;vec3 light = vec3( 1.0 );light = normalize( light );float directional = max( dot( vNormal, light ), 0.0 );gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );}",
       waveVertex: `
       varying vec2 vUv;
-      void main() 
-      { 
+      void main()
+      {
         vUv = uv;
         gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       }`,
@@ -72,9 +72,9 @@ export default {
       uniform float time;
 
       varying vec2 vUv;
-      void main() 
+      void main()
       {
-        vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;	
+        vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;
         vec4 noiseGeneratorTimeShift = texture2D( noiseTexture, uvTimeShift );
         vec2 uvNoiseTimeShift = vUv + noiseScale * vec2( noiseGeneratorTimeShift.r, noiseGeneratorTimeShift.b );
         vec4 baseColor = texture2D( baseTexture, uvNoiseTimeShift );
@@ -551,15 +551,23 @@ export default {
     position: absolute;
     display: flex;
     flex-direction: column;
-    top: 10px;
-    left: 10px;
-    align-items: flex-start;
-    top: 150px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px;
+    right: 80px;
+    align-items: flex-end;
+    top: 170px;
+  }
+  .hud p{
+    flex-direction: column;
+    display: flex;
+    align-items: flex-end;
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #ABB0BC;
   }
   .hud p span{
     color: #FF7152;
+    font-size: 50px;
+    line-height: 60px;
+    color: #fff;
   }
   .game__container{
     position: relative;

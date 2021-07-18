@@ -107,4 +107,10 @@ export default {
   .burger.active span:nth-child(3),.burger.active span:nth-child(1){
     transform: scaleX(0);
   }
+  /*Mobile 320*/
+  @media (max-width: 767px){
+    header{
+      height: 90px;
+    }
+  }
 </style>

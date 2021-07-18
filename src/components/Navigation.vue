@@ -58,7 +58,7 @@
           <div class="navigation__news-text">Nightingale rides with Piaggio Group</div>
         </router-link>
         <router-link to="/" class="navigation__news">
-          <div class="avigation__news-date">22 june</div>
+          <div class="navigation__news-date">22 june</div>
           <div class="navigation__news-text">8 years of Nightingale in retrospect</div>
         </router-link>
       </div>
@@ -150,7 +150,6 @@ export default {
     bottom: 0px;
     right: 0px;
     z-index: 15;
-    background: red;
     padding-top: 230px;
     transition: .6s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
@@ -173,8 +172,8 @@ export default {
     left: 0px;
     width: 100%;
     z-index: 1;
-    top: 0px;
-    left: 0px;
+    height: 100%;
+    object-fit: cover;
   }
   .navigation__left{
     width: 50%;
@@ -224,9 +223,45 @@ export default {
       font-size: 50px;
       line-height: 50px;
     }
+    footer{
+      margin-bottom: 30px;
+    }
   }
   /*Mobile 320*/
   @media (max-width: 767px){
-
+    .navigation__inner{
+      flex-direction: column;
+    }
+    .navigation__left{
+      width: 100%;
+    }
+    .navigation__right{
+      width: 100%;
+    }
+    .navigation__container {
+      padding-top: 120px;
+    }
+    .navigation__link .arrow svg{
+      height: 45px;
+    }
+    .navigation__link .arrow{
+      margin-left: 10px;
+    }
+    .navigation__news{
+      margin-bottom: 15px;
+    }
+    .navigation__right{
+      margin-top: 15px;
+    }
+    .navigation__news-date,.navigation__news-text{
+      font-size: 16px;
+      line-height: 24px;
+    }
+    footer{
+      flex-direction: column;
+    }
+    .footer__link{
+      margin: 0px auto;
+    }
   }
 </style>

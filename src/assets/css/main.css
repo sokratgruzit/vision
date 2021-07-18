@@ -78,3 +78,15 @@ button {
 .dg.ac{
     display: none;
 }
+/*Ipad 768*/
+@media (max-width: 1023px){
+    .container{
+        padding: 0px 40px;
+    }
+}
+/*Mobile 320*/
+@media (max-width: 767px){
+    .container{
+        padding: 0px 15px;
+    }
+}

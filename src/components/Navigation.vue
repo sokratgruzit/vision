@@ -1,5 +1,6 @@
 <template>
-  <div class="navigation__container" v-if="false">
+  <div class="navigation__container" v-if="true" :class="$store.state.navigation ? 'activeNav' : ''">
+    <img :src="require(`@/assets/img/nav.jpeg`)" alt="" class="navigation__bg">
     <div class="navigation__inner container">
       <div class="navigation__left">
         <router-link to="/" class="navigation__link">
@@ -57,10 +58,15 @@
           <div class="navigation__news-text">Nightingale rides with Piaggio Group</div>
         </router-link>
         <router-link to="/" class="navigation__news">
-          <div class="avigation__news-daten">22 june</div>
+          <div class="avigation__news-date">22 june</div>
           <div class="navigation__news-text">8 years of Nightingale in retrospect</div>
         </router-link>
       </div>
+      <footer>
+        <div class="footer__text">© CORE Academy, 2021</div>
+        <div class="footer__text">All rights reserved</div>
+        <router-link to="/" class="footer__link">Privacy & Terms</router-link>
+      </footer>
     </div>
   </div>
 </template>
@@ -73,6 +79,33 @@ export default {
 }
 </script>
 <style scoped>
+  .footer__link{
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    border-bottom: 1px solid #ABB0BC;
+  }
+  .footer__link:hover{
+    color: #fff;
+    border-bottom: 1px solid transparent;
+  }
+  footer *{
+    font-size: 16px;
+    color: #ABB0BC;
+  }
+  footer{
+    display: flex;
+    justify-content: space-between;
+    margin-top: auto;
+    margin-bottom: 60px;
+    width: 100%;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+    transition-delay: .2s;
+  }
+  .activeNav footer{
+    transform: translateY(0px);
+    opacity: 1;
+  }
   .navigation__news-date{
     color: rgba(171, 176, 188, 1);
   }
@@ -82,11 +115,23 @@ export default {
     text-align: left;
     margin-right: auto;
     margin-bottom: 30px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .navigation__news:hover{
+    opacity: .7;
   }
   .navigation__right{
     width: 50%;
     display: flex;
     flex-direction: column;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+    transition-delay: .1s;
+  }
+  .activeNav .navigation__right{
+    transform: translateY(0px);
+    opacity: 1;
   }
   .navigation__link .arrow{
     margin-left: 25px;
@@ -107,15 +152,43 @@ export default {
     z-index: 15;
     background: red;
     padding-top: 230px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .navigation__container.activeNav{
+    opacity: 1;
+    pointer-events: all;
   }
   .navigation__inner{
     display: flex;
+    flex-wrap: wrap;
+    height: 100%;
+    position: relative;
+    z-index: 5;
+  }
+  .navigation__bg{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    z-index: 1;
+    top: 0px;
+    left: 0px;
   }
   .navigation__left{
     width: 50%;
     flex-direction: column;
     display: flex;
     align-items: flex-start;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+    transition-delay: .1s;
+  }
+  .activeNav .navigation__left{
+    transform: translateY(0px);
+    opacity: 1;
   }
   .navigation__link{
     display: flex;
@@ -132,7 +205,28 @@ export default {
     transform: rotate3d(0, 2, 0, 170deg);
     color: #fff;
   }
-  .navigation__link{
+  /*Ipad Pro 1024*/
+  @media (max-width: 1450px) {
+    .navigation__container{
+      padding-top: 170px;
+    }
+    .footer{
+      margin-bottom: 30px;
+    }
+    .navigation__link span {
+      font-size: 70px;
+      line-height: 70px;
+    }
+  }
+  /*Ipad 768*/
+  @media (max-width: 1023px){
+    .navigation__link span {
+      font-size: 50px;
+      line-height: 50px;
+    }
+  }
+  /*Mobile 320*/
+  @media (max-width: 767px){
 
   }
 </style>

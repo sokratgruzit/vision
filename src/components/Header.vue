@@ -8,7 +8,7 @@
           </svg>
         </router-link>
         <div class="burger__container">
-          <div class="burger" :class="this.$store.state.navigation ? 'active' : ''" @click="openNav">
+          <div class="burger" :class="$store.state.navigation ? 'active' : ''" @click="openNav">
             <span></span>
             <span></span>
             <span></span>

@@ -1,31 +1,35 @@
 <template>
-  <div class="main-slide container">
-    <div class="main-slide__inner">
-      <h1 class="main-slide__title">
-        <div class="main-slide__title-out">
-          <div class="main-slide__title-in">CORE</div>
-        </div>
-        <div class="main-slide__title-out">
-          <div class="main-slide__title-in">VISION</div>
-        </div>
-      </h1>
-      <div class="main-slide__description">
-        <p>Multi Chain PoS Network focused
-          on Interoperability, Scalability and Usability.
-          It utilizes AI Enabled Proof of Stake Algorithm, Multi Layered Consensus Model and Voting
-          Based Governance.</p>
-        <div class="explore-button">
-          <span></span>
-          <span></span>
-          <span></span>
-          <span></span>
-          <div class="explore-button__text">
-            Explore Now
+    <div class="main-slide container">
+          <div class="main-slide__video-container">
+              <img :src="require(`@/assets/img/stars.jpeg`)" alt="" class="main-slide__video-bg">
+              <iframe src="https://iframe.videodelivery.net/bdccb18446343ce00c4cd3bb8e8558ba?muted=true&loop=true&autoplay=true&controls=false" style="border: none; position: absolute; top: 0; height: 100%; width: 100%;"  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen="true"></iframe>
+          </div>
+      <div class="main-slide__inner">
+        <h1 class="main-slide__title">
+          <div class="main-slide__title-out">
+            <div class="main-slide__title-in">CORE</div>
+          </div>
+          <div class="main-slide__title-out">
+            <div class="main-slide__title-in">VISION</div>
+          </div>
+        </h1>
+        <div class="main-slide__description">
+          <p>Multi Chain PoS Network focused
+            on Interoperability, Scalability and Usability.
+            It utilizes AI Enabled Proof of Stake Algorithm, Multi Layered Consensus Model and Voting
+            Based Governance.</p>
+          <div class="explore-button">
+            <span></span>
+            <span></span>
+            <span></span>
+            <span></span>
+            <div class="explore-button__text">
+              Explore Now
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
 </template>
 
 <script>
@@ -36,13 +40,36 @@ export default {
 }
 </script>
 <style scoped>
+  .main-slide__video-bg {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 5;
+    object-fit: cover;
+    opacity: .3;
+  }
+  .main-slide__video-container{
+    display: flex;
+    width: 100%;
+    height: 100vh;
+    position: absolute;
+    z-index: 1;
+    left: 0px;
+    bottom: 0px;
+    transform: translateX(-5%) translateY(30%);
+  }
   .main-slide{
     height: 100%;
+    position: relative;
   }
   .main-slide__inner{
     display: flex;
     width: 100%;
     justify-content: space-between;
+    position: relative;
+    z-index: 5;
   }
   .main-slide__title-in{
     font-size: 180px;

@@ -56,6 +56,7 @@ export default {
       geometry: null,
       vertex: "uniform float amplitude;attribute vec3 customColor;attribute vec3 displacement;varying vec3 vNormal;varying vec3 vColor;void main() {vNormal = normal;vColor = customColor;vec3 newPosition = position + normal * amplitude * displacement;gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );}",
       fragment: "varying vec3 vNormal;varying vec3 vColor;void main() {const float ambient = 0.4;vec3 light = vec3( 1.0 );light = normalize( light );float directional = max( dot( vNormal, light ), 0.0 );gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );}",
+      waveScaleUp: true,
       waveVertex: `
       //varying vec2 vUv;
       //void main() 
@@ -64,21 +65,7 @@ export default {
         //gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       //}
       varying vec2 vUv;
-<<<<<<< HEAD
       varying float noise;
-=======
-      void main()
-      {
-        vUv = uv;
-        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
-      }`,
-      waveFragment: `
-      uniform sampler2D baseTexture;
-      uniform float baseSpeed;
-      uniform sampler2D noiseTexture;
-      uniform float noiseScale;
-      uniform float alpha;
->>>>>>> 961e36579c99d1e571da623d928da300932f95df
       uniform float time;
 
       vec3 mod289(vec3 x)
@@ -287,7 +274,6 @@ export default {
         //gl_FragColor = baseColor;
       //}
       varying vec2 vUv;
-<<<<<<< HEAD
       varying float noise;
       uniform sampler2D tExplosion;
 
@@ -453,25 +439,6 @@ export default {
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
         float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
         return 2.2 * n_xyz;
-=======
-      void main()
-      {
-        vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;
-        vec4 noiseGeneratorTimeShift = texture2D( noiseTexture, uvTimeShift );
-        vec2 uvNoiseTimeShift = vUv + noiseScale * vec2( noiseGeneratorTimeShift.r, noiseGeneratorTimeShift.b );
-        vec4 baseColor = texture2D( baseTexture, uvNoiseTimeShift );
-
-        baseColor.a = alpha;
-        gl_FragColor = baseColor;
-      }`,
-      waveUniforms: {
-        baseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/sphere.jpeg"))},
-        baseSpeed: 		{ type: "f", value: 0.05 },
-        noiseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/cloud.png"))},
-        noiseScale:		{ type: "f", value: 0.5337 },
-        alpha: 			{ type: "f", value: 1.0 },
-        time: 			{ type: "f", value: 1.0 }
->>>>>>> 961e36579c99d1e571da623d928da300932f95df
       }
 
       float random( vec3 scale, float seed ){
@@ -730,7 +697,7 @@ export default {
       let scene = this.scene;
       let particles = this.particles;
       if (this.particles.length > 0) {
-        let clock = this.clock.getElapsedTime()
+        let clock = this.clock.getElapsedTime();
         this.particles.forEach(function (elem, index, array) {
           switch (elem.name) {
             case "part0":
@@ -763,14 +730,21 @@ export default {
 
       var delta = this.clock.getDelta();
 	    this.waveUniforms.time.value += delta;
-      if (this.waveMesh !== null) {
-        this.waveMesh.scale.x = this.waveMesh.scale.x + 0.01;
-        this.waveMesh.scale.y = this.waveMesh.scale.y + 0.01;
-        this.waveMesh.scale.z = this.waveMesh.scale.z + 0.01;
-        if(this.waveMesh.scale.x > 3){
-          this.waveMesh.scale.x = 1;
-          this.waveMesh.scale.y = 1;
-          this.waveMesh.scale.z = 1;
+      if (this.waveMesh !== null && this.waveScaleUp) {
+        this.waveMesh.scale.x = this.waveMesh.scale.x + 0.05;
+        this.waveMesh.scale.y = this.waveMesh.scale.y + 0.05;
+        this.waveMesh.scale.z = this.waveMesh.scale.z + 0.05;
+        if(this.waveMesh.scale.x > 2) {
+          this.waveScaleUp = false
+        } 
+      }
+      
+      if (this.waveMesh !== null && !this.waveScaleUp) {
+        this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
+        this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
+        this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
+        if (this.waveMesh.scale.x < 0) {
+          this.scene.remove(this.waveMesh);
         }
       }
             
@@ -833,7 +807,7 @@ export default {
       //End of Object Explosion
 
       //Waves
-      var waveGeo = new THREE.IcosahedronGeometry(20, 4);
+      var waveGeo = new THREE.IcosahedronGeometry(5, 40);
       var waveMat = new THREE.ShaderMaterial({
         uniforms: this.waveUniforms,
         vertexShader: this.waveVertex,
@@ -847,6 +821,7 @@ export default {
       this.waveMesh.scale.x = 0;
       this.waveMesh.scale.y = 0;
       this.waveMesh.scale.z = 0;
+      this.waveMesh.name = "wave0";
       this.scene.add(this.waveMesh);
       //End of Waves
     },
@@ -925,7 +900,7 @@ export default {
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
       this.commentNow = this.comments[this.level-1];
       this.scene.remove(this.holder);
-      this.scene.remove(this.pointer);
+      //this.scene.remove(this.pointer);
       this.addHolder();
     },
     onWindowResize: function() {

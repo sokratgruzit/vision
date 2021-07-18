@@ -59,8 +59,8 @@ export default {
       waveScaleUp: true,
       waveVertex: `
       //varying vec2 vUv;
-      //void main() 
-      //{ 
+      //void main()
+      //{
         //vUv = uv;
         //gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       //}
@@ -158,7 +158,7 @@ export default {
         vec3 fade_xyz = fade(Pf0);
         vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
         return 2.2 * n_xyz;
       }
 
@@ -228,7 +228,7 @@ export default {
         vec3 fade_xyz = fade(Pf0);
         vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
         return 2.2 * n_xyz;
       }
 
@@ -264,9 +264,9 @@ export default {
       //uniform float time;
 
       //varying vec2 vUv;
-      //void main() 
+      //void main()
       //{
-        //vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;	
+        //vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;
         //vec4 noiseGeneratorTimeShift = texture2D( noiseTexture, uvTimeShift );
         //vec2 uvNoiseTimeShift = vUv + noiseScale * vec2( noiseGeneratorTimeShift.r, noiseGeneratorTimeShift.b );
         //vec4 baseColor = texture2D( baseTexture, uvNoiseTimeShift );
@@ -367,7 +367,7 @@ export default {
         vec3 fade_xyz = fade(Pf0);
         vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
         return 2.2 * n_xyz;
       }
 
@@ -437,7 +437,7 @@ export default {
         vec3 fade_xyz = fade(Pf0);
         vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+        float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
         return 2.2 * n_xyz;
       }
 
@@ -736,18 +736,20 @@ export default {
         this.waveMesh.scale.z = this.waveMesh.scale.z + 0.05;
         if(this.waveMesh.scale.x > 2) {
           this.waveScaleUp = false
-        } 
+        }
       }
-      
+      console.log(this.waveMesh);
       if (this.waveMesh !== null && !this.waveScaleUp) {
         this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
         this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
         this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
         if (this.waveMesh.scale.x < 0) {
           this.scene.remove(this.waveMesh);
+          this.waveMesh = null;
+          this.waveScaleUp = true;
         }
       }
-            
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);

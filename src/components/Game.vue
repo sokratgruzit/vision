@@ -5,10 +5,10 @@
     }"
   >
     <div class="hud">
-      <p>Level: <span>{{level}}</span></p>
-      <p>Score: <span>{{this.score}}</span></p>
-      <p>Difficult: <span>{{this.commentNow}}</span></p>
-      <p>Click on the boxes to make them go away!</p>
+      <p>Level<span>{{level}}</span></p>
+      <p>Difficult<span>{{this.commentNow}}</span></p>
+      <p>Time<span>0:19</span></p>
+      <p>My Score<span>{{this.score}}</span></p>
     </div>
 
     <div id="webgl-container"></div>
@@ -64,7 +64,21 @@ export default {
         //gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
       //}
       varying vec2 vUv;
+<<<<<<< HEAD
       varying float noise;
+=======
+      void main()
+      {
+        vUv = uv;
+        gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+      }`,
+      waveFragment: `
+      uniform sampler2D baseTexture;
+      uniform float baseSpeed;
+      uniform sampler2D noiseTexture;
+      uniform float noiseScale;
+      uniform float alpha;
+>>>>>>> 961e36579c99d1e571da623d928da300932f95df
       uniform float time;
 
       vec3 mod289(vec3 x)
@@ -273,6 +287,7 @@ export default {
         //gl_FragColor = baseColor;
       //}
       varying vec2 vUv;
+<<<<<<< HEAD
       varying float noise;
       uniform sampler2D tExplosion;
 
@@ -438,6 +453,25 @@ export default {
         vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
         float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
         return 2.2 * n_xyz;
+=======
+      void main()
+      {
+        vec2 uvTimeShift = vUv + vec2( -0.7, 1.5 ) * time * baseSpeed;
+        vec4 noiseGeneratorTimeShift = texture2D( noiseTexture, uvTimeShift );
+        vec2 uvNoiseTimeShift = vUv + noiseScale * vec2( noiseGeneratorTimeShift.r, noiseGeneratorTimeShift.b );
+        vec4 baseColor = texture2D( baseTexture, uvNoiseTimeShift );
+
+        baseColor.a = alpha;
+        gl_FragColor = baseColor;
+      }`,
+      waveUniforms: {
+        baseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/sphere.jpeg"))},
+        baseSpeed: 		{ type: "f", value: 0.05 },
+        noiseTexture: 	{ type: "t", value: new THREE.TextureLoader().load(require("../assets/cloud.png"))},
+        noiseScale:		{ type: "f", value: 0.5337 },
+        alpha: 			{ type: "f", value: 1.0 },
+        time: 			{ type: "f", value: 1.0 }
+>>>>>>> 961e36579c99d1e571da623d928da300932f95df
       }
 
       float random( vec3 scale, float seed ){
@@ -949,15 +983,23 @@ export default {
     position: absolute;
     display: flex;
     flex-direction: column;
-    top: 10px;
-    left: 10px;
-    align-items: flex-start;
-    top: 150px;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    padding: 20px;
+    right: 80px;
+    align-items: flex-end;
+    top: 170px;
+  }
+  .hud p{
+    flex-direction: column;
+    display: flex;
+    align-items: flex-end;
+    font-size: 18px;
+    margin-bottom: 30px;
+    color: #ABB0BC;
   }
   .hud p span{
     color: #FF7152;
+    font-size: 50px;
+    line-height: 60px;
+    color: #fff;
   }
   .game__container{
     position: relative;

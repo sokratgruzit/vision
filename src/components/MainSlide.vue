@@ -1,9 +1,5 @@
 <template>
     <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
-          <div class="main-slide__video-container">
-              <img :src="require(`@/assets/img/stars.jpeg`)" alt="" class="main-slide__video-bg">
-              <iframe src="https://iframe.videodelivery.net/bdccb18446343ce00c4cd3bb8e8558ba?muted=true&loop=true&autoplay=true&controls=false" style="border: none; position: absolute; top: 0; height: 100%; width: 100%;"  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen="true"></iframe>
-          </div>
       <div class="main-slide__inner">
         <h1 class="main-slide__title">
           <div class="main-slide__title-out">
@@ -31,27 +27,243 @@
           </div>
         </div>
       </div>
+      <div id="galaxy-container"></div>
     </div>
 </template>
 
 <script>
-// @ is an alias to /src
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+
 
 export default {
   name: 'MainSlide',
   data () {
     return {
-      firstAnimation: false
+      firstAnimation: false,
+      scene: null,
+      galaxyMesh: null,
+      camera: null,
+      renderer: null,
+      controls: null,
+      clock: null,
+      mouse: new THREE.Vector2(),
+      mouseX: 0,
+      mouseY: 0,
+      count: 0,
+			windowHalfX: window.innerWidth / 2,
+			windowHalfY: window.innerHeight / 2,
+      galaxyGeo: null,
+      galaxyMat: null,
+      uniforms: null,
+      galaxyVertex: `
+        uniform vec3 uCameraPos;
+        attribute float alpha;
+        attribute float size;
+        attribute vec3 color;
+        varying float vAlpha;
+        varying vec3 vColor;
+
+        void main() {
+          float d = distance(position.xyz, uCameraPos);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vAlpha = alpha;
+          vColor = color;
+          gl_PointSize = size;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      galaxyFragment: `
+        varying vec3 vColor;
+        uniform sampler2D pointTexture;
+        varying float vAlpha;
+
+        void main() {
+          gl_FragColor = vec4(vColor, vAlpha);
+          gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+        }
+      `
     }
   },
+  methods: {
+    myScene: function () {
+      this.scene = new THREE.Scene();
+      var light = new THREE.AmbientLight(0xffffff);
+      var width = window.innerWidth;
+      var height = window.innerHeight;
+      this.camera = new THREE.PerspectiveCamera(50, width/height, 1, 5000);
+
+      this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      this.renderer.setSize(width, height);
+      document.getElementById("galaxy-container").appendChild(this.renderer.domElement);
+      this.clock = new THREE.Clock();
+      this.clock.start();
+
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+
+      var sLight = new THREE.SpotLight(0xffffff);
+      sLight.position.set(-100, 100, 100);
+      this.scene.add(sLight);
+
+      var aLight = new THREE.AmbientLight(0xffffff);
+      this.scene.add(aLight);
+      //David code
+      var directionalLight = new THREE.DirectionalLight("#fff", 2);
+      directionalLight.position.set(0, 50, -20);
+      this.scene.add(directionalLight);
+      //End David code
+
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load(require("../assets/galaxySphere.png"));
+
+      this.uniforms = {
+        pointTexture: { type: "t", value: texture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+      };
+
+      this.galaxyMat = new THREE.ShaderMaterial({
+        uniforms:       this.uniforms,
+        vertexShader:   this.galaxyVertex,
+        fragmentShader: this.galaxyFragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
+
+      var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var arms = this.count === 0 ? 7 : Math.floor(Math.random() * 4) + 3;
+      var twist = 0.6 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random() + Math.random());
+      var pinch = 0.7 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random()) / 4.0;
+
+      var clouds = 500 * arms;
+      var stars = 4000;
+
+      var vertices = new Float32Array((clouds + stars) * 3);
+      var colors = new Float32Array((clouds + stars) * 3);
+      var alphas = new Float32Array((clouds + stars) * 1);
+      var sizes = new Float32Array((clouds + stars) * 1);
+
+      var r1 = 1.0;
+      var g1 = 1.0;
+      var b1 = 0.8;
+
+      var r2 = 0.65;
+      var g2 = 0.85;
+      var b2 = 1.0;
+
+      for (let i = 0; i < clouds; ++i) {
+        var f = (clouds - i) / clouds;
+        var g = i / clouds;
+        var a = (i % arms) / arms * 2.0 * 3.19149 + g * twist + variance * ((Math.random() + Math.random() + Math.random()) * 0.4 / 3.0 - 0.2);
+        var r = Math.pow(g, pinch) * 700;
+        var x = Math.cos(a) * r;
+        var y = Math.sin(a) * r;
+        var z = 0.0;
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = c * r1 + (1.0 - c) * r2;
+        colors[i * 3 + 1] = c * g1 + (1.0 - c) * g2;
+        colors[i * 3 + 2] = c * b1 + (1.0 - c) * b2;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
+        alphas[i] = Math.random() * (400.0 - s) / 5000.0 * Math.pow(g, 0.49);
+        sizes[i] = s;
+      }
+
+      for (let i = clouds; i < clouds + stars; ++i) {
+        var f = (clouds + stars - i) / (clouds + stars);
+        var g = i / (clouds + stars);
+        //var a = Math.random() * 3.14159 * 2.0;
+        // var r = f * 700;
+        var x = Math.random() * 4000.0 - 2000.0;
+        var y = Math.random() * 4000.0 - 2000.0;
+        var z = Math.random() * 4000.0 - 2000.0;
+        if (f < 0.2) {
+          var a = Math.random() * 3.14159 * 2.0;
+          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 700;
+          var x = Math.cos(a) * r;
+          var y = Math.sin(a) * r;
+          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
+        }
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = 1.0;
+        colors[i * 3 + 1] = 1.0;
+        colors[i * 3 + 2] = 1.0;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
+        alphas[i] = 0.2 + Math.random() * 0.8;
+        sizes[i] = Math.random() * Math.random() * 8.0;
+      }
+
+      this.galaxyGeo = new THREE.BufferGeometry();
+      this.galaxyGeo.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.galaxyGeo.addAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.galaxyGeo.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.galaxyGeo.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      var particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
+      this.scene.add(particles);
+    },
+    animate: function () {
+      requestAnimationFrame(this.animate);
+      this.controls.update();
+      var t = this.clock.getElapsedTime();
+
+      var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
+      var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
+      var x = 0.0;
+      var y = 600;
+      var z = 1000 + 1200 * b;
+      console.log(this.camera.position.y);
+      this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
+      this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
+      this.camera.position.z = z;
+      
+      this.camera.lookAt(this.scene.position);
+      this.camera.up = new THREE.Vector3(0, 0, 1);
+      this.render();
+    },
+    render: function () {
+      const time = Date.now() * 0.00005;
+      
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.render(this.scene, this.camera);
+    },
+    onWindowResize: function () {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+
+      this.render();
+    },
+  },
   mounted () {
+    this.myScene();
+    this.animate();
+    window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
       this.firstAnimation = true
-    }, 100)
+    }, 100);
   }
 }
 </script>
 <style scoped>
+  #galaxy-container{
+    position: absolute;
+    z-index: 10000;
+  }
   .explore-button__container{
     margin-right: auto;
     display: flex;

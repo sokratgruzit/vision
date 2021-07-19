@@ -52,6 +52,28 @@ export default {
 }
 </script>
 <style scoped>
+.main-slide__video-container .main-slide__video-bg{
+  transition: .6s cubic-bezier(.79,.01,.15,.99);
+  transform: translateY(60%) translateX(-60%) rotate(-45deg);
+  opacity: 0;
+}
+.hooper-slide.is-active .animated .main-slide__video-container .main-slide__video-bg{
+  transition: .6s cubic-bezier(.79,.01,.15,.99);
+  transform: translateY(0%) translateX(0%) rotate(0deg);
+  transition-delay: .7s;
+  opacity: .3;
+}
+  .main-slide__video-container iframe{
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(60%) translateX(-60%) rotate(-45deg);
+    opacity: 0;
+  }
+  .hooper-slide.is-active .animated .main-slide__video-container iframe{
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(0%) translateX(0%) rotate(0deg);
+    transition-delay: .7s;
+    opacity: 1;
+  }
   .explore-button__container{
     margin-right: auto;
     display: flex;

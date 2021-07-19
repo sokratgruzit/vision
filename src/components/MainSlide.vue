@@ -49,6 +49,7 @@ export default {
       controls: null,
       clock: null,
       mouse: new THREE.Vector2(),
+      target: new THREE.Vector2(),
       mouseX: 0,
       mouseY: 0,
       count: 0,
@@ -83,7 +84,13 @@ export default {
           gl_FragColor = vec4(vColor, vAlpha);
           gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
         }
-      `
+      `,
+      moveGalaxy: true,
+      particles: null,
+      fixedY: 0,
+      fixedMesh: true,
+      oldx: 0,
+      mouseDirection: ""
     }
   },
   methods: {
@@ -93,14 +100,16 @@ export default {
       var width = window.innerWidth;
       var height = window.innerHeight;
       this.camera = new THREE.PerspectiveCamera(50, width/height, 1, 5000);
-
+      this.camera.position.x = -600;
+      this.camera.position.y = -600;
+      this.camera.position.z = 1000 + 1200;
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize(width, height);
       document.getElementById("galaxy-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
       this.clock.start();
 
-      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
 
       var sLight = new THREE.SpotLight(0xffffff);
       sLight.position.set(-100, 100, 100);
@@ -211,12 +220,12 @@ export default {
       this.galaxyGeo.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
       this.galaxyGeo.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
-      var particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
-      this.scene.add(particles);
+      this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
+      this.scene.add(this.particles);
     },
     animate: function () {
       requestAnimationFrame(this.animate);
-      this.controls.update();
+      //this.controls.update();
       var t = this.clock.getElapsedTime();
 
       var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
@@ -224,21 +233,69 @@ export default {
       var x = 0.0;
       var y = 600;
       var z = 1000 + 1200 * b;
-      console.log(this.camera.position.y);
-      this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
-      this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
-      this.camera.position.z = z;
+      var fixedX = 0;
+      
+      if (this.moveGalaxy) {
+        this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
+        this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
+        this.camera.position.z = z;
+        fixedX = this.camera.position.x;
+        this.fixedY = this.camera.position.y;
+      }
+
+      if (this.camera.position.y < 200) {
+        fixedX = -595;
+        this.fixedY = 200;
+        this.moveGalaxy = false;
+        this.camera.position.x = fixedX < -595 ? fixedX : x * Math.cos(a) - y * Math.sin(a);
+        this.camera.position.y = this.fixedY < 200 ? fixedY : - x * Math.sin(a) + y * Math.cos(a);
+        this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
+      }
       
       this.camera.lookAt(this.scene.position);
       this.camera.up = new THREE.Vector3(0, 0, 1);
       this.render();
     },
     render: function () {
-      const time = Date.now() * 0.00005;
+      var t = this.clock.getElapsedTime();
+      var meshRotation = 0.002;
+      if (this.mouseDirection === "left") {
+        meshRotation += 0.002;
+      }
+      if (this.mouseDirection === "right") {
+        meshRotation -= 0.01;
+      }
+      var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
+      var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
+      var x = 0.0;
+      var y = 600;
+      let meshTranslate = (x * Math.sin(a) + y * Math.cos(a)) - this.fixedY;
+      this.particles.rotation.z -= meshRotation;
+
+      if (this.camera.position.y < 200 && this.fixedMesh) {
+        if (meshTranslate > -590) {
+          this.particles.position.setZ(meshTranslate);
+        } else {
+          this.fixedMesh = false;
+          meshTranslate = -590;
+        }
+      }
       
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);
+    },
+    onMouseMove: function (event) {
+      this.mouse.x = (event.clientX - this.windowHalfX);
+      this.mouse.y = (event.clientY - this.windowHalfX);
+          
+      if (event.pageX < this.oldx) {
+        this.mouseDirection = "left";
+      } else if (event.pageX > this.oldx) {
+        this.mouseDirection = "right";
+      }
+        
+      this.oldx = event.pageX;
     },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -252,6 +309,7 @@ export default {
   mounted () {
     this.myScene();
     this.animate();
+    document.addEventListener('mousemove', this.onMouseMove, false);
     window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
       this.firstAnimation = true
@@ -260,21 +318,20 @@ export default {
 }
 </script>
 <style scoped>
-<<<<<<< HEAD
   #galaxy-container{
     position: absolute;
     z-index: 10000;
-=======
-.main-slide__video-container .main-slide__video-bg{
-  transition: 1.2s cubic-bezier(.79,.01,.15,.99);
-  transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
-  opacity: 0;
-}
-.hooper-slide.is-active .animated .main-slide__video-container .main-slide__video-bg{
-  transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
-  transition-delay: .7s;
-  opacity: .3;
-}
+  }
+  .main-slide__video-container .main-slide__video-bg{
+    transition: 1.2s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
+    opacity: 0;
+  }
+  .hooper-slide.is-active .animated .main-slide__video-container .main-slide__video-bg{
+    transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
+    transition-delay: .7s;
+    opacity: .3;
+  }
   .main-slide__video-container iframe{
     transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
@@ -284,7 +341,6 @@ export default {
     transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
     transition-delay: .8s;
     opacity: 1;
->>>>>>> 0359a5297c6f5a5824ca08c267ac2d29c3dd1546
   }
   .explore-button__container{
     margin-right: auto;

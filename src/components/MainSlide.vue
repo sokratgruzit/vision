@@ -260,9 +260,31 @@ export default {
 }
 </script>
 <style scoped>
+<<<<<<< HEAD
   #galaxy-container{
     position: absolute;
     z-index: 10000;
+=======
+.main-slide__video-container .main-slide__video-bg{
+  transition: 1.2s cubic-bezier(.79,.01,.15,.99);
+  transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
+  opacity: 0;
+}
+.hooper-slide.is-active .animated .main-slide__video-container .main-slide__video-bg{
+  transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
+  transition-delay: .7s;
+  opacity: .3;
+}
+  .main-slide__video-container iframe{
+    transition: 1.2s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
+    opacity: 0;
+  }
+  .hooper-slide.is-active .animated .main-slide__video-container iframe{
+    transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
+    transition-delay: .8s;
+    opacity: 1;
+>>>>>>> 0359a5297c6f5a5824ca08c267ac2d29c3dd1546
   }
   .explore-button__container{
     margin-right: auto;
@@ -311,18 +333,21 @@ export default {
   .main-slide__title-in{
     font-size: 180px;
     line-height: 160px;
-    transform: translateY(120%);
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    /*transform: translateY(120%);*/
+    transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     transition-delay: 0s;
+    transform: translateY(130%) translateX(-130%) rotate(-25deg) rotate3d(40, 50, -10, -40deg);
   }
   .main-slide__description p {
-    transform: translateY(10px);
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
     transition-delay: .2s;
+    transform: translateY(150%) translateX(-336%) rotate3d(40, 50, -10,
+    40deg
+    );
   }
   .hooper-slide.is-active .animated .main-slide__description p{
-    transform: translateY(0px);
+    transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
     transition-delay: .9s;
     opacity: 1;
   }
@@ -333,7 +358,8 @@ export default {
     transition-delay: 0s;
   }
   .hooper-slide.is-active .animated  .main-slide__title-out .main-slide__title-in{
-    transform: translateY(0%);
+    /*transform: translateY(0%);*/
+    transform: translateY(0%) translateX(-0%) rotate3d(100, 50, -32, 0deg);
   }
   .hooper-slide.is-active .main-slide__title-out:last-child .main-slide__title-in{
     transition-delay: .9s;
@@ -347,7 +373,7 @@ export default {
   }
   .main-slide__title-out{
     display: flex;
-    overflow: hidden;
+    /*overflow: hidden;*/
   }
   .main-slide__title{
     padding-top: 170px;

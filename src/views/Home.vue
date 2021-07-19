@@ -37,8 +37,8 @@ export default {
     width: 100%;
   }
   .hooper-track{
-    /*transition-delay: 1s!important;*/
-    /*transition-duration: 1s!important;*/
+    transition-delay: .6s!important;
+    transition-duration: .6s!important;
   }
   .hooper-slide{
     height: 100vh;

@@ -1,5 +1,5 @@
 <template>
-    <div class="main-slide container">
+    <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
           <div class="main-slide__video-container">
               <img :src="require(`@/assets/img/stars.jpeg`)" alt="" class="main-slide__video-bg">
               <iframe src="https://iframe.videodelivery.net/bdccb18446343ce00c4cd3bb8e8558ba?muted=true&loop=true&autoplay=true&controls=false" style="border: none; position: absolute; top: 0; height: 100%; width: 100%;"  allow="accelerometer; gyroscope; autoplay; encrypted-media; picture-in-picture;" allowfullscreen="true"></iframe>
@@ -18,13 +18,15 @@
             on Interoperability, Scalability and Usability.
             It utilizes AI Enabled Proof of Stake Algorithm, Multi Layered Consensus Model and Voting
             Based Governance.</p>
-          <div class="explore-button">
-            <span></span>
-            <span></span>
-            <span></span>
-            <span></span>
-            <div class="explore-button__text">
-              Explore Now
+          <div class="explore-button__container">
+            <div class="explore-button">
+              <span></span>
+              <span></span>
+              <span></span>
+              <span></span>
+              <div class="explore-button__text">
+                Explore Now
+              </div>
             </div>
           </div>
         </div>
@@ -36,10 +38,33 @@
 // @ is an alias to /src
 
 export default {
-  name: 'MainSlide'
+  name: 'MainSlide',
+  data () {
+    return {
+      firstAnimation: false
+    }
+  },
+  mounted () {
+    setTimeout(() => {
+      this.firstAnimation = true
+    }, 100)
+  }
 }
 </script>
 <style scoped>
+  .explore-button__container{
+    margin-right: auto;
+    display: flex;
+    transform: translateY(10px);
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition-delay: 0s;
+    opacity: 0;
+  }
+  .hooper-slide.is-active .animated .explore-button__container{
+    transform: translateY(0px);
+    transition-delay: 1s;
+    opacity: 1;
+  }
   .main-slide__video-bg {
     position: absolute;
     top: 0px;
@@ -74,6 +99,35 @@ export default {
   .main-slide__title-in{
     font-size: 180px;
     line-height: 160px;
+    transform: translateY(120%);
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition-delay: 0s;
+  }
+  .main-slide__description p {
+    transform: translateY(10px);
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+    transition-delay: .2s;
+  }
+  .hooper-slide.is-active .animated .main-slide__description p{
+    transform: translateY(0px);
+    transition-delay: .9s;
+    opacity: 1;
+  }
+  .main-slide__title-out:first-child .main-slide__title-in{
+    transition-delay: .1s;
+  }
+  .main-slide__title-out:last-child .main-slide__title-in{
+    transition-delay: 0s;
+  }
+  .hooper-slide.is-active .animated  .main-slide__title-out .main-slide__title-in{
+    transform: translateY(0%);
+  }
+  .hooper-slide.is-active .main-slide__title-out:last-child .main-slide__title-in{
+    transition-delay: .9s;
+  }
+  .hooper-slide.is-active .main-slide__title-out:first-child .main-slide__title-in{
+    transition-delay: .8s;
   }
   .main-slide__title-out:last-child .main-slide__title-in{
     color: rgba(255, 113, 82, 1);

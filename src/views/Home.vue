@@ -7,7 +7,9 @@
       <slide>
         <GameStart/>
       </slide>
-      <Game v-if="false"/>
+      <slide>
+        <Game v-if="true"/>
+      </slide>
     </hooper>
   </div>
 </template>

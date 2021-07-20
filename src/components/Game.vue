@@ -9,96 +9,10 @@
       <p>Difficult<span>{{this.commentNow}}</span></p>
       <p>Time<span>0:19</span></p>
       <p>My Score<span>{{this.score}}</span></p>
-      <p>My Score
-        <div class="badges">
-          <div class="badge">
-            <svg width="76" height="76" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-        <g filter="url(#filter0_d)">
-          <circle cx="38" cy="38" r="16" fill="#1B1921"/>
-          <circle cx="38" cy="38" r="17" stroke="url(#paint0_linear)" stroke-width="2"/>
-        </g>
-        <g clip-path="url(#clip0)" filter="url(#filter1_d)">
-          <path d="M42.6465 44.1247L37.9974 41.729L33.3482 44.1247L34.2366 39.0479L30.4575 35.4372L35.6785 34.6936L37.9974 30.0881L40.3163 34.6936L45.5373 35.4372L41.7583 39.0479L42.6465 44.1247ZM37.9974 40.1185L40.7396 41.5316L40.2163 38.5413L42.4167 36.4387L39.3741 36.0054L37.9974 33.2712L36.6207 36.0054L33.5779 36.4387L35.7785 38.5413L35.2552 41.5316L37.9974 40.1185ZM47.1429 38.0178L45.0016 37.8586L44.8954 39.2862L47.0367 39.4454L47.1429 38.0178ZM46.2152 41.9603L44.4714 40.7074L43.6362 41.8699L45.3799 43.1229L46.2152 41.9603ZM42.4738 29.7262L41.1511 29.1785L40.3296 31.1625L41.6521 31.7102L42.4738 29.7262ZM45.4571 32.464L44.6144 31.3067L42.8787 32.5707L43.7213 33.7279L45.4571 32.464ZM40.7431 46.5107L40.1955 44.4345L38.8113 44.7996L39.359 46.8758L40.7431 46.5107ZM31.1047 39.2862L30.9985 37.8586L28.8572 38.0178L28.9633 39.4454L31.1047 39.2862ZM32.3639 41.8699L31.5286 40.7074L29.7848 41.9603L30.6202 43.1229L32.3639 41.8699ZM35.6705 31.1625L34.8489 29.1785L33.5263 29.7262L34.348 31.7102L35.6705 31.1625ZM33.1214 32.5707L31.3856 31.3067L30.543 32.464L32.2788 33.7279L33.1214 32.5707ZM37.1888 44.7996L35.8046 44.4345L35.257 46.5108L36.6411 46.8758L37.1888 44.7996Z" fill="url(#paint1_linear)"/>
-        </g>
-        <defs>
-          <filter id="filter0_d" x="0" y="0" width="76" height="76" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-            <feOffset/>
-            <feGaussianBlur stdDeviation="10"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0.858824 0 0 0 0 0.835294 0 0 0 0 0.317647 0 0 0 0.3 0"/>
-            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
-            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
-          </filter>
-          <filter id="filter1_d" x="16.8572" y="16.8571" width="42.2857" height="42.2857" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-            <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-            <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-            <feOffset/>
-            <feGaussianBlur stdDeviation="6"/>
-            <feColorMatrix type="matrix" values="0 0 0 0 0.858824 0 0 0 0 0.835294 0 0 0 0 0.317647 0 0 0 0.8 0"/>
-            <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
-            <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
-          </filter>
-          <linearGradient id="paint0_linear" x1="38" y1="22" x2="38" y2="54" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FFFEEA"/>
-            <stop offset="1" stop-color="#DBD551" stop-opacity="0.6"/>
-          </linearGradient>
-          <linearGradient id="paint1_linear" x1="38" y1="29.1785" x2="38" y2="46.8758" gradientUnits="userSpaceOnUse">
-            <stop stop-color="#FFFEEA"/>
-            <stop offset="1" stop-color="#DBD551"/>
-          </linearGradient>
-          <clipPath id="clip0">
-            <rect width="18.2857" height="18.2857" fill="white" transform="translate(28.8572 28.8571)"/>
-          </clipPath>
-        </defs>
-      </svg>
-          </div>
-          <div class="badge">
-            <svg width="76" height="76" viewBox="0 0 76 76" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <g filter="url(#filter0_d)">
-                <circle cx="38" cy="38" r="16" fill="#1B1921"/>
-                <circle cx="38" cy="38" r="17" stroke="url(#paint0_linear)" stroke-width="2"/>
-              </g>
-              <g clip-path="url(#clip0)" filter="url(#filter1_d)">
-                <path d="M42.6465 44.1247L37.9974 41.729L33.3482 44.1247L34.2366 39.0479L30.4575 35.4372L35.6785 34.6936L37.9974 30.0881L40.3163 34.6936L45.5373 35.4372L41.7583 39.0479L42.6465 44.1247ZM37.9974 40.1185L40.7396 41.5316L40.2163 38.5413L42.4167 36.4387L39.3741 36.0054L37.9974 33.2712L36.6207 36.0054L33.5779 36.4387L35.7785 38.5413L35.2552 41.5316L37.9974 40.1185ZM47.1429 38.0178L45.0016 37.8586L44.8954 39.2862L47.0367 39.4454L47.1429 38.0178ZM46.2152 41.9603L44.4714 40.7074L43.6362 41.8699L45.3799 43.1229L46.2152 41.9603ZM42.4738 29.7262L41.1511 29.1785L40.3296 31.1625L41.6521 31.7102L42.4738 29.7262ZM45.4571 32.464L44.6144 31.3067L42.8787 32.5707L43.7213 33.7279L45.4571 32.464ZM40.7431 46.5107L40.1955 44.4345L38.8113 44.7996L39.359 46.8758L40.7431 46.5107ZM31.1047 39.2862L30.9985 37.8586L28.8572 38.0178L28.9633 39.4454L31.1047 39.2862ZM32.3639 41.8699L31.5286 40.7074L29.7848 41.9603L30.6202 43.1229L32.3639 41.8699ZM35.6705 31.1625L34.8489 29.1785L33.5263 29.7262L34.348 31.7102L35.6705 31.1625ZM33.1214 32.5707L31.3856 31.3067L30.543 32.464L32.2788 33.7279L33.1214 32.5707ZM37.1888 44.7996L35.8046 44.4345L35.257 46.5108L36.6411 46.8758L37.1888 44.7996Z" fill="url(#paint1_linear)"/>
-              </g>
-              <defs>
-                <filter id="filter0_d" x="0" y="0" width="76" height="76" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                  <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-                  <feOffset/>
-                  <feGaussianBlur stdDeviation="10"/>
-                  <feColorMatrix type="matrix" values="0 0 0 0 0.858824 0 0 0 0 0.835294 0 0 0 0 0.317647 0 0 0 0.3 0"/>
-                  <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
-                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
-                </filter>
-                <filter id="filter1_d" x="16.8572" y="16.8571" width="42.2857" height="42.2857" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-                  <feFlood flood-opacity="0" result="BackgroundImageFix"/>
-                  <feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0"/>
-                  <feOffset/>
-                  <feGaussianBlur stdDeviation="6"/>
-                  <feColorMatrix type="matrix" values="0 0 0 0 0.858824 0 0 0 0 0.835294 0 0 0 0 0.317647 0 0 0 0.8 0"/>
-                  <feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow"/>
-                  <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow" result="shape"/>
-                </filter>
-                <linearGradient id="paint0_linear" x1="38" y1="22" x2="38" y2="54" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#FFFEEA"/>
-                  <stop offset="1" stop-color="#DBD551" stop-opacity="0.6"/>
-                </linearGradient>
-                <linearGradient id="paint1_linear" x1="38" y1="29.1785" x2="38" y2="46.8758" gradientUnits="userSpaceOnUse">
-                  <stop stop-color="#FFFEEA"/>
-                  <stop offset="1" stop-color="#DBD551"/>
-                </linearGradient>
-                <clipPath id="clip0">
-                  <rect width="18.2857" height="18.2857" fill="white" transform="translate(28.8572 28.8571)"/>
-                </clipPath>
-              </defs>
-            </svg>
-          </div>
-        </div>
+      <p>Player
+        <div id="badges-container" class="badges"></div>
       </p>
     </div>
-
     <div id="webgl-container"></div>
   </div>
 </template>
@@ -666,7 +580,13 @@ export default {
         }
       },
       waveStart: Date.now(),
-      waveMesh: null
+      waveMesh: null,
+      badgeCanvas: null, 
+			badgeScene: null,
+      badgeGeo: null,
+      badgeMat: null,
+      badgeMesh: null,
+      badgeCamera: null
     }
   },
   methods: {
@@ -682,9 +602,8 @@ export default {
       this.renderer.setSize( width, height );
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
-
-      var sLight = new THREE.SpotLight( 0xffffff );
-      sLight.position.set( -100, 100, 100 );
+      var sLight = new THREE.SpotLight(0xffffff);
+      sLight.position.set(-100, 100, 100);
       this.scene.add(sLight);
 
       var aLight = new THREE.AmbientLight( 0xffffff );
@@ -694,6 +613,27 @@ export default {
       directionalLight.position.set(0, 50, -20);
       this.scene.add(directionalLight);
       //End David code
+      this.badgeScene = new THREE.Scene();
+      this.badgeGeo = new THREE.CylinderGeometry(2, 2, 1, 25);
+      this.badgeCamera = new THREE.PerspectiveCamera(50, width/height, 1, 100);
+      this.badgeCamera.position.set(0,0,5);
+      this.badgeCamera.lookAt(this.badgeScene.position);
+
+			this.badgeMat = new THREE.MeshStandardMaterial({
+        color: new THREE.Color().setHSL(Math.random(), 1, 0.75),
+        roughness: 0.5,
+        metalness: 0,
+        flatShading: true
+			});
+
+      this.badgeMesh = new THREE.Mesh(this.badgeGeo, this.badgeMat);
+
+			this.badgeScene.add(this.badgeMesh);
+			this.badgeScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
+
+			const blight = new THREE.DirectionalLight(0xffffff, 0.5);
+			blight.position.set(1, 1, 1);
+			this.badgeScene.add(blight);
     },
     spinner: function () {
       var geometry = new THREE.BoxGeometry(1,1,1);
@@ -861,36 +801,6 @@ export default {
         elem.children[0].rotation.x += 0.01;
         elem.children[0].rotation.y += 0.01;
       });
-      let scene = this.scene;
-      let particles = this.particles;
-      if (this.particles.length > 0) {
-        let clock = this.clock.getElapsedTime();
-        this.particles.forEach(function (elem, index, array) {
-          switch (elem.name) {
-            case "part0":
-              elem.position.x += 1;
-              break;
-            case "part1":
-              elem.position.x -= 1;
-              break;
-            case "part2":
-              elem.position.y += 1;
-              break;
-            case "part3":
-              elem.position.y -= 1;
-              break;
-            default:
-              break;
-          }
-
-          if (elem.birthDay - clock < -1 ) {
-            scene.remove(elem);
-            particles.splice(index, 1);
-          }
-        })
-        this.scene = scene;
-        this.particles = particles;
-      };
 
       this.pointer.rotation.x += 0.01;
       this.pointer.rotation.y += 0.01;
@@ -917,9 +827,23 @@ export default {
         }
       }
 
+      this.renderer.autoClear = false;
+      this.renderer.clear();
+      this.renderer.setScissorTest(true);
+
+      this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+      this.renderer.render(this.scene, this.camera);
+      
+      const badgeCont = document.getElementById('badges-container');
+			const rect = badgeCont.getBoundingClientRect();
+      console.log(rect);
+      
+      this.renderer.clearDepth();
+      this.renderer.setScissor(0, 0, 200, window.innerHeight);
+      this.renderer.render(this.badgeScene, this.badgeCamera);
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
-      this.renderer.render(this.scene, this.camera);
     },
     addExplosion: function (point) {
       //Object Explosion
@@ -1056,7 +980,6 @@ export default {
         this.level = 1;
       }
 
-      // this.myLevel.innerText = this.comments[level-1] +  ": Level " + this.level + " of " + this.totalLevels;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
       this.commentNow = this.comments[this.level-1];
       this.scene.remove(this.holder);
@@ -1103,6 +1026,31 @@ export default {
 </script>
 
 <style scoped>
+  #badges-container {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    height: 70px;
+    z-index: 10000000;
+    background: white;
+  }
+  .list-item {
+    display: inline-block;
+    margin: 1em;
+    padding: 1em;
+    box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
+  }
+  .list-item > div:nth-child(1) {
+    width: 200px;
+    height: 200px;
+  }
+  .list-item > div:nth-child(2) {
+    color: #888;
+    font-family: sans-serif;
+    font-size: large;
+    width: 200px;
+    margin-top: 0.5em;
+  }
   .badges{
     display: flex;
   }
@@ -1112,11 +1060,9 @@ export default {
     color: #333;
     font-family: helvetica;
   }
-
   canvas {
     position: absolute;
   }
-
   .hud {
     position: absolute;
     display: flex;

@@ -27,7 +27,7 @@
           </div>
         </div>
       </div>
-      <div id="galaxy-container"></div>
+      <div id="galaxy-container" v-if="true"></div>
     </div>
 </template>
 
@@ -234,7 +234,7 @@ export default {
       var y = 600;
       var z = 1000 + 1200 * b;
       var fixedX = 0;
-      
+
       if (this.moveGalaxy) {
         this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
         this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
@@ -251,7 +251,7 @@ export default {
         this.camera.position.y = this.fixedY < 200 ? fixedY : - x * Math.sin(a) + y * Math.cos(a);
         this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
       }
-      
+
       this.camera.lookAt(this.scene.position);
       this.camera.up = new THREE.Vector3(0, 0, 1);
       this.render();
@@ -280,7 +280,7 @@ export default {
           meshTranslate = -590;
         }
       }
-      
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);
@@ -288,13 +288,13 @@ export default {
     onMouseMove: function (event) {
       this.mouse.x = (event.clientX - this.windowHalfX);
       this.mouse.y = (event.clientY - this.windowHalfX);
-          
+
       if (event.pageX < this.oldx) {
         this.mouseDirection = "left";
       } else if (event.pageX > this.oldx) {
         this.mouseDirection = "right";
       }
-        
+
       this.oldx = event.pageX;
     },
     onWindowResize: function () {
@@ -320,7 +320,7 @@ export default {
 <style scoped>
   #galaxy-container{
     position: absolute;
-    z-index: 10000;
+    z-index: 3;
   }
   .main-slide__video-container .main-slide__video-bg{
     transition: 1.2s cubic-bezier(.79,.01,.15,.99);
@@ -332,27 +332,32 @@ export default {
     transition-delay: .7s;
     opacity: .3;
   }
-  .main-slide__video-container iframe{
+  #galaxy-container{
     transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     transform: translateY(130%) translateX(-130%) rotate3d(40, 50, -10, -40deg);
     opacity: 0;
+    transition-delay: .5s;
   }
-  .hooper-slide.is-active .animated .main-slide__video-container iframe{
+  .hooper-slide.is-active .animated #galaxy-container{
     transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
-    transition-delay: .8s;
+    transition-delay: 1s;
     opacity: 1;
   }
   .explore-button__container{
     margin-right: auto;
     display: flex;
-    transform: translateY(10px);
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
-    transition-delay: 0s;
+    transform: translateY(200%) translateX(-300%) rotate3d(40, 50, -50,
+    32deg
+    );
+    transition: 1s cubic-bezier(.79,.01,.15,.99);
+    transition-delay: .3s;
     opacity: 0;
   }
   .hooper-slide.is-active .animated .explore-button__container{
-    transform: translateY(0px);
-    transition-delay: 1s;
+    transform: translateY(0%) translateX(0%) rotate3d(40, 50, -50,
+    0deg
+    );
+    transition-delay: 1.2s;
     opacity: 1;
   }
   .main-slide__video-bg {
@@ -378,6 +383,7 @@ export default {
   .main-slide{
     height: 100%;
     position: relative;
+    overflow: hidden;
   }
   .main-slide__inner{
     display: flex;
@@ -398,8 +404,8 @@ export default {
     transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
     transition-delay: .2s;
-    transform: translateY(150%) translateX(-336%) rotate3d(40, 50, -10,
-    40deg
+    transform: translateY(200%) translateX(-200%) rotate3d(40, 50, -50,
+    32deg
     );
   }
   .hooper-slide.is-active .animated .main-slide__description p{

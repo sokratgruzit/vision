@@ -5,11 +5,9 @@
         <MainSlide/>
       </slide>
       <slide>
-        <Game v-if="true"/>
+        <GameStart/>
       </slide>
-      <slide>
-        slide 3
-      </slide>
+      <Game v-if="false"/>
     </hooper>
   </div>
 </template>
@@ -20,6 +18,7 @@ import { Hooper, Slide } from 'hooper'
 import 'hooper/dist/hooper.css'
 import Game from '@/components/Game.vue'
 import MainSlide from '../components/MainSlide'
+import GameStart from '../components/GameStart'
 
 export default {
   name: 'Home',
@@ -27,7 +26,8 @@ export default {
     MainSlide,
     Game,
     Hooper,
-    Slide
+    Slide,
+    GameStart
   }
 }
 </script>
@@ -37,7 +37,7 @@ export default {
     width: 100%;
   }
   .hooper-track{
-    transition-delay: 1s!important;
+    transition-delay: 1.2s!important;
     transition-duration: 1s!important;
   }
   .hooper-slide{

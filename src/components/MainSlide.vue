@@ -109,8 +109,6 @@ export default {
       this.clock = new THREE.Clock();
       this.clock.start();
 
-      //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-
       var sLight = new THREE.SpotLight(0xffffff);
       sLight.position.set(-100, 100, 100);
       this.scene.add(sLight);
@@ -146,7 +144,7 @@ export default {
       var pinch = 0.7 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random()) / 4.0;
 
       var clouds = 500 * arms;
-      var stars = 4000;
+      var stars = 10000;
 
       var vertices = new Float32Array((clouds + stars) * 3);
       var colors = new Float32Array((clouds + stars) * 3);
@@ -225,7 +223,6 @@ export default {
     },
     animate: function () {
       requestAnimationFrame(this.animate);
-      //this.controls.update();
       var t = this.clock.getElapsedTime();
 
       var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
@@ -259,10 +256,10 @@ export default {
     render: function () {
       var t = this.clock.getElapsedTime();
       var meshRotation = 0.002;
-      if (this.mouseDirection === "left") {
+      if (this.mouseDirection === "left" && !this.fixedMesh) {
         meshRotation += 0.002;
       }
-      if (this.mouseDirection === "right") {
+      if (this.mouseDirection === "right" && !this.fixedMesh) {
         meshRotation -= 0.01;
       }
       var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;

@@ -971,6 +971,7 @@ export default {
               let bIndex = 0;
 
               if (level == 1) {
+                this.badgeScenes = [];
                 bIndex = 1;
               } else if (level == 2) {
                 bIndex = 2;
@@ -978,7 +979,7 @@ export default {
                 bIndex = 3;
               } else if (level == 4) {
                 bIndex = 4;
-              }
+              } 
 
               const bContainer = document.getElementById('badges-container');
               bContainer.querySelectorAll('*').forEach(n => n.remove());
@@ -1042,7 +1043,6 @@ export default {
               } else {
                // myScore.innerHTML = "<strong>You win!</strong> Click the screen to play again.";
                 console.log("You win!  Click the screen to play again.")
-                this.badgeScenes = [];
               }
             }
           }

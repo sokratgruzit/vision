@@ -10,10 +10,11 @@
       <p>Time<span>0:19</span></p>
       <p>My Score<span>{{this.score}}</span></p>
       <p>Player
-        <div id="badges-container" class="badges"></div>
+        
       </p>
     </div>
     <div id="webgl-container"></div>
+    <div id="badges-container" class="badges"></div>
   </div>
 </template>
 
@@ -586,7 +587,8 @@ export default {
       badgeGeo: null,
       badgeMat: null,
       badgeMesh: null,
-      badgeCamera: null
+      badgeCamera: null,
+      badgeScenes: []
     }
   },
   methods: {
@@ -613,27 +615,6 @@ export default {
       directionalLight.position.set(0, 50, -20);
       this.scene.add(directionalLight);
       //End David code
-      this.badgeScene = new THREE.Scene();
-      this.badgeGeo = new THREE.CylinderGeometry(2, 2, 1, 25);
-      this.badgeCamera = new THREE.PerspectiveCamera(50, width/height, 1, 100);
-      this.badgeCamera.position.set(0,0,5);
-      this.badgeCamera.lookAt(this.badgeScene.position);
-
-			this.badgeMat = new THREE.MeshStandardMaterial({
-        color: new THREE.Color().setHSL(Math.random(), 1, 0.75),
-        roughness: 0.5,
-        metalness: 0,
-        flatShading: true
-			});
-
-      this.badgeMesh = new THREE.Mesh(this.badgeGeo, this.badgeMat);
-
-			this.badgeScene.add(this.badgeMesh);
-			this.badgeScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
-
-			const blight = new THREE.DirectionalLight(0xffffff, 0.5);
-			blight.position.set(1, 1, 1);
-			this.badgeScene.add(blight);
     },
     spinner: function () {
       var geometry = new THREE.BoxGeometry(1,1,1);
@@ -834,13 +815,38 @@ export default {
       this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
       this.renderer.render(this.scene, this.camera);
       
-      const badgeCont = document.getElementById('badges-container');
-			const rect = badgeCont.getBoundingClientRect();
-      console.log(rect);
+      if (this.badgeScenes.length > 0) {
+        for (let i = 0; i < this.badgeScenes.length; i++) {
+          const badgeCont = document.getElementById('list-item' + i);
+          const rect = badgeCont.getBoundingClientRect();
+          
+          if (this.badgeScenes[i].scale.x < 1) {
+            this.badgeScenes[i].scale.x += 0.01;
+            this.badgeScenes[i].scale.y += 0.01;
+            this.badgeScenes[i].scale.z += 0.01;
+          } else {
+            this.badgeScenes[i].rotation.y += 0.01;
+          }
+
+          if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+          rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+            return; // it's off screen
+          }
+
+          const width = rect.right - rect.left;
+          const height = rect.bottom - rect.top;
+          const left = rect.left;
+          const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+
+          this.renderer.clearDepth();
       
-      this.renderer.clearDepth();
-      this.renderer.setScissor(0, 0, 200, window.innerHeight);
-      this.renderer.render(this.badgeScene, this.badgeCamera);
+          if (this.badgeScenes.length > 0) {
+            this.renderer.setViewport(left, bottom, width, height);
+            this.renderer.setScissor(left, bottom, width, height);
+            this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+          }
+        }
+      }
 
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
@@ -935,6 +941,13 @@ export default {
         let complete = this.complete;
         let level = this.level;
         let totalLevels = this.totalLevels;
+        let bScenes = this.badgeScenes;
+        let bScene = this.badgeScene;
+        let bGeo = this.badgeGeo;
+        let bMat = this.badgeMat;
+        let bMesh = this.badgeMesh;
+        let bCamera = this.badgeCamera;
+  
         this.holder.children.forEach(function (elem, index, array) {
           let intersects = raycaster.intersectObjects(elem.children);
           if (intersects.length > 0 && intersects[0].object.visible) {
@@ -948,6 +961,63 @@ export default {
               console.log(score)
             } else {
               complete = true;
+              let badgeTextures = [
+                require("../assets/badge_star.png"),
+                require("../assets/badge_star2.png"),
+              ];
+
+              let bIndex = 0;
+
+              if (level == 1) {
+                bIndex = 1;
+              } else if (level == 2) {
+                bIndex = 2;
+              }
+
+              const bContainer = document.getElementById('badges-container');
+              bContainer.querySelectorAll('*').forEach(n => n.remove());
+              bScenes = [];
+              for (let i = 0; i < bIndex; i++) {
+                bScene = new THREE.Scene();
+
+                const bEl = document.createElement('div');
+					      bEl.id = 'list-item' + i;
+                
+                bScene.userData.element = bEl;
+					      bContainer.appendChild(bEl);
+                
+                bGeo = new THREE.CylinderGeometry(1, 1, 0.1, 25);
+                bCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
+                bCamera.position.set(0,0,5);
+                bCamera.lookAt(bScene.position);
+                bScene.userData.camera = bCamera;
+
+                const badgeLoader = new THREE.TextureLoader();
+                const badgeTex = badgeLoader.load(badgeTextures[i]);
+
+                bMat = new THREE.MeshBasicMaterial({
+                  roughness: 0.5,
+                  metalness: 1,
+                  flatShading: true,
+                  map: badgeTex
+                });
+
+                bMesh = new THREE.Mesh(bGeo, bMat);
+                bMesh.rotation.z = Math.PI / 2;
+                bMesh.rotation.y = Math.PI / 2;
+                bMesh.scale.x = 0;
+                bMesh.scale.y = 0;
+                bMesh.scale.z = 0;
+
+                bScene.add(bMesh);
+                bScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
+                bScene.name = "warior" + i;
+
+                const blight = new THREE.DirectionalLight(0xffffff, 0.5);
+                blight.position.set(1, 1, 1);
+                bScene.add(blight);
+                bScenes.push(bScene);
+              }
 
               if (level < totalLevels) {
                 // myScore.innerHTML = "<strong>You got 'em all!</strong> Click the screen for level "  + (level+1) + ".";
@@ -956,7 +1026,7 @@ export default {
                // myScore.innerHTML = "<strong>You win!</strong> Click the screen to play again.";
                 console.log("You win!  Click the screen to play again.")
               }
-            };
+            }
           }
         });
         this.score = score;
@@ -965,6 +1035,12 @@ export default {
         this.complete = complete;
         this.level = level;
         this.totalLevels = totalLevels;
+        this.badgeScenes = bScenes;
+        this.badgeScene = bScene;
+        this.badgeGeo = bGeo;
+        this.badgeMat = bMat;
+        this.badgeMesh = bMesh;
+        this.badgeCamera = bCamera;
       }
     },
     restartScene: function () {
@@ -1027,27 +1103,28 @@ export default {
 
 <style scoped>
   #badges-container {
-    position: absolute;
-    top: 0;
     width: 100%;
     height: 70px;
     z-index: 10000000;
-    background: white;
   }
-  .list-item {
+  #list-item0,
+  #list-item1,
+  #list-item2 {
     display: inline-block;
     margin: 1em;
     padding: 1em;
     box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
   }
-  .list-item > div:nth-child(1) {
+  #list-item0 > div:nth-child(1),
+  #list-item1 > div:nth-child(1),
+  #list-item2 > div:nth-child(1) {
     width: 200px;
     height: 200px;
   }
-  .list-item > div:nth-child(2) {
+  #list-item0 > div:nth-child(2),
+  #list-item1 > div:nth-child(2),
+  #list-item2 > div:nth-child(2) {
     color: #888;
-    font-family: sans-serif;
-    font-size: large;
     width: 200px;
     margin-top: 0.5em;
   }

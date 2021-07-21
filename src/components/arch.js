@@ -1,66 +1,83 @@
-var materialShader;
-      var waveGeo = new THREE.CircleGeometry( 10, 32 );
-      var waveMat = new THREE.MeshStandardMaterial({
-        map: new THREE.TextureLoader().load(
-          require("../assets/space.jpg")
-        ),
-        depthWrite: false, 
-        transparent: true, 
-        //opacity: 0.5, 
-        side:THREE.DoubleSide, 
-        combine: THREE.MixOperation 
-      });
-      waveMat.onBeforeCompile = shader => {
-        shader.uniforms.impactPosition = {
-          value: new THREE.Vector3().setFromSphericalCoords(
-            point.x,
-            point.y,
-            point.z
-          )
-        };
-        shader.uniforms.impactMaxRadius = { value: waveGeo.parameters.radius * 3 };
-        shader.uniforms.impactRatio = { value: 0.25 };
-        shader.vertexShader = "varying vec3 vPosition;\n" + shader.vertexShader;
-        shader.vertexShader = shader.vertexShader.replace(
-          "#include <worldpos_vertex>",
-          `#include <worldpos_vertex>
-          vPosition = transformed.xyz;`
-        );
-        shader.fragmentShader =
-          `uniform vec3 impactPosition;\nuniform float impactMaxRadius;\nuniform float impactRatio;\nvarying vec3 vPosition;\n` +
-          shader.fragmentShader;
-        shader.fragmentShader = shader.fragmentShader.replace(
-          "#include <dithering_fragment>",
-          `#include <dithering_fragment>
-            float dist = distance(vPosition, impactPosition);
-            float curRadius = impactMaxRadius * impactRatio;
-            float sstep = smoothstep(0., curRadius, dist) - smoothstep(curRadius - ( 0.99 * impactRatio ), curRadius, dist);
-            sstep = 1. - sstep * (1. - impactRatio);
-            vec3 col = mix(vec3(1., 0.5, 0.0625), vec3(1., 0.25, 0.125), impactRatio);
-            gl_FragColor = vec4( mix( col, gl_FragColor.rgb, sstep), diffuseColor.a );`
-        );
-        materialShader = shader;
-      };
+//render func
+if (this.badgeScenes.length > 0) {
+  for (let i = 0; i < this.badgeScenes.length; i++) {
+    const badgeCont = document.getElementById('badges-container');
+    const rect = badgeCont.getBoundingClientRect();
+    console.log(this.b)
+    if (this.badgeMesh.scale.x < 1) {
+      this.badgeMesh.scale.x += 0.01;
+      this.badgeMesh.scale.y += 0.01;
+      this.badgeMesh.scale.z += 0.01;
+    } else {
+      this.badgeMesh.rotation.y += 0.01;
+    }
 
-      var globe = new THREE.Mesh(waveGeo, waveMat);
-      this.scene.add(globe);
+    if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+    rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+      return; // it's off screen
+    }
 
-      function runTween() {
-        var tween = new TWEEN.Tween({value: 0})
-          .to({ value: 1 }, 3000)
-          //.easing(TWEEN.Easing.Quintic.Out)
-          .onUpdate(val => {
-            if (materialShader) materialShader.uniforms.impactRatio.value = val.value;
-          })
-          .onComplete((val) => {
-            if (materialShader) materialShader.uniforms.impactPosition.value.setFromSphericalCoords(
-              point.x,
-              point.y,
-              point.z
-            );
-            runTween();
-          });
-        tween.start();
-      }
+    const width = rect.right - rect.left;
+    const height = rect.bottom - rect.top;
+    const left = rect.left;
+    const bottom = this.renderer.domElement.clientHeight - rect.bottom;
 
-      runTween();
+    this.renderer.clearDepth();
+
+    if (this.badgeScenes.length > 0) {
+      this.renderer.setViewport(left, bottom, width, height);
+      this.renderer.setScissor(left, bottom, width, height);
+      this.renderer.render(this.badgeScene, this.badgeCamera);
+    }
+  }
+}
+
+//this.renderer.autoClear = false;
+      //this.renderer.clear();
+      //this.renderer.setScissorTest(true);
+//restart scene
+let badgeTextures = [
+  require("../assets/badge_star.png"),
+  require("../assets/badge_star2.png"),
+];
+
+let bIndex = 0;
+
+if (this.level == 2) {
+  bIndex = 1;
+} else if (this.level == 3) {
+  bIndex = 2;
+}
+
+for (let i = 0; i < bIndex; i++) {
+  this.badgeScene = new THREE.Scene();
+  this.badgeGeo = new THREE.CylinderGeometry(1, 1, 0.1, 25);
+  this.badgeCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
+  this.badgeCamera.position.set(0,0,5);
+  this.badgeCamera.lookAt(this.badgeScene.position);
+
+  const badgeLoader = new THREE.TextureLoader();
+  const badgeTex = badgeLoader.load(badgeTextures[i]);
+
+  this.badgeMat = new THREE.MeshBasicMaterial({
+    roughness: 0.5,
+    metalness: 1,
+    flatShading: true,
+    map: badgeTex
+  });
+
+  this.badgeMesh = new THREE.Mesh(this.badgeGeo, this.badgeMat);
+  this.badgeMesh.rotation.z = Math.PI / 2;
+  this.badgeMesh.rotation.y = Math.PI / 2;
+  this.badgeMesh.scale.x = 0;
+  this.badgeMesh.scale.y = 0;
+  this.badgeMesh.scale.z = 0;
+
+  this.badgeScene.add(this.badgeMesh);
+  this.badgeScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
+
+  const blight = new THREE.DirectionalLight(0xffffff, 0.5);
+  blight.position.set(1, 1, 1);
+  this.badgeScene.add(blight);
+  this.badgeScenes.push(this.badgeScene);
+}

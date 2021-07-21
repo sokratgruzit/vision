@@ -2,7 +2,7 @@
   <div class="home-slider">
     <hooper>
       <slide>
-        <MainSlide/>
+        <MainSlide v-if="false"/>
       </slide>
       <slide>
         <GameStart/>

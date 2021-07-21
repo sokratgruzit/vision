@@ -1,16 +1,15 @@
 <template>
   <div class="home-slider">
-    <hooper>
+    <hooper @slide="updateCarousel">
       <slide>
-        <MainSlide/>
+<!--        <MainSlide v-if="this.$store.state.currentSlide == 0"/>-->
+        <MainSlide v-if="true"/>
       </slide>
       <slide>
         <GameStart/>
       </slide>
-      <slide>
-        <Game v-if="true"/>
-      </slide>
     </hooper>
+    <Game v-if="$store.state.playGame"/>
   </div>
 </template>
 
@@ -30,6 +29,19 @@ export default {
     Hooper,
     Slide,
     GameStart
+  },
+  data () {
+    return {
+      activeSlide: 0
+    }
+  },
+  methods: {
+    updateCarousel (payload) {
+     setTimeout(() => {
+       this.$store.commit('changeSlide', payload.currentSlide)
+       console.log(this.$store.state.currentSlide)
+     },1200)
+    }
   }
 }
 </script>

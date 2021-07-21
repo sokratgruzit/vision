@@ -1,6 +1,6 @@
 <template>
   <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
-    <div class="main-slide__inner">
+    <div v-if="true" class="main-slide__inner">
       <h2 class="main-slide__title second-slide__title">
         <div class="main-slide__title-out">
           <div class="main-slide__title-in"><span>01</span>connection</div>
@@ -9,7 +9,7 @@
       <div class="main-slide__description">
         <p>With the company’s previous customer service system, calls from healthcare providers to authorize patient were too oftern being transferred.</p>
         <div class="explore-button__container">
-          <div class="explore-button">
+          <div class="explore-button" @click="playGame">
             <span></span>
             <span></span>
             <span></span>
@@ -21,7 +21,6 @@
         </div>
       </div>
     </div>
-    <div id="galaxy-container" v-if="false"></div>
   </div>
 </template>
 
@@ -31,65 +30,15 @@ export default {
   name: 'MainSlide',
   data () {
     return {
-      firstAnimation: false,
-      scene: null,
-      galaxyMesh: null,
-      camera: null,
-      renderer: null,
-      controls: null,
-      clock: null,
-      mouse: new THREE.Vector2(),
-      target: new THREE.Vector2(),
-      mouseX: 0,
-      mouseY: 0,
-      count: 0,
-      windowHalfX: window.innerWidth / 2,
-      windowHalfY: window.innerHeight / 2,
-      galaxyGeo: null,
-      galaxyMat: null,
-      uniforms: null,
-      galaxyVertex: `
-      uniform vec3 uCameraPos;
-      attribute float alpha;
-      attribute float size;
-      attribute vec3 color;
-      varying float vAlpha;
-      varying vec3 vColor;
-
-      void main() {
-        float d = distance(position.xyz, uCameraPos);
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vAlpha = alpha;
-        vColor = color;
-        gl_PointSize = size;
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
-      galaxyFragment: `
-      varying vec3 vColor;
-      uniform sampler2D pointTexture;
-      varying float vAlpha;
-
-      void main() {
-        gl_FragColor = vec4(vColor, vAlpha);
-        gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-      }
-    `,
-      moveGalaxy: true,
-      particles: null,
-      fixedY: 0,
-      fixedMesh: true,
-      oldx: 0,
-      mouseDirection: ""
+      firstAnimation: false
     }
   },
   methods: {
+    playGame () {
+      this.$store.commit('playGame', true)
+    }
   },
   mounted () {
-    // this.myScene();
-    // this.animate();
-    // document.addEventListener('mousemove', this.onMouseMove, false);
-    // window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
       this.firstAnimation = true
     }, 100);
@@ -97,6 +46,16 @@ export default {
 }
 </script>
 <style scoped>
+  .explore-button__text{
+    text-transform: uppercase;
+  }
+  #sphere-container{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+  }
   .main-slide__title-in{
     flex-direction: column;
     display: flex;
@@ -151,6 +110,13 @@ export default {
     transition-delay: 1.2s;
     opacity: 1;
   }
+  .hooper-slide.is-prev .animated .explore-button__container{
+    transform: translateY(200%) translateX(-400%) rotate3d(40, 50, -50,
+    32deg
+    );
+    transition-delay: .2s;
+  }
+
   .main-slide__video-bg {
     position: absolute;
     top: 0px;
@@ -200,8 +166,13 @@ export default {
     );
   }
   .hooper-slide.is-active .animated .main-slide__description p{
-    transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);
+    transform: translateY(0%) translateX(0%) rotate(0deg) rotate3d(40, 50, -10, 0deg);
     transition-delay: .9s;
+    opacity: 1;
+  }
+  .hooper-slide.is-prev .animated .main-slide__description p{
+    transform: translateY(200%) translateX(-350%) rotate(-10deg) rotate3d(40, 50, -50, 32deg);
+    transition-delay: .1s;
     opacity: 1;
   }
   .main-slide__title-out:first-child .main-slide__title-in{
@@ -213,6 +184,11 @@ export default {
   .hooper-slide.is-active .animated  .main-slide__title-out .main-slide__title-in{
     /*transform: translateY(0%);*/
     transform: translateY(0%) translateX(-0%) rotate3d(100, 50, -32, 0deg);
+  }
+  .hooper-slide.is-prev .animated  .main-slide__title-out .main-slide__title-in{
+    /*transform: translateY(0%);*/
+    /*transform: translateY(0%) translateX(-0%) rotate3d(100, 50, -32, 0deg);*/
+    transform: translateY(230%) translateX(-330%) rotate(-35deg) rotate3d(40, 50, -10, -40deg);
   }
   .hooper-slide.is-active .main-slide__title-out:last-child .main-slide__title-in{
     transition-delay: .9s;

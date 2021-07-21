@@ -582,7 +582,7 @@ export default {
       },
       waveStart: Date.now(),
       waveMesh: null,
-      badgeCanvas: null, 
+      badgeCanvas: null,
 			badgeScene: null,
       badgeGeo: null,
       badgeMat: null,
@@ -814,7 +814,7 @@ export default {
 
       this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
       this.renderer.render(this.scene, this.camera);
-      
+
       if (this.badgeScenes.length > 0) {
         for (let i = 0; i < this.badgeScenes.length; i++) {
           const badgeCont = document.getElementById('list-item' + i);
@@ -1163,9 +1163,15 @@ export default {
     color: #fff;
   }
   .game__container{
-    position: relative;
+    position: fixed;
+    z-index: 10000;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    width: 100%;
+    height: 100vh;
   }
-
   .hit {
     font-weight: bold;
     color: red;

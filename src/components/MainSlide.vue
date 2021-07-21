@@ -41,6 +41,7 @@ export default {
   name: 'MainSlide',
   data () {
     return {
+      requestAnimation: null,
       firstAnimation: false,
       scene: null,
       galaxyMesh: null,
@@ -91,6 +92,13 @@ export default {
       fixedMesh: true,
       oldx: 0,
       mouseDirection: ""
+    }
+  },
+  watch: {
+    '$store.state.currentSlide': function () {
+      if (this.$store.state.currentSlide == 0) {
+        this.animate();
+      }
     }
   },
   methods: {
@@ -213,16 +221,20 @@ export default {
       }
 
       this.galaxyGeo = new THREE.BufferGeometry();
-      this.galaxyGeo.addAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      this.galaxyGeo.addAttribute('color', new THREE.BufferAttribute(colors, 3));
-      this.galaxyGeo.addAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-      this.galaxyGeo.addAttribute('size', new THREE.BufferAttribute(sizes, 1));
+      this.galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.galaxyGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
       this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
       this.scene.add(this.particles);
     },
     animate: function () {
-      requestAnimationFrame(this.animate);
+      if (this.$store.state.currentSlide == 0){
+        requestAnimationFrame(this.animate);
+      }
+      console.log(this.$store.state.currentSlide)
+      // this.requestAnimation;
       var t = this.clock.getElapsedTime();
 
       var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
@@ -304,17 +316,20 @@ export default {
     },
   },
   mounted () {
-    this.myScene();
-    this.animate();
-    document.addEventListener('mousemove', this.onMouseMove, false);
-    window.addEventListener( 'resize', this.onWindowResize, false );
+      this.myScene();
+      this.animate();
+      document.addEventListener('mousemove', this.onMouseMove, false);
+      window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
       this.firstAnimation = true
     }, 100);
-  }
+  },
 }
 </script>
 <style scoped>
+  .explore-button__text{
+    text-transform: uppercase;
+  }
   #galaxy-container{
     position: absolute;
     z-index: 3;
@@ -401,9 +416,7 @@ export default {
     transition: 1.2s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
     transition-delay: .2s;
-    transform: translateY(200%) translateX(-200%) rotate3d(40, 50, -50,
-    32deg
-    );
+    transform: translateY(200%) translateX(-350%) rotate(-10deg) rotate3d(40, 50, -50, 32deg);
   }
   .hooper-slide.is-active .animated .main-slide__description p{
     transform: translateY(0%) translateX(0%) rotate3d(40, 50, -10, 0deg);

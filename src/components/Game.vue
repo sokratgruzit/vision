@@ -971,7 +971,6 @@ export default {
               let bIndex = 0;
 
               if (level == 1) {
-                this.badgeScenes = [];
                 bIndex = 1;
               } else if (level == 2) {
                 bIndex = 2;

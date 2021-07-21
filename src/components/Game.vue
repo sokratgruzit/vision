@@ -1,6 +1,6 @@
 <template>
   <div class="game__container" :style="{
-    backgroundImage: 'url(' + require(`@/assets/space.jpg`) + ')',
+    backgroundImage: 'url(' + require(`@/assets/sphere.jpg`) + ')',
     backgroundSize: 'cover'
     }"
   >
@@ -9,7 +9,8 @@
       <p>Difficult<span>{{this.commentNow}}</span></p>
       <p>Time<span>0:19</span></p>
       <p>My Score<span>{{this.score}}</span></p>
-      <p :style="{ position: 'relative' }">Player
+      <p :style="{ position: 'relative' }">
+        Player: <span :style="{ color: 'red' }">{{this.playerStatusNow}}</span>
         <div id="badges-container" class="badges"></div>
       </p>
     </div>
@@ -44,6 +45,8 @@ export default {
       complete: false,
       commentNow: 'Easy',
       comments: ['Easy', 'Tricky', 'Careful now', 'INSANITY'],
+      playerStatusNow: 'Baby',
+      playerStatuses: ['Baby', 'Warrior', 'Death Machine', 'God of War'],
       levelAbout:'',
       myLevel: document.getElementById('level'),
       myScore: document.getElementById('score'),
@@ -685,7 +688,7 @@ export default {
 
       //David code
       const loader = new THREE.TextureLoader();
-      const textureSphereBg = loader.load(require("../assets/sphere.jpeg"));
+      const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
       const txtStar = loader.load(require("../assets/txtStar.png"));
       const texture1 = loader.load(require( "../assets/star1.png" ));
       const texture2 = loader.load(require("../assets/star2.png"));
@@ -891,7 +894,7 @@ export default {
       part.position.x = point.x;
       part.position.y = point.y;
       part.position.z = point.z;
-      part.name = "part0";
+      part.name = "garbage";
       part.birthDay = timeNow;
       this.scene.add(part);
       //End of Object Explosion
@@ -1073,10 +1076,20 @@ export default {
         this.level = 1;
       }
 
+      for (let i = 0; i < this.scene.children.length; i++) {
+        if (this.scene.children[i].name === 'garbage') {
+          this.scene.remove(this.scene.children[i]);
+        }
+      }
+
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
       this.commentNow = this.comments[this.level-1];
+      this.playerStatusNow = this.playerStatuses[this.level-1];
       this.scene.remove(this.holder);
       this.scene.remove(this.pointer);
+      if (this. level == 1) {
+        this.badgeScenes = [];
+      }
       this.addHolder();
     },
     onWindowResize: function() {

@@ -9,12 +9,11 @@
       <p>Difficult<span>{{this.commentNow}}</span></p>
       <p>Time<span>0:19</span></p>
       <p>My Score<span>{{this.score}}</span></p>
-      <p>Player
-        
+      <p :style="{ position: 'relative' }">Player
+        <div id="badges-container" class="badges"></div>
       </p>
     </div>
     <div id="webgl-container"></div>
-    <div id="badges-container" class="badges"></div>
   </div>
 </template>
 
@@ -22,6 +21,7 @@
 import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 const TWEEN = require('@tweenjs/tween.js');
 
 export default {
@@ -821,11 +821,11 @@ export default {
           const rect = badgeCont.getBoundingClientRect();
           
           if (this.badgeScenes[i].scale.x < 1) {
-            this.badgeScenes[i].scale.x += 0.01;
-            this.badgeScenes[i].scale.y += 0.01;
-            this.badgeScenes[i].scale.z += 0.01;
+            this.badgeScenes[i].scale.x += 0.015;
+            this.badgeScenes[i].scale.y += 0.015;
+            this.badgeScenes[i].scale.z += 0.015;
           } else {
-            this.badgeScenes[i].rotation.y += 0.01;
+            this.badgeScenes[i].rotation.y += 0.02;
           }
 
           if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
@@ -964,6 +964,8 @@ export default {
               let badgeTextures = [
                 require("../assets/badge_star.png"),
                 require("../assets/badge_star2.png"),
+                require("../assets/badge_star3.png"),
+                require("../assets/badge_star4.png")
               ];
 
               let bIndex = 0;
@@ -972,6 +974,10 @@ export default {
                 bIndex = 1;
               } else if (level == 2) {
                 bIndex = 2;
+              } else if (level == 3) {
+                bIndex = 3;
+              } else if (level == 4) {
+                bIndex = 4;
               }
 
               const bContainer = document.getElementById('badges-container');
@@ -982,15 +988,26 @@ export default {
 
                 const bEl = document.createElement('div');
 					      bEl.id = 'list-item' + i;
+                bEl.style.setProperty('width', '33%');
+                bEl.style.setProperty('height', '100%');
                 
                 bScene.userData.element = bEl;
 					      bContainer.appendChild(bEl);
                 
-                bGeo = new THREE.CylinderGeometry(1, 1, 0.1, 25);
-                bCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
-                bCamera.position.set(0,0,5);
-                bCamera.lookAt(bScene.position);
+                bGeo = new THREE.CylinderGeometry(1, 1, 0.15, 25);
+                //bCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
+                bCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
+                //bCamera.position.set(0,0,5);
+                //bCamera.lookAt(bScene.position);
+                bCamera.position.z = 4;
                 bScene.userData.camera = bCamera;
+
+                const controls = new OrbitControls(bScene.userData.camera, bScene.userData.element);
+                controls.minDistance = 2;
+                controls.maxDistance = 5;
+                controls.enablePan = false;
+                controls.enableZoom = true;
+                bScene.userData.controls = controls;
 
                 const badgeLoader = new THREE.TextureLoader();
                 const badgeTex = badgeLoader.load(badgeTextures[i]);
@@ -1005,9 +1022,9 @@ export default {
                 bMesh = new THREE.Mesh(bGeo, bMat);
                 bMesh.rotation.z = Math.PI / 2;
                 bMesh.rotation.y = Math.PI / 2;
-                bMesh.scale.x = 0;
-                bMesh.scale.y = 0;
-                bMesh.scale.z = 0;
+                //bMesh.scale.x = 0;
+                //bMesh.scale.y = 0;
+                //bMesh.scale.z = 0;
 
                 bScene.add(bMesh);
                 bScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
@@ -1025,6 +1042,7 @@ export default {
               } else {
                // myScore.innerHTML = "<strong>You win!</strong> Click the screen to play again.";
                 console.log("You win!  Click the screen to play again.")
+                this.badgeScenes = [];
               }
             }
           }
@@ -1106,27 +1124,14 @@ export default {
     width: 100%;
     height: 70px;
     z-index: 10000000;
+    display: flex;
   }
   #list-item0,
   #list-item1,
-  #list-item2 {
-    display: inline-block;
-    margin: 1em;
-    padding: 1em;
-    box-shadow: 1px 2px 4px 0px rgba(0,0,0,0.25);
-  }
-  #list-item0 > div:nth-child(1),
-  #list-item1 > div:nth-child(1),
-  #list-item2 > div:nth-child(1) {
-    width: 200px;
-    height: 200px;
-  }
-  #list-item0 > div:nth-child(2),
-  #list-item1 > div:nth-child(2),
-  #list-item2 > div:nth-child(2) {
-    color: #888;
-    width: 200px;
-    margin-top: 0.5em;
+  #list-item2,
+  #list-item3 {
+    width: 25%;
+    height: 100%;
   }
   .badges{
     display: flex;

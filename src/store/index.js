@@ -6,14 +6,14 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {
     navigation: false,
-    currentSlide: 0,
+    hideGalactic: true,
     playGame: false
   },
   mutations: {
     playGame (state, data) {
       state.playGame = data
     },
-    changeSlide (state, data) {
+    hideGalactic (state, data) {
       state.currentSlide = data
     },
     openNavigation (state, data) {

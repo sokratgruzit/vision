@@ -10,6 +10,7 @@
       </slide>
     </hooper>
     <Game v-if="$store.state.playGame"/>
+    <Galactic/>
   </div>
 </template>
 
@@ -20,6 +21,7 @@ import 'hooper/dist/hooper.css'
 import Game from '@/components/Game.vue'
 import MainSlide from '../components/MainSlide'
 import GameStart from '../components/GameStart'
+import Galactic from '../components/Galactic'
 
 export default {
   name: 'Home',
@@ -28,7 +30,8 @@ export default {
     Game,
     Hooper,
     Slide,
-    GameStart
+    GameStart,
+    Galactic
   },
   data () {
     return {
@@ -46,6 +49,9 @@ export default {
 }
 </script>
 <style>
+  .home-slider .hooper{
+    z-index: 2;
+  }
   .home-slider{
     height: 100vh;
     width: 100%;

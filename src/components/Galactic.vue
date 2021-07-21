@@ -6,8 +6,6 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-
-
 export default {
   name: 'MainSlide',
   data () {
@@ -65,8 +63,8 @@ export default {
     }
   },
   watch: {
-    '$store.state.currentSlide': function () {
-      if (this.$store.state.currentSlide == 0) {
+    '$store.state.playGame': function () {
+      if (this.$store.state.playGame == false) {
         this.animate();
       }
     }
@@ -200,7 +198,7 @@ export default {
       this.scene.add(this.particles);
     },
     animate: function () {
-      if (this.$store.state.currentSlide == 0){
+      if (this.$store.state.playGame == false){
         requestAnimationFrame(this.animate);
       }
       console.log(this.$store.state.currentSlide)

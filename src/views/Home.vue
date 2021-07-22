@@ -40,10 +40,6 @@ export default {
   },
   methods: {
     updateCarousel (payload) {
-     setTimeout(() => {
-       this.$store.commit('changeSlide', payload.currentSlide)
-       console.log(this.$store.state.currentSlide)
-     },1200)
     }
   }
 }

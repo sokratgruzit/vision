@@ -3,7 +3,7 @@
     <div v-if="true" class="main-slide__inner">
       <h2 class="main-slide__title second-slide__title">
         <div class="main-slide__title-out">
-          <div class="main-slide__title-in"><span>01</span>connection</div>
+          <!--<div class="main-slide__title-in"><span>01</span>connection</div>-->
         </div>
       </h2>
       <div class="main-slide__description">

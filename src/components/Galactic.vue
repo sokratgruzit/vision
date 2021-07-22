@@ -63,7 +63,13 @@ export default {
 			targetRotationOnPointerDown: 0,
 			pointerX: 0,
 			pointerXOnPointerDown: 0,
-      isPointerDown: false
+      isPointerDown: false,
+      oldDisp: 0.0,
+      oldPerc: 1.0,
+      disp: 0.1,
+      perc: 0.1,
+      oldDispC: 6.0,
+      oldPercC: 0.0
     }
   },
   watch: {
@@ -202,111 +208,51 @@ export default {
       this.scene.add(this.particles);
       this.changeSlide('main');
     },
+    wheelScroll: function(event) {
+      if (this.$store.state.currentSlide !== 0) {
+        this.changeSlide('connect');
+      }
+      if (this.$store.state.currentSlide == 0) {
+        this.changeSlide('main');
+      }
+    },
     changeSlide: function(slide) {
-      this.scene.remove(this.scene.getObjectByName("core"));
-      this.scene.remove(this.scene.getObjectByName("vision"));
+      let textIndex = 0;
+
+      if (slide === 'main') {
+        textIndex = 2;
+        this.scene.remove(this.scene.getObjectByName("connect"));
+      }
+      if (slide === 'connect') {
+        textIndex = 1;
+        this.scene.remove(this.scene.getObjectByName("core"));
+        this.scene.remove(this.scene.getObjectByName("vision"));
+      }
 
       var textLoader = new THREE.FontLoader();
       var scene = this.scene;
       var camera = this.camera;
+      var oldDisp = this.oldDisp;
+      var oldPerc = this.oldPerc;
+      var oldDispC = this.oldDispC;
+      var oldPercC = this.oldPercC;
 
-      textLoader.load("./three_fonts/Kanit_Regular.json", function(
-        font
-      ) {
-        var textGeo1 = new THREE.TextBufferGeometry(slide === 'main' ? "Core" : "Connect", {
-          font: font,
-          size: 170,
-          height: 5,
-          curveSegments: 12,
-          bevelEnabled: true,
-          bevelThickness: 2,
-          bevelSize: 8,
-          bevelSegments: 5
-        });
-
-        const tessellateModifier1 = new TessellateModifier(8, 6);
-        textGeo1 = tessellateModifier1.modify(textGeo1);
-        const numFaces = textGeo1.attributes.position.count / 3;
-        const colors = new Float32Array( numFaces * 3 * 3 );
-				const color = new THREE.Color();
-        const displacement1 = new Float32Array(numFaces * 3 * 3);
-
-        for (let f = 0; f < numFaces; f++) {
-          const index = 9 * f;
-
-          const h = 0.2 * Math.random();
-					const s = 0.5 + 0.5 * Math.random();
-					const l = 0.5 + 0.5 * Math.random();
-
-          const d = 1000 * (0.5 - Math.random());
-
-          for (let i = 0; i < 3; i++) {
-            colors[ index + ( 3 * i ) ] = color.r;
-						colors[ index + ( 3 * i ) + 1 ] = color.g;
-						colors[ index + ( 3 * i ) + 2 ] = color.b;
-
-            displacement1[index + (3 * i)] = d;
-            displacement1[index + (3 * i) + 1] = d;
-            displacement1[index + (3 * i) + 2] = d;
-          }
-        }
-
-        textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
-        textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
-
-        var textUniforms1 = {
-					amplitude: { value: 0.0 },
-          percent: { type: "f", value: 1.0 }
-				};
-
-				const tShaderMat = new THREE.ShaderMaterial({
-					uniforms: textUniforms1,
-					vertexShader: `
-            uniform float amplitude;
-            attribute vec3 customColor;
-            attribute vec3 displacement;
-            varying vec3 vNormal;
-            varying vec3 vColor;
-            void main() {
-              vNormal = normal;
-              vColor = customColor;
-              vec3 newPosition = position + normal * amplitude * displacement;
-              gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-            }
-          `,
-					fragmentShader: `
-            varying vec3 vNormal;
-            varying vec3 vColor;
-            uniform float percent;
-            void main() {
-              const float ambient = 0.4;
-              vec3 light = vec3( 1.0 );
-              light = normalize( light );
-              float directional = max( dot( vNormal, light ), 0.0 );
-              gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );
-              gl_FragColor.a = 1.0 * percent;
-            }
-          `,
-          transparent: true
-				});
-
-        var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
-        textMesh.position.x = -1100;
-        textMesh.position.z = 500;
-        textMesh.position.y = 50;
-
-        textMesh.rotation.x = 0.35;
-        textMesh.rotation.y = -0.3;
-        textMesh.rotation.z = 0.085;
-        textMesh.name = 'core';
-        scene.add(textMesh);
-      });
-
-      if (slide === 'main') {
+      for (let t = 0; t < textIndex; t++) {
         textLoader.load("./three_fonts/Kanit_Regular.json", function(
           font
         ) {
-          var textGeo1 = new THREE.TextBufferGeometry("Vision", {
+          let textMask = "Core";
+          let vectorColor = "vColor";
+
+          if (slide === "main" && t === 1) {
+            textMask = "Vision";
+            vectorColor = "vec3(1.0,0.0,0.0)";
+          }
+
+          if (slide === "connect") {
+            textMask = "Connect";
+          }
+          var textGeo1 = new THREE.TextBufferGeometry(textMask, {
             font: font,
             size: 170,
             height: 5,
@@ -316,6 +262,7 @@ export default {
             bevelSize: 8,
             bevelSegments: 5
           });
+
           const tessellateModifier1 = new TessellateModifier(8, 6);
           textGeo1 = tessellateModifier1.modify(textGeo1);
           const numFaces = textGeo1.attributes.position.count / 3;
@@ -326,16 +273,16 @@ export default {
           for (let f = 0; f < numFaces; f++) {
             const index = 9 * f;
 
-            const h = 0.2;
-            const s = 0.5 + 0.5;
-            const l = 0.5 + 0.5;
+            const h = 0.2 * Math.random();
+            const s = 0.5 + 0.5 * Math.random();
+            const l = 0.5 + 0.5 * Math.random();
 
             const d = 1000 * (0.5 - Math.random());
 
             for (let i = 0; i < 3; i++) {
-              colors[index + (3 * i)] = color.r;
-              colors[index + (3 * i) + 1] = color.g;
-              colors[index + (3 * i) + 2] = color.b;
+              colors[ index + ( 3 * i ) ] = color.r;
+              colors[ index + ( 3 * i ) + 1 ] = color.g;
+              colors[ index + ( 3 * i ) + 2 ] = color.b;
 
               displacement1[index + (3 * i)] = d;
               displacement1[index + (3 * i) + 1] = d;
@@ -347,8 +294,8 @@ export default {
           textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
 
           var textUniforms1 = {
-            amplitude: { value: 0.0 },
-            percent: { type: "f", value: 1.0 }
+            amplitude: { value: textMask === "Connect" ? oldDispC : oldDisp },
+            percent: { type: "f", value: textMask === "Connect" ? oldPercC : oldPerc }
           };
 
           const tShaderMat = new THREE.ShaderMaterial({
@@ -375,7 +322,7 @@ export default {
                 vec3 light = vec3( 1.0 );
                 light = normalize( light );
                 float directional = max( dot( vNormal, light ), 0.0 );
-                gl_FragColor = vec4( ( directional + ambient ) * vec3(1.0,0.0,0.0), 1.0 );
+                gl_FragColor = vec4( ( directional + ambient ) *` + vectorColor + `, 1.0 );
                 gl_FragColor.a = 1.0 * percent;
               }
             `,
@@ -383,20 +330,31 @@ export default {
           });
 
           var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
-          textMesh.position.x = -880;
-          textMesh.position.z = 500;
-          textMesh.position.y = -150;
+
+          if (textMask === "Core" || textMask === "Connect") {
+            textMesh.position.x = -1100;
+            textMesh.position.z = 500;
+            textMesh.position.y = 50;
+          } else {
+            textMesh.position.x = -880;
+            textMesh.position.z = 500;
+            textMesh.position.y = -150;
+          }
 
           textMesh.rotation.x = 0.35;
           textMesh.rotation.y = -0.3;
           textMesh.rotation.z = 0.085;
-          textMesh.name = 'vision';
+          textMesh.name = textMask;
           scene.add(textMesh);
         });
       }
 
       this.scene = scene;
       this.camera = camera;
+      this.oldDisp = oldDisp;
+      this.oldPerc = oldPerc;
+      this.oldDispC = oldDispC;
+      this.oldPercC = oldPercC;
     },
     animate: function () {
       if (this.$store.state.playGame == false){
@@ -466,17 +424,16 @@ export default {
       this.isPointerDown = false;
     },
     render: function () {
-      var text1 = this.scene.getObjectByName("core");
+      var text1 = this.scene.getObjectByName("Core");
       var textMat1 = text1 === undefined ? false : text1.material;
-      const time = Date.now() * 0.001;
-      var disp = 0.1;
-      var perc = 0.1;
 
       if (this.$store.state.currentSlide !== 0) {
         if (textMat1) {
-          if (textMat1.uniforms.amplitude.value < 50) {
-            textMat1.uniforms.amplitude.value += disp;
-            textMat1.uniforms.percent.value -= perc;
+          if (textMat1.uniforms.amplitude.value < 7) {
+            textMat1.uniforms.amplitude.value += this.disp;
+            textMat1.uniforms.percent.value -= this.perc;
+            this.oldDisp = textMat1.uniforms.amplitude.value;
+            this.oldPerc = textMat1.uniforms.percent.value;
           } 
         }
       }
@@ -484,32 +441,64 @@ export default {
       if (this.$store.state.currentSlide == 0) {
         if (textMat1) {
           if (textMat1.uniforms.amplitude.value > 0) {
-            textMat1.uniforms.amplitude.value -= disp;
-            textMat1.uniforms.percent.value += perc;
+            textMat1.uniforms.amplitude.value -= this.disp;
+            textMat1.uniforms.percent.value += this.perc;
+            this.oldDisp = textMat1.uniforms.amplitude.value;
+            this.oldPerc = textMat1.uniforms.percent.value;
           }
         }
       }
 
-      var text2 = this.scene.getObjectByName("vision");
+      var text2 = this.scene.getObjectByName("Vision");
       var textMat2 = text2 === undefined ? false : text2.material;
 
       if (this.$store.state.currentSlide !== 0){
         if (textMat2) {
-          if (textMat2.uniforms.amplitude.value < 50) {
-            textMat2.uniforms.amplitude.value += disp;
-            textMat2.uniforms.percent.value -= perc;
-          }
-        }
-      }
-      if (this.$store.state.currentSlide == 0){
-        if (textMat2) {
-          if (textMat2.uniforms.amplitude.value > 0) {
-            textMat2.uniforms.amplitude.value -= disp;
-            textMat2.uniforms.percent.value += perc;
+          if (textMat2.uniforms.amplitude.value < 7) {
+            textMat2.uniforms.amplitude.value += this.disp;
+            textMat2.uniforms.percent.value -= this.perc;
+            this.oldDisp = textMat2.uniforms.amplitude.value;
+            this.oldPerc = textMat2.uniforms.percent.value;
           }
         }
       }
 
+      if (this.$store.state.currentSlide == 0){
+        if (textMat2) {
+          if (textMat2.uniforms.amplitude.value > 0) {
+            textMat2.uniforms.amplitude.value -= this.disp;
+            textMat2.uniforms.percent.value += this.perc;
+            this.oldDisp = textMat2.uniforms.amplitude.value;
+            this.oldPerc = textMat2.uniforms.percent.value;
+          }
+        }
+      }
+
+      var text3 = this.scene.getObjectByName("Connect");
+      var textMat3 = text3 === undefined ? false : text3.material;
+
+      if (this.$store.state.currentSlide !== 0){
+        if (textMat3) {
+          console.log(this.oldDispC, textMat3.uniforms.amplitude.value)
+          if (textMat3.uniforms.amplitude.value > 0) {
+            textMat3.uniforms.amplitude.value -= this.disp;
+            textMat3.uniforms.percent.value += this.perc;
+            this.oldDispC = textMat3.uniforms.amplitude.value;
+            this.oldPercC = textMat3.uniforms.percent.value;
+          }
+        }
+      }
+      
+      if (this.$store.state.currentSlide == 0){
+        if (textMat3) {
+          if (textMat3.uniforms.amplitude.value < 6) {
+            textMat3.uniforms.amplitude.value += this.disp;
+            textMat3.uniforms.percent.value -= this.perc;
+            this.oldDispC = textMat3.uniforms.amplitude.value;
+            this.oldPercC = textMat3.uniforms.percent.value;
+          }
+        }
+      }
 
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
@@ -525,6 +514,7 @@ export default {
   mounted () {
     this.myScene();
     this.animate();
+    document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('pointermove', this.onPointerMove);

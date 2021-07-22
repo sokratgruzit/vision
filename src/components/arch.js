@@ -81,3 +81,69 @@ for (let i = 0; i < bIndex; i++) {
   this.badgeScene.add(blight);
   this.badgeScenes.push(this.badgeScene);
 }
+
+animate: function () {
+  if (this.$store.state.playGame == false){
+    requestAnimationFrame(this.animate);
+  }
+  console.log(this.$store.state.currentSlide)
+  // this.requestAnimation;
+  var t = this.clock.getElapsedTime();
+
+  var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
+  var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
+  var x = 0.0;
+  var y = 600;
+  var z = 1000 + 1200 * b;
+  var fixedX = 0;
+
+  if (this.moveGalaxy) {
+    this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
+    this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
+    this.camera.position.z = z;
+    fixedX = this.camera.position.x;
+    this.fixedY = this.camera.position.y;
+  }
+
+  if (this.camera.position.y < 200) {
+    fixedX = -595;
+    this.fixedY = 200;
+    this.moveGalaxy = false;
+    this.camera.position.x = fixedX < -595 ? fixedX : x * Math.cos(a) - y * Math.sin(a);
+    this.camera.position.y = this.fixedY < 200 ? fixedY : - x * Math.sin(a) + y * Math.cos(a);
+    this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
+  }
+
+  this.camera.lookAt(this.scene.position);
+  this.camera.up = new THREE.Vector3(0, 0, 1);
+  this.render();
+},
+render: function () {
+  var t = this.clock.getElapsedTime();
+  var meshRotation = 0.002;
+  if (this.mouseDirection === "left" && !this.fixedMesh) {
+    meshRotation += 0.002;
+  }
+  if (this.mouseDirection === "right" && !this.fixedMesh) {
+    meshRotation -= 0.01;
+  }
+  var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
+  var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
+  var x = 0.0;
+  var y = 600;
+  let meshTranslate = (x * Math.sin(a) + y * Math.cos(a)) - this.fixedY;
+  this.particles.rotation.z -= meshRotation;
+
+  if (this.camera.position.y < 200 && this.fixedMesh) {
+    if (meshTranslate > -590) {
+      this.particles.position.setZ(meshTranslate);
+    } else {
+      this.fixedMesh = false;
+      meshTranslate = -590;
+    }
+  }
+
+  this.renderer.setPixelRatio(window.devicePixelRatio);
+  this.renderer.physicallyCorrectLights = true;
+  this.renderer.render(this.scene, this.camera);
+},

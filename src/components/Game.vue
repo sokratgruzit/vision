@@ -817,37 +817,40 @@ export default {
 
       this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
       this.renderer.render(this.scene, this.camera);
-
-      if (this.badgeScenes.length > 0) {
+      const badgesParent = document.getElementById('badges-container');
+      
+      if (this.badgeScenes.length > 0 && badgesParent.hasChildNodes()) {
         for (let i = 0; i < this.badgeScenes.length; i++) {
           const badgeCont = document.getElementById('list-item' + i);
-          const rect = badgeCont.getBoundingClientRect();
+          const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
           
-          if (this.badgeScenes[i].scale.x < 1) {
-            this.badgeScenes[i].scale.x += 0.015;
-            this.badgeScenes[i].scale.y += 0.015;
-            this.badgeScenes[i].scale.z += 0.015;
-          } else {
-            this.badgeScenes[i].rotation.y += 0.02;
-          }
+          if (rect !== false) {
+            if (this.badgeScenes[i].scale.x < 1) {
+              this.badgeScenes[i].scale.x += 0.015;
+              this.badgeScenes[i].scale.y += 0.015;
+              this.badgeScenes[i].scale.z += 0.015;
+            } else {
+              this.badgeScenes[i].rotation.y += 0.02;
+            }
 
-          if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-          rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-            return; // it's off screen
-          }
+            if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+            rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+              return; // it's off screen
+            }
 
-          const width = rect.right - rect.left;
-          const height = rect.bottom - rect.top;
-          const left = rect.left;
-          const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+            const width = rect.right - rect.left;
+            const height = rect.bottom - rect.top;
+            const left = rect.left;
+            const bottom = this.renderer.domElement.clientHeight - rect.bottom;
 
-          this.renderer.clearDepth();
-      
-          if (this.badgeScenes.length > 0) {
-            this.renderer.setViewport(left, bottom, width, height);
-            this.renderer.setScissor(left, bottom, width, height);
-            this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
-          }
+            this.renderer.clearDepth();
+        
+            if (this.badgeScenes.length > 0) {
+              this.renderer.setViewport(left, bottom, width, height);
+              this.renderer.setScissor(left, bottom, width, height);
+              this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+            }
+          } 
         }
       }
 

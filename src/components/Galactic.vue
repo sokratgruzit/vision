@@ -55,11 +55,14 @@ export default {
       }
     `,
       moveGalaxy: true,
+      rotateGalaxy: true,
+      translateGalaxy: true,
       particles: null,
-      fixedY: 0,
-      fixedMesh: true,
-      oldx: 0,
-      mouseDirection: ""
+      targetRotation: 0,
+			targetRotationOnPointerDown: 0,
+			pointerX: 0,
+			pointerXOnPointerDown: 0,
+      isPointerDown: false
     }
   },
   watch: {
@@ -196,98 +199,121 @@ export default {
 
       this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
       this.scene.add(this.particles);
+
+      var textLoader = new THREE.FontLoader();
+      console.log(textLoader.load);
+      var scene = this.scene;
+      var camera = this.camera;
+      textLoader.load("./three_fonts/Kanit_Regular.json", function(
+        font
+      ) {
+        var textGeo = new THREE.TextBufferGeometry("Core \n     Vision", {
+          font: font,
+          size: 80,
+          height: 5,
+          curveSegments: 12,
+          bevelEnabled: true,
+          bevelThickness: 2,
+          bevelSize: 8,
+          bevelSegments: 5
+        });
+        var textMat = new THREE.MeshNormalMaterial({
+          flatShading: THREE.FlatShading,
+          transparent: true,
+          opacity: 0.9
+        });
+        var textMesh = new THREE.Mesh(textGeo, textMat);
+        scene.add(textMesh);
+      });
+      this.scene = scene;
+      this.camera = camera;
     },
     animate: function () {
       if (this.$store.state.playGame == false){
         requestAnimationFrame(this.animate);
       }
-      console.log(this.$store.state.currentSlide)
+      //console.log(this.$store.state.currentSlide)
       // this.requestAnimation;
-      var t = this.clock.getElapsedTime();
 
-      var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
-      var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
-      var x = 0.0;
-      var y = 600;
-      var z = 1000 + 1200 * b;
-      var fixedX = 0;
+      var zRot = 0.01;
+
+      if (this.particles.position.y < -790) {
+        this.translateGalaxy = false;
+        zRot = 0.0015;
+      }
+  
+      var xRot = 0.01;
+      var zPos = 4;
+      var yPos = 1;
+      var xPos = 1;
+
+      this.particles.rotation.z -= zRot;
 
       if (this.moveGalaxy) {
-        this.camera.position.x = x * Math.cos(a) - y * Math.sin(a);
-        this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
-        this.camera.position.z = z;
-        fixedX = this.camera.position.x;
-        this.fixedY = this.camera.position.y;
+        this.particles.position.y -= yPos;
+        this.particles.position.z += zPos;
+        this.particles.position.x -= xPos;
       }
 
-      if (this.camera.position.y < 200) {
-        fixedX = -595;
-        this.fixedY = 200;
+      if (this.particles.position.x < -280) {
         this.moveGalaxy = false;
-        this.camera.position.x = fixedX < -595 ? fixedX : x * Math.cos(a) - y * Math.sin(a);
-        this.camera.position.y = this.fixedY < 200 ? fixedY : - x * Math.sin(a) + y * Math.cos(a);
-        this.camera.position.y = - x * Math.sin(a) + y * Math.cos(a);
-      }
 
-      this.camera.lookAt(this.scene.position);
-      this.camera.up = new THREE.Vector3(0, 0, 1);
-      this.render();
-    },
-    render: function () {
-      var t = this.clock.getElapsedTime();
-      var meshRotation = 0.002;
-      if (this.mouseDirection === "left" && !this.fixedMesh) {
-        meshRotation += 0.002;
-      }
-      if (this.mouseDirection === "right" && !this.fixedMesh) {
-        meshRotation -= 0.01;
-      }
-      var a = (t * 0.1) % (Math.PI * 2.0);//2 * this.mouseX / this.windowHalfX;
-      var b = Math.cos(t * 0.17);//2 * this.mouseY / this.windowHalfY;
-      var x = 0.0;
-      var y = 600;
-      let meshTranslate = (x * Math.sin(a) + y * Math.cos(a)) - this.fixedY;
-      this.particles.rotation.z -= meshRotation;
+        if (this.rotateGalaxy) {
+          this.particles.rotation.x -= xRot;
+        }
 
-      if (this.camera.position.y < 200 && this.fixedMesh) {
-        if (meshTranslate > -590) {
-          this.particles.position.setZ(meshTranslate);
-        } else {
-          this.fixedMesh = false;
-          meshTranslate = -590;
+        if (this.translateGalaxy) {
+          this.particles.position.y -= yPos * 2;
         }
       }
 
+      if (this.particles.rotation.x < -0.6) {
+        this.rotateGalaxy = false;
+
+        if (this.isPointerDown) {
+          this.particles.rotation.z += (this.targetRotation - this.particles.rotation.z) * 0.05;
+        } else {
+          this.particles.rotation.z -= zRot;
+        }
+      }
+
+      this.camera.lookAt(this.scene.position);
+      //this.camera.up = new THREE.Vector3(0, 0, 1);
+      this.render();
+    },
+    onPointerMove: function (event) {
+      if (event.isPrimary === false) return;
+
+      this.pointerX = event.clientX - this.windowHalfX;
+      this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;
+    },
+    onPointerDown: function (event) {
+      if (event.isPrimary === false) return;
+      this.isPointerDown = true;
+    },
+    onPointerUp: function () {
+      if (event.isPrimary === false) return;
+      this.isPointerDown = false;
+    },
+    render: function () {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);
     },
-    onMouseMove: function (event) {
-      this.mouse.x = (event.clientX - this.windowHalfX);
-      this.mouse.y = (event.clientY - this.windowHalfX);
-
-      if (event.pageX < this.oldx) {
-        this.mouseDirection = "left";
-      } else if (event.pageX > this.oldx) {
-        this.mouseDirection = "right";
-      }
-
-      this.oldx = event.pageX;
-    },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
-
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-
       this.render();
     },
   },
   mounted () {
     this.myScene();
     this.animate();
-    document.addEventListener('mousemove', this.onMouseMove, false);
-    window.addEventListener( 'resize', this.onWindowResize, false );
+    document.addEventListener('mouseup', this.onPointerUp, false);
+    document.addEventListener('mousedown', this.onPointerDown, false);
+    document.addEventListener('pointermove', this.onPointerMove);
+    window.addEventListener('resize', this.onWindowResize, false);
   },
 }
 </script>

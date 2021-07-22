@@ -200,9 +200,10 @@ export default {
 
       this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
       this.scene.add(this.particles);
-      this.changeSlide('main');
+      this.changeSlide();
     },
-    changeSlide: function(slide) {
+    changeSlide: function(event) {
+      console.log(event);
       this.scene.remove(this.scene.getObjectByName("core"));
       this.scene.remove(this.scene.getObjectByName("vision"));
 
@@ -213,7 +214,7 @@ export default {
       textLoader.load("./three_fonts/Kanit_Regular.json", function(
         font
       ) {
-        var textGeo1 = new THREE.TextBufferGeometry(slide === 'main' ? "Core" : "Connect", {
+        var textGeo1 = new THREE.TextBufferGeometry("Core", {
           font: font,
           size: 170,
           height: 5,
@@ -302,7 +303,7 @@ export default {
         scene.add(textMesh);
       });
 
-      if (slide === 'main') {
+      
         textLoader.load("./three_fonts/Kanit_Regular.json", function(
           font
         ) {
@@ -393,7 +394,7 @@ export default {
           textMesh.name = 'vision';
           scene.add(textMesh);
         });
-      }
+      
 
       this.scene = scene;
       this.camera = camera;
@@ -466,7 +467,6 @@ export default {
       this.isPointerDown = false;
     },
     render: function () {
-      console.log('fuck', this.scene);
       var text1 = this.scene.getObjectByName("core");
       var textMat1 = text1 === undefined ? false : text1.material;
       const time = Date.now() * 0.001;
@@ -526,6 +526,7 @@ export default {
   mounted () {
     this.myScene();
     this.animate();
+    window.addEventListener('scroll', this.changeSlide, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('pointermove', this.onPointerMove);

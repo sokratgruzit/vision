@@ -40,6 +40,7 @@ export default {
   },
   methods: {
     updateCarousel (payload) {
+      this.$store.commit('changeSlide', payload.currentSlide);
     }
   }
 }

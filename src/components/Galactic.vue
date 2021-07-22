@@ -205,7 +205,7 @@ export default {
       var textLoader = new THREE.FontLoader();
       var scene = this.scene;
       var camera = this.camera;
-      
+
       textLoader.load("./three_fonts/Kanit_Regular.json", function(
         font
       ) {
@@ -246,10 +246,10 @@ export default {
             displacement1[index + (3 * i) + 2] = d;
           }
         }
-        
+
         textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
         textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
-        
+
         var textUniforms1 = {
 					amplitude: { value: 0.0 }
 				};
@@ -281,7 +281,7 @@ export default {
             }
           `
 				});
-        
+
         var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
         textMesh.position.x = -1100;
         textMesh.position.z = 500;
@@ -333,10 +333,10 @@ export default {
             displacement1[index + (3 * i) + 2] = d;
           }
         }
-        
+
         textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
         textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
-        
+
         var textUniforms1 = {
 					amplitude: { value: 0.0 }
 				};
@@ -368,7 +368,7 @@ export default {
             }
           `
 				});
-        
+
         var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
         textMesh.position.x = -880;
         textMesh.position.z = 500;
@@ -396,7 +396,7 @@ export default {
         this.translateGalaxy = false;
         zRot = 0.0015;
       }
-  
+
       var xRot = 0.01;
       var zPos = 4;
       var yPos = 1;
@@ -455,22 +455,40 @@ export default {
       var textMat1 = text1 === undefined ? false : text1.material;
       const time = Date.now() * 0.001;
       var disp = 1.0 + Math.sin(time * 0.5);
-
-      if (textMat1) {
-        if (textMat1.uniforms.amplitude.value < 1.8) {
-          textMat1.uniforms.amplitude.value = disp;
+      var disp2 = - (1.0 + Math.sin(time * 0.5));
+      if (this.$store.state.currentSlide !== 0) {
+        if (textMat1) {
+          if (textMat1.uniforms.amplitude.value < 1.8) {
+            textMat1.uniforms.amplitude.value = disp;
+          }
+        }
+      }
+      if (this.$store.state.currentSlide == 0) {
+        if (textMat1) {
+          if (textMat1.uniforms.amplitude.value > 1.8) {
+            textMat1.uniforms.amplitude.value = disp2;
+          }
         }
       }
 
       var text2 = this.scene.getObjectByName("vision");
       var textMat2 = text2 === undefined ? false : text2.material;
-
-      if (textMat2) {
-        if (textMat2.uniforms.amplitude.value < 1.8) {
-          textMat2.uniforms.amplitude.value = disp;
+      if (this.$store.state.currentSlide !== 0){
+        if (textMat2) {
+          if (textMat2.uniforms.amplitude.value < 1.8) {
+            textMat2.uniforms.amplitude.value = disp;
+          }
         }
       }
-      
+      if (this.$store.state.currentSlide == 0){
+        if (textMat2) {
+          if (textMat2.uniforms.amplitude.value > 1.8) {
+            textMat2.uniforms.amplitude.value = disp2;
+          }
+        }
+      }
+
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);

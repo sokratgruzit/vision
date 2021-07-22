@@ -7,9 +7,13 @@ export default new Vuex.Store({
   state: {
     navigation: false,
     hideGalactic: true,
-    playGame: false
+    playGame: false,
+    currentSlide: 0
   },
   mutations: {
+    changeSlide (state, data) {
+      state.currentSlide = data
+    },
     playGame (state, data) {
       state.playGame = data
     },

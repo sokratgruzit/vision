@@ -929,7 +929,6 @@
             }
           });
           this.badgeIndex = bIndex;
-          console.log(this.badgeIndex)
           this.score = score;
           this.totalTargets = totalTargets;
           this.myScore = myScore;

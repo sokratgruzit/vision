@@ -200,10 +200,9 @@ export default {
 
       this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
       this.scene.add(this.particles);
-      this.changeSlide();
+      this.changeSlide('main');
     },
-    changeSlide: function(event) {
-      console.log(event);
+    changeSlide: function(slide) {
       this.scene.remove(this.scene.getObjectByName("core"));
       this.scene.remove(this.scene.getObjectByName("vision"));
 
@@ -214,7 +213,7 @@ export default {
       textLoader.load("./three_fonts/Kanit_Regular.json", function(
         font
       ) {
-        var textGeo1 = new THREE.TextBufferGeometry("Core", {
+        var textGeo1 = new THREE.TextBufferGeometry(slide === 'main' ? "Core" : "Connect", {
           font: font,
           size: 170,
           height: 5,
@@ -303,7 +302,7 @@ export default {
         scene.add(textMesh);
       });
 
-      
+      if (slide === 'main') {
         textLoader.load("./three_fonts/Kanit_Regular.json", function(
           font
         ) {
@@ -394,7 +393,7 @@ export default {
           textMesh.name = 'vision';
           scene.add(textMesh);
         });
-      
+      }
 
       this.scene = scene;
       this.camera = camera;
@@ -526,7 +525,6 @@ export default {
   mounted () {
     this.myScene();
     this.animate();
-    window.addEventListener('scroll', this.changeSlide, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('pointermove', this.onPointerMove);

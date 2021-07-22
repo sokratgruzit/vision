@@ -819,7 +819,7 @@ export default {
         for (let i = 0; i < this.badgeScenes.length; i++) {
           const badgeCont = document.getElementById('list-item' + i);
           const rect = badgeCont.getBoundingClientRect();
-          
+
           if (this.badgeScenes[i].scale.x < 1) {
             this.badgeScenes[i].scale.x += 0.015;
             this.badgeScenes[i].scale.y += 0.015;
@@ -839,7 +839,7 @@ export default {
           const bottom = this.renderer.domElement.clientHeight - rect.bottom;
 
           this.renderer.clearDepth();
-      
+
           if (this.badgeScenes.length > 0) {
             this.renderer.setViewport(left, bottom, width, height);
             this.renderer.setScissor(left, bottom, width, height);
@@ -947,7 +947,7 @@ export default {
         let bMat = this.badgeMat;
         let bMesh = this.badgeMesh;
         let bCamera = this.badgeCamera;
-  
+
         this.holder.children.forEach(function (elem, index, array) {
           let intersects = raycaster.intersectObjects(elem.children);
           if (intersects.length > 0 && intersects[0].object.visible) {
@@ -971,7 +971,6 @@ export default {
               let bIndex = 0;
 
               if (level == 1) {
-                this.badgeScenes = [];
                 bIndex = 1;
               } else if (level == 2) {
                 bIndex = 2;
@@ -979,7 +978,7 @@ export default {
                 bIndex = 3;
               } else if (level == 4) {
                 bIndex = 4;
-              } 
+              }
 
               const bContainer = document.getElementById('badges-container');
               bContainer.querySelectorAll('*').forEach(n => n.remove());
@@ -991,10 +990,10 @@ export default {
 					      bEl.id = 'list-item' + i;
                 bEl.style.setProperty('width', '33%');
                 bEl.style.setProperty('height', '100%');
-                
+
                 bScene.userData.element = bEl;
 					      bContainer.appendChild(bEl);
-                
+
                 bGeo = new THREE.CylinderGeometry(1, 1, 0.15, 25);
                 //bCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
                 bCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);

@@ -12,6 +12,9 @@
           </div>
         </div>
       </div>
+      <div class="next-lvl__container">
+        Click To Next Level
+      </div>
     </div>
     <div class="hud">
       <p>Level<span>{{level}}</span></p>
@@ -533,8 +536,19 @@
           require("../assets/badge_star3.png"),
           require("../assets/badge_star4.png")
         ],
+        oldBadgeIndex:0,
         badgeIndex: 0,
         badgeAnimation:false
+      }
+    },
+    watch: {
+      'badgeIndex': function () {
+        console.log(this.badgeIndex)
+        console.log(this.oldBadgeIndex)
+        if(this.oldBadgeIndex + 1 == this.badgeIndex){
+          this.oldBadgeIndex++;
+          this.badgeAnimation = true;
+        }
       }
     },
     methods: {
@@ -959,6 +973,7 @@
             this.scene.remove(this.scene.children[i]);
           }
         }
+        this.badgeAnimation = false;
         console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
         this.commentNow = this.comments[this.level-1];
         this.playerStatusNow = this.playerStatuses[this.level-1];
@@ -1003,6 +1018,25 @@
 
 <style scoped>
   /*coin css*/
+  .next-lvl__container{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100vh;
+    z-index: 1000000;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    pointer-events: none;
+    background: rgba(135, 133, 255, .4);
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+  }
+  .action-container.active .next-lvl__container{
+    opacity: 1;
+    transition-delay: 1.4s;
+  }
  .action-container{
    position: absolute;
    top: 0px;
@@ -1031,7 +1065,7 @@
     opacity: 0;
   }
   .action-container.active .y-axis-container{
-    animation: bounce 1.1s ease-in-out;
+    animation: bounce 1.4s ease-in-out;
   }
   @keyframes bounce {
     0% {

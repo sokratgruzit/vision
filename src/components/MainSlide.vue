@@ -2,12 +2,12 @@
     <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
       <div class="main-slide__inner">
         <h1 class="main-slide__title">
-          <div class="main-slide__title-out">
+          <!--<div class="main-slide__title-out">
             <div class="main-slide__title-in">CORE</div>
           </div>
           <div class="main-slide__title-out">
             <div class="main-slide__title-in">VISION</div>
-          </div>
+          </div>-->
         </h1>
         <div class="main-slide__description">
           <p>Multi Chain PoS Network focused

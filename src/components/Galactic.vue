@@ -6,6 +6,7 @@
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 export default {
   name: 'MainSlide',
   data () {
@@ -62,7 +63,8 @@ export default {
 			targetRotationOnPointerDown: 0,
 			pointerX: 0,
 			pointerXOnPointerDown: 0,
-      isPointerDown: false
+      isPointerDown: false,
+      textUniforms1: null
     }
   },
   watch: {
@@ -201,15 +203,15 @@ export default {
       this.scene.add(this.particles);
 
       var textLoader = new THREE.FontLoader();
-      console.log(textLoader.load);
       var scene = this.scene;
       var camera = this.camera;
+      
       textLoader.load("./three_fonts/Kanit_Regular.json", function(
         font
       ) {
-        var textGeo = new THREE.TextBufferGeometry("Core \n     Vision", {
+        var textGeo1 = new THREE.TextBufferGeometry("Core", {
           font: font,
-          size: 80,
+          size: 170,
           height: 5,
           curveSegments: 12,
           bevelEnabled: true,
@@ -217,12 +219,165 @@ export default {
           bevelSize: 8,
           bevelSegments: 5
         });
-        var textMat = new THREE.MeshNormalMaterial({
-          flatShading: THREE.FlatShading,
-          transparent: true,
-          opacity: 0.9
+
+        const tessellateModifier1 = new TessellateModifier(8, 6);
+        textGeo1 = tessellateModifier1.modify(textGeo1);
+        const numFaces = textGeo1.attributes.position.count / 3;
+        const colors = new Float32Array( numFaces * 3 * 3 );
+				const color = new THREE.Color();
+        const displacement1 = new Float32Array(numFaces * 3 * 3);
+
+        for (let f = 0; f < numFaces; f++) {
+          const index = 9 * f;
+
+          const h = 0.2 * Math.random();
+					const s = 0.5 + 0.5 * Math.random();
+					const l = 0.5 + 0.5 * Math.random();
+
+          const d = 1000 * (0.5 - Math.random());
+
+          for (let i = 0; i < 3; i++) {
+            colors[ index + ( 3 * i ) ] = color.r;
+						colors[ index + ( 3 * i ) + 1 ] = color.g;
+						colors[ index + ( 3 * i ) + 2 ] = color.b;
+
+            displacement1[index + (3 * i)] = d;
+            displacement1[index + (3 * i) + 1] = d;
+            displacement1[index + (3 * i) + 2] = d;
+          }
+        }
+        
+        textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
+        textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
+        
+        var textUniforms1 = {
+					amplitude: { value: 0.0 }
+				};
+
+				const tShaderMat = new THREE.ShaderMaterial({
+					uniforms: textUniforms1,
+					vertexShader: `
+            uniform float amplitude;
+            attribute vec3 customColor;
+            attribute vec3 displacement;
+            varying vec3 vNormal;
+            varying vec3 vColor;
+            void main() {
+              vNormal = normal;
+              vColor = customColor;
+              vec3 newPosition = position + normal * amplitude * displacement;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+            }
+          `,
+					fragmentShader: `
+            varying vec3 vNormal;
+            varying vec3 vColor;
+            void main() {
+              const float ambient = 0.4;
+              vec3 light = vec3( 1.0 );
+              light = normalize( light );
+              float directional = max( dot( vNormal, light ), 0.0 );
+              gl_FragColor = vec4( ( directional + ambient ) * vColor, 1.0 );
+            }
+          `
+				});
+        
+        var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
+        textMesh.position.x = -1100;
+        textMesh.position.z = 500;
+        textMesh.position.y = 50;
+
+        textMesh.rotation.x = 0.35;
+        textMesh.rotation.y = -0.3;
+        textMesh.rotation.z = 0.085;
+        textMesh.name = 'core';
+        scene.add(textMesh);
+      });
+
+      textLoader.load("./three_fonts/Kanit_Regular.json", function(
+        font
+      ) {
+        var textGeo1 = new THREE.TextBufferGeometry("Vision", {
+          font: font,
+          size: 170,
+          height: 5,
+          curveSegments: 12,
+          bevelEnabled: true,
+          bevelThickness: 2,
+          bevelSize: 8,
+          bevelSegments: 5
         });
-        var textMesh = new THREE.Mesh(textGeo, textMat);
+        const tessellateModifier1 = new TessellateModifier(8, 6);
+        textGeo1 = tessellateModifier1.modify(textGeo1);
+        const numFaces = textGeo1.attributes.position.count / 3;
+        const colors = new Float32Array( numFaces * 3 * 3 );
+				const color = new THREE.Color();
+        const displacement1 = new Float32Array(numFaces * 3 * 3);
+
+        for (let f = 0; f < numFaces; f++) {
+          const index = 9 * f;
+
+          const h = 0.2;
+					const s = 0.5 + 0.5;
+					const l = 0.5 + 0.5;
+
+          const d = 1000 * (0.5 - Math.random());
+
+          for (let i = 0; i < 3; i++) {
+            colors[index + (3 * i)] = color.r;
+						colors[index + (3 * i) + 1] = color.g;
+						colors[index + (3 * i) + 2] = color.b;
+
+            displacement1[index + (3 * i)] = d;
+            displacement1[index + (3 * i) + 1] = d;
+            displacement1[index + (3 * i) + 2] = d;
+          }
+        }
+        
+        textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
+        textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
+        
+        var textUniforms1 = {
+					amplitude: { value: 0.0 }
+				};
+
+				const tShaderMat = new THREE.ShaderMaterial({
+					uniforms: textUniforms1,
+					vertexShader: `
+            uniform float amplitude;
+            attribute vec3 customColor;
+            attribute vec3 displacement;
+            varying vec3 vNormal;
+            varying vec3 vColor;
+            void main() {
+              vNormal = normal;
+              vColor = customColor;
+              vec3 newPosition = position + normal * amplitude * displacement;
+              gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+            }
+          `,
+					fragmentShader: `
+            varying vec3 vNormal;
+            varying vec3 vColor;
+            void main() {
+              const float ambient = 0.4;
+              vec3 light = vec3( 1.0 );
+              light = normalize( light );
+              float directional = max( dot( vNormal, light ), 0.0 );
+              gl_FragColor = vec4( ( directional + ambient ) * vec3(1.0,0.0,0.0), 1.0 );
+            }
+          `
+				});
+        
+        var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
+        textMesh.position.x = -880;
+        textMesh.position.z = 500;
+        textMesh.position.y = -150;
+
+        textMesh.rotation.x = 0.35;
+        textMesh.rotation.y = -0.3;
+        textMesh.rotation.z = 0.085;
+        textMesh.name = 'vision';
         scene.add(textMesh);
       });
       this.scene = scene;
@@ -296,6 +451,26 @@ export default {
       this.isPointerDown = false;
     },
     render: function () {
+      var text1 = this.scene.getObjectByName("core");
+      var textMat1 = text1 === undefined ? false : text1.material;
+      const time = Date.now() * 0.001;
+      var disp = 1.0 + Math.sin(time * 0.5);
+
+      if (textMat1) {
+        if (textMat1.uniforms.amplitude.value < 1.8) {
+          textMat1.uniforms.amplitude.value = disp;
+        }
+      }
+
+      var text2 = this.scene.getObjectByName("vision");
+      var textMat2 = text2 === undefined ? false : text2.material;
+
+      if (textMat2) {
+        if (textMat2.uniforms.amplitude.value < 1.8) {
+          textMat2.uniforms.amplitude.value = disp;
+        }
+      }
+      
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);

@@ -31,32 +31,32 @@
         galaxyMat: null,
         uniforms: null,
         galaxyVertex: `
-      uniform vec3 uCameraPos;
-      attribute float alpha;
-      attribute float size;
-      attribute vec3 color;
-      varying float vAlpha;
-      varying vec3 vColor;
+          uniform vec3 uCameraPos;
+          attribute float alpha;
+          attribute float size;
+          attribute vec3 color;
+          varying float vAlpha;
+          varying vec3 vColor;
 
-      void main() {
-        float d = distance(position.xyz, uCameraPos);
-        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-        vAlpha = alpha;
-        vColor = color;
-        gl_PointSize = size;
-        gl_Position = projectionMatrix * mvPosition;
-      }
-    `,
+          void main() {
+            float d = distance(position.xyz, uCameraPos);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vAlpha = alpha;
+            vColor = color;
+            gl_PointSize = size;
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
         galaxyFragment: `
-      varying vec3 vColor;
-      uniform sampler2D pointTexture;
-      varying float vAlpha;
+          varying vec3 vColor;
+          uniform sampler2D pointTexture;
+          varying float vAlpha;
 
-      void main() {
-        gl_FragColor = vec4(vColor, vAlpha);
-        gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-      }
-    `,
+          void main() {
+            gl_FragColor = vec4(vColor, vAlpha);
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+          }
+        `,
         moveGalaxy: true,
         rotateGalaxy: true,
         translateGalaxy: true,
@@ -66,12 +66,8 @@
         pointerX: 0,
         pointerXOnPointerDown: 0,
         isPointerDown: false,
-        oldDisp: 0.0,
-        oldPerc: 1.0,
-        disp: 0.1,
-        perc: 0.1,
-        oldDispC: 6.0,
-        oldPercC: 0.0
+        slideOut: false,
+        slideIn: true
       }
     },
     watch: {
@@ -218,87 +214,81 @@
         var text3 = this.scene.getObjectByName("Connect");
         var textMat3 = text3 === undefined ? false : text3.material;
         if (this.$store.state.currentSlide !== 0) {
+          this.moveGalaxyOnSlider();
           if (textMat1) {
-            var tween = new TWEEN.Tween(textMat1.uniforms.amplitude)
-              .to({
-                value: 7
-              }, 1000)
-              .start();
-            var tween2 = new TWEEN.Tween(textMat1.uniforms.percent)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            tween.easing(TWEEN.Easing.Quadratic.In);
-            tween2.easing(TWEEN.Easing.Quadratic.In);
+            new TWEEN.Tween(textMat1.uniforms.amplitude)
+            .to({ value: 7 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
-            var tween3 = new TWEEN.Tween(textMat2.uniforms.amplitude)
-              .to({
-                value: 7
-              }, 1000)
-              .start();
-            var tween4 = new TWEEN.Tween(textMat2.uniforms.percent)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            tween3.easing(TWEEN.Easing.Quadratic.In);
-            tween4.easing(TWEEN.Easing.Quadratic.In);
+            new TWEEN.Tween(textMat1.uniforms.percent)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
-            var tween5 = new TWEEN.Tween(textMat3.uniforms.amplitude)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            var tween6 = new TWEEN.Tween(textMat3.uniforms.percent)
-              .to({
-                value: 1
-              }, 1000)
-              .start();
-            tween5.easing(TWEEN.Easing.Quadratic.In);
-            tween6.easing(TWEEN.Easing.Quadratic.In);
+            new TWEEN.Tween(text1.position)
+            .to({ x: -10000, y: 2000, z: 6000 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat2.uniforms.amplitude)
+            .to({ value: 7 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat2.uniforms.percent)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+            
+            new TWEEN.Tween(textMat3.uniforms.amplitude)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat3.uniforms.percent)
+            .to({ value: 1 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
           }
         }
         if (this.$store.state.currentSlide == 0) {
           if (textMat1) {
-            var tween = new TWEEN.Tween(textMat1.uniforms.amplitude)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            var tween2 = new TWEEN.Tween(textMat1.uniforms.percent)
-              .to({
-                value: 1
-              }, 1000)
-              .start();
-            tween.easing(TWEEN.Easing.Quadratic.In);
-            tween2.easing(TWEEN.Easing.Quadratic.In);
+            this.moveGalaxyOnSlider();
+            new TWEEN.Tween(textMat1.uniforms.amplitude)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
-            var tween3 = new TWEEN.Tween(textMat2.uniforms.amplitude)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            var tween4 = new TWEEN.Tween(textMat2.uniforms.percent)
-              .to({
-                value: 1
-              }, 1000)
-              .start();
-            tween3.easing(TWEEN.Easing.Quadratic.In);
-            tween4.easing(TWEEN.Easing.Quadratic.In);
+            new TWEEN.Tween(textMat1.uniforms.percent)
+            .to({ value: 1 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
-            var tween5 = new TWEEN.Tween(textMat3.uniforms.amplitude)
-              .to({
-                value: 7
-              }, 1000)
-              .start();
-            var tween6 = new TWEEN.Tween(textMat3.uniforms.percent)
-              .to({
-                value: 0
-              }, 1000)
-              .start();
-            tween5.easing(TWEEN.Easing.Quadratic.In);
-            tween6.easing(TWEEN.Easing.Quadratic.In);
+            new TWEEN.Tween(text1.position)
+            .to({ x: -1100, y: 50, z: 500 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat2.uniforms.amplitude)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat2.uniforms.percent)
+            .to({ value: 1 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat3.uniforms.amplitude)
+            .to({ value: 7 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(textMat3.uniforms.percent)
+            .to({ value: 0 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
           }
         }
       },
@@ -327,8 +317,8 @@
               font: font,
               size: 170,
               height: 5,
-              curveSegments: 12,
-              bevelEnabled: true,
+              curveSegments: 20,
+              //bevelEnabled: true,
               bevelThickness: 2,
               bevelSize: 8,
               bevelSegments: 5
@@ -423,8 +413,18 @@
         this.scene = scene;
         this.camera = camera;
       },
+      moveGalaxyOnSlider: function () {
+        var A = new TWEEN.Tween(this.particles.position).to({ x: -1000, y: -1500, z: 3000 }, 500)
+        .easing(TWEEN.Easing.Quadratic.In); 
+
+        var B = new TWEEN.Tween(this.particles.position).to({ x: -280, y: -900, z: 748 }, 500)
+        .easing(TWEEN.Easing.Quadratic.In);
+
+        A.chain(B);
+
+        A.start();
+      },
       animate: function () {
-        TWEEN.update();
         if (this.$store.state.playGame == false){
           requestAnimationFrame(this.animate);
         }
@@ -440,8 +440,8 @@
 
         var xRot = 0.01;
         var zPos = 4;
-        var yPos = 1;
-        var xPos = 1;
+        var yPos = 3;
+        var xPos = 1.5;
 
         this.particles.rotation.z -= zRot;
 
@@ -455,6 +455,7 @@
           this.moveGalaxy = false;
 
           if (this.rotateGalaxy) {
+            this.particles.position.y -= yPos;
             this.particles.rotation.x -= xRot;
           }
 
@@ -472,15 +473,8 @@
             this.particles.rotation.z -= zRot;
           }
         }
-
-        if (this.$store.state.currentSlide !== 0) {
-          yPos = 3;
-          this.particles.position.y -= yPos;
-        }
-
-        if (this.$store.state.currentSlide == 0) {
-        }
-
+        
+        TWEEN.update();
         this.camera.lookAt(this.scene.position);
         this.render();
       },

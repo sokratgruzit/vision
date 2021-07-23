@@ -250,6 +250,7 @@ export default {
       }
       this.galaxyGeo = new THREE.BufferGeometry();
 <<<<<<< HEAD
+<<<<<<< HEAD
   }
   this.galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
   this.galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -419,6 +420,21 @@ export default {
       if (this.$store.state.currentSlide !== 0) {
         this.changeSlide('connect');
       }
+=======
+      this.galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.galaxyGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
+      this.scene.add(this.particles);
+      this.changeSlide('main');
+    },
+    wheelScroll: function(event) {
+      if (this.$store.state.currentSlide !== 0) {
+        this.changeSlide('connect');
+      }
+>>>>>>> parent of 66bb820... Fixed this fucking text animation
       if (this.$store.state.currentSlide == 0) {
         this.changeSlide('main');
       }

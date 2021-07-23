@@ -5,6 +5,30 @@ import router from './router'
 import store from './store'
 import './assets/css/main.css'
 import VueKinesis from 'vue-kinesis'
+import VueAwesomeSwiper from 'vue-awesome-swiper'
+import Swiper, {
+  Navigation,
+  Pagination,
+  Autoplay,
+  Mousewheel,
+  Scrollbar,
+  Thumbs,
+  Controller,
+  EffectFade
+} from 'swiper';
+// import style
+import 'swiper/swiper-bundle.css'
+Swiper.use([
+  Navigation,
+  Pagination,
+  Autoplay,
+  Mousewheel,
+  Scrollbar,
+  Thumbs,
+  Controller,
+  EffectFade
+]);
+Vue.use(VueAwesomeSwiper, {Navigation, Pagination});
 
 Vue.use(VueKinesis)
 

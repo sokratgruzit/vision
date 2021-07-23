@@ -473,6 +473,14 @@
           }
         }
 
+        if (this.$store.state.currentSlide !== 0) {
+          yPos = 3;
+          this.particles.position.y -= yPos;
+        }
+
+        if (this.$store.state.currentSlide == 0) {
+        }
+
         this.camera.lookAt(this.scene.position);
         this.render();
       },

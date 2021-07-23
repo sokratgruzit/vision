@@ -3,6 +3,7 @@
 </template>
 
 <script>
+<<<<<<< HEAD
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
@@ -69,6 +70,81 @@
         perc: 0.1,
         oldDispC: 6.0,
         oldPercC: 0.0
+=======
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+export default {
+  name: 'MainSlide',
+  data () {
+    return {
+      requestAnimation: null,
+      scene: null,
+      galaxyMesh: null,
+      camera: null,
+      renderer: null,
+      controls: null,
+      clock: null,
+      mouse: new THREE.Vector2(),
+      target: new THREE.Vector2(),
+      mouseX: 0,
+      mouseY: 0,
+      count: 0,
+      windowHalfX: window.innerWidth / 2,
+      windowHalfY: window.innerHeight / 2,
+      galaxyGeo: null,
+      galaxyMat: null,
+      uniforms: null,
+      galaxyVertex: `
+      uniform vec3 uCameraPos;
+      attribute float alpha;
+      attribute float size;
+      attribute vec3 color;
+      varying float vAlpha;
+      varying vec3 vColor;
+
+      void main() {
+        float d = distance(position.xyz, uCameraPos);
+        vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+        vAlpha = alpha;
+        vColor = color;
+        gl_PointSize = size;
+        gl_Position = projectionMatrix * mvPosition;
+      }
+    `,
+      galaxyFragment: `
+      varying vec3 vColor;
+      uniform sampler2D pointTexture;
+      varying float vAlpha;
+
+      void main() {
+        gl_FragColor = vec4(vColor, vAlpha);
+        gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+      }
+    `,
+      moveGalaxy: true,
+      rotateGalaxy: true,
+      translateGalaxy: true,
+      particles: null,
+      targetRotation: 0,
+			targetRotationOnPointerDown: 0,
+			pointerX: 0,
+			pointerXOnPointerDown: 0,
+      isPointerDown: false,
+      oldDisp: 0.0,
+      oldPerc: 1.0,
+      disp: 0.1,
+      perc: 0.1,
+      oldDispC: 6.0,
+      oldPercC: 0.0
+    }
+  },
+  watch: {
+    '$store.state.playGame': function () {
+      if (this.$store.state.playGame == false) {
+        this.animate();
+>>>>>>> parent of 66bb820... Fixed this fucking text animation
       }
     },
     watch: {
@@ -173,6 +249,7 @@
         sizes[i] = Math.random() * Math.random() * 8.0;
       }
       this.galaxyGeo = new THREE.BufferGeometry();
+<<<<<<< HEAD
   }
   this.galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
   this.galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
@@ -328,6 +405,110 @@
         const tShaderMat = new THREE.ShaderMaterial({
           uniforms: textUniforms1,
           vertexShader: `
+=======
+      this.galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.galaxyGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
+      this.scene.add(this.particles);
+      this.changeSlide('main');
+    },
+    wheelScroll: function(event) {
+      if (this.$store.state.currentSlide !== 0) {
+        this.changeSlide('connect');
+      }
+      if (this.$store.state.currentSlide == 0) {
+        this.changeSlide('main');
+      }
+    },
+    changeSlide: function(slide) {
+      let textIndex = 0;
+
+      if (slide === 'main') {
+        textIndex = 2;
+        this.scene.remove(this.scene.getObjectByName("connect"));
+      }
+      if (slide === 'connect') {
+        textIndex = 1;
+        this.scene.remove(this.scene.getObjectByName("core"));
+        this.scene.remove(this.scene.getObjectByName("vision"));
+      }
+
+      var textLoader = new THREE.FontLoader();
+      var scene = this.scene;
+      var camera = this.camera;
+      var oldDisp = this.oldDisp;
+      var oldPerc = this.oldPerc;
+      var oldDispC = this.oldDispC;
+      var oldPercC = this.oldPercC;
+
+      for (let t = 0; t < textIndex; t++) {
+        textLoader.load("./three_fonts/Kanit_Regular.json", function(
+          font
+        ) {
+          let textMask = "Core";
+          let vectorColor = "vColor";
+
+          if (slide === "main" && t === 1) {
+            textMask = "Vision";
+            vectorColor = "vec3(1.0,0.0,0.0)";
+          }
+
+          if (slide === "connect") {
+            textMask = "Connect";
+          }
+          var textGeo1 = new THREE.TextBufferGeometry(textMask, {
+            font: font,
+            size: 170,
+            height: 5,
+            curveSegments: 12,
+            bevelEnabled: true,
+            bevelThickness: 2,
+            bevelSize: 8,
+            bevelSegments: 5
+          });
+
+          const tessellateModifier1 = new TessellateModifier(8, 6);
+          textGeo1 = tessellateModifier1.modify(textGeo1);
+          const numFaces = textGeo1.attributes.position.count / 3;
+          const colors = new Float32Array( numFaces * 3 * 3 );
+          const color = new THREE.Color();
+          const displacement1 = new Float32Array(numFaces * 3 * 3);
+
+          for (let f = 0; f < numFaces; f++) {
+            const index = 9 * f;
+
+            const h = 0.2 * Math.random();
+            const s = 0.5 + 0.5 * Math.random();
+            const l = 0.5 + 0.5 * Math.random();
+
+            const d = 1000 * (0.5 - Math.random());
+
+            for (let i = 0; i < 3; i++) {
+              colors[ index + ( 3 * i ) ] = color.r;
+              colors[ index + ( 3 * i ) + 1 ] = color.g;
+              colors[ index + ( 3 * i ) + 2 ] = color.b;
+
+              displacement1[index + (3 * i)] = d;
+              displacement1[index + (3 * i) + 1] = d;
+              displacement1[index + (3 * i) + 2] = d;
+            }
+          }
+
+          textGeo1.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
+          textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
+
+          var textUniforms1 = {
+            amplitude: { value: textMask === "Connect" ? oldDispC : oldDisp },
+            percent: { type: "f", value: textMask === "Connect" ? oldPercC : oldPerc }
+          };
+
+          const tShaderMat = new THREE.ShaderMaterial({
+            uniforms: textUniforms1,
+            vertexShader: `
+>>>>>>> parent of 66bb820... Fixed this fucking text animation
               uniform float amplitude;
               attribute vec3 customColor;
               attribute vec3 displacement;
@@ -355,11 +536,67 @@
             `,
           transparent: true
         });
+<<<<<<< HEAD
         var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
         if (textMask === "Core" || textMask === "Connect") {
           textMesh.position.x = -1100;
           textMesh.position.z = 500;
           textMesh.position.y = 50;
+=======
+      }
+
+      this.scene = scene;
+      this.camera = camera;
+      this.oldDisp = oldDisp;
+      this.oldPerc = oldPerc;
+      this.oldDispC = oldDispC;
+      this.oldPercC = oldPercC;
+    },
+    animate: function () {
+      if (this.$store.state.playGame == false){
+        requestAnimationFrame(this.animate);
+      }
+      //console.log(this.$store.state.currentSlide)
+      // this.requestAnimation;
+
+      var zRot = 0.01;
+
+      if (this.particles.position.y < -790) {
+        this.translateGalaxy = false;
+        zRot = 0.0015;
+      }
+
+      var xRot = 0.01;
+      var zPos = 4;
+      var yPos = 1;
+      var xPos = 1;
+
+      this.particles.rotation.z -= zRot;
+
+      if (this.moveGalaxy) {
+        this.particles.position.y -= yPos;
+        this.particles.position.z += zPos;
+        this.particles.position.x -= xPos;
+      }
+
+      if (this.particles.position.x < -280) {
+        this.moveGalaxy = false;
+
+        if (this.rotateGalaxy) {
+          this.particles.rotation.x -= xRot;
+        }
+
+        if (this.translateGalaxy) {
+          this.particles.position.y -= yPos * 2;
+        }
+      }
+
+      if (this.particles.rotation.x < -0.6) {
+        this.rotateGalaxy = false;
+
+        if (this.isPointerDown) {
+          this.particles.rotation.z += (this.targetRotation - this.particles.rotation.z) * 0.05;
+>>>>>>> parent of 66bb820... Fixed this fucking text animation
         } else {
           textMesh.position.x = -880;
           textMesh.position.z = 500;
@@ -381,6 +618,7 @@
         textMesh.position.z = 500;
         textMesh.position.y = -150;
       }
+<<<<<<< HEAD
       textMesh.rotation.x = 0.35;
       textMesh.rotation.y = -0.3;
       textMesh.rotation.z = 0.085;
@@ -439,6 +677,114 @@
     this.renderer.setPixelRatio(window.devicePixelRatio);
     this.renderer.physicallyCorrectLights = true;
     this.renderer.render(this.scene, this.camera);
+=======
+
+      this.camera.lookAt(this.scene.position);
+      //this.camera.up = new THREE.Vector3(0, 0, 1);
+      this.render();
+    },
+    onPointerMove: function (event) {
+      if (event.isPrimary === false) return;
+
+      this.pointerX = event.clientX - this.windowHalfX;
+      this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;
+    },
+    onPointerDown: function (event) {
+      if (event.isPrimary === false) return;
+      this.isPointerDown = true;
+    },
+    onPointerUp: function () {
+      if (event.isPrimary === false) return;
+      this.isPointerDown = false;
+    },
+    render: function () {
+      var text1 = this.scene.getObjectByName("Core");
+      var textMat1 = text1 === undefined ? false : text1.material;
+
+      if (this.$store.state.currentSlide !== 0) {
+        if (textMat1) {
+          if (textMat1.uniforms.amplitude.value < 7) {
+            textMat1.uniforms.amplitude.value += this.disp;
+            textMat1.uniforms.percent.value -= this.perc;
+            this.oldDisp = textMat1.uniforms.amplitude.value;
+            this.oldPerc = textMat1.uniforms.percent.value;
+          } 
+        }
+      }
+
+      if (this.$store.state.currentSlide == 0) {
+        if (textMat1) {
+          if (textMat1.uniforms.amplitude.value > 0) {
+            textMat1.uniforms.amplitude.value -= this.disp;
+            textMat1.uniforms.percent.value += this.perc;
+            this.oldDisp = textMat1.uniforms.amplitude.value;
+            this.oldPerc = textMat1.uniforms.percent.value;
+          }
+        }
+      }
+
+      var text2 = this.scene.getObjectByName("Vision");
+      var textMat2 = text2 === undefined ? false : text2.material;
+
+      if (this.$store.state.currentSlide !== 0){
+        if (textMat2) {
+          if (textMat2.uniforms.amplitude.value < 7) {
+            textMat2.uniforms.amplitude.value += this.disp;
+            textMat2.uniforms.percent.value -= this.perc;
+            this.oldDisp = textMat2.uniforms.amplitude.value;
+            this.oldPerc = textMat2.uniforms.percent.value;
+          }
+        }
+      }
+
+      if (this.$store.state.currentSlide == 0){
+        if (textMat2) {
+          if (textMat2.uniforms.amplitude.value > 0) {
+            textMat2.uniforms.amplitude.value -= this.disp;
+            textMat2.uniforms.percent.value += this.perc;
+            this.oldDisp = textMat2.uniforms.amplitude.value;
+            this.oldPerc = textMat2.uniforms.percent.value;
+          }
+        }
+      }
+
+      var text3 = this.scene.getObjectByName("Connect");
+      var textMat3 = text3 === undefined ? false : text3.material;
+
+      if (this.$store.state.currentSlide !== 0){
+        if (textMat3) {
+          console.log(this.oldDispC, textMat3.uniforms.amplitude.value)
+          if (textMat3.uniforms.amplitude.value > 0) {
+            textMat3.uniforms.amplitude.value -= this.disp;
+            textMat3.uniforms.percent.value += this.perc;
+            this.oldDispC = textMat3.uniforms.amplitude.value;
+            this.oldPercC = textMat3.uniforms.percent.value;
+          }
+        }
+      }
+      
+      if (this.$store.state.currentSlide == 0){
+        if (textMat3) {
+          if (textMat3.uniforms.amplitude.value < 6) {
+            textMat3.uniforms.amplitude.value += this.disp;
+            textMat3.uniforms.percent.value -= this.perc;
+            this.oldDispC = textMat3.uniforms.amplitude.value;
+            this.oldPercC = textMat3.uniforms.percent.value;
+          }
+        }
+      }
+
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.physicallyCorrectLights = true;
+      this.renderer.render(this.scene, this.camera);
+    },
+    onWindowResize: function () {
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.render();
+    },
+>>>>>>> parent of 66bb820... Fixed this fucking text animation
   },
   mounted () {
     this.myScene();

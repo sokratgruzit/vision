@@ -464,8 +464,8 @@
         }
 
         if (this.particles.rotation.x < -0.6) {
+          this.$store.commit('setFirstAnimation', true);
           this.rotateGalaxy = false;
-
           if (this.isPointerDown) {
             this.particles.rotation.z += (this.targetRotation - this.particles.rotation.z) * 0.05;
           } else {

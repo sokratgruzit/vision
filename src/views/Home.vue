@@ -2,6 +2,7 @@
   <div class="home-slider">
     <hooper @slide="updateCarousel" :mouseDrag="false">
       <slide>
+        {{$store.state.firstAnimation}}
 <!--        <MainSlide v-if="this.$store.state.currentSlide == 0"/>-->
         <MainSlide v-if="true"/>
       </slide>

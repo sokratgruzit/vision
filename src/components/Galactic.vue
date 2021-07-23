@@ -7,6 +7,8 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+const TWEEN = require('@tweenjs/tween.js');
+
 export default {
   name: 'MainSlide',
   data () {
@@ -206,52 +208,121 @@ export default {
 
       this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
       this.scene.add(this.particles);
-      this.changeSlide('main');
+      this.changeSlide();
     },
     wheelScroll: function(event) {
+      var text1 = this.scene.getObjectByName("Core");
+      var textMat1 = text1 === undefined ? false : text1.material;
+      var text2 = this.scene.getObjectByName("Vision");
+      var textMat2 = text2 === undefined ? false : text2.material;
+      var text3 = this.scene.getObjectByName("Connect");
+      var textMat3 = text3 === undefined ? false : text3.material;
       if (this.$store.state.currentSlide !== 0) {
-        this.changeSlide('connect');
+        if (textMat1) {
+          var tween = new TWEEN.Tween(textMat1.uniforms.amplitude)
+          .to({ 
+            value: 7
+          }, 1000)
+          .start();
+          var tween2 = new TWEEN.Tween(textMat1.uniforms.percent)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          tween.easing(TWEEN.Easing.Quadratic.In);
+          tween2.easing(TWEEN.Easing.Quadratic.In);
+
+          var tween3 = new TWEEN.Tween(textMat2.uniforms.amplitude)
+          .to({ 
+            value: 7
+          }, 1000)
+          .start();
+          var tween4 = new TWEEN.Tween(textMat2.uniforms.percent)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          tween3.easing(TWEEN.Easing.Quadratic.In);
+          tween4.easing(TWEEN.Easing.Quadratic.In);
+
+          var tween5 = new TWEEN.Tween(textMat3.uniforms.amplitude)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          var tween6 = new TWEEN.Tween(textMat3.uniforms.percent)
+          .to({ 
+            value: 1
+          }, 1000)
+          .start();
+          tween5.easing(TWEEN.Easing.Quadratic.In);
+          tween6.easing(TWEEN.Easing.Quadratic.In);
+        }
       }
       if (this.$store.state.currentSlide == 0) {
-        this.changeSlide('main');
+        if (textMat1) {
+          var tween = new TWEEN.Tween(textMat1.uniforms.amplitude)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          var tween2 = new TWEEN.Tween(textMat1.uniforms.percent)
+          .to({ 
+            value: 1
+          }, 1000)
+          .start();
+          tween.easing(TWEEN.Easing.Quadratic.In);
+          tween2.easing(TWEEN.Easing.Quadratic.In);
+
+          var tween3 = new TWEEN.Tween(textMat2.uniforms.amplitude)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          var tween4 = new TWEEN.Tween(textMat2.uniforms.percent)
+          .to({ 
+            value: 1
+          }, 1000)
+          .start();
+          tween3.easing(TWEEN.Easing.Quadratic.In);
+          tween4.easing(TWEEN.Easing.Quadratic.In);
+
+          var tween5 = new TWEEN.Tween(textMat3.uniforms.amplitude)
+          .to({ 
+            value: 7
+          }, 1000)
+          .start();
+          var tween6 = new TWEEN.Tween(textMat3.uniforms.percent)
+          .to({ 
+            value: 0
+          }, 1000)
+          .start();
+          tween5.easing(TWEEN.Easing.Quadratic.In);
+          tween6.easing(TWEEN.Easing.Quadratic.In);
+        }
       }
     },
     changeSlide: function(slide) {
-      let textIndex = 0;
-
-      if (slide === 'main') {
-        textIndex = 2;
-        this.scene.remove(this.scene.getObjectByName("connect"));
-      }
-      if (slide === 'connect') {
-        textIndex = 1;
-        this.scene.remove(this.scene.getObjectByName("core"));
-        this.scene.remove(this.scene.getObjectByName("vision"));
-      }
-
       var textLoader = new THREE.FontLoader();
       var scene = this.scene;
       var camera = this.camera;
-      var oldDisp = this.oldDisp;
-      var oldPerc = this.oldPerc;
-      var oldDispC = this.oldDispC;
-      var oldPercC = this.oldPercC;
-
-      for (let t = 0; t < textIndex; t++) {
+      
+      for (let t = 0; t < 3; t++) {
         textLoader.load("./three_fonts/Kanit_Regular.json", function(
           font
         ) {
           let textMask = "Core";
           let vectorColor = "vColor";
 
-          if (slide === "main" && t === 1) {
+          if (t === 1) {
             textMask = "Vision";
             vectorColor = "vec3(1.0,0.0,0.0)";
           }
 
-          if (slide === "connect") {
+          if (t === 2) {
             textMask = "Connect";
           }
+
           var textGeo1 = new THREE.TextBufferGeometry(textMask, {
             font: font,
             size: 170,
@@ -294,8 +365,8 @@ export default {
           textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
 
           var textUniforms1 = {
-            amplitude: { value: textMask === "Connect" ? oldDispC : oldDisp },
-            percent: { type: "f", value: textMask === "Connect" ? oldPercC : oldPerc }
+            amplitude: { value: textMask === "Connect" ? 7 : 0 },
+            percent: { type: "f", value: textMask === "Connect" ? 0.0 : 1.0 }
           };
 
           const tShaderMat = new THREE.ShaderMaterial({
@@ -351,12 +422,9 @@ export default {
 
       this.scene = scene;
       this.camera = camera;
-      this.oldDisp = oldDisp;
-      this.oldPerc = oldPerc;
-      this.oldDispC = oldDispC;
-      this.oldPercC = oldPercC;
     },
     animate: function () {
+      TWEEN.update();
       if (this.$store.state.playGame == false){
         requestAnimationFrame(this.animate);
       }
@@ -406,7 +474,6 @@ export default {
       }
 
       this.camera.lookAt(this.scene.position);
-      //this.camera.up = new THREE.Vector3(0, 0, 1);
       this.render();
     },
     onPointerMove: function (event) {
@@ -424,82 +491,6 @@ export default {
       this.isPointerDown = false;
     },
     render: function () {
-      var text1 = this.scene.getObjectByName("Core");
-      var textMat1 = text1 === undefined ? false : text1.material;
-
-      if (this.$store.state.currentSlide !== 0) {
-        if (textMat1) {
-          if (textMat1.uniforms.amplitude.value < 7) {
-            textMat1.uniforms.amplitude.value += this.disp;
-            textMat1.uniforms.percent.value -= this.perc;
-            this.oldDisp = textMat1.uniforms.amplitude.value;
-            this.oldPerc = textMat1.uniforms.percent.value;
-          } 
-        }
-      }
-
-      if (this.$store.state.currentSlide == 0) {
-        if (textMat1) {
-          if (textMat1.uniforms.amplitude.value > 0) {
-            textMat1.uniforms.amplitude.value -= this.disp;
-            textMat1.uniforms.percent.value += this.perc;
-            this.oldDisp = textMat1.uniforms.amplitude.value;
-            this.oldPerc = textMat1.uniforms.percent.value;
-          }
-        }
-      }
-
-      var text2 = this.scene.getObjectByName("Vision");
-      var textMat2 = text2 === undefined ? false : text2.material;
-
-      if (this.$store.state.currentSlide !== 0){
-        if (textMat2) {
-          if (textMat2.uniforms.amplitude.value < 7) {
-            textMat2.uniforms.amplitude.value += this.disp;
-            textMat2.uniforms.percent.value -= this.perc;
-            this.oldDisp = textMat2.uniforms.amplitude.value;
-            this.oldPerc = textMat2.uniforms.percent.value;
-          }
-        }
-      }
-
-      if (this.$store.state.currentSlide == 0){
-        if (textMat2) {
-          if (textMat2.uniforms.amplitude.value > 0) {
-            textMat2.uniforms.amplitude.value -= this.disp;
-            textMat2.uniforms.percent.value += this.perc;
-            this.oldDisp = textMat2.uniforms.amplitude.value;
-            this.oldPerc = textMat2.uniforms.percent.value;
-          }
-        }
-      }
-
-      var text3 = this.scene.getObjectByName("Connect");
-      var textMat3 = text3 === undefined ? false : text3.material;
-
-      if (this.$store.state.currentSlide !== 0){
-        if (textMat3) {
-          console.log(this.oldDispC, textMat3.uniforms.amplitude.value)
-          if (textMat3.uniforms.amplitude.value > 0) {
-            textMat3.uniforms.amplitude.value -= this.disp;
-            textMat3.uniforms.percent.value += this.perc;
-            this.oldDispC = textMat3.uniforms.amplitude.value;
-            this.oldPercC = textMat3.uniforms.percent.value;
-          }
-        }
-      }
-      
-      if (this.$store.state.currentSlide == 0){
-        if (textMat3) {
-          if (textMat3.uniforms.amplitude.value < 6) {
-            textMat3.uniforms.amplitude.value += this.disp;
-            textMat3.uniforms.percent.value -= this.perc;
-            this.oldDispC = textMat3.uniforms.amplitude.value;
-            this.oldPercC = textMat3.uniforms.percent.value;
-          }
-        }
-      }
-
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
       this.renderer.render(this.scene, this.camera);

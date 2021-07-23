@@ -39,10 +39,15 @@ export default {
     }
   },
   methods: {
+    handleScroll (event) {
+      console.log('hii')
+    },
     updateCarousel (payload) {
       this.$store.commit('changeSlide', payload.currentSlide);
+      this.$store.commit('setChangeSlide', true);
     }
-  }
+  },
+
 }
 </script>
 <style>

@@ -477,7 +477,7 @@ export default {
           if (textMat1.uniforms.amplitude.value < 50) {
             textMat1.uniforms.amplitude.value += disp;
             textMat1.uniforms.percent.value -= perc;
-          } 
+          }
         }
       }
 

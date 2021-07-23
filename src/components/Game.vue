@@ -17,9 +17,32 @@
       </div>
     </div>
     <div class="hud">
-      <p>Level<span>{{level}}</span></p>
+      <p>Level
+      <div class="level__container-outer">
+        <div class="level__container" :style="{
+          transform: `translateY(-${(level - 1) * 60}px)`
+        }">
+          <div class="level__num">1</div>
+          <div class="level__num">2</div>
+          <div class="level__num">3</div>
+          <div class="level__num">4</div>
+        </div>
+      </div>
+<!--        {{level}}-->
+      </p>
       <p>Difficult<span>{{this.commentNow}}</span></p>
-      <p>Time<span>0:19</span></p>
+      <p>Time
+        <countdown :time="6000" @finish="(vac) => counterFinish(vac)()">
+          <div class="timer" slot-scope="props">
+            <div class="timer-col">
+              {{ props.minutes }}:
+            </div>
+            <div class="timer-col">
+              {{ props.seconds }}
+            </div>
+          </div>
+        </countdown>
+      </p>
       <p>My Score<span>{{this.score}}</span></p>
       <p :style="{ position: 'relative' }">
         Player: <span :style="{ color: 'red' }">{{this.playerStatusNow}}</span>
@@ -40,6 +63,9 @@
     name: 'ThreeTest',
     data () {
       return {
+        firstAnimation: false,
+        timeNow: new Date().getTime(),
+        startTime: new Date('2021-02-01T00:00:00'),
         scene: null,
         cube: null,
         camera: null,
@@ -552,6 +578,12 @@
       }
     },
     methods: {
+      counterFinish (vac) {
+        const vm = this
+        vm.buttonTxt = 'Resend'
+        vac.attrs.disabled = false
+        console.log(vac);
+      },
       myScene: function () {
         this.scene = new THREE.Scene();
         var light = new THREE.AmbientLight(0xffffff);
@@ -1017,6 +1049,31 @@
 </script>
 
 <style scoped>
+  .timer-col{
+    font-size: 50px;
+    line-height: 60px;
+  }
+  .timer{
+    display: flex;
+  }
+  .hud p{
+
+  }
+  .level__container{
+    display: flex;
+    flex-direction: column;
+    transition: 1s cubic-bezier(.79,.01,.15,.99);
+    transition-delay: .6s;
+  }
+  .level__container-outer{
+    height: 60px;
+    overflow: hidden;
+  }
+  .level__num{
+    font-size: 50px;
+    line-height: 60px;
+    color: #fff;
+  }
   /*coin css*/
   .next-lvl__container{
     position: absolute;
@@ -1036,6 +1093,9 @@
   .action-container.active .next-lvl__container{
     opacity: 1;
     transition-delay: 2s;
+  }
+  .animation-container img{
+    transform: scale(1.5);
   }
  .action-container{
    position: absolute;
@@ -1057,7 +1117,8 @@
 
   .container {
     position: relative;
-    top : 100px;
+    top: 180px;
+    left: -18px;
     height: 250px;
     width: 250px;
   }

@@ -6,6 +6,9 @@ import store from './store'
 import './assets/css/main.css'
 import VueKinesis from 'vue-kinesis'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
+import VueCountdown from '@chenfengyuan/vue-countdown'
+
+Vue.component(VueCountdown.name, VueCountdown)
 import Swiper, {
   Navigation,
   Pagination,

@@ -1,6 +1,6 @@
 <template>
   <div class="home-slider">
-    <hooper @slide="updateCarousel" :mouseDrag="false" :class="!$store.state.firstAnimation ? 'nopointer' : ''">
+    <hooper @slide="updateCarousel" :mouseDrag="false" :class="!$store.state.firstAnimation ? 'nopointern' : ''">
       <slide>
 <!--        <MainSlide v-if="this.$store.state.currentSlide == 0"/>-->
         <MainSlide v-if="true"/>

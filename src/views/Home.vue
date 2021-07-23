@@ -1,8 +1,7 @@
 <template>
   <div class="home-slider">
-    <hooper @slide="updateCarousel" :mouseDrag="false">
+    <hooper @slide="updateCarousel" :mouseDrag="false" :class="!$store.state.firstAnimation ? 'nopointer' : ''">
       <slide>
-        {{$store.state.firstAnimation}}
 <!--        <MainSlide v-if="this.$store.state.currentSlide == 0"/>-->
         <MainSlide v-if="true"/>
       </slide>
@@ -52,6 +51,9 @@ export default {
 }
 </script>
 <style>
+  .nopointer{
+    pointer-events: none!important;
+  }
   .home-slider .hooper{
     z-index: 2;
   }

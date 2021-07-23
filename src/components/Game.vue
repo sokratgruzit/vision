@@ -32,7 +32,7 @@
       </p>
       <p>Difficult<span>{{this.commentNow}}</span></p>
       <p>Time
-        <countdown :time="6000" @finish="(vac) => counterFinish(vac)()">
+        <countdown :time="60000" @finish="(vac) => counterFinish(vac)()">
           <div class="timer" slot-scope="props">
             <div class="timer-col">
               {{ props.minutes }}:

@@ -129,6 +129,7 @@
 
         var clouds = 500 * arms;
         var stars = 10000;
+        var planets = 3;
 
         var vertices = new Float32Array((clouds + stars) * 3);
         var colors = new Float32Array((clouds + stars) * 3);
@@ -142,6 +143,10 @@
         var r2 = 0.65;
         var g2 = 0.85;
         var b2 = 1.0;
+
+        var r3 = 0;
+        var g3 = 0;
+        var b3 = 0;
 
         for (let i = 0; i < clouds; ++i) {
           var f = (clouds - i) / clouds;
@@ -203,6 +208,60 @@
         this.galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
+        
+        for (let i = 0; i < planets; ++i) {
+          const planetGeo = new THREE.SphereGeometry(50, 32, 32);
+          const planetLoader = new THREE.TextureLoader();
+          const planetTexture = planetLoader.load(require("../assets/moon.png"));
+
+          var uniforms = {
+            planetTexture: { type: "t", value: planetTexture }
+          };
+
+          const planetMat = new THREE.ShaderMaterial({
+            uniforms: uniforms,
+            vertexShader: `
+              varying vec2 vUv;
+
+              void main() {
+                vUv = uv;
+                gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+              }
+            `,
+            fragmentShader: `
+              uniform sampler2D planetTexture;
+              varying vec2 vUv;
+
+              void main() {
+                gl_FragColor = texture2D(planetTexture, vUv);
+              }
+            `,
+            transparent: true,
+            depthTest: false,
+            blending: THREE.AdditiveBlending
+          });
+
+          const planet = new THREE.Mesh(planetGeo, planetMat);
+
+          planet.name = "planet" + i;
+
+          if (i === 0) {
+            planet.position.x = -100;
+            planet.position.y = 400;
+            planet.position.z = 5;
+          } else if (i === 1) {
+            planet.position.x = -400;
+            planet.position.y = -300;
+            planet.position.z = 100;
+          } else if (i === 2) {
+            planet.position.x = 210;
+            planet.position.y = -500;
+            planet.position.z = 5;
+          }
+          
+          this.particles.add(planet);
+        }
+
         this.scene.add(this.particles);
         this.changeSlide();
       },
@@ -430,6 +489,15 @@
         }
         //console.log(this.$store.state.currentSlide)
         // this.requestAnimation;
+        var plRot = 0.01;
+
+        var planet0 = this.scene.getObjectByName("planet0");
+        var planet1 = this.scene.getObjectByName("planet1");
+        var planet2 = this.scene.getObjectByName("planet2");
+
+        planet0.rotation.z += plRot;
+        planet1.rotation.z += plRot;
+        planet2.rotation.z += plRot;
 
         var zRot = 0.01;
 

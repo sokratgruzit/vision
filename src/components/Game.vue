@@ -1035,7 +1035,7 @@
   }
   .action-container.active .next-lvl__container{
     opacity: 1;
-    transition-delay: 1.4s;
+    transition-delay: 2s;
   }
  .action-container{
    position: absolute;
@@ -1065,7 +1065,10 @@
     opacity: 0;
   }
   .action-container.active .y-axis-container{
-    animation: bounce 1.4s ease-in-out;
+    animation: bounce 2.5s ease-in-out;
+  }
+  .y-axis-container .container{
+    padding: 0px!important;
   }
   @keyframes bounce {
     0% {

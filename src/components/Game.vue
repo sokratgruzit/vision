@@ -4,6 +4,18 @@
     backgroundSize: 'cover'
     }"
   >
+    <div class="statistic-container" :class="statistic ? 'active' : ''">
+      <div class="statistic-container__inner">
+        <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
+        <router-link to="/statistic" class="explore-button">
+          <span></span>
+          <span></span>
+          <span></span>
+          <span></span>
+          <div class="explore-button__text">Go to statistic</div>
+        </router-link>
+      </div>
+    </div>
     <div class="action-container" :class="badgeAnimation ? 'active' : ''">
       <div class="animation-container">
         <div class="y-axis-container">
@@ -32,16 +44,15 @@
       </p>
       <p>Difficult<span>{{this.commentNow}}</span></p>
       <p>Time
-        <countdown :time="60000" @finish="(vac) => counterFinish(vac)()">
-          <div class="timer" slot-scope="props">
+
+          <div class="timer">
             <div class="timer-col">
-              {{ props.minutes }}:
+              {{ minutes }}:
             </div>
             <div class="timer-col">
-              {{ props.seconds }}
+              {{ seconds }}
             </div>
           </div>
-        </countdown>
       </p>
       <p>My Score<span>{{this.score}}</span></p>
       <p :style="{ position: 'relative' }">
@@ -63,6 +74,10 @@
     name: 'ThreeTest',
     data () {
       return {
+        statistic: false,
+        minutes: 0,
+        seconds: 0,
+        totalSeconds: 0,
         firstAnimation: false,
         timeNow: new Date().getTime(),
         startTime: new Date('2021-02-01T00:00:00'),
@@ -569,15 +584,30 @@
     },
     watch: {
       'badgeIndex': function () {
-        console.log(this.badgeIndex)
-        console.log(this.oldBadgeIndex)
-        if(this.oldBadgeIndex + 1 == this.badgeIndex){
+        if(this.badgeIndex == 4){
+          this.statistic = true;
+          console.log(this.badgeIndex)
+        }
+        if(this.badgeIndex !== 4 && this.oldBadgeIndex + 1 == this.badgeIndex){
           this.oldBadgeIndex++;
           this.badgeAnimation = true;
         }
       }
     },
     methods: {
+      pad (val) {
+        var valString = val + "";
+        if (valString.length < 2) {
+          return "0" + valString;
+        } else {
+          return valString;
+        }
+      },
+      setTime () {
+        ++this.totalSeconds;
+        this.seconds = this.pad(this.totalSeconds % 60);
+        this.minutes = parseInt(this.totalSeconds / 60);
+      },
       counterFinish (vac) {
         const vm = this
         vm.buttonTxt = 'Resend'
@@ -1037,6 +1067,7 @@
       }
     },
     mounted() {
+      setInterval(this.setTime, 1000);
       document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
       document.body.addEventListener('pointermove', this.onPointerMove);
       // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
@@ -1049,6 +1080,48 @@
 </script>
 
 <style scoped>
+  .explore-button__text{
+    text-transform: uppercase;
+  }
+  .explore-button{
+    height: 64px;
+    display: flex;
+    align-items: center;
+    padding: 0px 47px;
+    border: 1px solid rgba(255, 255, 255, .1);
+    margin-right: auto;
+    position: relative;
+    cursor: pointer;
+  }
+  .explore-button span:nth-child(1){
+    top: -1px;
+    left: -1px;
+    border-left: 1px solid #8785FF;
+    border-top: 1px solid #8785FF;
+  }
+  .explore-button span:nth-child(2){
+    top: -1px;
+    right: -1px;
+    border-right: 1px solid #8785FF;
+    border-top: 1px solid #8785FF;
+  }
+  .explore-button span:nth-child(3){
+    bottom: -1px;
+    right: -1px;
+    border-right: 1px solid #8785FF;
+    border-bottom: 1px solid #8785FF;
+  }
+  .explore-button span:nth-child(4){
+    bottom: -1px;
+    left: -1px;
+    border-left: 1px solid #8785FF;
+    border-bottom: 1px solid #8785FF;
+  }
+  .explore-button span{
+    height: 9px;
+    width: 9px;
+    position: absolute;
+  }
   .timer-col{
     font-size: 50px;
     line-height: 60px;
@@ -1108,6 +1181,35 @@
    justify-content: center;
    align-items: center;
    pointer-events: none;
+ }
+  .statistic-container.active{
+    pointer-events: all;
+    opacity: 1;
+  }
+ .statistic-container{
+   pointer-events: none;
+   position: absolute;
+   top: 0px;
+   left: 0px;
+   width: 100%;
+   height: 100vh;
+   z-index: 1000000;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   background: rgba(135, 133, 255, .4);
+   opacity: 0;
+   transition: .6s cubic-bezier(.79,.01,.15,.99);
+ }
+ .statistic-container__inner{
+   display: flex;
+   flex-direction: column;
+   align-items: center;
+   justify-content: center;
+ }
+ .statistic-container__inner .explore-button{
+   margin-left: auto;
+   margin-top: 30px;
  }
   .animation-container {
     display: relative;

@@ -618,10 +618,9 @@
         this.minutes = parseInt(this.totalSeconds / 60);
       },
       counterFinish (vac) {
-        const vm = this
-        vm.buttonTxt = 'Resend'
-        vac.attrs.disabled = false
-        console.log(vac);
+        const vm = this;
+        vm.buttonTxt = 'Resend';
+        vac.attrs.disabled = false;
       },
       myScene: function () {
         this.scene = new THREE.Scene();
@@ -761,7 +760,8 @@
         this.sphereBg.rotation.x += 0.003;
         this.sphereBg.rotation.y += 0.001;
         this.sphereBg.rotation.z += 0.001;
-        requestAnimationFrame(this.animate)
+        
+        requestAnimationFrame(this.animate);
         this.render();
       },
       render: function () {
@@ -815,15 +815,10 @@
           for (let i = 0; i < this.badgeScenes.length; i++) {
             const badgeCont = document.getElementById('list-item' + i);
             const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
-
+            
             if (rect !== false) {
-              if (this.badgeScenes[i].scale.x < 1) {
-                this.badgeScenes[i].scale.x += 0.015;
-                this.badgeScenes[i].scale.y += 0.015;
-                this.badgeScenes[i].scale.z += 0.015;
-              } else {
-                this.badgeScenes[i].rotation.y += 0.02;
-              }
+              this.badgeScenes[i].rotation.y += 0.02;
+
               if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
                 rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
                 return; // it's off screen
@@ -992,9 +987,6 @@
                   bMesh = new THREE.Mesh(bGeo, bMat);
                   bMesh.rotation.z = Math.PI / 2;
                   bMesh.rotation.y = Math.PI / 2;
-                  //bMesh.scale.x = 0;
-                  //bMesh.scale.y = 0;
-                  //bMesh.scale.z = 0;
                   bScene.add(bMesh);
                   bScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
                   bScene.name = "warior" + i;

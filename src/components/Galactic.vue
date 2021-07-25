@@ -5,6 +5,7 @@
 <script>
   import * as THREE from 'three';
   import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+  import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
   import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
   import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
   const TWEEN = require('@tweenjs/tween.js');
@@ -21,7 +22,7 @@
         controls: null,
         clock: null,
         mouse: new THREE.Vector2(),
-        target: new THREE.Vector2(),
+        raycaster: new THREE.Raycaster(),
         mouseX: 0,
         mouseY: 0,
         count: 0,
@@ -67,7 +68,8 @@
         pointerXOnPointerDown: 0,
         isPointerDown: false,
         slideOut: false,
-        slideIn: true
+        slideIn: true,
+        labelRenderer: new CSS2DRenderer()
       }
     },
     watch: {
@@ -90,6 +92,10 @@
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(width, height);
         document.getElementById("galaxy-container").appendChild(this.renderer.domElement);
+        this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+				this.labelRenderer.domElement.style.position = 'absolute';
+				this.labelRenderer.domElement.style.top = '0px';
+				document.body.appendChild(this.labelRenderer.domElement);
         this.clock = new THREE.Clock();
         this.clock.start();
 
@@ -244,22 +250,54 @@
           const planet = new THREE.Mesh(planetGeo, planetMat);
 
           planet.name = "planet" + i;
+          var tooltipText = "";
 
           if (i === 0) {
             planet.position.x = -100;
             planet.position.y = 400;
             planet.position.z = 5;
+            tooltipText = "Main";
           } else if (i === 1) {
             planet.position.x = -400;
             planet.position.y = -300;
             planet.position.z = 100;
+            tooltipText = "Statistics";
           } else if (i === 2) {
             planet.position.x = 210;
             planet.position.y = -500;
             planet.position.z = 5;
+            tooltipText = "Story";
           }
           
           this.particles.add(planet);
+
+          const tooltipLineMat = new THREE.LineBasicMaterial({
+            color: 0xffffff
+          });
+
+          const linePoints = [];
+          linePoints.push(new THREE.Vector3(0, 0, 100));
+          linePoints.push(new THREE.Vector3(0, 0, 0));
+
+          const tooltipLineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+          const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
+
+          tooltipLineMesh.position.z = 100;
+          tooltipLineMesh.scale.x = 0;
+          tooltipLineMesh.scale.y = 0;
+          tooltipLineMesh.scale.z = 0;
+
+          planet.add(tooltipLineMesh);
+
+          const planetDiv = document.createElement('div');
+          planetDiv.id = 'planet-tooltip' + i;
+          planetDiv.textContent = tooltipText;
+          planetDiv.style.marginTop = '-1em';
+          planetDiv.style.opacity = '0';
+
+          const planetTooltip = new CSS2DObject(planetDiv);
+          planetTooltip.position.set(10, 0, 100);
+          tooltipLineMesh.add(planetTooltip);
         }
 
         this.scene.add(this.particles);
@@ -551,6 +589,70 @@
 
         this.pointerX = event.clientX - this.windowHalfX;
         this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;
+      
+        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+
+        const intersects = this.raycaster.intersectObjects(this.particles.children);
+        const clearIntersects = this.particles.children;
+
+        if (intersects.length === 0) {
+          for (let i = 0; i < clearIntersects.length; i++) {
+            var tooltipClass = clearIntersects[i].children[0].children[0].element.id;
+            var tooltip = document.getElementById(tooltipClass);
+            tooltip.style.opacity = 0;
+            
+            new TWEEN.Tween(clearIntersects[i].scale)
+            .to({ x: 1, y: 1, z: 1 }, 100)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(clearIntersects[i].children[0].scale)
+            .to({ x: 0, y: 0, z: 0 }, 100)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            /*let opacity = { x: 1 }
+
+            new TWEEN.Tween(opacity) 
+            .to({ x: 0 }, 100) 
+            .easing(TWEEN.Easing.Quadratic.Out) 
+            .onUpdate(function() { 
+              tooltip.style.opacity = opacity.x;
+            })
+            .start();*/
+          }
+        }
+        for (let i = 0; i < intersects.length; i++) {
+          var iMesh = intersects[i].object;
+          var tooltipClass = iMesh.children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 1;
+
+          if (iMesh.scale.x === 1) {
+            new TWEEN.Tween(iMesh.scale)
+            .to({ x: 2, y: 2, z: 2 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            new TWEEN.Tween(iMesh.children[0].scale)
+            .to({ x: 1, y: 1, z: 1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+            /*let opacity = { x: 0 }
+
+            new TWEEN.Tween(opacity) 
+            .to({ x: 1 }, 2000) 
+            .easing(TWEEN.Easing.Quadratic.Out) 
+            .onUpdate(function() { 
+              tooltip.style.opacity = opacity.x;
+            })
+            .start();*/
+          } 
+        }
       },
       onPointerDown: function (event) {
         if (event.isPrimary === false) return;
@@ -564,11 +666,13 @@
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.physicallyCorrectLights = true;
         this.renderer.render(this.scene, this.camera);
+        this.labelRenderer.render(this.scene, this.camera);
       },
       onWindowResize: function () {
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
         this.render();
       },
     },
@@ -591,6 +695,14 @@
     left: 0px;
     width: 100%;
     height: 100vh;
+  }
+  #planet-tooltip0,
+  #planet-tooltip1,
+  #planet-tooltip2 {
+    color: #FFF;
+    font-family: "Kanit_Regular";
+    padding: 2px;
+    background: rgba(0, 0, 0, .6);
   }
   /*Ipad 1024*/
   @media (max-width: 1365px){

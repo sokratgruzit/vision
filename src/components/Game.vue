@@ -29,8 +29,8 @@
       </div>
     </div>
     <div class="hud">
-      <p>Level
-      <div class="level__container-outer">
+      <div class="hud__inner">Level
+        <div class="level__container-outer">
         <div class="level__container" :style="{
           transform: `translateY(-${(level - 1) * 60}px)`
         }">
@@ -41,10 +41,9 @@
         </div>
       </div>
 <!--        {{level}}-->
-      </p>
-      <p>Difficult<span>{{this.commentNow}}</span></p>
-      <p>Time
-
+      </div>
+      <div class="hud__inner">Difficult <div class="word-animation"><span v-for="item in commentNow" :class="animateText ? 'changeText' : ''">{{item}}</span></div></div>
+      <div class="hud__inner">Time
           <div class="timer">
             <div class="timer-col">
               {{ minutes }}:
@@ -53,12 +52,21 @@
               {{ seconds }}
             </div>
           </div>
-      </p>
-      <p>My Score<span>{{this.score}}</span></p>
-      <p :style="{ position: 'relative' }">
-        Player: <span :style="{ color: 'red' }">{{this.playerStatusNow}}</span>
+      </div>
+      <div class="hud__inner">My Score
+        <div class="level__container-outer">
+        <div class="level__container" :style="{
+          transform: `translateY(-${(score) * 60}px)`
+        }">
+          <div class="level__num" v-for="item in maxScore">{{item - 1}}</div>
+        </div>
+      </div>
+     </div>
+      <div class="hud__inner" :style="{ position: 'relative' }">
+        Player:Player:
+        <div class="word-animation"><span v-for="item in playerStatusNow" :class="animateText ? 'changeText' : ''" :style="{ color: 'red' }">{{item}}</span></div>
       <div id="badges-container" class="badges"></div>
-      </p>
+      </div>
     </div>
     <div id="webgl-container"></div>
   </div>
@@ -74,6 +82,9 @@
     name: 'ThreeTest',
     data () {
       return {
+        animateText: false,
+        animateText2: false,
+        maxScore: 20,
         statistic: false,
         minutes: 0,
         seconds: 0,
@@ -751,7 +762,7 @@
         this.sphereBg.rotation.x += 0.003;
         this.sphereBg.rotation.y += 0.001;
         this.sphereBg.rotation.z += 0.001;
-        
+
         requestAnimationFrame(this.animate);
         this.render();
       },
@@ -806,7 +817,7 @@
           for (let i = 0; i < this.badgeScenes.length; i++) {
             const badgeCont = document.getElementById('list-item' + i);
             const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
-            
+
             if (rect !== false) {
               this.badgeScenes[i].rotation.y += 0.02;
 
@@ -1029,8 +1040,14 @@
         }
         this.badgeAnimation = false;
         console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
-        this.commentNow = this.comments[this.level-1];
-        this.playerStatusNow = this.playerStatuses[this.level-1];
+        this.animateText = true
+        setTimeout(() => {
+          this.commentNow = this.comments[this.level-1];
+          this.playerStatusNow = this.playerStatuses[this.level-1];
+        },1500)
+        setTimeout(() => {
+          this.animateText = false
+        },2500)
         this.scene.remove(this.holder);
         this.scene.remove(this.pointer);
         if (this. level == 1) {
@@ -1322,7 +1339,7 @@
     align-items: flex-end;
     top: 40px;
   }
-  .hud p{
+  .hud__inner{
     flex-direction: column;
     display: flex;
     align-items: flex-end;
@@ -1330,11 +1347,45 @@
     margin-bottom: 15px;
     color: #ABB0BC;
   }
-  .hud p span{
-    color: #FF7152;
+  .word-animation{
+    display: flex;
+  }
+   .hud__inner span{
     font-size: 50px;
     line-height: 60px;
     color: #fff;
+     transition: 1s;
+  }
+  .changeText{
+    transform: rotate3d(0, 2, 0,170deg);
+    opacity: 0;
+  }
+  @keyframes changeText {
+    0% {
+      animation-timing-function: ease-out;
+      transform: rotate3d(0, 2, 0,0deg);
+      opacity: 1;
+    }
+    25% {
+      animation-timing-function: ease-in;
+      transform: rotate3d(0, 2, 0,170deg);
+      opacity: 0;
+    }
+
+    50% {
+      animation-timing-function: ease-in;
+      transform: rotate3d(0, 2, 0,170deg);
+    }
+    75%{
+      animation-timing-function: ease-out;
+      transform: rotate3d(0, 2, 0,170deg);
+      opacity: 0;
+    }
+    100% {
+      animation-timing-function: ease-out;
+      transform: rotate3d(0, 2, 0,0deg);
+      opacity: 1;
+    }
   }
   .game__container{
     position: fixed;

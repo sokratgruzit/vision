@@ -146,4 +146,207 @@ render: function () {
   this.renderer.setPixelRatio(window.devicePixelRatio);
   this.renderer.physicallyCorrectLights = true;
   this.renderer.render(this.scene, this.camera);
-},
+}
+
+//Waves plane
+
+
+<template>
+  <div class="roadmap__container">
+    <div id="roadmap-container"></div>
+  </div>
+</template>
+
+<script>
+import * as THREE from 'three';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+
+export default {
+  name: 'Home',
+  components: {
+  },
+  data () {
+    return {
+      scene: null,
+      camera: null,
+      roadmapGeo: null,
+      roadmapMat: null,
+      roadmapMesh: null,
+      renderer: null,
+      SEPARATION: 60, 
+      AMOUNTX: 350, 
+      AMOUNTY: 15,
+      roadmapMesh: null,
+      count: 0,
+      mouseX: 0, 
+      mouseY: 0,
+      windowHalfX: window.innerWidth / 2,
+      windowHalfY: window.innerHeight / 2,
+      positions: null,
+      scales: null,
+      controls: null
+    }
+  },
+  methods: {
+    roadmapScene: function() {
+      var container = document.getElementById('roadmap-container');
+
+      this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 10000);
+      
+      this.camera.position.y = 300;
+      this.camera.position.z = 2000;
+
+      this.scene = new THREE.Scene();
+      
+      const numParticles = this.AMOUNTX * this.AMOUNTY;
+
+      const positions = new Float32Array(numParticles * 3);
+      const scales = new Float32Array(numParticles);
+
+      let i = 0, j = 0;
+      for (let ix = 0; ix < this.AMOUNTX; ix++) {
+        for (let iy = 0; iy < this.AMOUNTY; iy++) {
+          positions[i] = ix * this.SEPARATION - ((this.AMOUNTX * this.SEPARATION) / 2); 
+          positions[i + 1] = 0; // y
+          positions[i + 2] = iy * this.SEPARATION - ((this.AMOUNTY * this.SEPARATION) / 2); 
+
+          scales[j] = 1;
+
+          i += 3;
+          j++;
+        }
+      }
+
+      this.roadmapGeo = new THREE.BufferGeometry();
+      this.roadmapGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      this.roadmapGeo.setAttribute('scale', new THREE.BufferAttribute(scales, 1));
+      
+      this.roadmapMat = new THREE.ShaderMaterial({
+        uniforms: {
+          color: { value: new THREE.Color(0x878fff) },
+        },
+        vertexShader: `
+          attribute float scale;
+          void main() {
+            vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+            gl_PointSize = scale * ( 300.0 / - mvPosition.z );
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 color;
+          void main() {
+            if (length( gl_PointCoord - vec2(0.5, 0.5)) > 0.475) discard;
+            gl_FragColor = vec4(color, 1.0);
+          }
+        `
+      });
+      
+      this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
+      this.scene.add(this.roadmapMesh);
+      this.renderer = new THREE.WebGLRenderer({antialias: true});
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      //this.controls.minPolarAngle = 0;
+		  //this.controls.maxPolarAngle = 0.5;
+      this.controls.minAzimuthAngle = 0;
+		  this.controls.maxAzimuthAngle = 0;
+      this.controls.update();
+
+      container.appendChild(this.renderer.domElement);
+    },
+    animate: function () {
+      requestAnimationFrame(this.animate);
+      this.controls.update();
+      this.render();
+    },
+    render: function () {
+      //this.camera.position.x += (this.mouseX - this.camera.position.x) * .05;
+      //this.camera.position.y += (-this.mouseY - this.camera.position.y) * .05;
+      this.camera.lookAt(this.scene.position);
+
+      const positions = this.roadmapMesh.geometry.attributes.position.array;
+      const scales = this.roadmapMesh.geometry.attributes.scale.array;
+
+      let i = 0, j = 0;
+      for (let ix = 0; ix < this.AMOUNTX; ix++) {
+        for (let iy = 0; iy < this.AMOUNTY; iy++) {
+          positions[i + 1] = (Math.sin((ix + this.count) * 0.1) * 150) + (Math.sin((iy + this.count) * 0.3) * 150);
+          scales[j] = (Math.sin((ix + this.count) * 0.3) + 1) * 5 + (Math.sin((iy + this.count) * 0.5) + 1) * 5;
+
+          i += 3;
+          j++;
+        }
+      }
+
+      this.roadmapMesh.geometry.attributes.position.needsUpdate = true;
+      this.roadmapMesh.geometry.attributes.scale.needsUpdate = true;
+
+      this.count += 0.1;
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.render(this.scene, this.camera);
+    },
+    onWindowResize: function () {
+      this.windowHalfX = window.innerWidth / 2;
+      this.windowHalfY = window.innerHeight / 2;
+
+      this.camera.aspect = window.innerWidth / window.innerHeight;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.render();
+    },
+    onPointerMove: function (event) {
+      if (event.isPrimary === false) return;
+
+      this.mouseX = event.clientX - this.windowHalfX;
+      this.mouseY = event.clientY - this.windowHalfY;
+    }
+  },
+  mounted () {
+    this.roadmapScene();
+    this.animate();
+    window.addEventListener('resize', this.onWindowResize, false);
+    window.addEventListener('pointermove', this.onPointerMove);
+  }
+}
+</script>
+<style scoped>
+  .roadmap__container{
+    position: relative;
+    height: 100vh;
+    width: 100%;
+  }
+</style>
+
+"#define GLSLIFY 1// 
+uniform mat4 modelViewMatrix;\n// 
+uniform mat4 projectionMatrix;\n// 
+attribute vec3 position;
+attribute vec2 fboUV;
+varying float vColor;\n
+varying float vAlpha;
+uniform sampler2D texturePosition;\n
+uniform float opacity;\n
+uniform float sizeBase;\n
+uniform float sizeExtra;
+highp float random_1_0(vec2 co)\n{\n    
+  highp float a = 12.9898;\n    
+  highp float b = 78.233;\n    
+  highp float c = 43758.5453;\n    
+  highp float dt= dot(co.xy ,vec2(a,b));\n    
+  highp float sn= mod(dt,3.14);\n    
+  
+  return fract(sin(sn) * c);\n}
+  void main() {\n    
+    vec3 pos = texture2D( texturePosition, fboUV ).xyz;    
+    float r = (1.0 - cos(smoothstep(500.0, 300.0, pos.x) * 3.141592654)) * 0.5;\n    
+    pos.yz *= r;    pos.x = clamp(pos.x, -500.0, 500.0);    
+    vColor = random_1_0(fboUV + vec2(23.0, 31.22));    
+    gl_Position = projectionMatrix * viewMatrix  * vec4( pos, 1.0 );    
+    vAlpha = smoothstep(-500.0 + 200.0 * random_1_0(fboUV + 1.0), -200.0, pos.x) * 
+    clamp(1000.0 / gl_Position.z, 0.0, 1.0) * opacity;    
+    gl_PointSize = (sizeBase + random_1_0(fboUV) * sizeExtra) * 
+    (500.0 / gl_Position.z);
+  }\n",
+
+

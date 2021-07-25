@@ -54,7 +54,15 @@
             </div>
           </div>
       </p>
-      <p>My Score<span>{{this.score}}</span></p>
+      <p>My Score
+        <div class="level__container-outer">
+        <div class="level__container" :style="{
+          transform: `translateY(-${(score) * 60}px)`
+        }">
+          <div class="level__num" v-for="item in maxScore">{{item - 1}}</div>
+        </div>
+      </div>
+     </p>
       <p :style="{ position: 'relative' }">
         Player: <span :style="{ color: 'red' }">{{this.playerStatusNow}}</span>
       <div id="badges-container" class="badges"></div>
@@ -74,6 +82,7 @@
     name: 'ThreeTest',
     data () {
       return {
+        maxScore: 20,
         statistic: false,
         minutes: 0,
         seconds: 0,

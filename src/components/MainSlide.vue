@@ -15,7 +15,7 @@
             It utilizes AI Enabled Proof of Stake Algorithm, Multi Layered Consensus Model and Voting
             Based Governance.</p>
           <div class="explore-button__container">
-            <router-link to="/roadmap" class="explore-button">
+            <router-link to="/" class="explore-button">
               <span></span>
               <span></span>
               <span></span>

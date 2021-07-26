@@ -3,7 +3,7 @@
     <img :src="require(`@/assets/img/nav.jpeg`)" alt="" class="navigation__bg">
     <div class="navigation__inner container">
       <div class="navigation__left">
-        <router-link to="/roadmap" class="navigation__link">
+        <router-link to="/roadmap" @click.native="closeMenu" class="navigation__link">
           <span>R</span>
           <span>O</span>
           <span>A</span>
@@ -75,6 +75,9 @@
 export default {
   name: 'Navigation',
   methods: {
+    closeMenu () {
+      this.$store.commit('openNavigation', false)
+    }
   }
 }
 </script>

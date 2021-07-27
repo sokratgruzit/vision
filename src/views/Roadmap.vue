@@ -49,7 +49,7 @@ export default {
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
-
+      
       this.uniforms = {
         tex: { type: "t", value: texture },
         time: { type: "f", value: 0.0 },
@@ -261,7 +261,7 @@ export default {
             float displacement = - noise + b;
             vec3 newPosition = position + normal * displacement;
             vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-            gl_PointSize = 2.;
+            gl_PointSize = .5;
             gl_Position = projectionMatrix * mvPosition;
           }
         `,
@@ -278,8 +278,7 @@ export default {
             gl_FragColor = vec4(vUv,0.,1.);
             gl_FragColor = tt;
           }
-        `,
-        morphTargets: true
+        `
       });
 
       var sLight = new THREE.SpotLight(0xffffff);
@@ -290,11 +289,21 @@ export default {
       this.scene.add(aLight);
       
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
+      this.roadmapMesh.receiveShadow = true;
       this.roadmapMesh.rotateX(90);
       this.scene.add(this.roadmapMesh);
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.moveRoadmapToStart();
+
+      let planetGeo = new THREE.SphereBufferGeometry(5, 12, 12);
+      const planetMat = new THREE.MeshBasicMaterial({
+        wireframe: true,
+        color: 0x878fff
+      });
+
+      const planet = new THREE.Mesh(planetGeo, planetMat);
+      this.roadmapMesh.add(planet);
 
       container.appendChild(this.renderer.domElement);
     },
@@ -309,8 +318,8 @@ export default {
       const theTime = performance.now() * 0.001;
       var pos = this.roadmapGeo.attributes.position;
       var vec3 = new THREE.Vector3(); 
-      var magnitude = 5;
-      var waveSize = 12;
+      var magnitude = 10;
+      var waveSize = 30;
       var rotationAngle = 0.07;
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
@@ -342,11 +351,11 @@ export default {
           this.roadmapMesh.rotateX(-rotationAngle);
         }
       }
-
+      
       for (var i = 0, l = pos.count; i < l; i++) {
         vec3.fromBufferAttribute(pos, i);
         vec3.sub(center);
-        var z = Math.sin(vec3.length() /- waveSize + (theTime)) * magnitude;
+        var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
         pos.setZ(i, z);
       }
 

@@ -15,7 +15,7 @@
             It utilizes AI Enabled Proof of Stake Algorithm, Multi Layered Consensus Model and Voting
             Based Governance.</p>
           <div class="explore-button__container">
-            <div class="explore-button">
+            <router-link to="/" class="explore-button">
               <span></span>
               <span></span>
               <span></span>
@@ -23,7 +23,7 @@
               <div class="explore-button__text">
                 Explore Now
               </div>
-            </div>
+            </router-link>
           </div>
         </div>
       </div>

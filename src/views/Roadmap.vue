@@ -22,7 +22,7 @@ export default {
       roadmapMesh: null,
       renderer: null,
       roadmapMesh: null,
-      mouseX: 0, 
+      mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
       windowHalfY: window.innerHeight / 2,
@@ -40,7 +40,7 @@ export default {
       var container = document.getElementById('roadmap-container');
 
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-      
+
       //this.camera.position.y = 300;
       this.camera.position.z = 150;
 
@@ -169,7 +169,7 @@ export default {
             vec3 fade_xyz = fade(Pf0);
             vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
             vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
             return 2.2 * n_xyz;
           }
 
@@ -239,7 +239,7 @@ export default {
             vec3 fade_xyz = fade(Pf0);
             vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
             vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x); 
+            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
             return 2.2 * n_xyz;
           }
 
@@ -271,7 +271,7 @@ export default {
           varying vec2 vUv;
           varying vec3 vPosition;
           varying float noise;
-          
+
           void main() {
             vec3 color = vec3( vUv * ( 1. - 2. * noise ), 0.0 );
             vec4 tt = texture2D(tex, vUv);
@@ -287,7 +287,7 @@ export default {
 
       var aLight = new THREE.PointLight(0xffffff, 20);
       this.scene.add(aLight);
-      
+
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
       this.roadmapMesh.receiveShadow = true;
       this.roadmapMesh.rotateX(90);
@@ -321,6 +321,7 @@ export default {
       var magnitude = 10;
       var waveSize = 30;
       var rotationAngle = 0.07;
+      
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
       if (this.isPointerDown) {
@@ -345,7 +346,7 @@ export default {
 
         if (this.direction === "up" && this.roadmapMesh.rotation.x < 2.1) {
           this.roadmapMesh.rotateX(+rotationAngle);
-        } 
+        }
 
         if (this.direction === "down" && this.roadmapMesh.rotation.x > 1.8) {
           this.roadmapMesh.rotateX(-rotationAngle);
@@ -360,8 +361,9 @@ export default {
       }
 
       pos.needsUpdate = true;
-
-      requestAnimationFrame(this.animate);
+      if (this.$store.state.stopRoadmap == false){
+        requestAnimationFrame(this.animate);
+      }
       TWEEN.update();
       this.render();
     },
@@ -387,7 +389,7 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
-      
+
       this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;
     },
     onWindowResize: function () {
@@ -430,12 +432,23 @@ export default {
   mounted () {
     this.roadmapScene();
     this.animate();
+    this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
-  }
+  },
+  beforeDestroy () {
+    this.$store.commit('stopRoadmap', true)
+  },
+  watch: {
+    '$store.state.stopRoadmap': function () {
+      if (this.$store.state.stopRoadmap == false) {
+        this.animate();
+      }
+    }
+  },
 }
 </script>
 <style scoped>

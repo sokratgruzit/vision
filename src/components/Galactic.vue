@@ -73,8 +73,8 @@
       }
     },
     watch: {
-      '$store.state.playGame': function () {
-        if (this.$store.state.playGame == false) {
+      '$store.state.stopGalactic': function () {
+        if (this.$store.state.stopGalactic == false) {
           this.animate();
         }
       }
@@ -214,7 +214,7 @@
         this.galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
         this.particles = new THREE.Points(this.galaxyGeo, this.galaxyMat);
-        
+
         for (let i = 0; i < planets; ++i) {
           const planetGeo = new THREE.SphereGeometry(50, 32, 32);
           const planetLoader = new THREE.TextureLoader();
@@ -268,7 +268,7 @@
             planet.position.z = 5;
             tooltipText = "Story";
           }
-          
+
           this.particles.add(planet);
 
           const tooltipLineMat = new THREE.LineBasicMaterial({
@@ -337,7 +337,7 @@
             .to({ value: 0 }, 1000)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
-            
+
             new TWEEN.Tween(textMat3.uniforms.amplitude)
             .to({ value: 0 }, 1000)
             .easing(TWEEN.Easing.Quadratic.In)
@@ -512,7 +512,7 @@
       },
       moveGalaxyOnSlider: function () {
         var A = new TWEEN.Tween(this.particles.position).to({ x: -1000, y: -1500, z: 3000 }, 500)
-        .easing(TWEEN.Easing.Quadratic.In); 
+        .easing(TWEEN.Easing.Quadratic.In);
 
         var B = new TWEEN.Tween(this.particles.position).to({ x: -280, y: -900, z: 748 }, 500)
         .easing(TWEEN.Easing.Quadratic.In);
@@ -522,7 +522,8 @@
         A.start();
       },
       animate: function () {
-        if (this.$store.state.playGame == false){
+        if (this.$store.state.stopGalactic == false){
+          console.log('xui')
           requestAnimationFrame(this.animate);
         }
         //console.log(this.$store.state.currentSlide)
@@ -579,7 +580,7 @@
             this.particles.rotation.z -= zRot;
           }
         }
-        
+
         TWEEN.update();
         this.camera.lookAt(this.scene.position);
         this.render();
@@ -589,7 +590,7 @@
 
         this.pointerX = event.clientX - this.windowHalfX;
         this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;
-      
+
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -603,7 +604,7 @@
             var tooltipClass = clearIntersects[i].children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
             tooltip.style.opacity = 0;
-            
+
             new TWEEN.Tween(clearIntersects[i].scale)
             .to({ x: 1, y: 1, z: 1 }, 100)
             .easing(TWEEN.Easing.Quadratic.In)
@@ -616,10 +617,10 @@
 
             /*let opacity = { x: 1 }
 
-            new TWEEN.Tween(opacity) 
-            .to({ x: 0 }, 100) 
-            .easing(TWEEN.Easing.Quadratic.Out) 
-            .onUpdate(function() { 
+            new TWEEN.Tween(opacity)
+            .to({ x: 0 }, 100)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function() {
               tooltip.style.opacity = opacity.x;
             })
             .start();*/
@@ -644,14 +645,14 @@
 
             /*let opacity = { x: 0 }
 
-            new TWEEN.Tween(opacity) 
-            .to({ x: 1 }, 2000) 
-            .easing(TWEEN.Easing.Quadratic.Out) 
-            .onUpdate(function() { 
+            new TWEEN.Tween(opacity)
+            .to({ x: 1 }, 2000)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .onUpdate(function() {
               tooltip.style.opacity = opacity.x;
             })
             .start();*/
-          } 
+          }
         }
       },
       onPointerDown: function (event) {
@@ -685,6 +686,9 @@
       document.addEventListener('pointermove', this.onPointerMove);
       window.addEventListener('resize', this.onWindowResize, false);
     },
+    beforeDestroy () {
+      this.$store.commit('stopGalactic', true)
+    }
   }
 </script>
 <style scoped>

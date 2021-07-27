@@ -296,7 +296,7 @@
           planetDiv.style.opacity = '0';
 
           const planetTooltip = new CSS2DObject(planetDiv);
-          planetTooltip.position.set(10, 0, 100);
+          planetTooltip.position.set(0, 0, 100);
           tooltipLineMesh.add(planetTooltip);
         }
 
@@ -523,7 +523,6 @@
       },
       animate: function () {
         if (this.$store.state.stopGalactic == false){
-          console.log('xui')
           requestAnimationFrame(this.animate);
         }
         //console.log(this.$store.state.currentSlide)
@@ -691,7 +690,7 @@
     }
   }
 </script>
-<style scoped>
+<style>
   #galaxy-container{
     position: fixed;
     z-index: 1;
@@ -704,7 +703,7 @@
   #planet-tooltip1,
   #planet-tooltip2 {
     color: #FFF;
-    font-family: "Kanit_Regular";
+    /*font-family: "Kanit_Regular";*/
     padding: 2px;
     background: rgba(0, 0, 0, .6);
   }

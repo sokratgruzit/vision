@@ -32,7 +32,16 @@ export default {
       isPointerDown: false,
       direction: "",
       oldY: 0,
-      count: 0
+      count: 0,
+      roadmapNode: null,
+      nodesConfig: [
+        [-1200, 5],
+        [-1000, 10],
+        [-700, 4],
+        [-300, 5],
+        [0, 7],
+        [500, 5]
+      ]
     }
   },
   methods: {
@@ -296,14 +305,17 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.moveRoadmapToStart();
 
-      let planetGeo = new THREE.SphereBufferGeometry(5, 12, 12);
-      const planetMat = new THREE.MeshBasicMaterial({
-        wireframe: true,
-        color: 0x878fff
-      });
+      for (let i = 0; i < this.nodesConfig.length; i++) {
+        const nodeGeo = new THREE.SphereBufferGeometry(this.nodesConfig[i][1], 32, 32);
+        const nodeMat = new THREE.MeshBasicMaterial({
+          map: texture
+        });
 
-      const planet = new THREE.Mesh(planetGeo, planetMat);
-      this.roadmapMesh.add(planet);
+        this.roadmapNode = new THREE.Mesh(nodeGeo, nodeMat);
+        this.roadmapNode.position.setX(this.nodesConfig[i][0]);
+        this.roadmapNode.name = "node" + i;
+        this.roadmapMesh.add(this.roadmapNode);
+      }
 
       container.appendChild(this.renderer.domElement);
     },
@@ -321,7 +333,7 @@ export default {
       var magnitude = 10;
       var waveSize = 30;
       var rotationAngle = 0.07;
-      
+
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
       if (this.isPointerDown) {
@@ -352,10 +364,30 @@ export default {
           this.roadmapMesh.rotateX(-rotationAngle);
         }
       }
+
+      let node0 = this.scene.getObjectByName("node0");
+      let node1 = this.scene.getObjectByName("node1");
+      let node2 = this.scene.getObjectByName("node2");
+      let node3 = this.scene.getObjectByName("node3");
+      let node4 = this.scene.getObjectByName("node4");
+      let node5 = this.scene.getObjectByName("node5");
       
       for (var i = 0, l = pos.count; i < l; i++) {
+        let pPos = vec3.fromBufferAttribute(pos, i);
         vec3.fromBufferAttribute(pos, i);
         vec3.sub(center);
+        node0.position.setY(pPos.y * 0.01);
+        node0.position.setZ(pPos.z);
+        node1.position.setY(pPos.y * 0.01);
+        node1.position.setZ(pPos.z);
+        node2.position.setY(pPos.y * 0.01);
+        node2.position.setZ(pPos.z);
+        node3.position.setY(pPos.y * 0.01);
+        node3.position.setZ(pPos.z);
+        node4.position.setY(pPos.y * 0.01);
+        node4.position.setZ(pPos.z);
+        node5.position.setY(pPos.y * 0.01);
+        node5.position.setZ(pPos.z);
         var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
         pos.setZ(i, z);
       }

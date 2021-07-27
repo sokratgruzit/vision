@@ -36,11 +36,13 @@ export default {
   methods: {
     playGame () {
       this.$store.commit('playGame', true)
+      this.$store.commit('stopGalactic', true)
     }
   },
   mounted () {
     setTimeout(() => {
       this.firstAnimation = true
+      this.$store.commit('stopGalactic', false)
     }, 100);
   }
 }

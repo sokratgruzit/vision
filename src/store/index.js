@@ -8,6 +8,7 @@ export default new Vuex.Store({
     navigation: false,
     hideGalactic: true,
     playGame: false,
+    stopGalactic: false,
     currentSlide: 0,
     slideChange: true,
     firstAnimation: false
@@ -24,6 +25,9 @@ export default new Vuex.Store({
     },
     playGame (state, data) {
       state.playGame = data
+    },
+    stopGalactic (state, data) {
+      state.stopGalactic = data
     },
     hideGalactic (state, data) {
       state.currentSlide = data

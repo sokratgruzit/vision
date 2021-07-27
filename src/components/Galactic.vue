@@ -523,7 +523,6 @@
       },
       animate: function () {
         if (this.$store.state.stopGalactic == false){
-          console.log('xui')
           requestAnimationFrame(this.animate);
         }
         //console.log(this.$store.state.currentSlide)

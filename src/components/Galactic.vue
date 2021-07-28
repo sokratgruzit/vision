@@ -690,7 +690,7 @@
     }
   }
 </script>
-<style>
+<style scoped>
   #galaxy-container{
     position: fixed;
     z-index: 1;
@@ -704,8 +704,7 @@
   #planet-tooltip2 {
     color: #FFF;
     /*font-family: "Kanit_Regular";*/
-    padding: 2px;
-    background: rgba(0, 0, 0, .6);
+    padding: 3px;
   }
   /*Ipad 1024*/
   @media (max-width: 1365px){

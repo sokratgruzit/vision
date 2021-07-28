@@ -376,7 +376,7 @@ export default {
         let pPos = vec3.fromBufferAttribute(pos, i);
         vec3.fromBufferAttribute(pos, i);
         vec3.sub(center);
-        node0.position.setY(pPos.y * 0.01);
+        /*node0.position.setY(pPos.y * 0.01);
         node0.position.setZ(pPos.z);
         node1.position.setY(pPos.y * 0.01);
         node1.position.setZ(pPos.z);
@@ -387,7 +387,7 @@ export default {
         node4.position.setY(pPos.y * 0.01);
         node4.position.setZ(pPos.z);
         node5.position.setY(pPos.y * 0.01);
-        node5.position.setZ(pPos.z);
+        node5.position.setZ(pPos.z);*/
         var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
         pos.setZ(i, z);
       }

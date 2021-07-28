@@ -58,7 +58,7 @@ export default {
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
-      
+
       this.uniforms = {
         tex: { type: "t", value: texture },
         time: { type: "f", value: 0.0 },
@@ -329,7 +329,7 @@ export default {
       let center = new THREE.Vector3(0,0,0);
       const theTime = performance.now() * 0.001;
       var pos = this.roadmapGeo.attributes.position;
-      var vec3 = new THREE.Vector3(); 
+      var vec3 = new THREE.Vector3();
       var magnitude = 10;
       var waveSize = 30;
       var rotationAngle = 0.07;
@@ -371,7 +371,7 @@ export default {
       let node3 = this.scene.getObjectByName("node3");
       let node4 = this.scene.getObjectByName("node4");
       let node5 = this.scene.getObjectByName("node5");
-      
+
       for (var i = 0, l = pos.count; i < l; i++) {
         let pPos = vec3.fromBufferAttribute(pos, i);
         vec3.fromBufferAttribute(pos, i);
@@ -389,7 +389,7 @@ export default {
         node5.position.setY(pPos.y * 0.01);
         node5.position.setZ(pPos.z);*/
         var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
-        pos.setZ(i, z);
+        // pos.setZ(i, z);
       }
 
       pos.needsUpdate = true;
@@ -462,8 +462,12 @@ export default {
     }
   },
   mounted () {
-    this.roadmapScene();
-    this.animate();
+    const promise = new Promise((resolve, reject) => {
+      resolve (this.roadmapScene())
+    });
+    promise.then((value) => {
+      this.animate()
+    });
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('mouseup', this.onPointerUp, false);

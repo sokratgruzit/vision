@@ -677,8 +677,15 @@
       },
     },
     mounted () {
-      this.myScene();
-      this.animate();
+      const promise = new Promise((resolve, reject) => {
+        resolve ( this.myScene())
+        console.log('xai')
+      });
+      promise.then((value) => {
+        this.animate()
+        console.log('xai2')
+        // expected output: "foo"
+      });
       document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);

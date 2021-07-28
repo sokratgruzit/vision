@@ -704,7 +704,7 @@
   #planet-tooltip2 {
     color: #FFF;
     /*font-family: "Kanit_Regular";*/
-    padding: 3px;
+    padding: 2px;
   }
   /*Ipad 1024*/
   @media (max-width: 1365px){

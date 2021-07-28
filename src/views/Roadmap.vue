@@ -37,32 +37,62 @@ export default {
       partGeo: null,
       particles: null,
       partVertex: `
-          uniform vec3 uCameraPos;
-          attribute float alpha;
-          attribute float size;
-          attribute vec3 color;
-          varying float vAlpha;
-          varying vec3 vColor;
+        uniform vec3 uCameraPos;
+        attribute float alpha;
+        attribute float size;
+        attribute vec3 color;
+        varying float vAlpha;
+        varying vec3 vColor;
 
-          void main() {
-            float d = distance(position.xyz, uCameraPos);
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            vAlpha = alpha;
-            vColor = color;
-            gl_PointSize = size;
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `,
-        partFragment: `
-          varying vec3 vColor;
-          uniform sampler2D pointTexture;
-          varying float vAlpha;
+        void main() {
+          float d = distance(position.xyz, uCameraPos);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vAlpha = alpha;
+          vColor = color;
+          gl_PointSize = size;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      partFragment: `
+        varying vec3 vColor;
+        uniform sampler2D pointTexture;
+        varying float vAlpha;
 
-          void main() {
-            gl_FragColor = vec4(vColor, vAlpha);
-            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-          }
-        `,
+        void main() {
+          gl_FragColor = vec4(vColor, vAlpha);
+          gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+        }
+      `,
+      meshPartVertex: `
+        uniform vec3 uCameraPos;
+        attribute float alpha;
+        attribute float size;
+        attribute vec3 color;
+        varying float vAlpha;
+        varying vec3 vColor;
+
+        void main() {
+          float d = distance(position.xyz, uCameraPos);
+          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+          vAlpha = alpha;
+          vColor = color;
+          gl_PointSize = size;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      meshPartFragment: `
+        varying vec3 vColor;
+        uniform sampler2D pointTexture;
+        varying float vAlpha;
+
+        void main() {
+          gl_FragColor = vec4(vColor, vAlpha);
+          gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+        }
+      `,
+      meshPartMat: null,
+      meshPartGeo: null,
+      meshParticles: null,
       roadmapNode: null,
       nodesConfig: [
         [-1200, 5],
@@ -70,9 +100,14 @@ export default {
         [-700, 4],
         [-300, 5],
         [0, 7],
-        [500, 5]
+        [500, 5],
+        [800, 5],
+        [1000, 5],
+        [1300, 5],
+        [1500, 5]
       ],
-      itemSize: 0
+      itemSize: 0,
+      itemAlpha: 0
     }
   },
   methods: {
@@ -339,7 +374,7 @@ export default {
       this.scene.add(this.roadmapMesh);
 
       const partLoader = new THREE.TextureLoader();
-      const partTexture = loader.load(require("../assets/circle.png"));
+      const partTexture = partLoader.load(require("../assets/circle.png"));
 
       this.partUniforms = {
         pointTexture: { type: "t", value: partTexture },
@@ -363,23 +398,10 @@ export default {
       var alphas = new Float32Array((stars) * 1);
       var sizes = new Float32Array((stars) * 1);
 
-      var r1 = 1.0;
-      var g1 = 1.0;
-      var b1 = 0.8;
-
-      var r2 = 0.65;
-      var g2 = 0.85;
-      var b2 = 1.0;
-
-      var r3 = 0;
-      var g3 = 0;
-      var b3 = 0;
-
       for (let i = 0; i < stars; ++i) {
         var f = (stars - i) / (stars);
         var g = i / (stars);
-        //var a = Math.random() * 3.14159 * 2.0;
-        // var r = f * 700;
+        
         var x = Math.random() * 4000.0 - 2000.0;
         var y = Math.random() * 4000.0 - 2000.0;
         var z = Math.random() * 4000.0 - 2000.0;
@@ -395,12 +417,10 @@ export default {
         vertices[i * 3 + 1] = y;
         vertices[i * 3 + 2] = z;
 
-        var c = Math.pow(f, 0.8);
         colors[i * 3 + 0] = 1.0;
         colors[i * 3 + 1] = 1.0;
         colors[i * 3 + 2] = 1.0;
 
-        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
         alphas[i] = 0.2 + Math.random() * 0.05;
         sizes[i] = Math.random() * Math.random() * 100.0;
       }
@@ -412,8 +432,60 @@ export default {
       this.partGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
 
       this.particles = new THREE.Points(this.partGeo, this.partMat);
-      this.particles.position.setZ(-1000);
       this.scene.add(this.particles);
+
+      //Mesh particles
+      const meshPartLoader = new THREE.TextureLoader();
+      const meshPartTexture = meshPartLoader.load(require("../assets/txtStar.png"));
+
+      const meshPartUniforms = {
+        pointTexture: { type: "t", value: meshPartTexture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 0) },
+      };
+
+      this.meshPartMat = new THREE.ShaderMaterial({
+        uniforms:       meshPartUniforms,
+        vertexShader:   this.meshPartVertex,
+        fragmentShader: this.meshPartFragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
+
+      var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var meshBubles = 10;
+
+      var bVertices = new Float32Array((meshBubles) * 3);
+      var bColors = new Float32Array((meshBubles) * 3);
+      var bAlphas = new Float32Array((meshBubles) * 1);
+      var bSizes = new Float32Array((meshBubles) * 1);
+
+      for (let i = 0; i < meshBubles; ++i) {
+        var x = 0;
+        var y = 0;
+        var z = 0;
+
+        bVertices[i * 3 + 0] = x;
+        bVertices[i * 3 + 1] = y;
+        bVertices[i * 3 + 2] = z;
+
+        bColors[i * 3 + 0] = 1.0;
+        bColors[i * 3 + 1] = 1.0;
+        bColors[i * 3 + 2] = 1.0;
+
+        bAlphas[i] = 0.5;
+        bSizes[i] = 100.0;
+      }
+
+      this.meshPartGeo = new THREE.BufferGeometry();
+      this.meshPartGeo.setAttribute('position', new THREE.BufferAttribute(bVertices, 3));
+      this.meshPartGeo.setAttribute('color', new THREE.BufferAttribute(bColors, 3));
+      this.meshPartGeo.setAttribute('alpha', new THREE.BufferAttribute(bAlphas, 1));
+      this.meshPartGeo.setAttribute('size', new THREE.BufferAttribute(bSizes, 1));
+
+      this.meshParticles = new THREE.Points(this.meshPartGeo, this.meshPartMat);
+      this.roadmapMesh.add(this.meshParticles);
+      //End Mesh particles
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -428,12 +500,20 @@ export default {
       .start();
     },
     animate: function () {
-      let center = new THREE.Vector3(0,0,0);
       const theTime = performance.now() * 0.001;
-      var pos = this.roadmapGeo.attributes.position;
-      var vec3 = new THREE.Vector3(); 
-      var magnitude = 10;
-      var waveSize = 30;
+      var vec3 = new THREE.Vector3();
+      var roadmapPos = this.roadmapGeo.attributes.position;
+      var bublesPos = this.meshPartGeo.attributes.position;
+      
+      for (let i = 0; i < bublesPos.count; i++) {
+        let pPos = vec3.fromBufferAttribute(bublesPos, i);
+        let rPos = vec3.fromBufferAttribute(roadmapPos, i * 100);
+        bublesPos.setZ(i, rPos.z);
+        bublesPos.setY(i, rPos.y);
+        bublesPos.setX(i, rPos.x);
+      }
+
+      bublesPos.needsUpdate = true;
 
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
@@ -484,8 +564,9 @@ export default {
       pos.needsUpdate = true;*/
 
       let partZSin = Math.sin(theTime);
-      this.particles.position.z = 10 + (partZSin * 2);
-      this.particles.position.y = 50 + (partZSin * 2);
+      this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
+      this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
+      this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
       
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);
@@ -555,29 +636,46 @@ export default {
       this.particles.rotation.x = this.mouseY * 0.0001;
 
       var pointSizes = this.particles.geometry.attributes.size;
+      var pointAlphas = this.particles.geometry.attributes.alpha;
+      
       if (this.direction === "up") {
         for (let i = 0; i < pointSizes.count; i++) {
           if (this.itemSize < 1) {
             pointSizes.array[i] += this.itemSize;
           }
         }
+        for (let i = 0; i < pointAlphas.count / 2; i++) {
+          pointAlphas.array[i] = 0.3;
+        }
         if (this.itemSize < 1) {
           this.itemSize += 0.01;
+        }
+        if (this.itemAlpha > 0) {
+          this.itemAlpha -= 0.00005;
         }
       }
 
       if (this.direction === "down") {
         for (let i = 0; i < pointSizes.count; i++) {
-          if (this.itemSize > 0) {
+          if (this.itemSize > -0.2) {
             pointSizes.array[i] -= this.itemSize;
           }
         }
-        if (this.itemSize > 0) {
+        for (let i = 0; i < pointAlphas.count / 2; i++) {
+          if (this.itemAlpha < 0.5) {
+            pointAlphas.array[i] += this.itemAlpha;
+          }
+        }
+        if (this.itemSize > -0.2) {
           this.itemSize -= 0.01;
+        }
+        if (this.itemAlpha < 0.1) {
+          this.itemAlpha += 0.00005;
         }
       }
 
       pointSizes.needsUpdate = true;
+      pointAlphas.needsUpdate = true;
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;

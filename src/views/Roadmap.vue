@@ -20,6 +20,8 @@ export default {
       roadmapGeo: null,
       roadmapMat: null,
       roadmapMesh: null,
+      raycaster: new THREE.Raycaster(),
+      mouse: new THREE.Vector2(),
       renderer: null,
       roadmapMesh: null,
       mouse: new THREE.Vector2(),
@@ -104,17 +106,15 @@ export default {
       var container = document.getElementById('roadmap-container');
 
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-
       //this.camera.position.y = 300;
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
       this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
-
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
-      
+
       this.uniforms = {
         tex: { type: "t", value: texture },
         time: { type: "f", value: 0.0 },
@@ -390,7 +390,7 @@ export default {
       for (let i = 0; i < stars; ++i) {
         var f = (stars - i) / (stars);
         var g = i / (stars);
-        
+
         var x = Math.random() * 4000.0 - 2000.0;
         var y = Math.random() * 4000.0 - 2000.0;
         var z = Math.random() * 4000.0 - 2000.0;
@@ -410,7 +410,7 @@ export default {
         colors[i * 3 + 1] = 1.0;
         colors[i * 3 + 2] = 1.0;
 
-        alphas[i] = 0.2 + Math.random() * 0.05;
+        alphas[i] = 0.05 + Math.random() * 0.05;
         sizes[i] = Math.random() * Math.random() * 100.0;
       }
 
@@ -429,7 +429,7 @@ export default {
 
       const meshPartUniforms = {
         pointTexture: { type: "t", value: meshPartTexture },
-        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 0) },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 0) }
       };
 
       this.meshPartMat = new THREE.ShaderMaterial({
@@ -449,12 +449,13 @@ export default {
       var bColors = new Float32Array((meshBubles) * 3);
       var bAlphas = new Float32Array((meshBubles) * 1);
       var bSizes = new Float32Array((meshBubles) * 1);
-
+      var bNames = new Float32Array((meshBubles) * 1);
       for (let i = 0; i < meshBubles; ++i) {
         var x = 0;
         var y = 0;
         var z = 0;
         var bSize = 70.0;
+        var bName = 'Buble' + i;
 
         bVertices[i * 3 + 0] = x;
         bVertices[i * 3 + 1] = y;
@@ -465,12 +466,13 @@ export default {
         bColors[i * 3 + 2] = 1.0;
 
         bAlphas[i] = 0.5;
-        
+
         if (i === 4 || i === 8 || i === 12) {
           bSize = 150.0;
         }
 
         bSizes[i] = bSize;
+        bNames[i] = i;
       }
 
       this.meshPartGeo = new THREE.BufferGeometry();
@@ -478,14 +480,16 @@ export default {
       this.meshPartGeo.setAttribute('color', new THREE.BufferAttribute(bColors, 3));
       this.meshPartGeo.setAttribute('alpha', new THREE.BufferAttribute(bAlphas, 1));
       this.meshPartGeo.setAttribute('size', new THREE.BufferAttribute(bSizes, 1));
+      this.meshPartGeo.setAttribute('name', new THREE.BufferAttribute(bNames, 1));
 
       this.meshParticles = new THREE.Points(this.meshPartGeo, this.meshPartMat);
+      this.meshParticles.name = 'Stars';
       this.roadmapMesh.add(this.meshParticles);
       //End Mesh particles
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setClearColor(0x878FFF, 0.4);
+      this.renderer.setClearColor(0x878FFF, 0.2);
       this.moveRoadmapToStart();
 
       container.appendChild(this.renderer.domElement);
@@ -498,22 +502,20 @@ export default {
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
+
       var vec3 = new THREE.Vector3();
       var roadmapPos = this.roadmapGeo.attributes.position;
       var bublesPos = this.meshPartGeo.attributes.position;
-      
-      for (let i = 0; i < bublesPos.count; i++) {
+      for (let i = -0; i < bublesPos.count; i++) {
         let pPos = vec3.fromBufferAttribute(bublesPos, i);
-        let rPos = vec3.fromBufferAttribute(roadmapPos, (i * 110) + 300);
+        let rPos = vec3.fromBufferAttribute(roadmapPos, (i * 110) + 50);
         let yD = [0, 30, 100, 15, 70, 20, 55, 78, 90, 5, 48, 34, 29, 99, 115];
-        
+
         bublesPos.setZ(i, rPos.z);
         bublesPos.setY(i, rPos.y - yD[i]);
         bublesPos.setX(i, rPos.x);
       }
-
       bublesPos.needsUpdate = true;
-
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
       if (this.isPointerDown) {
@@ -539,7 +541,7 @@ export default {
         if (this.direction === "up" && this.roadmapMesh.rotation.x > 1.8) {
           this.roadmapMesh.rotation.x -= 0.01;
         }
-        
+
         if (this.direction === "down" && this.roadmapMesh.rotation.x < 2.3) {
           this.roadmapMesh.rotation.x += 0.01;
         }
@@ -550,7 +552,7 @@ export default {
       this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
       this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
       this.meshParticles.position.y = this.meshParticles.position.y / 1.1 + partZSin / 2;
-      
+
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);
       }
@@ -607,6 +609,7 @@ export default {
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
 
+
       if (event.pageY < this.oldY) {
         this.direction = "up";
       } else if (event.pageY > this.oldY) {
@@ -620,8 +623,9 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
       this.raycaster.setFromCamera(this.mouse, this.camera);
+      // const intersects = this.raycaster.intersectObject(this.meshParticles.children);
+      // console.log(intersects)
       const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
       if (intersects.length > 0) {
         intersects[0].object.geometry.attributes.alpha.array[0] = 0;
@@ -630,7 +634,7 @@ export default {
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;
-      
+
       if (this.direction === "up") {
         for (let i = 0; i < pointSizes.count; i++) {
           if (this.itemSize < 1) {
@@ -675,8 +679,12 @@ export default {
     }
   },
   mounted () {
-    this.roadmapScene();
-    this.animate();
+    const promise = new Promise((resolve, reject) => {
+      resolve (this.roadmapScene())
+    });
+    promise.then((value) => {
+      this.animate()
+    });
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
@@ -693,7 +701,7 @@ export default {
         this.animate();
       }
     }
-  },
+  }
 }
 </script>
 <style scoped>

@@ -63,7 +63,7 @@
       </div>
      </div>
       <div class="hud__inner" :style="{ position: 'relative' }">
-        Player:Player:
+        Player
         <div class="word-animation"><span v-for="item in playerStatusNow" :class="animateText ? 'changeText' : ''" :style="{ color: 'red' }">{{item}}</span></div>
       <div id="badges-container" class="badges"></div>
       </div>
@@ -959,8 +959,8 @@
                   bScene = new THREE.Scene();
                   const bEl = document.createElement('div');
                   bEl.id = 'list-item' + i;
-                  bEl.style.setProperty('width', '33%');
-                  bEl.style.setProperty('height', '100%');
+                  bEl.style.setProperty('width', '60px');
+                  bEl.style.setProperty('height', '60px');
 
                   bScene.userData.element = bEl;
                   bContainer.appendChild(bEl);
@@ -1307,10 +1307,11 @@
   }
   /*coin css end*/
   #badges-container {
-    width: 100%;
+    width: 240px;
     height: 70px;
     z-index: 10000000;
     display: flex;
+    justify-content: flex-end;
   }
   #list-item0,
   #list-item1,

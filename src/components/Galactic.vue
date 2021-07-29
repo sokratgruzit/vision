@@ -683,8 +683,6 @@
       });
       promise.then((value) => {
         this.animate()
-        console.log('xai2')
-        // expected output: "foo"
       });
       document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
       document.addEventListener('mouseup', this.onPointerUp, false);

@@ -9,7 +9,7 @@
       <div class="main-slide__description">
         <p>With the company’s previous customer service system, calls from healthcare providers to authorize patient were too oftern being transferred.</p>
         <div class="explore-button__container">
-          <div class="explore-button" @click="playGame">
+          <router-link to="/galaxy-garbage" class="explore-button">
             <span></span>
             <span></span>
             <span></span>
@@ -17,7 +17,7 @@
             <div class="explore-button__text">
               play Now
             </div>
-          </div>
+          </router-link>
         </div>
       </div>
     </div>

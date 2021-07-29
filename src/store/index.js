@@ -10,6 +10,7 @@ export default new Vuex.Store({
     playGame: false,
     stopGalactic: false,
     stopRoadmap: false,
+    stopGalaxyGarbage: false,
     currentSlide: 0,
     slideChange: true,
     firstAnimation: false
@@ -26,6 +27,9 @@ export default new Vuex.Store({
     },
     playGame (state, data) {
       state.playGame = data
+    },
+    stopGalaxyGarbage (state, data) {
+      state.galaxyGarbage = data
     },
     stopRoadmap (state, data) {
       state.stopRoadmap = data

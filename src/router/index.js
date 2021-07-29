@@ -3,6 +3,7 @@ import VueRouter from 'vue-router'
 import Home from '../views/Home.vue'
 import Roadmap from '../views/Roadmap.vue'
 import Statistic from '../views/Statistic.vue'
+import GalaxyGarbage from '../views/GalaxyGarbage.vue'
 
 Vue.use(VueRouter)
 
@@ -21,6 +22,11 @@ const routes = [
     path: '/statistic',
     name: 'Statistic',
     component: Statistic
+  },
+  {
+    path: '/galaxy-garbage',
+    name: 'GalaxyGarbage',
+    component: GalaxyGarbage
   }
 ]
 

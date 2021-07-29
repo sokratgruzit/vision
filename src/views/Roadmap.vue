@@ -1,5 +1,5 @@
 <template>
-  <div class="roadmap__container">
+  <div>
     <div id="roadmap-container"></div>
   </div>
 </template>
@@ -33,6 +33,36 @@ export default {
       direction: "",
       oldY: 0,
       count: 0,
+      partMat: null,
+      partGeo: null,
+      particles: null,
+      partVertex: `
+          uniform vec3 uCameraPos;
+          attribute float alpha;
+          attribute float size;
+          attribute vec3 color;
+          varying float vAlpha;
+          varying vec3 vColor;
+
+          void main() {
+            float d = distance(position.xyz, uCameraPos);
+            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+            vAlpha = alpha;
+            vColor = color;
+            gl_PointSize = size;
+            gl_Position = projectionMatrix * mvPosition;
+          }
+        `,
+        partFragment: `
+          varying vec3 vColor;
+          uniform sampler2D pointTexture;
+          varying float vAlpha;
+
+          void main() {
+            gl_FragColor = vec4(vColor, vAlpha);
+            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+          }
+        `,
       roadmapNode: null,
       nodesConfig: [
         [-1200, 5],
@@ -41,7 +71,8 @@ export default {
         [-300, 5],
         [0, 7],
         [500, 5]
-      ]
+      ],
+      itemSize: 0
     }
   },
   methods: {
@@ -54,6 +85,7 @@ export default {
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
+      this.scene.fog = new THREE.FogExp2(0x000000, 10, 1000);
 
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
@@ -256,8 +288,8 @@ export default {
               float w = 100.0;
               float t = -.5;
               for (float f = 1.0 ; f <= 10.0 ; f++ ){
-                  float power = pow( 2.0, f );
-                  t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
+                float power = pow( 2.0, f );
+                t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
               }
               return t;
           }
@@ -267,7 +299,7 @@ export default {
 
             noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
             float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
-            float displacement = - noise + b;
+            float displacement = - noise + b * 2.2;
             vec3 newPosition = position + normal * displacement;
             vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
             gl_PointSize = .5;
@@ -291,31 +323,101 @@ export default {
       });
 
       var sLight = new THREE.SpotLight(0xffffff);
-      sLight.position.set(-100, 100, 100);
+      //sLight.position.set(-100, 100, 100);
       this.scene.add(sLight);
 
-      var aLight = new THREE.PointLight(0xffffff, 20);
+      var aLight = new THREE.AmbientLight(0xffffff);
       this.scene.add(aLight);
+
+      var directionalLight = new THREE.DirectionalLight("#fff", 2);
+      directionalLight.position.set(0, 50, -20);
+      this.scene.add(directionalLight);
 
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
       this.roadmapMesh.receiveShadow = true;
       this.roadmapMesh.rotateX(90);
       this.scene.add(this.roadmapMesh);
+
+      const partLoader = new THREE.TextureLoader();
+      const partTexture = loader.load(require("../assets/circle.png"));
+
+      this.partUniforms = {
+        pointTexture: { type: "t", value: partTexture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+      };
+
+      this.partMat = new THREE.ShaderMaterial({
+        uniforms:       this.partUniforms,
+        vertexShader:   this.partVertex,
+        fragmentShader: this.partFragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
+
+      var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var stars = 500;
+
+      var vertices = new Float32Array((stars) * 3);
+      var colors = new Float32Array((stars) * 3);
+      var alphas = new Float32Array((stars) * 1);
+      var sizes = new Float32Array((stars) * 1);
+
+      var r1 = 1.0;
+      var g1 = 1.0;
+      var b1 = 0.8;
+
+      var r2 = 0.65;
+      var g2 = 0.85;
+      var b2 = 1.0;
+
+      var r3 = 0;
+      var g3 = 0;
+      var b3 = 0;
+
+      for (let i = 0; i < stars; ++i) {
+        var f = (stars - i) / (stars);
+        var g = i / (stars);
+        //var a = Math.random() * 3.14159 * 2.0;
+        // var r = f * 700;
+        var x = Math.random() * 4000.0 - 2000.0;
+        var y = Math.random() * 4000.0 - 2000.0;
+        var z = Math.random() * 4000.0 - 2000.0;
+        if (f < 0.2) {
+          var a = Math.random() * 3.14159 * 2.0;
+          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 700;
+          var x = Math.cos(a) * r;
+          var y = Math.sin(a) * r;
+          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
+        }
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = 1.0;
+        colors[i * 3 + 1] = 1.0;
+        colors[i * 3 + 2] = 1.0;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
+        alphas[i] = 0.2 + Math.random() * 0.05;
+        sizes[i] = Math.random() * Math.random() * 100.0;
+      }
+
+      this.partGeo = new THREE.BufferGeometry();
+      this.partGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.partGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.partGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.partGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.particles = new THREE.Points(this.partGeo, this.partMat);
+      this.particles.position.setZ(-1000);
+      this.scene.add(this.particles);
+
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.moveRoadmapToStart();
-
-      for (let i = 0; i < this.nodesConfig.length; i++) {
-        const nodeGeo = new THREE.SphereBufferGeometry(this.nodesConfig[i][1], 32, 32);
-        const nodeMat = new THREE.MeshBasicMaterial({
-          map: texture
-        });
-
-        this.roadmapNode = new THREE.Mesh(nodeGeo, nodeMat);
-        this.roadmapNode.position.setX(this.nodesConfig[i][0]);
-        this.roadmapNode.name = "node" + i;
-        this.roadmapMesh.add(this.roadmapNode);
-      }
 
       container.appendChild(this.renderer.domElement);
     },
@@ -332,7 +434,6 @@ export default {
       var vec3 = new THREE.Vector3();
       var magnitude = 10;
       var waveSize = 30;
-      var rotationAngle = 0.07;
 
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
@@ -356,14 +457,21 @@ export default {
           .start();
         }
 
-        if (this.direction === "up" && this.roadmapMesh.rotation.x < 2.1) {
-          this.roadmapMesh.rotateX(+rotationAngle);
+        if (this.direction === "up") {
+          new TWEEN.Tween(this.roadmapMesh.rotation)
+          .to({ x: 0 }, 500)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
         }
 
-        if (this.direction === "down" && this.roadmapMesh.rotation.x > 1.8) {
-          this.roadmapMesh.rotateX(-rotationAngle);
+        if (this.direction === "down") {
+          new TWEEN.Tween(this.roadmapMesh.rotation)
+          .to({ x: 5 }, 500)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
         }
       }
+
 
       let node0 = this.scene.getObjectByName("node0");
       let node1 = this.scene.getObjectByName("node1");
@@ -372,27 +480,21 @@ export default {
       let node4 = this.scene.getObjectByName("node4");
       let node5 = this.scene.getObjectByName("node5");
 
+      /*
       for (var i = 0, l = pos.count; i < l; i++) {
         let pPos = vec3.fromBufferAttribute(pos, i);
         vec3.fromBufferAttribute(pos, i);
         vec3.sub(center);
-        /*node0.position.setY(pPos.y * 0.01);
-        node0.position.setZ(pPos.z);
-        node1.position.setY(pPos.y * 0.01);
-        node1.position.setZ(pPos.z);
-        node2.position.setY(pPos.y * 0.01);
-        node2.position.setZ(pPos.z);
-        node3.position.setY(pPos.y * 0.01);
-        node3.position.setZ(pPos.z);
-        node4.position.setY(pPos.y * 0.01);
-        node4.position.setZ(pPos.z);
-        node5.position.setY(pPos.y * 0.01);
-        node5.position.setZ(pPos.z);*/
         var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
         // pos.setZ(i, z);
       }
 
-      pos.needsUpdate = true;
+      pos.needsUpdate = true;*/
+
+      let partZSin = Math.sin(theTime);
+      this.particles.position.z = 10 + (partZSin * 2);
+      this.particles.position.y = 50 + (partZSin * 2);
+
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);
       }
@@ -457,6 +559,34 @@ export default {
 
       this.oldY = event.pageY;
 
+      this.particles.rotation.y = this.mouseX * 0.0001;
+      this.particles.rotation.x = this.mouseY * 0.0001;
+
+      var pointSizes = this.particles.geometry.attributes.size;
+      if (this.direction === "up") {
+        for (let i = 0; i < pointSizes.count; i++) {
+          if (this.itemSize < 1) {
+            pointSizes.array[i] += this.itemSize;
+          }
+        }
+        if (this.itemSize < 1) {
+          this.itemSize += 0.01;
+        }
+      }
+
+      if (this.direction === "down") {
+        for (let i = 0; i < pointSizes.count; i++) {
+          if (this.itemSize > 0) {
+            pointSizes.array[i] -= this.itemSize;
+          }
+        }
+        if (this.itemSize > 0) {
+          this.itemSize -= 0.01;
+        }
+      }
+
+      pointSizes.needsUpdate = true;
+
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
     }
@@ -484,7 +614,7 @@ export default {
         this.animate();
       }
     }
-  },
+  }
 }
 </script>
 <style scoped>

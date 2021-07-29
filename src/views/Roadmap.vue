@@ -93,19 +93,6 @@ export default {
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
-      roadmapNode: null,
-      nodesConfig: [
-        [-1200, 5],
-        [-1000, 10],
-        [-700, 4],
-        [-300, 5],
-        [0, 7],
-        [500, 5],
-        [800, 5],
-        [1000, 5],
-        [1300, 5],
-        [1500, 5]
-      ],
       itemSize: 0,
       itemAlpha: 0
     }
@@ -120,7 +107,7 @@ export default {
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
-      this.scene.fog = new THREE.FogExp2(0x000000, 10, 1000);
+      this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
 
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
@@ -374,7 +361,7 @@ export default {
       this.scene.add(this.roadmapMesh);
 
       const partLoader = new THREE.TextureLoader();
-      const partTexture = partLoader.load(require("../assets/circle.png"));
+      const partTexture = partLoader.load(require("../assets/circle2.png"));
 
       this.partUniforms = {
         pointTexture: { type: "t", value: partTexture },
@@ -391,7 +378,7 @@ export default {
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
-      var stars = 500;
+      var stars = 1000;
 
       var vertices = new Float32Array((stars) * 3);
       var colors = new Float32Array((stars) * 3);
@@ -453,7 +440,7 @@ export default {
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
-      var meshBubles = 10;
+      var meshBubles = 15;
 
       var bVertices = new Float32Array((meshBubles) * 3);
       var bColors = new Float32Array((meshBubles) * 3);
@@ -464,6 +451,7 @@ export default {
         var x = 0;
         var y = 0;
         var z = 0;
+        var bSize = 70.0;
 
         bVertices[i * 3 + 0] = x;
         bVertices[i * 3 + 1] = y;
@@ -474,7 +462,12 @@ export default {
         bColors[i * 3 + 2] = 1.0;
 
         bAlphas[i] = 0.5;
-        bSizes[i] = 100.0;
+        
+        if (i === 4 || i === 8 || i === 12) {
+          bSize = 150.0;
+        }
+
+        bSizes[i] = bSize;
       }
 
       this.meshPartGeo = new THREE.BufferGeometry();
@@ -489,6 +482,7 @@ export default {
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.setClearColor(0x878FFF, 0.4);
       this.moveRoadmapToStart();
 
       container.appendChild(this.renderer.domElement);
@@ -507,9 +501,11 @@ export default {
       
       for (let i = 0; i < bublesPos.count; i++) {
         let pPos = vec3.fromBufferAttribute(bublesPos, i);
-        let rPos = vec3.fromBufferAttribute(roadmapPos, i * 100);
+        let rPos = vec3.fromBufferAttribute(roadmapPos, (i * 110) + 300);
+        let yD = [0, 30, 100, 15, 70, 20, 55, 78, 90, 5, 48, 34, 29, 99, 115];
+        
         bublesPos.setZ(i, rPos.z);
-        bublesPos.setY(i, rPos.y);
+        bublesPos.setY(i, rPos.y - yD[i]);
         bublesPos.setX(i, rPos.x);
       }
 
@@ -537,36 +533,20 @@ export default {
           .start();
         }
 
-        if (this.direction === "up") {
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 0 }, 500)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        if (this.direction === "up" && this.roadmapMesh.rotation.x > 1.8) {
+          this.roadmapMesh.rotation.x -= 0.01;
         }
-
-        if (this.direction === "down") {
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 5 }, 500)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        console.log(this.roadmapMesh.rotation.x)
+        if (this.direction === "down" && this.roadmapMesh.rotation.x < 2.3) {
+          this.roadmapMesh.rotation.x += 0.01;
         }
       }
-
-      /*
-      for (var i = 0, l = pos.count; i < l; i++) {
-        let pPos = vec3.fromBufferAttribute(pos, i);
-        vec3.fromBufferAttribute(pos, i);
-        vec3.sub(center);
-        var z = Math.sin(vec3.length() /- waveSize + (theTime / 4)) * magnitude;
-        pos.setZ(i, z);
-      }
-
-      pos.needsUpdate = true;*/
 
       let partZSin = Math.sin(theTime);
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
       this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
       this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
+      this.meshParticles.position.y = this.meshParticles.position.y / 1.1 + partZSin / 2;
       
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);

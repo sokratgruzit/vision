@@ -624,7 +624,8 @@ export default {
       this.raycaster.setFromCamera(this.mouse, this.camera);
       const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
       if (intersects.length > 0) {
-        console.log(intersects[0].object.geometry.attributes)
+        intersects[0].object.geometry.attributes.alpha.array[0] = 0;
+        console.log(intersects[0].object.geometry.attributes.alpha.array[0]);
       }
 
       var pointSizes = this.particles.geometry.attributes.size;

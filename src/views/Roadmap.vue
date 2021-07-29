@@ -22,6 +22,8 @@ export default {
       roadmapMesh: null,
       renderer: null,
       roadmapMesh: null,
+      mouse: new THREE.Vector2(),
+      raycaster: new THREE.Raycaster(),
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
@@ -436,7 +438,8 @@ export default {
         fragmentShader: this.meshPartFragment,
         transparent:    true,
         depthTest:      false,
-        blending:       THREE.AdditiveBlending
+        blending:       THREE.AdditiveBlending,
+        side: THREE.DoubleSide
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
@@ -536,7 +539,7 @@ export default {
         if (this.direction === "up" && this.roadmapMesh.rotation.x > 1.8) {
           this.roadmapMesh.rotation.x -= 0.01;
         }
-        console.log(this.roadmapMesh.rotation.x)
+        
         if (this.direction === "down" && this.roadmapMesh.rotation.x < 2.3) {
           this.roadmapMesh.rotation.x += 0.01;
         }
@@ -614,6 +617,15 @@ export default {
 
       this.particles.rotation.y = this.mouseX * 0.0001;
       this.particles.rotation.x = this.mouseY * 0.0001;
+
+      this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+      this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
+      if (intersects.length > 0) {
+        console.log(intersects[0].object.geometry.attributes)
+      }
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;

@@ -24,6 +24,8 @@ export default {
       mouse: new THREE.Vector2(),
       renderer: null,
       roadmapMesh: null,
+      mouse: new THREE.Vector2(),
+      raycaster: new THREE.Raycaster(),
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
@@ -436,7 +438,8 @@ export default {
         fragmentShader: this.meshPartFragment,
         transparent:    true,
         depthTest:      false,
-        blending:       THREE.AdditiveBlending
+        blending:       THREE.AdditiveBlending,
+        side: THREE.DoubleSide
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
@@ -538,7 +541,7 @@ export default {
         if (this.direction === "up" && this.roadmapMesh.rotation.x > 1.8) {
           this.roadmapMesh.rotation.x -= 0.01;
         }
-        console.log(this.roadmapMesh.rotation.x)
+
         if (this.direction === "down" && this.roadmapMesh.rotation.x < 2.3) {
           this.roadmapMesh.rotation.x += 0.01;
         }
@@ -627,18 +630,6 @@ export default {
       if (intersects.length > 0) {
         intersects[0].object.scale.set(2, 2, 2);
       }
-      console.log(intersects);
-      // for (let i = 0; i < intersects.length; i++) {
-      //   let starPoints = intersects[i].object.children[0].name === undefined && intersects[i].object.children[0].name !== "Stars" ? false : intersects[i].object.children[0];
-      //   if(starPoints) {
-      //     let starPoint = starPoints.geometry;
-      //     // starPoint.attributes.size.array.itemSize = 10;
-      //     console.log(starPoint)
-      //   }else{
-      //     console.log('else')
-      //   }
-      // }
-
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;

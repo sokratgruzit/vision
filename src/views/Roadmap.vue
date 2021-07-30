@@ -32,6 +32,7 @@ export default {
       positions: null,
       controls: null,
       uniforms: null,
+      lineUniforms: null,
       isPointerDown: false,
       direction: "",
       oldY: 0,
@@ -39,6 +40,281 @@ export default {
       partMat: null,
       partGeo: null,
       particles: null,
+      roadmapVertex: `
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        uniform sampler2D tex;
+        varying float noise;
+        uniform float time;
+
+        vec3 mod289(vec3 x)
+        {
+          return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 mod289(vec4 x)
+        {
+          return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 permute(vec4 x)
+        {
+          return mod289(((x*34.0)+1.0)*x);
+        }
+
+        vec4 taylorInvSqrt(vec4 r)
+        {
+          return 1.79284291400159 - 0.85373472095314 * r;
+        }
+
+        vec3 fade(vec3 t) {
+          return t*t*t*(t*(t*6.0-15.0)+10.0);
+        }
+
+        // Classic Perlin noise, periodic variant
+        float pnoise(vec3 P, vec3 rep)
+        {
+          vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
+          vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
+          Pi0 = mod289(Pi0);
+          Pi1 = mod289(Pi1);
+          vec3 Pf0 = fract(P); // Fractional part for interpolation
+          vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+          vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+          vec4 iy = vec4(Pi0.yy, Pi1.yy);
+          vec4 iz0 = Pi0.zzzz;
+          vec4 iz1 = Pi1.zzzz;
+
+          vec4 ixy = permute(permute(ix) + iy);
+          vec4 ixy0 = permute(ixy + iz0);
+          vec4 ixy1 = permute(ixy + iz1);
+
+          vec4 gx0 = ixy0 * (1.0 / 7.0);
+          vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+          gx0 = fract(gx0);
+          vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+          vec4 sz0 = step(gz0, vec4(0.0));
+          gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+          gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+          vec4 gx1 = ixy1 * (1.0 / 7.0);
+          vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+          gx1 = fract(gx1);
+          vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+          vec4 sz1 = step(gz1, vec4(0.0));
+          gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+          gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+          vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+          vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+          vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+          vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+          vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+          vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+          vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+          vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+          vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+          g000 *= norm0.x;
+          g010 *= norm0.y;
+          g100 *= norm0.z;
+          g110 *= norm0.w;
+          vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+          g001 *= norm1.x;
+          g011 *= norm1.y;
+          g101 *= norm1.z;
+          g111 *= norm1.w;
+
+          float n000 = dot(g000, Pf0);
+          float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+          float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+          float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+          float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+          float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+          float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+          float n111 = dot(g111, Pf1);
+
+          vec3 fade_xyz = fade(Pf0);
+          vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+          vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+          float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+          return 2.2 * n_xyz;
+        }
+
+        float turbulence( vec3 p ) {
+            float w = 100.0;
+            float t = -.5;
+            for (float f = 1.0 ; f <= 10.0 ; f++ ){
+              float power = pow( 2.0, f );
+              t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
+            }
+            return t;
+        }
+
+        void main() {
+          vUv = uv;
+
+          noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
+          float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
+          float displacement = - noise + b * 2.2;
+          vec3 newPosition = position + normal * displacement;
+          vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
+          gl_PointSize = .5;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      roadmapFragment: `
+        uniform sampler2D tex;
+        uniform vec4 resolution;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        varying float noise;
+
+        void main() {
+          vec3 color = vec3( vUv * ( 1. - 2. * noise ), 0.0 );
+          vec4 tt = texture2D(tex, vUv);
+          gl_FragColor = vec4(vUv,0.,1.);
+          gl_FragColor = tt;
+        }
+      `,
+      lineVertex: `
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        uniform sampler2D tex;
+        varying float noise;
+        uniform float time;
+
+        vec3 mod289(vec3 x)
+        {
+          return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 mod289(vec4 x)
+        {
+          return x - floor(x * (1.0 / 289.0)) * 289.0;
+        }
+
+        vec4 permute(vec4 x)
+        {
+          return mod289(((x*34.0)+1.0)*x);
+        }
+
+        vec4 taylorInvSqrt(vec4 r)
+        {
+          return 1.79284291400159 - 0.85373472095314 * r;
+        }
+
+        vec3 fade(vec3 t) {
+          return t*t*t*(t*(t*6.0-15.0)+10.0);
+        }
+
+        // Classic Perlin noise, periodic variant
+        float pnoise(vec3 P, vec3 rep)
+        {
+          vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
+          vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
+          Pi0 = mod289(Pi0);
+          Pi1 = mod289(Pi1);
+          vec3 Pf0 = fract(P); // Fractional part for interpolation
+          vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
+          vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
+          vec4 iy = vec4(Pi0.yy, Pi1.yy);
+          vec4 iz0 = Pi0.zzzz;
+          vec4 iz1 = Pi1.zzzz;
+
+          vec4 ixy = permute(permute(ix) + iy);
+          vec4 ixy0 = permute(ixy + iz0);
+          vec4 ixy1 = permute(ixy + iz1);
+
+          vec4 gx0 = ixy0 * (1.0 / 7.0);
+          vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
+          gx0 = fract(gx0);
+          vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
+          vec4 sz0 = step(gz0, vec4(0.0));
+          gx0 -= sz0 * (step(0.0, gx0) - 0.5);
+          gy0 -= sz0 * (step(0.0, gy0) - 0.5);
+
+          vec4 gx1 = ixy1 * (1.0 / 7.0);
+          vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
+          gx1 = fract(gx1);
+          vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
+          vec4 sz1 = step(gz1, vec4(0.0));
+          gx1 -= sz1 * (step(0.0, gx1) - 0.5);
+          gy1 -= sz1 * (step(0.0, gy1) - 0.5);
+
+          vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
+          vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
+          vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
+          vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
+          vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
+          vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
+          vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
+          vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
+
+          vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
+          g000 *= norm0.x;
+          g010 *= norm0.y;
+          g100 *= norm0.z;
+          g110 *= norm0.w;
+          vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
+          g001 *= norm1.x;
+          g011 *= norm1.y;
+          g101 *= norm1.z;
+          g111 *= norm1.w;
+
+          float n000 = dot(g000, Pf0);
+          float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
+          float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
+          float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
+          float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
+          float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
+          float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
+          float n111 = dot(g111, Pf1);
+
+          vec3 fade_xyz = fade(Pf0);
+          vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
+          vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
+          float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
+          return 2.2 * n_xyz;
+        }
+
+        float turbulence( vec3 p ) {
+            float w = 100.0;
+            float t = -.5;
+            for (float f = 1.0 ; f <= 10.0 ; f++ ){
+              float power = pow( 2.0, f );
+              t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
+            }
+            return t;
+        }
+
+        void main() {
+          vUv = uv;
+
+          noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
+          float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
+          float displacement = - noise + b * 2.2;
+          vec3 newPosition = position + normal * displacement;
+          vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
+          gl_PointSize = 3.5;
+          gl_Position = projectionMatrix * mvPosition;
+        }
+      `,
+      lineFragment: `
+        uniform sampler2D tex;
+        uniform vec4 resolution;
+        uniform float opacity;
+        varying vec2 vUv;
+        varying vec3 vPosition;
+        varying float noise;
+
+        void main() {
+          //vec3 color = vec3( vUv * ( 5. - 2. * noise ), 0.0 );
+          vec4 tt = texture2D(tex, vUv);
+          gl_FragColor = vec4(vUv,0.,1.);
+          gl_FragColor = tt * opacity;
+        }
+      `,
       partVertex: `
         uniform vec3 uCameraPos;
         attribute float alpha;
@@ -126,213 +402,8 @@ export default {
 
       this.roadmapMat = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
-        vertexShader: `
-          varying vec2 vUv;
-          varying vec3 vPosition;
-          uniform sampler2D tex;
-          varying float noise;
-          uniform float time;
-
-          vec3 mod289(vec3 x)
-          {
-            return x - floor(x * (1.0 / 289.0)) * 289.0;
-          }
-
-          vec4 mod289(vec4 x)
-          {
-            return x - floor(x * (1.0 / 289.0)) * 289.0;
-          }
-
-          vec4 permute(vec4 x)
-          {
-            return mod289(((x*34.0)+1.0)*x);
-          }
-
-          vec4 taylorInvSqrt(vec4 r)
-          {
-            return 1.79284291400159 - 0.85373472095314 * r;
-          }
-
-          vec3 fade(vec3 t) {
-            return t*t*t*(t*(t*6.0-15.0)+10.0);
-          }
-
-          // Classic Perlin noise
-          float cnoise(vec3 P)
-          {
-            vec3 Pi0 = floor(P); // Integer part for indexing
-            vec3 Pi1 = Pi0 + vec3(1.0); // Integer part + 1
-            Pi0 = mod289(Pi0);
-            Pi1 = mod289(Pi1);
-            vec3 Pf0 = fract(P); // Fractional part for interpolation
-            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-            vec4 iy = vec4(Pi0.yy, Pi1.yy);
-            vec4 iz0 = Pi0.zzzz;
-            vec4 iz1 = Pi1.zzzz;
-
-            vec4 ixy = permute(permute(ix) + iy);
-            vec4 ixy0 = permute(ixy + iz0);
-            vec4 ixy1 = permute(ixy + iz1);
-
-            vec4 gx0 = ixy0 * (1.0 / 7.0);
-            vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-            gx0 = fract(gx0);
-            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-            vec4 sz0 = step(gz0, vec4(0.0));
-            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-            vec4 gx1 = ixy1 * (1.0 / 7.0);
-            vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-            gx1 = fract(gx1);
-            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-            vec4 sz1 = step(gz1, vec4(0.0));
-            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-            g000 *= norm0.x;
-            g010 *= norm0.y;
-            g100 *= norm0.z;
-            g110 *= norm0.w;
-            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-            g001 *= norm1.x;
-            g011 *= norm1.y;
-            g101 *= norm1.z;
-            g111 *= norm1.w;
-
-            float n000 = dot(g000, Pf0);
-            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-            float n111 = dot(g111, Pf1);
-
-            vec3 fade_xyz = fade(Pf0);
-            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-            return 2.2 * n_xyz;
-          }
-
-          // Classic Perlin noise, periodic variant
-          float pnoise(vec3 P, vec3 rep)
-          {
-            vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
-            vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
-            Pi0 = mod289(Pi0);
-            Pi1 = mod289(Pi1);
-            vec3 Pf0 = fract(P); // Fractional part for interpolation
-            vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-            vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-            vec4 iy = vec4(Pi0.yy, Pi1.yy);
-            vec4 iz0 = Pi0.zzzz;
-            vec4 iz1 = Pi1.zzzz;
-
-            vec4 ixy = permute(permute(ix) + iy);
-            vec4 ixy0 = permute(ixy + iz0);
-            vec4 ixy1 = permute(ixy + iz1);
-
-            vec4 gx0 = ixy0 * (1.0 / 7.0);
-            vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-            gx0 = fract(gx0);
-            vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-            vec4 sz0 = step(gz0, vec4(0.0));
-            gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-            gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-            vec4 gx1 = ixy1 * (1.0 / 7.0);
-            vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-            gx1 = fract(gx1);
-            vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-            vec4 sz1 = step(gz1, vec4(0.0));
-            gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-            gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-            vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-            vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-            vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-            vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-            vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-            vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-            vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-            vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-            vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-            g000 *= norm0.x;
-            g010 *= norm0.y;
-            g100 *= norm0.z;
-            g110 *= norm0.w;
-            vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-            g001 *= norm1.x;
-            g011 *= norm1.y;
-            g101 *= norm1.z;
-            g111 *= norm1.w;
-
-            float n000 = dot(g000, Pf0);
-            float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-            float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-            float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-            float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-            float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-            float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-            float n111 = dot(g111, Pf1);
-
-            vec3 fade_xyz = fade(Pf0);
-            vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-            vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-            float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-            return 2.2 * n_xyz;
-          }
-
-          float turbulence( vec3 p ) {
-              float w = 100.0;
-              float t = -.5;
-              for (float f = 1.0 ; f <= 10.0 ; f++ ){
-                float power = pow( 2.0, f );
-                t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
-              }
-              return t;
-          }
-
-          void main() {
-            vUv = uv;
-
-            noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
-            float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
-            float displacement = - noise + b * 2.2;
-            vec3 newPosition = position + normal * displacement;
-            vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-            gl_PointSize = .5;
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `,
-        fragmentShader: `
-          uniform sampler2D tex;
-          uniform vec4 resolution;
-          varying vec2 vUv;
-          varying vec3 vPosition;
-          varying float noise;
-
-          void main() {
-            vec3 color = vec3( vUv * ( 1. - 2. * noise ), 0.0 );
-            vec4 tt = texture2D(tex, vUv);
-            gl_FragColor = vec4(vUv,0.,1.);
-            gl_FragColor = tt;
-          }
-        `
+        vertexShader: this.roadmapVertex,
+        fragmentShader: this.roadmapFragment
       });
 
       var sLight = new THREE.SpotLight(0xffffff);
@@ -440,53 +511,31 @@ export default {
       this.moveRoadmapToStart();
 
       //Create Horizontal Lines
-      const lineMaterial = new THREE.LineBasicMaterial({ 
-        color: 0xffffff,
-        opacity: 0,
+      const lineLoader = new THREE.TextureLoader();
+      const lineTexture = lineLoader.load(require("../assets/fire.jpg"));
+
+      this.lineUniforms = {
+        tex: { type: "t", value: lineTexture },
+        opacity: { type: "c", value: 0.0 },
+        time: { type: "f", value: 0.0 },
+        resolution: { type: "v4", value: new THREE.Vector4() }
+      };
+
+      this.lineUniforms.resolution.value.x = window.innerWidth;
+      this.lineUniforms.resolution.value.y = window.innerHeight;
+      this.lineUniforms.resolution.value.z = asp1;
+      this.lineUniforms.resolution.value.w = asp2;
+
+      const lineMaterial = new THREE.ShaderMaterial({
+        uniforms: this.lineUniforms,
+        vertexShader: this.lineVertex,
+        fragmentShader: this.lineFragment,
         transparent: true
       });
-      const lineMaterial2 = new THREE.LineBasicMaterial({ 
-        color: 0xffffff,
-        opacity: 0,
-        transparent: true
-      });
-      const lineMaterial3 = new THREE.LineBasicMaterial({ 
-        color: 0xffffff,
-        opacity: 0,
-        transparent: true
-      });
-      const pLineObj = this.roadmapGeo.attributes.position;
-      const linePoints = [];
-      const linePoints2 = [];
-      const linePoints3 = [];
-      let lStep = 0;
-      for (let i = 0; i < 2000 * 1.5; i++) {
-        linePoints.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15, 
-          Math.sin(i * 0.02 * Math.PI) * 15,
-        ));
-        linePoints2.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15 - 100, 
-          Math.sin(i * 0.02 * Math.PI) * 15,
-        ));
-        linePoints3.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15 + 100, 
-          Math.sin(i * 0.02 * Math.PI) * 15,
-        ));
-        lStep = lStep + 4;
-      }
-      const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
-      const lineGeometry2 = new THREE.BufferGeometry().setFromPoints(linePoints2);
-      const lineGeometry3 = new THREE.BufferGeometry().setFromPoints(linePoints3);
-      const lineMesh = new THREE.Line(lineGeometry, lineMaterial);
-      const lineMesh2 = new THREE.Line(lineGeometry2, lineMaterial2);
-      const lineMesh3 = new THREE.Line(lineGeometry3, lineMaterial3);
+      
+      const lineGeometry = new THREE.PlaneBufferGeometry(2000*1.5, 1, 2000, 1);
+      const lineMesh = new THREE.Points(lineGeometry, lineMaterial);
       this.roadmapMesh.add(lineMesh);
-      this.roadmapMesh.add(lineMesh2);
-      this.roadmapMesh.add(lineMesh3);
       //End Create Horizontal Lines
 
       container.appendChild(this.renderer.domElement);
@@ -501,6 +550,7 @@ export default {
       const theTime = performance.now() * 0.001;
 
       this.roadmapMat.uniforms.time.value = theTime / 10;
+      this.lineUniforms.time.value = theTime / 10;
 
       if (this.isPointerDown) {
         this.camera.position.x += (this.mouseX * 4 - this.camera.position.x) * 0.005;
@@ -593,7 +643,6 @@ export default {
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
 
-
       if (event.pageY < this.oldY) {
         this.direction = "up";
       } else if (event.pageY > this.oldY) {
@@ -638,62 +687,83 @@ export default {
       }
 
       if (this.int1.length > 0) {
-        console.log(this.roadmapMesh.children)
+        const lineLoader = new THREE.TextureLoader();
+        const lineTexture = lineLoader.load(require("../assets/metal.jpg"));
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        let lPos = this.roadmapMesh.children[15].position.y = 50;
+        lMesh.tex.value = lineTexture;
+        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
+        console.log(this.roadmapMesh.children[15])
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
         new TWEEN.Tween(this.int1[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-        new TWEEN.Tween(this.roadmapMesh.children[15].material)
-        .to({ opacity: 1 }, 500)
+      } else {
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 0 }, 300)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-      } else {
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-        new TWEEN.Tween(this.roadmapMesh.children[15].material)
-        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
 
       if (this.int2.length > 0) {
+        const lineLoader = new THREE.TextureLoader();
+        const lineTexture = lineLoader.load(require("../assets/space.jpg"));
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        let lPos = this.roadmapMesh.children[15].position.y = 25;
+        lMesh.tex.value = lineTexture;
+        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
         new TWEEN.Tween(this.int2[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-        new TWEEN.Tween(this.roadmapMesh.children[16].material)
-        .to({ opacity: 1 }, 500)
+      } else {
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 0 }, 300)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-      } else {
         new TWEEN.Tween(this.scene.children[3].children[2].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-        new TWEEN.Tween(this.roadmapMesh.children[16].material)
-        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
 
       if (this.int3.length > 0) {
+        const lineLoader = new THREE.TextureLoader();
+        const lineTexture = lineLoader.load(require("../assets/fire.jpg"));
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        let lPos = this.roadmapMesh.children[15].position.y = 0;
+        lMesh.tex.value = lineTexture;
+        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
         new TWEEN.Tween(this.int3[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-        new TWEEN.Tween(this.roadmapMesh.children[17].material)
-        .to({ opacity: 1 }, 500)
+      } else {
+        let lMesh = this.roadmapMesh.children[15].material.uniforms;
+        new TWEEN.Tween(lMesh.opacity)
+        .to({ value: 0 }, 300)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
-      } else {
         new TWEEN.Tween(this.scene.children[3].children[3].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-        new TWEEN.Tween(this.roadmapMesh.children[17].material)
-        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -745,6 +815,18 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
+
+      /*if (this.int1.length > 0 || this.int8.length > 0) {
+        new TWEEN.Tween(this.roadmapMesh.children[15].material)
+        .to({ opacity: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.roadmapMesh.children[15].material)
+        .to({ opacity: 0 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }*/
 
       if (this.int8.length > 0) {
         new TWEEN.Tween(this.int8[0].object.scale)

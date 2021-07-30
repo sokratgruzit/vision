@@ -6,7 +6,8 @@
 
 <script>
 import * as THREE from 'three';
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+
 const TWEEN = require('@tweenjs/tween.js');
 
 export default {
@@ -72,7 +73,21 @@ export default {
       meshParticles: null,
       itemSize: 0,
       itemAlpha: 0,
-      raycastObjects: null
+      int0: null,
+      int1: null,
+      int2: null,
+      int3: null,
+      int4: null,
+      int5: null,
+      int6: null,
+      int7: null,
+      int8: null,
+      int9: null,
+      int10: null,
+      int11: null,
+      int12: null,
+      int13: null,
+      int14: null
     }
   },
   methods: {
@@ -88,6 +103,8 @@ export default {
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
+
+      THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       this.uniforms = {
         tex: { type: "t", value: texture },
@@ -398,6 +415,9 @@ export default {
       this.scene.add(this.particles);
 
       //Mesh particles
+      THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+      THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+      THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       var meshBubles = 15;
       let yD = [0, 30, 100, 15, 70, 20, 55, 78, 90, 5, 48, 34, 29, 99, 115];
@@ -408,10 +428,11 @@ export default {
           color: 0xFFFFFF
         });
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
+        this.meshPartGeo.computeBoundsTree();
         this.meshParticles.position.setY(yD[i]);
         this.meshParticles.position.setX(xD[i]);
         this.roadmapMesh.add(this.meshParticles);
-       }
+      }
 
       //End Mesh particles
 
@@ -419,8 +440,6 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.setClearColor(0x878FFF, 0.2);
       this.moveRoadmapToStart();
-
-      this.raycastObjects = this.scene.children[3];
 
       container.appendChild(this.renderer.domElement);
     },
@@ -541,15 +560,202 @@ export default {
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      const intersects = this.raycaster.intersectObject(this.raycastObjects, true);
+      this.raycaster.firstHitOnly = true;
+      this.int0 = this.raycaster.intersectObjects([this.scene.children[3].children[0]]);
+      this.int1 = this.raycaster.intersectObjects([this.scene.children[3].children[1]]);
+      this.int2 = this.raycaster.intersectObjects([this.scene.children[3].children[2]]);
+      this.int3 = this.raycaster.intersectObjects([this.scene.children[3].children[3]]);
+      this.int4 = this.raycaster.intersectObjects([this.scene.children[3].children[4]]);
+      this.int5 = this.raycaster.intersectObjects([this.scene.children[3].children[5]]);
+      this.int6 = this.raycaster.intersectObjects([this.scene.children[3].children[6]]);
+      this.int7 = this.raycaster.intersectObjects([this.scene.children[3].children[7]]);
+      this.int8 = this.raycaster.intersectObjects([this.scene.children[3].children[8]]);
+      this.int9 = this.raycaster.intersectObjects([this.scene.children[3].children[9]]);
+      this.int10 = this.raycaster.intersectObjects([this.scene.children[3].children[10]]);
+      this.int11 = this.raycaster.intersectObjects([this.scene.children[3].children[11]]);
+      this.int12 = this.raycaster.intersectObjects([this.scene.children[3].children[12]]);
+      this.int13 = this.raycaster.intersectObjects([this.scene.children[3].children[13]]);
+      this.int14 = this.raycaster.intersectObjects([this.scene.children[3].children[14]]);
+      
+      if (this.int0.length > 0) {
+        new TWEEN.Tween(this.int0[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[0].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
 
-      console.log(intersects)
+      if (this.int1.length > 0) {
+        new TWEEN.Tween(this.int1[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[1].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
 
-      // const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
-      // if (intersects.length > 0) {
-      //   intersects[0].object.geometry.attributes.alpha.array[0] = 0;
-      //   console.log(intersects[0].object.geometry.attributes.alpha.array[0]);
-      // }
+      if (this.int2.length > 0) {
+        new TWEEN.Tween(this.int2[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[2].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int3.length > 0) {
+        new TWEEN.Tween(this.int3[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[3].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int4.length > 0) {
+        new TWEEN.Tween(this.int4[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[4].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int5.length > 0) {
+        new TWEEN.Tween(this.int5[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[5].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int6.length > 0) {
+        new TWEEN.Tween(this.int6[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[6].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int7.length > 0) {
+        new TWEEN.Tween(this.int7[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[7].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int8.length > 0) {
+        new TWEEN.Tween(this.int8[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[8].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int9.length > 0) {
+        new TWEEN.Tween(this.int9[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[9].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int10.length > 0) {
+        new TWEEN.Tween(this.int10[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[10].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int11.length > 0) {
+        new TWEEN.Tween(this.int11[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[11].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int12.length > 0) {
+        new TWEEN.Tween(this.int12[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[12].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int13.length > 0) {
+        new TWEEN.Tween(this.int13[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[13].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int14.length > 0) {
+        new TWEEN.Tween(this.int14[0].object.scale)
+        .to({ x: 2, y: 2, z: 2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[14].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;

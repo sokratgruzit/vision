@@ -410,8 +410,8 @@ export default {
         colors[i * 3 + 1] = 1.0;
         colors[i * 3 + 2] = 1.0;
 
-        alphas[i] = 0.05 + Math.random() * 0.05;
-        sizes[i] = Math.random() * Math.random() * 100.0;
+        alphas[i] = 0.05 + Math.random() * 0.01;
+        sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
       }
 
       this.partGeo = new THREE.BufferGeometry();
@@ -624,12 +624,10 @@ export default {
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      // const intersects = this.raycaster.intersectObject(this.meshParticles.children);
-      // console.log(intersects)
       const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
+      
       if (intersects.length > 0) {
         intersects[0].object.geometry.attributes.alpha.array[0] = 0;
-        console.log(intersects[0].object.geometry.attributes.alpha.array[0]);
       }
 
       var pointSizes = this.particles.geometry.attributes.size;

@@ -738,7 +738,8 @@
       window.addEventListener('resize', this.onWindowResize, false);
     },
     beforeDestroy () {
-      this.$store.commit('stopGalactic', true)
+      this.$store.commit('stopGalactic', true);
+      this.render = null;
     }
   }
 </script>

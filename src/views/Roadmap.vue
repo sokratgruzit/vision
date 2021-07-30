@@ -23,7 +23,7 @@ export default {
       roadmapMesh: null,
       mouse: new THREE.Vector2(),
       renderer: null,
-      roadmapMesh: null,
+      raycaster: new THREE.Raycaster(),
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
@@ -439,17 +439,17 @@ export default {
       this.moveRoadmapToStart();
 
       //Create Horizontal Lines
-      const lineMaterial = new THREE.LineBasicMaterial({ 
+      const lineMaterial = new THREE.LineBasicMaterial({
         color: 0xffffff,
         opacity: 0,
         transparent: true
       });
-      const lineMaterial2 = new THREE.LineBasicMaterial({ 
+      const lineMaterial2 = new THREE.LineBasicMaterial({
         color: 0xffffff,
         opacity: 0,
         transparent: true
       });
-      const lineMaterial3 = new THREE.LineBasicMaterial({ 
+      const lineMaterial3 = new THREE.LineBasicMaterial({
         color: 0xffffff,
         opacity: 0,
         transparent: true
@@ -461,18 +461,18 @@ export default {
       let lStep = 0;
       for (let i = 0; i < 2000 * 1.5; i++) {
         linePoints.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15, 
+          i - 1500,
+          Math.sin(i * 0.02 * Math.PI) * 15,
           Math.sin(i * 0.02 * Math.PI) * 15,
         ));
         linePoints2.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15 - 100, 
+          i - 1500,
+          Math.sin(i * 0.02 * Math.PI) * 15 - 100,
           Math.sin(i * 0.02 * Math.PI) * 15,
         ));
         linePoints3.push(new THREE.Vector3(
-          i - 1500, 
-          Math.sin(i * 0.02 * Math.PI) * 15 + 100, 
+          i - 1500,
+          Math.sin(i * 0.02 * Math.PI) * 15 + 100,
           Math.sin(i * 0.02 * Math.PI) * 15,
         ));
         lStep = lStep + 4;

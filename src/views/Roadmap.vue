@@ -419,7 +419,7 @@ export default {
       THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       var meshBubles = 15;
-      let yD = [0, 30, 100, 15, 70, 20, 55, 78, 90, 5, 48, 34, 29, 99, 115];
+      let yD = [0, 30, -20, 15, -10, 0, 25, -30, 35, 0, 30, -20, 15, -10, 0];
       let xD = [-1500, -1200, -700, -300, 0, 300, 700, 900, 1200, 1300, 1350, 1400, 1450, 1480, 1500];
       for (let i = 0; i < meshBubles; ++i) {
         this.meshPartGeo = new THREE.SphereBufferGeometry(3, 32, 32);
@@ -583,7 +583,7 @@ export default {
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 200)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -595,7 +595,7 @@ export default {
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
-        .to({ x: 1, y: 1, z: 1 }, 200)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -607,7 +607,7 @@ export default {
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[2].scale)
-        .to({ x: 1, y: 1, z: 1 }, 200)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -619,7 +619,7 @@ export default {
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[3].scale)
-        .to({ x: 1, y: 1, z: 1 }, 200)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }

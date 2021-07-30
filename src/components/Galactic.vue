@@ -613,7 +613,12 @@
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 1;
 
-          new TWEEN.Tween(this.int0[0].object.scale)
+          new TWEEN.Tween(iMesh.children[0].scale)
+            .to({ x: 1, y: 1, z: 1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+          new TWEEN.Tween(iMesh.scale)
             .to({ x: 2, y: 2, z: 2 }, 300)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
@@ -621,6 +626,12 @@
           var tooltipClass = this.particles.children[0].children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 0;
+
+          new TWEEN.Tween(this.particles.children[0].children[0].scale)
+            .to({ x: 0, y: 0, z: 0 }, 100)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
           new TWEEN.Tween(this.particles.children[0].scale)
             .to({ x: 1, y: 1, z: 1 }, 200)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -632,7 +643,13 @@
           var tooltipClass = iMesh.children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 1;
-          new TWEEN.Tween(this.int1[0].object.scale)
+
+          new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
+          new TWEEN.Tween(iMesh.scale)
             .to({ x: 2, y: 2, z: 2 }, 300)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
@@ -640,6 +657,13 @@
           var tooltipClass = this.particles.children[1].children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 0;
+
+
+          new TWEEN.Tween(this.particles.children[1].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
           new TWEEN.Tween(this.particles.children[1].scale)
             .to({ x: 1, y: 1, z: 1 }, 200)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -651,7 +675,13 @@
           var tooltipClass = iMesh.children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 1;
-          new TWEEN.Tween(this.int2[0].object.scale)
+
+          new TWEEN.Tween(iMesh.children[0].scale)
+            .to({ x: 1, y: 1, z: 1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
+          new TWEEN.Tween(iMesh.scale)
             .to({ x: 2, y: 2, z: 2 }, 300)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
@@ -659,69 +689,17 @@
           var tooltipClass = this.particles.children[2].children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 0;
+
+          new TWEEN.Tween(this.particles.children[2].children[0].scale)
+            .to({ x: 0, y: 0, z: 0 }, 100)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+
           new TWEEN.Tween(this.particles.children[2].scale)
             .to({ x: 1, y: 1, z: 1 }, 200)
             .easing(TWEEN.Easing.Quadratic.Out)
             .start();
         }
-
-        // const clearIntersects = this.particles.children;
-        //
-        // if (intersects.length === 0) {
-        //   for (let i = 0; i < clearIntersects.length; i++) {
-        //     var tooltipClass = clearIntersects[i].children[0].children[0].element.id;
-        //     var tooltip = document.getElementById(tooltipClass);
-        //     tooltip.style.opacity = 0;
-        //
-        //     new TWEEN.Tween(clearIntersects[i].scale)
-        //     .to({ x: 1, y: 1, z: 1 }, 100)
-        //     .easing(TWEEN.Easing.Quadratic.In)
-        //     .start();
-        //
-        //     new TWEEN.Tween(clearIntersects[i].children[0].scale)
-        //     .to({ x: 0, y: 0, z: 0 }, 100)
-        //     .easing(TWEEN.Easing.Quadratic.In)
-        //     .start();
-        //
-        //     /*let opacity = { x: 1 }
-        //
-        //     new TWEEN.Tween(opacity)
-        //     .to({ x: 0 }, 100)
-        //     .easing(TWEEN.Easing.Quadratic.Out)
-        //     .onUpdate(function() {
-        //       tooltip.style.opacity = opacity.x;
-        //     })
-        //     .start();*/
-        //   }
-        // }
-        // for (let i = 0; i < intersects.length; i++) {
-        //   var iMesh = intersects[i].object;
-        //   var tooltipClass = iMesh.children[0].children[0].element.id;
-        //   var tooltip = document.getElementById(tooltipClass);
-        //   tooltip.style.opacity = 1;
-        //
-        //   if (iMesh.scale.x === 1) {
-        //     new TWEEN.Tween(iMesh.scale)
-        //     .to({ x: 2, y: 2, z: 2 }, 300)
-        //     .easing(TWEEN.Easing.Quadratic.In)
-        //     .start();
-        //
-        //     new TWEEN.Tween(iMesh.children[0].scale)
-        //     .to({ x: 1, y: 1, z: 1 }, 300)
-        //     .easing(TWEEN.Easing.Quadratic.In)
-        //     .start();
-        //
-        //     /*let opacity = { x: 0 }
-        //
-        //     new TWEEN.Tween(opacity)
-        //     .to({ x: 1 }, 2000)
-        //     .easing(TWEEN.Easing.Quadratic.Out)
-        //     .onUpdate(function() {
-        //       tooltip.style.opacity = opacity.x;
-        //     })
-        //     .start();*/
-        //   }
-        // }
       },
       onPointerDown: function (event) {
         if (event.isPrimary === false) return;

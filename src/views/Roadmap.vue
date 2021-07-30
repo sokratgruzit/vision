@@ -423,7 +423,7 @@ export default {
       let yD = [0, 30, 100, 15, 70, 20, 55, 78, 90, 5, 48, 34, 29, 99, 115];
       let xD = [-1500, -1200, -700, -300, 0, 300, 700, 900, 1200, 1300, 1350, 1400, 1450, 1480, 1500];
       for (let i = 0; i < meshBubles; ++i) {
-        this.meshPartGeo = new THREE.SphereBufferGeometry(5, 32, 32);
+        this.meshPartGeo = new THREE.SphereBufferGeometry(3, 32, 32);
         this.meshPartMat = new THREE.MeshBasicMaterial({
           color: 0xFFFFFF
         });
@@ -579,7 +579,7 @@ export default {
       
       if (this.int0.length > 0) {
         new TWEEN.Tween(this.int0[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -591,7 +591,7 @@ export default {
 
       if (this.int1.length > 0) {
         new TWEEN.Tween(this.int1[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -603,7 +603,7 @@ export default {
 
       if (this.int2.length > 0) {
         new TWEEN.Tween(this.int2[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -615,7 +615,7 @@ export default {
 
       if (this.int3.length > 0) {
         new TWEEN.Tween(this.int3[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -627,7 +627,7 @@ export default {
 
       if (this.int4.length > 0) {
         new TWEEN.Tween(this.int4[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -639,7 +639,7 @@ export default {
 
       if (this.int5.length > 0) {
         new TWEEN.Tween(this.int5[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -651,7 +651,7 @@ export default {
 
       if (this.int6.length > 0) {
         new TWEEN.Tween(this.int6[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -663,7 +663,7 @@ export default {
 
       if (this.int7.length > 0) {
         new TWEEN.Tween(this.int7[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -675,7 +675,7 @@ export default {
 
       if (this.int8.length > 0) {
         new TWEEN.Tween(this.int8[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -687,7 +687,7 @@ export default {
 
       if (this.int9.length > 0) {
         new TWEEN.Tween(this.int9[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -699,7 +699,7 @@ export default {
 
       if (this.int10.length > 0) {
         new TWEEN.Tween(this.int10[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -711,7 +711,7 @@ export default {
 
       if (this.int11.length > 0) {
         new TWEEN.Tween(this.int11[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -723,7 +723,7 @@ export default {
 
       if (this.int12.length > 0) {
         new TWEEN.Tween(this.int12[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -735,7 +735,7 @@ export default {
 
       if (this.int13.length > 0) {
         new TWEEN.Tween(this.int13[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -747,7 +747,7 @@ export default {
 
       if (this.int14.length > 0) {
         new TWEEN.Tween(this.int14[0].object.scale)
-        .to({ x: 2, y: 2, z: 2 }, 500)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
@@ -762,15 +762,15 @@ export default {
 
       if (this.direction === "up") {
         for (let i = 0; i < pointSizes.count; i++) {
-          if (this.itemSize < 1) {
+          if (this.itemSize < 2) {
             pointSizes.array[i] += this.itemSize;
           }
         }
         for (let i = 0; i < pointAlphas.count / 2; i++) {
           pointAlphas.array[i] = 0.3;
         }
-        if (this.itemSize < 1) {
-          this.itemSize += 0.01;
+        if (this.itemSize < 2) {
+          this.itemSize += 0.05;
         }
         if (this.itemAlpha > 0) {
           this.itemAlpha -= 0.00005;
@@ -789,7 +789,7 @@ export default {
           }
         }
         if (this.itemSize > -0.2) {
-          this.itemSize -= 0.01;
+          this.itemSize -= 0.05;
         }
         if (this.itemAlpha < 0.1) {
           this.itemAlpha += 0.00005;

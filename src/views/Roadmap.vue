@@ -424,23 +424,6 @@ export default {
       this.scene.add(this.particles);
 
       //Mesh particles
-      const meshPartLoader = new THREE.TextureLoader();
-      const meshPartTexture = meshPartLoader.load(require("../assets/txtStar.png"));
-
-      const meshPartUniforms = {
-        pointTexture: { type: "t", value: meshPartTexture },
-        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 0) }
-      };
-
-      this.meshPartMat = new THREE.ShaderMaterial({
-        uniforms:       meshPartUniforms,
-        vertexShader:   this.meshPartVertex,
-        fragmentShader: this.meshPartFragment,
-        transparent:    true,
-        depthTest:      false,
-        blending:       THREE.AdditiveBlending,
-        side: THREE.DoubleSide
-      });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
       var meshBubles = 15;
@@ -450,41 +433,62 @@ export default {
       var bAlphas = new Float32Array((meshBubles) * 1);
       var bSizes = new Float32Array((meshBubles) * 1);
       var bNames = new Float32Array((meshBubles) * 1);
+      // let bGeometries = [];
       for (let i = 0; i < meshBubles; ++i) {
-        var x = 0;
-        var y = 0;
-        var z = 0;
-        var bSize = 70.0;
-        var bName = 'Buble' + i;
+        // var x = 0;
+        // var y = 0;
+        // var z = 0;
+        // var bSize = 70.0;
+        // var bName = 'Buble' + i;
+        //
+        // bVertices[i * 3 + 0] = x;
+        // bVertices[i * 3 + 1] = y;
+        // bVertices[i * 3 + 2] = z;
+        //
+        // bColors[i * 3 + 0] = 1.0;
+        // bColors[i * 3 + 1] = 1.0;
+        // bColors[i * 3 + 2] = 1.0;
+        //
+        // bAlphas[i] = 0.5;
+        //
+        // if (i === 4 || i === 8 || i === 12) {
+        //   bSize = 150.0;
+        // }
+        //
+        // bSizes[i] = bSize;
+        // bNames[i] = i;
 
-        bVertices[i * 3 + 0] = x;
-        bVertices[i * 3 + 1] = y;
-        bVertices[i * 3 + 2] = z;
+        this.meshPartGeo = new THREE.SphereBufferGeometry(10, 32, 32);
+        // const meshPartLoader = new THREE.TextureLoader();
+        // const meshPartTexture = meshPartLoader.load(require("../assets/txtStar.png"));
 
-        bColors[i * 3 + 0] = 1.0;
-        bColors[i * 3 + 1] = 1.0;
-        bColors[i * 3 + 2] = 1.0;
+        // const meshPartUniforms = {
+        //   pointTexture: { type: "t", value: meshPartTexture },
+        //   uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 0) }
+        // };
 
-        bAlphas[i] = 0.5;
-
-        if (i === 4 || i === 8 || i === 12) {
-          bSize = 150.0;
-        }
-
-        bSizes[i] = bSize;
-        bNames[i] = i;
-      }
-
-      this.meshPartGeo = new THREE.BufferGeometry();
-      this.meshPartGeo.setAttribute('position', new THREE.BufferAttribute(bVertices, 3));
-      this.meshPartGeo.setAttribute('color', new THREE.BufferAttribute(bColors, 3));
-      this.meshPartGeo.setAttribute('alpha', new THREE.BufferAttribute(bAlphas, 1));
-      this.meshPartGeo.setAttribute('size', new THREE.BufferAttribute(bSizes, 1));
-      this.meshPartGeo.setAttribute('name', new THREE.BufferAttribute(bNames, 1));
-
-      this.meshParticles = new THREE.Points(this.meshPartGeo, this.meshPartMat);
-      this.meshParticles.name = 'Stars';
-      this.roadmapMesh.add(this.meshParticles);
+        // this.meshPartMat = new THREE.ShaderMaterial({
+        //   uniforms:       meshPartUniforms,
+        //   vertexShader:   this.meshPartVertex,
+        //   fragmentShader: this.meshPartFragment,
+        //   transparent:    true,
+        //   depthTest:      false,
+        //   blending:       THREE.AdditiveBlending,
+        //   side: THREE.DoubleSide
+        // });
+        this.meshPartMat = new THREE.MeshBasicMaterial({
+          color: 0xFFFFFF
+        });
+        this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
+        this.roadmapMesh.add(this.meshParticles);
+        // this.meshPartGeo.setAttribute('position', new THREE.BufferAttribute(bVertices, 3));
+        // this.meshPartGeo.setAttribute('color', new THREE.BufferAttribute(bColors, 3));
+        // this.meshPartGeo.setAttribute('alpha', new THREE.BufferAttribute(bAlphas, 1));
+        // this.meshPartGeo.setAttribute('size', new THREE.BufferAttribute(bSizes, 1));
+        // this.meshPartGeo.setAttribute('name', new THREE.BufferAttribute(bNames, 1));
+       }
+      // this.meshParticles.name = 'Stars';
+      // this.roadmapMesh.add(this.meshParticles);
       //End Mesh particles
 
       this.renderer = new THREE.WebGLRenderer();
@@ -515,7 +519,7 @@ export default {
         bublesPos.setY(i, rPos.y - yD[i]);
         bublesPos.setX(i, rPos.x);
       }
-      bublesPos.needsUpdate = true;
+      // bublesPos.needsUpdate = true;
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
       if (this.isPointerDown) {
@@ -624,11 +628,14 @@ export default {
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
-      const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
-      
-      if (intersects.length > 0) {
-        intersects[0].object.geometry.attributes.alpha.array[0] = 0;
-      }
+      // const intersects = this.raycaster.intersectObject(this.meshParticles.children);
+      // console.log(intersects)
+
+      // const intersects = this.raycaster.intersectObjects(this.roadmapMesh.children, true);
+      // if (intersects.length > 0) {
+      //   intersects[0].object.geometry.attributes.alpha.array[0] = 0;
+      //   console.log(intersects[0].object.geometry.attributes.alpha.array[0]);
+      // }
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;

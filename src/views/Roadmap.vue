@@ -21,6 +21,7 @@ export default {
       roadmapGeo: null,
       roadmapMat: null,
       roadmapMesh: null,
+      raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       renderer: null,
       roadmapMesh: null,

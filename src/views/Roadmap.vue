@@ -21,7 +21,6 @@ export default {
       roadmapGeo: null,
       roadmapMat: null,
       roadmapMesh: null,
-      raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       renderer: null,
       roadmapMesh: null,
@@ -576,7 +575,7 @@ export default {
       this.int12 = this.raycaster.intersectObjects([this.scene.children[3].children[12]]);
       this.int13 = this.raycaster.intersectObjects([this.scene.children[3].children[13]]);
       this.int14 = this.raycaster.intersectObjects([this.scene.children[3].children[14]]);
-      
+
       if (this.int0.length > 0) {
         new TWEEN.Tween(this.int0[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)

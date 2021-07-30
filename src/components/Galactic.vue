@@ -4,10 +4,9 @@
 
 <script>
   import * as THREE from 'three';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
-  import { BufferGeometryUtils } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
   import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+  import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
   const TWEEN = require('@tweenjs/tween.js');
 
   export default {
@@ -23,6 +22,9 @@
         clock: null,
         mouse: new THREE.Vector2(),
         raycaster: new THREE.Raycaster(),
+        int0: null,
+        int1: null,
+        int2: null,
         mouseX: 0,
         mouseY: 0,
         count: 0,
@@ -110,6 +112,10 @@
         directionalLight.position.set(0, 50, -20);
         this.scene.add(directionalLight);
         //End David code
+
+        THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+        THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+        THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
         const loader = new THREE.TextureLoader();
         const texture = loader.load(require("../assets/galaxySphere.png"));
@@ -219,6 +225,7 @@
           const planetGeo = new THREE.SphereGeometry(50, 32, 32);
           const planetLoader = new THREE.TextureLoader();
           const planetTexture = planetLoader.load(require("../assets/moon.png"));
+          planetGeo.computeBoundsTree();
 
           var uniforms = {
             planetTexture: { type: "t", value: planetTexture }
@@ -594,65 +601,127 @@
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         this.raycaster.setFromCamera(this.mouse, this.camera);
-
+        this.raycaster.firstHitOnly = true;
         const intersects = this.raycaster.intersectObjects(this.particles.children);
-        const clearIntersects = this.particles.children;
+        this.int0 = this.raycaster.intersectObjects([this.particles.children[0]]);
+        this.int1 = this.raycaster.intersectObjects([this.particles.children[1]]);
+        this.int2 = this.raycaster.intersectObjects([this.particles.children[2]]);
 
-        if (intersects.length === 0) {
-          for (let i = 0; i < clearIntersects.length; i++) {
-            var tooltipClass = clearIntersects[i].children[0].children[0].element.id;
-            var tooltip = document.getElementById(tooltipClass);
-            tooltip.style.opacity = 0;
-
-            new TWEEN.Tween(clearIntersects[i].scale)
-            .to({ x: 1, y: 1, z: 1 }, 100)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(clearIntersects[i].children[0].scale)
-            .to({ x: 0, y: 0, z: 0 }, 100)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            /*let opacity = { x: 1 }
-
-            new TWEEN.Tween(opacity)
-            .to({ x: 0 }, 100)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .onUpdate(function() {
-              tooltip.style.opacity = opacity.x;
-            })
-            .start();*/
-          }
-        }
-        for (let i = 0; i < intersects.length; i++) {
-          var iMesh = intersects[i].object;
+        if (this.int0.length > 0) {
+          var iMesh = this.int0[0].object;
           var tooltipClass = iMesh.children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.style.opacity = 1;
 
-          if (iMesh.scale.x === 1) {
-            new TWEEN.Tween(iMesh.scale)
+          new TWEEN.Tween(this.int0[0].object.scale)
             .to({ x: 2, y: 2, z: 2 }, 300)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
+        } else {
+          var tooltipClass = this.particles.children[0].children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 0;
+          new TWEEN.Tween(this.particles.children[0].scale)
+            .to({ x: 1, y: 1, z: 1 }, 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
 
-            new TWEEN.Tween(iMesh.children[0].scale)
-            .to({ x: 1, y: 1, z: 1 }, 300)
+        if (this.int1.length > 0) {
+          var iMesh = this.int1[0].object;
+          var tooltipClass = iMesh.children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 1;
+          new TWEEN.Tween(this.int1[0].object.scale)
+            .to({ x: 2, y: 2, z: 2 }, 300)
             .easing(TWEEN.Easing.Quadratic.In)
             .start();
-
-            /*let opacity = { x: 0 }
-
-            new TWEEN.Tween(opacity)
-            .to({ x: 1 }, 2000)
+        } else {
+          var tooltipClass = this.particles.children[1].children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 0;
+          new TWEEN.Tween(this.particles.children[1].scale)
+            .to({ x: 1, y: 1, z: 1 }, 200)
             .easing(TWEEN.Easing.Quadratic.Out)
-            .onUpdate(function() {
-              tooltip.style.opacity = opacity.x;
-            })
-            .start();*/
-          }
+            .start();
         }
+
+        if (this.int2.length > 0) {
+          var iMesh = this.int2[0].object;
+          var tooltipClass = iMesh.children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 1;
+          new TWEEN.Tween(this.int2[0].object.scale)
+            .to({ x: 2, y: 2, z: 2 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
+        } else {
+          var tooltipClass = this.particles.children[2].children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.style.opacity = 0;
+          new TWEEN.Tween(this.particles.children[2].scale)
+            .to({ x: 1, y: 1, z: 1 }, 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
+
+        // const clearIntersects = this.particles.children;
+        //
+        // if (intersects.length === 0) {
+        //   for (let i = 0; i < clearIntersects.length; i++) {
+        //     var tooltipClass = clearIntersects[i].children[0].children[0].element.id;
+        //     var tooltip = document.getElementById(tooltipClass);
+        //     tooltip.style.opacity = 0;
+        //
+        //     new TWEEN.Tween(clearIntersects[i].scale)
+        //     .to({ x: 1, y: 1, z: 1 }, 100)
+        //     .easing(TWEEN.Easing.Quadratic.In)
+        //     .start();
+        //
+        //     new TWEEN.Tween(clearIntersects[i].children[0].scale)
+        //     .to({ x: 0, y: 0, z: 0 }, 100)
+        //     .easing(TWEEN.Easing.Quadratic.In)
+        //     .start();
+        //
+        //     /*let opacity = { x: 1 }
+        //
+        //     new TWEEN.Tween(opacity)
+        //     .to({ x: 0 }, 100)
+        //     .easing(TWEEN.Easing.Quadratic.Out)
+        //     .onUpdate(function() {
+        //       tooltip.style.opacity = opacity.x;
+        //     })
+        //     .start();*/
+        //   }
+        // }
+        // for (let i = 0; i < intersects.length; i++) {
+        //   var iMesh = intersects[i].object;
+        //   var tooltipClass = iMesh.children[0].children[0].element.id;
+        //   var tooltip = document.getElementById(tooltipClass);
+        //   tooltip.style.opacity = 1;
+        //
+        //   if (iMesh.scale.x === 1) {
+        //     new TWEEN.Tween(iMesh.scale)
+        //     .to({ x: 2, y: 2, z: 2 }, 300)
+        //     .easing(TWEEN.Easing.Quadratic.In)
+        //     .start();
+        //
+        //     new TWEEN.Tween(iMesh.children[0].scale)
+        //     .to({ x: 1, y: 1, z: 1 }, 300)
+        //     .easing(TWEEN.Easing.Quadratic.In)
+        //     .start();
+        //
+        //     /*let opacity = { x: 0 }
+        //
+        //     new TWEEN.Tween(opacity)
+        //     .to({ x: 1 }, 2000)
+        //     .easing(TWEEN.Easing.Quadratic.Out)
+        //     .onUpdate(function() {
+        //       tooltip.style.opacity = opacity.x;
+        //     })
+        //     .start();*/
+        //   }
+        // }
       },
       onPointerDown: function (event) {
         if (event.isPrimary === false) return;

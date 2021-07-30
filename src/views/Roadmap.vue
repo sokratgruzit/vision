@@ -25,8 +25,6 @@ export default {
       mouse: new THREE.Vector2(),
       renderer: null,
       roadmapMesh: null,
-      mouse: new THREE.Vector2(),
-      raycaster: new THREE.Raycaster(),
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
@@ -441,6 +439,56 @@ export default {
       this.renderer.setClearColor(0x878FFF, 0.2);
       this.moveRoadmapToStart();
 
+      //Create Horizontal Lines
+      const lineMaterial = new THREE.LineBasicMaterial({ 
+        color: 0xffffff,
+        opacity: 0,
+        transparent: true
+      });
+      const lineMaterial2 = new THREE.LineBasicMaterial({ 
+        color: 0xffffff,
+        opacity: 0,
+        transparent: true
+      });
+      const lineMaterial3 = new THREE.LineBasicMaterial({ 
+        color: 0xffffff,
+        opacity: 0,
+        transparent: true
+      });
+      const pLineObj = this.roadmapGeo.attributes.position;
+      const linePoints = [];
+      const linePoints2 = [];
+      const linePoints3 = [];
+      let lStep = 0;
+      for (let i = 0; i < 2000 * 1.5; i++) {
+        linePoints.push(new THREE.Vector3(
+          i - 1500, 
+          Math.sin(i * 0.02 * Math.PI) * 15, 
+          Math.sin(i * 0.02 * Math.PI) * 15,
+        ));
+        linePoints2.push(new THREE.Vector3(
+          i - 1500, 
+          Math.sin(i * 0.02 * Math.PI) * 15 - 100, 
+          Math.sin(i * 0.02 * Math.PI) * 15,
+        ));
+        linePoints3.push(new THREE.Vector3(
+          i - 1500, 
+          Math.sin(i * 0.02 * Math.PI) * 15 + 100, 
+          Math.sin(i * 0.02 * Math.PI) * 15,
+        ));
+        lStep = lStep + 4;
+      }
+      const lineGeometry = new THREE.BufferGeometry().setFromPoints(linePoints);
+      const lineGeometry2 = new THREE.BufferGeometry().setFromPoints(linePoints2);
+      const lineGeometry3 = new THREE.BufferGeometry().setFromPoints(linePoints3);
+      const lineMesh = new THREE.Line(lineGeometry, lineMaterial);
+      const lineMesh2 = new THREE.Line(lineGeometry2, lineMaterial2);
+      const lineMesh3 = new THREE.Line(lineGeometry3, lineMaterial3);
+      this.roadmapMesh.add(lineMesh);
+      this.roadmapMesh.add(lineMesh2);
+      this.roadmapMesh.add(lineMesh3);
+      //End Create Horizontal Lines
+
       container.appendChild(this.renderer.domElement);
     },
     moveRoadmapToStart: function () {
@@ -590,13 +638,22 @@ export default {
       }
 
       if (this.int1.length > 0) {
+        console.log(this.roadmapMesh.children)
         new TWEEN.Tween(this.int1[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+        new TWEEN.Tween(this.roadmapMesh.children[15].material)
+        .to({ opacity: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+        new TWEEN.Tween(this.roadmapMesh.children[15].material)
+        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -606,9 +663,17 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+        new TWEEN.Tween(this.roadmapMesh.children[16].material)
+        .to({ opacity: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[2].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+        new TWEEN.Tween(this.roadmapMesh.children[16].material)
+        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -618,9 +683,17 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+        new TWEEN.Tween(this.roadmapMesh.children[17].material)
+        .to({ opacity: 1 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[3].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+        new TWEEN.Tween(this.roadmapMesh.children[17].material)
+        .to({ opacity: 0 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }

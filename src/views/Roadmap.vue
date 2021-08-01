@@ -511,16 +511,16 @@ export default {
           color: 0xffffff
         });
         const linePoints = [];
-        linePoints.push(new THREE.Vector3(0, 0, 100));
+        linePoints.push(new THREE.Vector3(0, 0, 20));
         linePoints.push(new THREE.Vector3(0, 0, 0));
 
         const tooltipLineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
         const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
 
-        tooltipLineMesh.position.z = 100;
-        tooltipLineMesh.scale.x = 0;
-        tooltipLineMesh.scale.y = 0;
-        tooltipLineMesh.scale.z = 0;
+        tooltipLineMesh.position.z = -30;
+        tooltipLineMesh.scale.x = 1;
+        tooltipLineMesh.scale.y = 1;
+        tooltipLineMesh.scale.z = 1;
 
 
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);

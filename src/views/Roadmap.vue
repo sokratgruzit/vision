@@ -7,7 +7,6 @@
 <script>
 import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
-
 const TWEEN = require('@tweenjs/tween.js');
 
 export default {
@@ -142,13 +141,13 @@ export default {
         }
 
         float turbulence( vec3 p ) {
-            float w = 100.0;
-            float t = -.5;
-            for (float f = 1.0 ; f <= 10.0 ; f++ ){
-              float power = pow( 2.0, f );
-              t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
-            }
-            return t;
+          float w = 100.0;
+          float t = -.5;
+          for (float f = 1.0 ; f <= 10.0 ; f++ ){
+            float power = pow( 2.0, f );
+            t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
+          }
+          return t;
         }
 
         void main() {
@@ -345,6 +344,9 @@ export default {
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
+      meshBubles: 16,
+      yD: [0, 30, 10, 15, 5, 0, -10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
+      xD: [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
       itemSize: 0,
       itemAlpha: 0,
       int0: null,
@@ -361,13 +363,14 @@ export default {
       int11: null,
       int12: null,
       int13: null,
-      int14: null
+      int14: null,
+      int15: null
     }
   },
   methods: {
     roadmapScene: function() {
       var container = document.getElementById('roadmap-container');
-
+      
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       //this.camera.position.y = 300;
       this.camera.position.z = 150;
@@ -375,6 +378,7 @@ export default {
       this.scene = new THREE.Scene();
       this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
+      
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
 
@@ -488,21 +492,21 @@ export default {
       THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
       THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-      var meshBubles = 15;
-      let yD = [0, 30, -20, 15, -10, 0, 25, -30, 35, 0, 30, -20, 15, -10, 0];
-      let xD = [-1500, -1200, -700, -300, 0, 300, 700, 900, 1200, 1300, 1350, 1400, 1450, 1480, 1500];
-      for (let i = 0; i < meshBubles; ++i) {
-        this.meshPartGeo = new THREE.SphereBufferGeometry(3, 32, 32);
+      for (let i = 0; i < this.meshBubles; ++i) {
+        let bSize = 3;
+        if (i == 0 || i == 1 || i == 6 || i == 11) {
+          bSize = 10;
+        }
+        this.meshPartGeo = new THREE.SphereBufferGeometry(bSize, 32, 32);
         this.meshPartMat = new THREE.MeshBasicMaterial({
           color: 0xFFFFFF
         });
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
         this.meshPartGeo.computeBoundsTree();
-        this.meshParticles.position.setY(yD[i]);
-        this.meshParticles.position.setX(xD[i]);
+        this.meshParticles.position.setY(this.yD[i]);
+        this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
       }
-
       //End Mesh particles
 
       this.renderer = new THREE.WebGLRenderer();
@@ -536,6 +540,7 @@ export default {
       const lineGeometry = new THREE.PlaneBufferGeometry(2000*1.5, 1, 2000, 1);
       const lineMesh = new THREE.Points(lineGeometry, lineMaterial);
       this.roadmapMesh.add(lineMesh);
+      console.log(this.roadmapMesh.children[1])
       //End Create Horizontal Lines
 
       container.appendChild(this.renderer.domElement);
@@ -545,6 +550,55 @@ export default {
       .to({ x: 1100 }, 3000)
       .easing(TWEEN.Easing.Quadratic.Out)
       .start();
+    },
+    showRoadmapPath: function (year, action) {
+      const lineLoader = new THREE.TextureLoader();
+      let lMesh = this.roadmapMesh.children[16].material.uniforms;
+      let texture;
+      
+      if (year === '2021' && action === 'show') {
+        texture = require("../assets/metal.jpg");
+      }
+
+      if (year === '2022' && action === 'show') {
+        this.roadmapMesh.children[16].position.y = 25;
+        texture = require("../assets/space.jpg");
+      }
+
+      if (year === '2023' && action === 'show') {
+        this.roadmapMesh.children[16].position.y = -50;
+        texture = require("../assets/fire.jpg");
+      }
+
+      let lineTexture = lineLoader.load(texture);
+      if (action === 'show') {
+        lMesh.tex.value = lineTexture;
+      }
+      
+      this.roadmapMesh.children[16].material.uniformsNeedUpdate = true;
+
+      new TWEEN.Tween(lMesh.opacity)
+      .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+      .easing(TWEEN.Easing.Quadratic.Out)
+      .start();
+    },
+    calcRoadmapPathPos: function (action) {
+      //y = 30, x = 900;
+      let lPos = this.roadmapMesh.children[16].geometry.attributes.position;
+      let offset = 0;
+      let yDelta = 0;
+      for (let i = 0; i < lPos.array.length; i++) {
+        if (lPos.array[offset] < this.xD[1]) {
+          if (action === 'new') {
+            lPos.array[offset + 1] = lPos.array[offset + 1] - yDelta;
+          } else {
+            lPos.array[offset + 1] = 0;
+          }
+        }
+        offset += 3;
+        yDelta -= 0.001;
+      }
+      lPos.needsUpdate = true;
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
@@ -673,6 +727,7 @@ export default {
       this.int12 = this.raycaster.intersectObjects([this.scene.children[3].children[12]]);
       this.int13 = this.raycaster.intersectObjects([this.scene.children[3].children[13]]);
       this.int14 = this.raycaster.intersectObjects([this.scene.children[3].children[14]]);
+      this.int15 = this.raycaster.intersectObjects([this.scene.children[3].children[15]]);
 
       if (this.int0.length > 0) {
         new TWEEN.Tween(this.int0[0].object.scale)
@@ -687,85 +742,72 @@ export default {
       }
 
       if (this.int1.length > 0) {
-        const lineLoader = new THREE.TextureLoader();
-        const lineTexture = lineLoader.load(require("../assets/metal.jpg"));
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        let lPos = this.roadmapMesh.children[15].position.y = 50;
-        lMesh.tex.value = lineTexture;
-        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
-        console.log(this.roadmapMesh.children[15])
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+        this.calcRoadmapPathPos('new');
         new TWEEN.Tween(this.int1[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'show'
+        );
+        //this.runOnce = false;
       } else {
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 0 }, 300)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+        this.calcRoadmapPathPos('default');
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'hide'
+        );
       }
 
       if (this.int2.length > 0) {
-        const lineLoader = new THREE.TextureLoader();
-        const lineTexture = lineLoader.load(require("../assets/space.jpg"));
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        let lPos = this.roadmapMesh.children[15].position.y = 25;
-        lMesh.tex.value = lineTexture;
-        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
         new TWEEN.Tween(this.int2[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 0 }, 300)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
         new TWEEN.Tween(this.scene.children[3].children[2].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int3.length > 0) {
-        const lineLoader = new THREE.TextureLoader();
-        const lineTexture = lineLoader.load(require("../assets/fire.jpg"));
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        let lPos = this.roadmapMesh.children[15].position.y = 0;
-        lMesh.tex.value = lineTexture;
-        this.roadmapMesh.children[15].material.uniformsNeedUpdate = true;
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
         new TWEEN.Tween(this.int3[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2023', 
+          'show'
+        );
       } else {
-        let lMesh = this.roadmapMesh.children[15].material.uniforms;
-        new TWEEN.Tween(lMesh.opacity)
-        .to({ value: 0 }, 300)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
         new TWEEN.Tween(this.scene.children[3].children[3].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2023', 
+          'hide'
+        );
       }
 
       if (this.int4.length > 0) {
@@ -815,18 +857,6 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
-
-      /*if (this.int1.length > 0 || this.int8.length > 0) {
-        new TWEEN.Tween(this.roadmapMesh.children[15].material)
-        .to({ opacity: 1 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      } else {
-        new TWEEN.Tween(this.roadmapMesh.children[15].material)
-        .to({ opacity: 0 }, 500)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }*/
 
       if (this.int8.length > 0) {
         new TWEEN.Tween(this.int8[0].object.scale)
@@ -907,6 +937,18 @@ export default {
         .start();
       } else {
         new TWEEN.Tween(this.scene.children[3].children[14].scale)
+        .to({ x: 1, y: 1, z: 1 }, 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if (this.int15.length > 0) {
+        new TWEEN.Tween(this.int15[0].object.scale)
+        .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      } else {
+        new TWEEN.Tween(this.scene.children[3].children[15].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();

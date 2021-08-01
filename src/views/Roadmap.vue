@@ -488,15 +488,40 @@ export default {
       THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
       THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
-      var meshBubles = 15;
-      let yD = [0, 30, -20, 15, -10, 0, 25, -30, 35, 0, 30, -20, 15, -10, 0];
-      let xD = [-1500, -1200, -700, -300, 0, 300, 700, 900, 1200, 1300, 1350, 1400, 1450, 1480, 1500];
+      var meshBubles = 16;
+      let yD = [0, 30, 10, 15, 5, 0, -10, -20, -15, 0, 10, 20, 15, 5, -10, -15];
+      let xD = [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400];
+
       for (let i = 0; i < meshBubles; ++i) {
-        this.meshPartGeo = new THREE.SphereBufferGeometry(3, 32, 32);
+        let bSize = 3;
+        if (i == 0 || i == 1 || i == 6 || i == 11) {
+          bSize = 10;
+        }
+        this.meshPartGeo = new THREE.SphereBufferGeometry(bSize, 32, 32);
         this.meshPartMat = new THREE.MeshBasicMaterial({
           color: 0xFFFFFF
         });
+
+
+        const tooltipLineMat = new THREE.LineBasicMaterial({
+          color: 0xffffff
+        });
+        const linePoints = [];
+        linePoints.push(new THREE.Vector3(0, 0, 100));
+        linePoints.push(new THREE.Vector3(0, 0, 0));
+
+        const tooltipLineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
+        const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
+
+        tooltipLineMesh.position.z = 100;
+        tooltipLineMesh.scale.x = 0;
+        tooltipLineMesh.scale.y = 0;
+        tooltipLineMesh.scale.z = 0;
+
+
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
+
+        this.meshParticles.add(tooltipLineMesh);
         this.meshPartGeo.computeBoundsTree();
         this.meshParticles.position.setY(yD[i]);
         this.meshParticles.position.setX(xD[i]);
@@ -532,7 +557,7 @@ export default {
         fragmentShader: this.lineFragment,
         transparent: true
       });
-      
+
       const lineGeometry = new THREE.PlaneBufferGeometry(2000*1.5, 1, 2000, 1);
       const lineMesh = new THREE.Points(lineGeometry, lineMaterial);
       this.roadmapMesh.add(lineMesh);

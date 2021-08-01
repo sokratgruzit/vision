@@ -726,7 +726,6 @@
     mounted () {
       const promise = new Promise((resolve, reject) => {
         resolve ( this.myScene())
-        console.log('xai')
       });
       promise.then((value) => {
         this.animate()

@@ -78,6 +78,8 @@
       '$store.state.stopGalactic': function () {
         if (this.$store.state.stopGalactic == false) {
           this.animate();
+        }else{
+          this.renderer = null;
         }
       }
     },
@@ -726,7 +728,6 @@
     mounted () {
       const promise = new Promise((resolve, reject) => {
         resolve ( this.myScene())
-        console.log('xai')
       });
       promise.then((value) => {
         this.animate()
@@ -739,7 +740,6 @@
     },
     beforeDestroy () {
       this.$store.commit('stopGalactic', true);
-      this.render = null;
     }
   }
 </script>

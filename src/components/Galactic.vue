@@ -8,6 +8,8 @@
   import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
   import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
   const TWEEN = require('@tweenjs/tween.js');
+  import { galaxy_vertex, text_vertex } from '../assets/shaders/vertex.js';
+  import { galaxy_fragment } from '../assets/shaders/fragment.js';
 
   export default {
     name: 'MainSlide',
@@ -33,33 +35,8 @@
         galaxyGeo: null,
         galaxyMat: null,
         uniforms: null,
-        galaxyVertex: `
-          uniform vec3 uCameraPos;
-          attribute float alpha;
-          attribute float size;
-          attribute vec3 color;
-          varying float vAlpha;
-          varying vec3 vColor;
-
-          void main() {
-            float d = distance(position.xyz, uCameraPos);
-            vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-            vAlpha = alpha;
-            vColor = color;
-            gl_PointSize = size;
-            gl_Position = projectionMatrix * mvPosition;
-          }
-        `,
-        galaxyFragment: `
-          varying vec3 vColor;
-          uniform sampler2D pointTexture;
-          varying float vAlpha;
-
-          void main() {
-            gl_FragColor = vec4(vColor, vAlpha);
-            gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-          }
-        `,
+        galaxyVertex: galaxy_vertex,
+        galaxyFragment: galaxy_fragment,
         moveGalaxy: true,
         rotateGalaxy: true,
         translateGalaxy: true,
@@ -467,32 +444,20 @@
 
             const tShaderMat = new THREE.ShaderMaterial({
               uniforms: textUniforms1,
-              vertexShader: `
-              uniform float amplitude;
-              attribute vec3 customColor;
-              attribute vec3 displacement;
-              varying vec3 vNormal;
-              varying vec3 vColor;
-              void main() {
-                vNormal = normal;
-                vColor = customColor;
-                vec3 newPosition = position + normal * amplitude * displacement;
-                gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
-              }
-            `,
+              vertexShader: text_vertex,
               fragmentShader: `
-              varying vec3 vNormal;
-              varying vec3 vColor;
-              uniform float percent;
-              void main() {
-                const float ambient = 0.4;
-                vec3 light = vec3( 1.0 );
-                light = normalize( light );
-                float directional = max( dot( vNormal, light ), 0.0 );
-                gl_FragColor = vec4( ( directional + ambient ) *` + vectorColor + `, 1.0 );
-                gl_FragColor.a = 1.0 * percent;
-              }
-            `,
+                varying vec3 vNormal;
+                varying vec3 vColor;
+                uniform float percent;
+                void main() {
+                  const float ambient = 0.4;
+                  vec3 light = vec3( 1.0 );
+                  light = normalize( light );
+                  float directional = max( dot( vNormal, light ), 0.0 );
+                  gl_FragColor = vec4( ( directional + ambient ) *` + vectorColor + `, 1.0 );
+                  gl_FragColor.a = 1.0 * percent;
+                }
+              `,
               transparent: true
             });
 

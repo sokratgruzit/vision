@@ -1,3 +1,14 @@
+export let galaxy_fragment = `
+varying vec3 vColor;
+uniform sampler2D pointTexture;
+varying float vAlpha;
+
+void main() {
+  gl_FragColor = vec4(vColor, vAlpha);
+  gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+}
+`;
+
 export let roadmap_fragment = `
 uniform sampler2D tex;
 uniform vec4 resolution;

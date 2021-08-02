@@ -1,3 +1,35 @@
+export let text_vertex = `
+uniform float amplitude;
+attribute vec3 customColor;
+attribute vec3 displacement;
+varying vec3 vNormal;
+varying vec3 vColor;
+void main() {
+  vNormal = normal;
+  vColor = customColor;
+  vec3 newPosition = position + normal * amplitude * displacement;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+}
+`;
+
+export let galaxy_vertex = `
+uniform vec3 uCameraPos;
+attribute float alpha;
+attribute float size;
+attribute vec3 color;
+varying float vAlpha;
+varying vec3 vColor;
+
+void main() {
+  float d = distance(position.xyz, uCameraPos);
+  vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
+  vAlpha = alpha;
+  vColor = color;
+  gl_PointSize = size;
+  gl_Position = projectionMatrix * mvPosition;
+}
+`;
+
 export let roadmap_vertex = `
 varying vec2 vUv;
 varying vec3 vPosition;

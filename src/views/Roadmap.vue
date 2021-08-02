@@ -8,6 +8,20 @@
 import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 const TWEEN = require('@tweenjs/tween.js');
+import { 
+  roadmap_vertex, 
+  line_vertex,
+  line_vertex1,
+  line_vertex2, 
+  part_vertex 
+} from '../assets/shaders/vertex.js';
+import { 
+  roadmap_fragment, 
+  line_fragment,
+  line_fragment1,
+  line_fragment2, 
+  part_fragment 
+} from '../assets/shaders/fragment.js';
 
 export default {
   name: 'Home',
@@ -32,6 +46,8 @@ export default {
       controls: null,
       uniforms: null,
       lineUniforms: null,
+      lineUniforms1: null,
+      lineUniforms2: null,
       isPointerDown: false,
       direction: "",
       oldY: 0,
@@ -39,314 +55,26 @@ export default {
       partMat: null,
       partGeo: null,
       particles: null,
-      roadmapVertex: `
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        uniform sampler2D tex;
-        varying float noise;
-        uniform float time;
-
-        vec3 mod289(vec3 x)
-        {
-          return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 mod289(vec4 x)
-        {
-          return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 permute(vec4 x)
-        {
-          return mod289(((x*34.0)+1.0)*x);
-        }
-
-        vec4 taylorInvSqrt(vec4 r)
-        {
-          return 1.79284291400159 - 0.85373472095314 * r;
-        }
-
-        vec3 fade(vec3 t) {
-          return t*t*t*(t*(t*6.0-15.0)+10.0);
-        }
-
-        // Classic Perlin noise, periodic variant
-        float pnoise(vec3 P, vec3 rep)
-        {
-          vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
-          vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
-          Pi0 = mod289(Pi0);
-          Pi1 = mod289(Pi1);
-          vec3 Pf0 = fract(P); // Fractional part for interpolation
-          vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-          vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-          vec4 iy = vec4(Pi0.yy, Pi1.yy);
-          vec4 iz0 = Pi0.zzzz;
-          vec4 iz1 = Pi1.zzzz;
-
-          vec4 ixy = permute(permute(ix) + iy);
-          vec4 ixy0 = permute(ixy + iz0);
-          vec4 ixy1 = permute(ixy + iz1);
-
-          vec4 gx0 = ixy0 * (1.0 / 7.0);
-          vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-          gx0 = fract(gx0);
-          vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-          vec4 sz0 = step(gz0, vec4(0.0));
-          gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-          gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-          vec4 gx1 = ixy1 * (1.0 / 7.0);
-          vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-          gx1 = fract(gx1);
-          vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-          vec4 sz1 = step(gz1, vec4(0.0));
-          gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-          gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-          vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-          vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-          vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-          vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-          vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-          vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-          vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-          vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-          vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-          g000 *= norm0.x;
-          g010 *= norm0.y;
-          g100 *= norm0.z;
-          g110 *= norm0.w;
-          vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-          g001 *= norm1.x;
-          g011 *= norm1.y;
-          g101 *= norm1.z;
-          g111 *= norm1.w;
-
-          float n000 = dot(g000, Pf0);
-          float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-          float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-          float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-          float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-          float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-          float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-          float n111 = dot(g111, Pf1);
-
-          vec3 fade_xyz = fade(Pf0);
-          vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-          vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-          float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-          return 2.2 * n_xyz;
-        }
-
-        float turbulence( vec3 p ) {
-          float w = 100.0;
-          float t = -.5;
-          for (float f = 1.0 ; f <= 10.0 ; f++ ){
-            float power = pow( 2.0, f );
-            t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
-          }
-          return t;
-        }
-
-        void main() {
-          vUv = uv;
-
-          noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
-          float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
-          float displacement = - noise + b * 2.2;
-          vec3 newPosition = position + normal * displacement;
-          vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-          gl_PointSize = .5;
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      roadmapFragment: `
-        uniform sampler2D tex;
-        uniform vec4 resolution;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying float noise;
-
-        void main() {
-          vec3 color = vec3( vUv * ( 1. - 2. * noise ), 0.0 );
-          vec4 tt = texture2D(tex, vUv);
-          gl_FragColor = vec4(vUv,0.,1.);
-          gl_FragColor = tt;
-        }
-      `,
-      lineVertex: `
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        uniform sampler2D tex;
-        varying float noise;
-        uniform float time;
-
-        vec3 mod289(vec3 x)
-        {
-          return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 mod289(vec4 x)
-        {
-          return x - floor(x * (1.0 / 289.0)) * 289.0;
-        }
-
-        vec4 permute(vec4 x)
-        {
-          return mod289(((x*34.0)+1.0)*x);
-        }
-
-        vec4 taylorInvSqrt(vec4 r)
-        {
-          return 1.79284291400159 - 0.85373472095314 * r;
-        }
-
-        vec3 fade(vec3 t) {
-          return t*t*t*(t*(t*6.0-15.0)+10.0);
-        }
-
-        // Classic Perlin noise, periodic variant
-        float pnoise(vec3 P, vec3 rep)
-        {
-          vec3 Pi0 = mod(floor(P), rep); // Integer part, modulo period
-          vec3 Pi1 = mod(Pi0 + vec3(1.0), rep); // Integer part + 1, mod period
-          Pi0 = mod289(Pi0);
-          Pi1 = mod289(Pi1);
-          vec3 Pf0 = fract(P); // Fractional part for interpolation
-          vec3 Pf1 = Pf0 - vec3(1.0); // Fractional part - 1.0
-          vec4 ix = vec4(Pi0.x, Pi1.x, Pi0.x, Pi1.x);
-          vec4 iy = vec4(Pi0.yy, Pi1.yy);
-          vec4 iz0 = Pi0.zzzz;
-          vec4 iz1 = Pi1.zzzz;
-
-          vec4 ixy = permute(permute(ix) + iy);
-          vec4 ixy0 = permute(ixy + iz0);
-          vec4 ixy1 = permute(ixy + iz1);
-
-          vec4 gx0 = ixy0 * (1.0 / 7.0);
-          vec4 gy0 = fract(floor(gx0) * (1.0 / 7.0)) - 0.5;
-          gx0 = fract(gx0);
-          vec4 gz0 = vec4(0.5) - abs(gx0) - abs(gy0);
-          vec4 sz0 = step(gz0, vec4(0.0));
-          gx0 -= sz0 * (step(0.0, gx0) - 0.5);
-          gy0 -= sz0 * (step(0.0, gy0) - 0.5);
-
-          vec4 gx1 = ixy1 * (1.0 / 7.0);
-          vec4 gy1 = fract(floor(gx1) * (1.0 / 7.0)) - 0.5;
-          gx1 = fract(gx1);
-          vec4 gz1 = vec4(0.5) - abs(gx1) - abs(gy1);
-          vec4 sz1 = step(gz1, vec4(0.0));
-          gx1 -= sz1 * (step(0.0, gx1) - 0.5);
-          gy1 -= sz1 * (step(0.0, gy1) - 0.5);
-
-          vec3 g000 = vec3(gx0.x,gy0.x,gz0.x);
-          vec3 g100 = vec3(gx0.y,gy0.y,gz0.y);
-          vec3 g010 = vec3(gx0.z,gy0.z,gz0.z);
-          vec3 g110 = vec3(gx0.w,gy0.w,gz0.w);
-          vec3 g001 = vec3(gx1.x,gy1.x,gz1.x);
-          vec3 g101 = vec3(gx1.y,gy1.y,gz1.y);
-          vec3 g011 = vec3(gx1.z,gy1.z,gz1.z);
-          vec3 g111 = vec3(gx1.w,gy1.w,gz1.w);
-
-          vec4 norm0 = taylorInvSqrt(vec4(dot(g000, g000), dot(g010, g010), dot(g100, g100), dot(g110, g110)));
-          g000 *= norm0.x;
-          g010 *= norm0.y;
-          g100 *= norm0.z;
-          g110 *= norm0.w;
-          vec4 norm1 = taylorInvSqrt(vec4(dot(g001, g001), dot(g011, g011), dot(g101, g101), dot(g111, g111)));
-          g001 *= norm1.x;
-          g011 *= norm1.y;
-          g101 *= norm1.z;
-          g111 *= norm1.w;
-
-          float n000 = dot(g000, Pf0);
-          float n100 = dot(g100, vec3(Pf1.x, Pf0.yz));
-          float n010 = dot(g010, vec3(Pf0.x, Pf1.y, Pf0.z));
-          float n110 = dot(g110, vec3(Pf1.xy, Pf0.z));
-          float n001 = dot(g001, vec3(Pf0.xy, Pf1.z));
-          float n101 = dot(g101, vec3(Pf1.x, Pf0.y, Pf1.z));
-          float n011 = dot(g011, vec3(Pf0.x, Pf1.yz));
-          float n111 = dot(g111, Pf1);
-
-          vec3 fade_xyz = fade(Pf0);
-          vec4 n_z = mix(vec4(n000, n100, n010, n110), vec4(n001, n101, n011, n111), fade_xyz.z);
-          vec2 n_yz = mix(n_z.xy, n_z.zw, fade_xyz.y);
-          float n_xyz = mix(n_yz.x, n_yz.y, fade_xyz.x);
-          return 2.2 * n_xyz;
-        }
-
-        float turbulence( vec3 p ) {
-            float w = 100.0;
-            float t = -.5;
-            for (float f = 1.0 ; f <= 10.0 ; f++ ){
-              float power = pow( 2.0, f );
-              t += abs( pnoise( vec3( power * p ), vec3( 10.0, 10.0, 10.0 ) ) / power );
-            }
-            return t;
-        }
-
-        void main() {
-          vUv = uv;
-
-          noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
-          float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
-          float displacement = - noise + b * 2.2;
-          vec3 newPosition = position + normal * displacement;
-          vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-          gl_PointSize = 3.5;
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      lineFragment: `
-        uniform sampler2D tex;
-        uniform vec4 resolution;
-        uniform float opacity;
-        varying vec2 vUv;
-        varying vec3 vPosition;
-        varying float noise;
-
-        void main() {
-          //vec3 color = vec3( vUv * ( 5. - 2. * noise ), 0.0 );
-          vec4 tt = texture2D(tex, vUv);
-          gl_FragColor = vec4(vUv,0.,1.);
-          gl_FragColor = tt * opacity;
-        }
-      `,
-      partVertex: `
-        uniform vec3 uCameraPos;
-        attribute float alpha;
-        attribute float size;
-        attribute vec3 color;
-        varying float vAlpha;
-        varying vec3 vColor;
-
-        void main() {
-          float d = distance(position.xyz, uCameraPos);
-          vec4 mvPosition = modelViewMatrix * vec4(position, 1.0);
-          vAlpha = alpha;
-          vColor = color;
-          gl_PointSize = size;
-          gl_Position = projectionMatrix * mvPosition;
-        }
-      `,
-      partFragment: `
-        varying vec3 vColor;
-        uniform sampler2D pointTexture;
-        varying float vAlpha;
-
-        void main() {
-          gl_FragColor = vec4(vColor, vAlpha);
-          gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
-        }
-      `,
+      roadmapVertex: roadmap_vertex,
+      roadmapFragment: roadmap_fragment,
+      lineVertex: line_vertex,
+      lineFragment: line_fragment,
+      lineVertex1: line_vertex1,
+      lineFragment1: line_fragment1,
+      lineVertex2: line_vertex2,
+      lineFragment2: line_fragment2,
+      partVertex: part_vertex,
+      partFragment: part_fragment,
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
       meshBubles: 16,
-      yD: [0, 30, 10, 15, 5, 0, -10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
+      yD: [0, 40, -10, 25, 5, -40, -10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
       xD: [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
+      roadmapPath0: null,
+      roadmapPath1: null,
+      roadmapPath2: null,
+      roadmapPath3: null,
       itemSize: 0,
       itemAlpha: 0,
       int0: null,
@@ -364,7 +92,10 @@ export default {
       int12: null,
       int13: null,
       int14: null,
-      int15: null
+      int15: null,
+      lineGeometry0: null,
+      lineGeometry1: null,
+      lineGeometry2: null
     }
   },
   methods: {
@@ -525,10 +256,34 @@ export default {
         resolution: { type: "v4", value: new THREE.Vector4() }
       };
 
+      this.lineUniforms1 = {
+        tex: { type: "t", value: lineTexture },
+        opacity: { type: "c", value: 0.0 },
+        time: { type: "f", value: 0.0 },
+        resolution: { type: "v4", value: new THREE.Vector4() }
+      };
+
+      this.lineUniforms2 = {
+        tex: { type: "t", value: lineTexture },
+        opacity: { type: "c", value: 0.0 },
+        time: { type: "f", value: 0.0 },
+        resolution: { type: "v4", value: new THREE.Vector4() }
+      };
+
       this.lineUniforms.resolution.value.x = window.innerWidth;
       this.lineUniforms.resolution.value.y = window.innerHeight;
       this.lineUniforms.resolution.value.z = asp1;
       this.lineUniforms.resolution.value.w = asp2;
+
+      this.lineUniforms1.resolution.value.x = window.innerWidth;
+      this.lineUniforms1.resolution.value.y = window.innerHeight;
+      this.lineUniforms1.resolution.value.z = asp1;
+      this.lineUniforms1.resolution.value.w = asp2;
+
+      this.lineUniforms2.resolution.value.x = window.innerWidth;
+      this.lineUniforms2.resolution.value.y = window.innerHeight;
+      this.lineUniforms2.resolution.value.z = asp1;
+      this.lineUniforms2.resolution.value.w = asp2;
 
       const lineMaterial = new THREE.ShaderMaterial({
         uniforms: this.lineUniforms,
@@ -536,11 +291,32 @@ export default {
         fragmentShader: this.lineFragment,
         transparent: true
       });
-      
-      const lineGeometry = new THREE.PlaneBufferGeometry(2000*1.5, 1, 2000, 1);
-      const lineMesh = new THREE.Points(lineGeometry, lineMaterial);
-      this.roadmapMesh.add(lineMesh);
-      console.log(this.roadmapMesh.children[1])
+
+      const lineMaterial1 = new THREE.ShaderMaterial({
+        uniforms: this.lineUniforms1,
+        vertexShader: this.lineVertex1,
+        fragmentShader: this.lineFragment1,
+        transparent: true
+      });
+
+      const lineMaterial2 = new THREE.ShaderMaterial({
+        uniforms: this.lineUniforms2,
+        vertexShader: this.lineVertex2,
+        fragmentShader: this.lineFragment2,
+        transparent: true
+      });
+
+      this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line0'));
+      const lineMesh0 = new THREE.Points(this.lineGeometry0, lineMaterial);
+      this.roadmapMesh.add(lineMesh0);
+
+      this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line1'));
+      const lineMesh1 = new THREE.Points(this.lineGeometry1, lineMaterial1);
+      this.roadmapMesh.add(lineMesh1);
+
+      this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line2'));
+      const lineMesh2 = new THREE.Points(this.lineGeometry2, lineMaterial2);
+      this.roadmapMesh.add(lineMesh2);
       //End Create Horizontal Lines
 
       container.appendChild(this.renderer.domElement);
@@ -552,53 +328,102 @@ export default {
       .start();
     },
     showRoadmapPath: function (year, action) {
-      const lineLoader = new THREE.TextureLoader();
-      let lMesh = this.roadmapMesh.children[16].material.uniforms;
-      let texture;
+      let object = this.roadmapMesh.children[17];
       
       if (year === '2021' && action === 'show') {
-        texture = require("../assets/metal.jpg");
+        object = this.roadmapMesh.children[17];
       }
 
       if (year === '2022' && action === 'show') {
-        this.roadmapMesh.children[16].position.y = 25;
-        texture = require("../assets/space.jpg");
+        object = this.roadmapMesh.children[18];
       }
 
       if (year === '2023' && action === 'show') {
-        this.roadmapMesh.children[16].position.y = -50;
-        texture = require("../assets/fire.jpg");
-      }
-
-      let lineTexture = lineLoader.load(texture);
-      if (action === 'show') {
-        lMesh.tex.value = lineTexture;
+        //this.roadmapMesh.children[16].position.y = -50;
       }
       
-      this.roadmapMesh.children[16].material.uniformsNeedUpdate = true;
+      object.material.uniformsNeedUpdate = true;
 
-      new TWEEN.Tween(lMesh.opacity)
+      new TWEEN.Tween(object.material.uniforms.opacity)
       .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
       .easing(TWEEN.Easing.Quadratic.Out)
       .start();
     },
-    calcRoadmapPathPos: function (action) {
-      //y = 30, x = 900;
-      let lPos = this.roadmapMesh.children[16].geometry.attributes.position;
-      let offset = 0;
-      let yDelta = 0;
-      for (let i = 0; i < lPos.array.length; i++) {
-        if (lPos.array[offset] < this.xD[1]) {
-          if (action === 'new') {
-            lPos.array[offset + 1] = lPos.array[offset + 1] - yDelta;
-          } else {
-            lPos.array[offset + 1] = 0;
+    calcRoadmapPathPos: function (line) {
+      const points = [];
+
+      let delta1 = 0;
+      let delta2 = 40;
+      let delta3 = -10;
+      let delta4 = 25;
+      let delta5 = 5;
+      let delta6 = -40;
+      let delta7 = -10;
+
+      for (let i = -2000; i < 4000; i++) {
+        if (i < this.xD[0]) {
+          points.push(new THREE.Vector3(i, 0, 0));
+        }
+
+        if (line === 'line0' || line === 'line1') {
+          if (i === this.xD[0]) {
+            points.push(new THREE.Vector3(this.xD[0], this.yD[0], 0));
+          }
+          if (i > this.xD[0] && i < this.xD[1]) {
+            points.push(new THREE.Vector3(i, delta1, 0));
+            delta1 += 0.2
+          }
+          if (i === this.xD[1]) {
+            points.push(new THREE.Vector3(this.xD[1], this.yD[1], 0));
+          }
+          if (i > this.xD[1] && i < this.xD[2]) {
+            points.push(new THREE.Vector3(i, delta2, 0));
+            delta2 -= 0.5;
+          }
+          if (i === this.xD[2]) {
+            points.push(new THREE.Vector3(this.xD[2], this.yD[2], 0));
+          }
+          if (i > this.xD[2] && i < this.xD[3]) {
+            points.push(new THREE.Vector3(i, delta3, 0));
+            delta3 += 0.175;
+          }
+          if (i === this.xD[3]) {
+            points.push(new THREE.Vector3(this.xD[3], this.yD[3], 0));
+          }
+          if (i > this.xD[3] && i < this.xD[4]) {
+            points.push(new THREE.Vector3(i, delta4, 0));
+            delta4 -= 0.13;
+          }
+          if (i === this.xD[4]) {
+            points.push(new THREE.Vector3(this.xD[4], this.yD[4], 0));
+          }
+          if (i > this.xD[4] && i < this.xD[5]) {
+            points.push(new THREE.Vector3(i, delta5, 0));
+            delta5 -= 0.15;
+          }
+          if (i === this.xD[5]) {
+            points.push(new THREE.Vector3(this.xD[5], this.yD[5], 0));
+          }
+          if (i > this.xD[5] && i < 0) {
+            points.push(new THREE.Vector3(i, delta6, 0));
+            delta6 += 0.088888;
+          }
+          if (i > 0 || i === 0) {
+            points.push(new THREE.Vector3(i, 0, 0));
           }
         }
-        offset += 3;
-        yDelta -= 0.001;
+
+        if (line === 'line2') {
+          if (i > this.xD[0] && i < i > this.xD[6]) {
+            points.push(new THREE.Vector3(i, delta7, 0));
+            delta7 += 0.008888;
+          }
+        }
       }
-      lPos.needsUpdate = true;
+        //yD: [-10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
+        //xD: [-250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
+      
+      return points;
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
@@ -734,15 +559,24 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          'all', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[0].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          'all', 
+          'hide'
+        );
       }
 
       if (this.int1.length > 0) {
-        this.calcRoadmapPathPos('new');
         new TWEEN.Tween(this.int1[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -752,9 +586,7 @@ export default {
           '2021', 
           'show'
         );
-        //this.runOnce = false;
       } else {
-        this.calcRoadmapPathPos('default');
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -773,7 +605,7 @@ export default {
         .start();
 
         this.showRoadmapPath(
-          '2022', 
+          '2021', 
           'show'
         );
       } else {
@@ -783,7 +615,7 @@ export default {
         .start();
 
         this.showRoadmapPath(
-          '2022', 
+          '2021', 
           'hide'
         );
       }
@@ -795,7 +627,7 @@ export default {
         .start();
 
         this.showRoadmapPath(
-          '2023', 
+          '2021', 
           'show'
         );
       } else {
@@ -805,7 +637,7 @@ export default {
         .start();
 
         this.showRoadmapPath(
-          '2023', 
+          '2021', 
           'hide'
         );
       }
@@ -815,11 +647,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[4].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'hide'
+        );
       }
 
       if (this.int5.length > 0) {
@@ -827,11 +669,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[5].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2021', 
+          'hide'
+        );
       }
 
       if (this.int6.length > 0) {
@@ -839,11 +691,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[6].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int7.length > 0) {
@@ -851,11 +713,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[7].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int8.length > 0) {
@@ -863,11 +735,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[8].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int9.length > 0) {
@@ -875,11 +757,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[9].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int10.length > 0) {
@@ -887,11 +779,21 @@ export default {
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'show'
+        );
       } else {
         new TWEEN.Tween(this.scene.children[3].children[10].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        this.showRoadmapPath(
+          '2022', 
+          'hide'
+        );
       }
 
       if (this.int11.length > 0) {

@@ -7,6 +7,7 @@
 <script>
 import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 const TWEEN = require('@tweenjs/tween.js');
 
 export default {
@@ -39,6 +40,7 @@ export default {
       partMat: null,
       partGeo: null,
       particles: null,
+      labelRenderer: new CSS2DRenderer(),
       roadmapVertex: `
         varying vec2 vUv;
         varying vec3 vPosition;
@@ -364,13 +366,83 @@ export default {
       int12: null,
       int13: null,
       int14: null,
-      int15: null
+      int15: null,
+      int16: null,
+      bubleData: [
+        {
+          title: 'Inception',
+          category: false
+        },
+        {
+          title: '2021',
+          category: false
+        },
+        {
+          title: 'Q1',
+          category: 'Category1'
+        },
+        {
+          title: 'Q2',
+          category: 'Category2'
+        },
+        {
+          title: 'Q3',
+          category: 'Category3'
+        },
+        {
+          title: 'Q4',
+          category: 'Category4'
+        },
+        {
+          title: '2022',
+          category: false
+        },
+        {
+          title: 'Q1',
+          category: 'Category1'
+        },
+        {
+          title: 'Q2',
+          category: 'Category2'
+        },
+        {
+          title: 'Q3',
+          category: 'Category3'
+        },
+        {
+          title: 'Q4',
+          category: 'Category4'
+        },
+        {
+          title: '2023',
+          category: false
+        },
+        {
+          title: 'Q1',
+          category: 'Category1'
+        },
+        {
+          title: 'Q2',
+          category: 'Category2'
+        },
+        {
+          title: 'Q3',
+          category: 'Category3'
+        },
+        {
+          title: 'Q4',
+          category: 'Category4'
+        }
+      ]
     }
   },
   methods: {
     roadmapScene: function() {
       var container = document.getElementById('roadmap-container');
-
+      this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+      this.labelRenderer.domElement.style.position = 'absolute';
+      this.labelRenderer.domElement.style.bottom = '0px';
+      document.body.appendChild(this.labelRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       //this.camera.position.y = 300;
       this.camera.position.z = 150;
@@ -518,10 +590,28 @@ export default {
         const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
 
         tooltipLineMesh.position.z = -30;
-        tooltipLineMesh.scale.x = 1;
-        tooltipLineMesh.scale.y = 1;
-        tooltipLineMesh.scale.z = 1;
+        tooltipLineMesh.scale.x = 0;
+        tooltipLineMesh.scale.y = 0;
+        tooltipLineMesh.scale.z = 0;
 
+
+        const toolDiv = document.createElement('div');
+        const toolTitle = document.createElement('div');
+        toolDiv.id = 'buble-tooltip' + i;
+        toolDiv.className = 'buble-tooltip';
+        toolDiv.appendChild(toolTitle)
+        toolTitle.textContent = this.bubleData[i].title;
+        if(this.bubleData[i].category){
+          const toolSubTitle = document.createElement('span');
+          toolSubTitle.textContent = this.bubleData[i].category;
+          toolDiv.appendChild(toolSubTitle);
+        }
+        toolDiv.style.marginTop = '-1em';
+
+        const bubleTooltip = new CSS2DObject(toolDiv);
+        bubleTooltip.position.set(0, 0, -5);
+
+        tooltipLineMesh.add(bubleTooltip);
 
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
 
@@ -674,6 +764,7 @@ export default {
     render: function () {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
+      this.labelRenderer.render(this.scene, this.camera);
     },
     wheelScroll: function(event) {
       if (event.isPrimary === false) return;
@@ -703,6 +794,7 @@ export default {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
       this.render();
     },
     onPointerDown: function (event) {
@@ -752,13 +844,33 @@ export default {
       this.int13 = this.raycaster.intersectObjects([this.scene.children[3].children[13]]);
       this.int14 = this.raycaster.intersectObjects([this.scene.children[3].children[14]]);
       this.int15 = this.raycaster.intersectObjects([this.scene.children[3].children[15]]);
+      this.int16 = this.raycaster.intersectObjects([this.scene.children[3].children[16]]);
 
       if (this.int0.length > 0) {
+        var iMesh = this.int0[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int0[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[0].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[0].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[0].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -766,6 +878,16 @@ export default {
       }
 
       if (this.int1.length > 0) {
+        var iMesh = this.int1[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         this.calcRoadmapPathPos('new');
         new TWEEN.Tween(this.int1[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
@@ -778,6 +900,15 @@ export default {
         );
         //this.runOnce = false;
       } else {
+        var tooltipClass = this.scene.children[3].children[1].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[1].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         this.calcRoadmapPathPos('default');
         new TWEEN.Tween(this.scene.children[3].children[1].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
@@ -791,6 +922,16 @@ export default {
       }
 
       if (this.int2.length > 0) {
+        var iMesh = this.int2[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int2[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -801,6 +942,15 @@ export default {
           'show'
         );
       } else {
+        var tooltipClass = this.scene.children[3].children[2].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[2].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[2].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -813,6 +963,16 @@ export default {
       }
 
       if (this.int3.length > 0) {
+        var iMesh = this.int3[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int3[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -823,6 +983,15 @@ export default {
           'show'
         );
       } else {
+        var tooltipClass = this.scene.children[3].children[3].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[3].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[3].scale)
         .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -835,11 +1004,30 @@ export default {
       }
 
       if (this.int4.length > 0) {
+        var iMesh = this.int4[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int4[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[4].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[4].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[4].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -847,11 +1035,30 @@ export default {
       }
 
       if (this.int5.length > 0) {
+        var iMesh = this.int5[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int5[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[5].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[5].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[5].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -859,11 +1066,30 @@ export default {
       }
 
       if (this.int6.length > 0) {
+        var iMesh = this.int6[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int6[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[6].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[6].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[6].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -871,11 +1097,30 @@ export default {
       }
 
       if (this.int7.length > 0) {
+        var iMesh = this.int7[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int7[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[7].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[7].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[7].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -883,11 +1128,30 @@ export default {
       }
 
       if (this.int8.length > 0) {
+        var iMesh = this.int8[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int8[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[8].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[8].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[8].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -895,11 +1159,30 @@ export default {
       }
 
       if (this.int9.length > 0) {
+        var iMesh = this.int9[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int9[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[9].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[9].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[9].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -907,11 +1190,30 @@ export default {
       }
 
       if (this.int10.length > 0) {
+        var iMesh = this.int10[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int10[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[10].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[10].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[10].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -919,11 +1221,30 @@ export default {
       }
 
       if (this.int11.length > 0) {
+        var iMesh = this.int11[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int11[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[11].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[11].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[11].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -931,11 +1252,30 @@ export default {
       }
 
       if (this.int12.length > 0) {
+        var iMesh = this.int12[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int12[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[12].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[12].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[12].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -943,11 +1283,30 @@ export default {
       }
 
       if (this.int13.length > 0) {
+        var iMesh = this.int13[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int13[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[13].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[13].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[13].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -955,11 +1314,30 @@ export default {
       }
 
       if (this.int14.length > 0) {
+        var iMesh = this.int14[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int14[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[14].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[14].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[14].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -967,11 +1345,30 @@ export default {
       }
 
       if (this.int15.length > 0) {
+        var iMesh = this.int15[0].object;
+        var tooltipClass = iMesh.children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.add('active');
+
+        new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.int15[0].object.scale)
         .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       } else {
+        var tooltipClass = this.scene.children[3].children[15].children[0].children[0].element.id;
+        var tooltip = document.getElementById(tooltipClass);
+        tooltip.classList.remove('active');
+
+        new TWEEN.Tween(this.scene.children[3].children[15].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 100)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start();
+
         new TWEEN.Tween(this.scene.children[3].children[15].scale)
         .to({ x: 1, y: 1, z: 1 }, 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -1045,12 +1442,44 @@ export default {
     '$store.state.stopRoadmap': function () {
       if (this.$store.state.stopRoadmap == false) {
         this.animate();
+      }else{
+        this.renderer = null;
       }
     }
   }
 }
 </script>
-<style scoped>
+<style>
+  .buble-tooltip{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .buble-tooltip div{
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+    transition-delay: .1s;
+  }
+  .buble-tooltip.active div{
+    transform: translateY(0px);
+    opacity: 1;
+    transition-delay: 0s;
+  }
+  .buble-tooltip span{
+    font-size: 13px;
+    line-height: 18px;
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+    transition-delay: 0s;
+  }
+  .buble-tooltip.active span{
+    transform: translateY(0px);
+    opacity: 1;
+    transition-delay: .1s;
+  }
   .roadmap__container{
     position: relative;
     height: 100vh;

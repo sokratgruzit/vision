@@ -78,6 +78,8 @@
       '$store.state.stopGalactic': function () {
         if (this.$store.state.stopGalactic == false) {
           this.animate();
+        }else{
+          this.renderer = null;
         }
       }
     },
@@ -738,7 +740,6 @@
     },
     beforeDestroy () {
       this.$store.commit('stopGalactic', true);
-      this.render = null;
     }
   }
 </script>

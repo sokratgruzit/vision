@@ -273,7 +273,7 @@ void main() {
   float displacement = - noise + b * 2.2;
   vec3 newPosition = position + normal * displacement;
   vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-  gl_PointSize = 2.5;
+  gl_PointSize = 4.;
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -397,7 +397,7 @@ void main() {
   float displacement = - noise + b * 2.2;
   vec3 newPosition = position + normal * displacement;
   vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-  gl_PointSize = 2.5;
+  gl_PointSize = 4.;
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -521,7 +521,7 @@ void main() {
   float displacement = - noise + b * 2.2;
   vec3 newPosition = position + normal * displacement;
   vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-  gl_PointSize = 2.5;
+  gl_PointSize = 4.;
   gl_Position = projectionMatrix * mvPosition;
 }
 `;

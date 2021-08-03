@@ -160,7 +160,6 @@ export default {
       this.labelRenderer.domElement.style.bottom = '0px';
       document.body.appendChild(this.labelRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-      //this.camera.position.y = 300;
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
@@ -315,8 +314,6 @@ export default {
         tooltipLineMesh.scale.x = 0;
         tooltipLineMesh.scale.y = 0;
         tooltipLineMesh.scale.z = 0;
-        console.log(this.particles)
-        // tooltipLineMesh.lookAt (0,0,0)
 
         const toolDiv = document.createElement('div');
         const toolTitle = document.createElement('div');
@@ -487,10 +484,12 @@ export default {
         } 
       }
       //End Rings
+      console.log(this.camera)
 
       container.appendChild(this.renderer.domElement);
     },
     moveRoadmapToStart: function () {
+      this.camera.rotation.y = 1;
       var A = new TWEEN.Tween(this.roadmapMesh.position)
       .to({ y: 0, z: 0 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out);
@@ -499,8 +498,26 @@ export default {
       .to({ x: 1100 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out);
 
+      setTimeout(() => {
+        var cA = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 1 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out);
+
+        var cB = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out);
+
+        cA.chain(cB);
+        cA.start();
+      }, 1000);
+      
       A.chain(B);
       A.start();
+
+      new TWEEN.Tween(this.camera.rotation)
+      .to({ y: 0 }, 3000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
     },
     showRoadmapPath: function (index, action) {
       let object = this.roadmapMesh.children[16];
@@ -846,6 +863,17 @@ export default {
               .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
+
+              var cA = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0.2 }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+              var cB = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0 }, 3000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+              cA.chain(cB);
+              cA.start();
             }
           }, 1);
         } else if (this.directionX === "right") {
@@ -857,6 +885,17 @@ export default {
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
             }
+
+            var cA = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: -0.2 }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+              var cB = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0 }, 3000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+              cA.chain(cB);
+              cA.start();
           }, 1);
         }
 

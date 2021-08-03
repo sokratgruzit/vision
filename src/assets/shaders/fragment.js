@@ -82,3 +82,17 @@ void main() {
   gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
 }
 `;
+
+export let buble_fragment = `
+uniform float time;
+uniform vec2 resolution;
+
+varying vec3 color;
+
+#define PI 3.14159265359
+#define T (time/2.)
+
+void main( void ) {
+  gl_FragColor = vec4( color, 0.5 );
+}
+`;

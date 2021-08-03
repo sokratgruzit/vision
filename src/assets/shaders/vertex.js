@@ -543,3 +543,19 @@ void main() {
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
+
+export let buble_vertex = `
+uniform float uTime;
+uniform vec3 uColor;
+
+varying vec3 color;
+
+#define PI 3.14159265359
+#define T (uTime*25.)
+
+void main() {
+  float disp = max( max(0., 1.-pow(3.*abs(uv.y-fract(T)+0.5),0.25)), 1.-pow(3.*abs(uv.y-fract(T)-0.5),0.25) );
+  color = mix(mix(vec3(1.),uColor,0.25),uColor,disp);
+  gl_Position = projectionMatrix*modelViewMatrix*vec4(position+normal*25.*disp,1.);
+}
+`;

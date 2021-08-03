@@ -82,7 +82,9 @@ export default {
       lineGeometry1: null,
       lineGeometry2: null,
       lineGeometry3: null,
-      controls: null,
+      ringMesh: null,
+      ringMesh1: null,
+      ringMesh2: null,
       bubleData: [
         {
           title: 'Inception',
@@ -284,21 +286,23 @@ export default {
       var meshBubles = 16;
 
       for (let i = 0; i < meshBubles; ++i) {
-        let bSize = 3;
+        let bSize = 5;
         let linePosition = -5;
         let tooltipPosition = -23;
         if (i == 0 || i == 1 || i == 6 || i == 11) {
-          bSize = 10;
+          bSize = 6;
           linePosition = -12;
           tooltipPosition = -20;
         }
-        this.meshPartGeo = new THREE.SphereBufferGeometry(bSize, 32, 32);
+
+        this.meshPartGeo = new THREE.IcosahedronGeometry(bSize, 1);
         this.meshPartMat = new THREE.MeshBasicMaterial({
-          color: 0xFFFFFF
+          color: 0xFFFFFF,
+          wireframe: true
         });
 
         const tooltipLineMat = new THREE.LineBasicMaterial({
-          color: 0xffffff
+          color: 0x878fff
         });
 
         const linePoints = [];
@@ -446,6 +450,44 @@ export default {
       const lineMesh3 = new THREE.Points(this.lineGeometry3, lineMaterial3);
       this.roadmapMesh.add(lineMesh3);
       //End Create Horizontal Lines
+
+      //Rings
+      for (let i = 0; i < 16; i++) {
+        if (i === 0 || i === 1 || i === 6 || i === 11) {
+          const ringSat = new THREE.SphereBufferGeometry(0.8, 32, 32);
+          const ringSatMesh = new THREE.Mesh(ringSat, this.meshPartMat);
+          ringSatMesh.position.x = -15;
+
+          const ringSat1 = new THREE.SphereBufferGeometry(0.8, 32, 32);
+          const ringSatMesh1 = new THREE.Mesh(ringSat1, this.meshPartMat);
+          ringSatMesh1.position.x = -16;
+
+          const ringSat2 = new THREE.SphereBufferGeometry(0.8, 32, 32);
+          const ringSatMesh2 = new THREE.Mesh(ringSat2, this.meshPartMat);
+          ringSatMesh2.position.x = -17;
+
+          const ring0 = new THREE.RingGeometry(15, 14.8, 32);
+          const ring1 = new THREE.RingGeometry(16, 15.8, 32);
+          const ring2 = new THREE.RingGeometry(17, 16.8, 32);
+
+          this.ringMesh = new THREE.Mesh(ring0, this.meshPartMat);
+          this.ringMesh1 = new THREE.Mesh(ring1, this.meshPartMat);
+          this.ringMesh2 = new THREE.Mesh(ring2, this.meshPartMat);
+
+          this.ringMesh.position.set(this.xD[i], this.yD[i], 0);
+          this.ringMesh1.position.set(this.xD[i], this.yD[i], 0);
+          this.ringMesh2.position.set(this.xD[i], this.yD[i], 0);
+
+          this.ringMesh.add(ringSatMesh);
+          this.ringMesh1.add(ringSatMesh1);
+          this.ringMesh2.add(ringSatMesh2);
+
+          this.roadmapMesh.add(this.ringMesh);
+          this.roadmapMesh.add(this.ringMesh1);
+          this.roadmapMesh.add(this.ringMesh2);
+        } 
+      }
+      //End Rings
 
       container.appendChild(this.renderer.domElement);
     },
@@ -690,12 +732,24 @@ export default {
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
-
+      const bubleTime = theTime / 4;
       this.roadmapMat.uniforms.time.value = theTime / 10;
-      this.lineUniforms.time.value = theTime;
-      this.lineUniforms1.time.value = theTime;
-      this.lineUniforms2.time.value = theTime;
-      this.lineUniforms3.time.value = theTime;
+      this.roadmapMesh.children[20].rotation.set(bubleTime, 0, theTime);
+      this.roadmapMesh.children[21].rotation.set(0, bubleTime, theTime);
+      this.roadmapMesh.children[22].rotation.set(-bubleTime, 0, -theTime);
+      this.roadmapMesh.children[23].rotation.set(bubleTime, 0, theTime);
+      this.roadmapMesh.children[24].rotation.set(0, bubleTime, theTime);
+      this.roadmapMesh.children[25].rotation.set(-bubleTime, 0, -theTime);
+      this.roadmapMesh.children[26].rotation.set(bubleTime, 0, theTime);
+      this.roadmapMesh.children[27].rotation.set(0, bubleTime, theTime);
+      this.roadmapMesh.children[28].rotation.set(-bubleTime, 0, -theTime);
+      this.roadmapMesh.children[29].rotation.set(bubleTime, 0, theTime);
+      this.roadmapMesh.children[30].rotation.set(0, bubleTime, theTime);
+      this.roadmapMesh.children[31].rotation.set(-bubleTime, 0, -theTime);
+
+      for (let i = 0; i < 15; i++) {
+        this.roadmapMesh.children[i].rotation.z = bubleTime;
+      }
 
       let partZSin = Math.sin(theTime);
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;

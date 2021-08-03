@@ -9,19 +9,19 @@ import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 const TWEEN = require('@tweenjs/tween.js');
-import { 
-  roadmap_vertex, 
+import {
+  roadmap_vertex,
   line_vertex,
   line_vertex1,
-  line_vertex2, 
-  part_vertex 
+  line_vertex2,
+  part_vertex
 } from '../assets/shaders/vertex.js';
-import { 
-  roadmap_fragment, 
+import {
+  roadmap_fragment,
   line_fragment,
   line_fragment1,
-  line_fragment2, 
-  part_fragment 
+  line_fragment2,
+  part_fragment
 } from '../assets/shaders/fragment.js';
 
 export default {
@@ -282,8 +282,12 @@ export default {
 
       for (let i = 0; i < meshBubles; ++i) {
         let bSize = 3;
+        let linePosition = -5;
+        let tooltipPosition = -23;
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           bSize = 10;
+          linePosition = -12;
+          tooltipPosition = -20;
         }
         this.meshPartGeo = new THREE.SphereBufferGeometry(bSize, 32, 32);
         this.meshPartMat = new THREE.MeshBasicMaterial({
@@ -295,16 +299,17 @@ export default {
           color: 0xffffff
         });
         const linePoints = [];
-        linePoints.push(new THREE.Vector3(0, 0, 20));
+        linePoints.push(new THREE.Vector3(0, 0, -20));
         linePoints.push(new THREE.Vector3(0, 0, 0));
 
         const tooltipLineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
         const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
 
-        tooltipLineMesh.position.z = -30;
+        tooltipLineMesh.position.z = linePosition;
         tooltipLineMesh.scale.x = 0;
         tooltipLineMesh.scale.y = 0;
         tooltipLineMesh.scale.z = 0;
+        // tooltipLineMesh.lookAt (0,0,0)
 
 
         const toolDiv = document.createElement('div');
@@ -321,7 +326,7 @@ export default {
         toolDiv.style.marginTop = '-1em';
 
         const bubleTooltip = new CSS2DObject(toolDiv);
-        bubleTooltip.position.set(0, 0, -5);
+        bubleTooltip.position.set(0, 0, tooltipPosition);
 
         tooltipLineMesh.add(bubleTooltip);
 
@@ -424,7 +429,7 @@ export default {
     },
     showRoadmapPath: function (index, action) {
       let object = this.roadmapMesh.children[17];
-      
+
       if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show') {
         object = this.roadmapMesh.children[17];
         object.material.uniformsNeedUpdate = true;
@@ -434,7 +439,7 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
-      
+
       if (action === 'hide') {
         new TWEEN.Tween(object.material.uniforms.opacity)
         .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
@@ -523,7 +528,7 @@ export default {
       }
         //yD: [-10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
         //xD: [-250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
-      
+
       return points;
     },
     animate: function () {
@@ -650,12 +655,12 @@ export default {
           tooltip.classList.add('active');
 
           new TWEEN.Tween(iMesh.children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 300)
+          .to({ x: 1, y: 1, z: 1 }, 400)
           .easing(TWEEN.Easing.Quadratic.In)
           .start();
 
           new TWEEN.Tween(int[0].object.scale)
-          .to({ x: 1.2, y: 1.2, z: 1.2 }, 500)
+          .to({ x: 1.2, y: 1.2, z: 1.2 }, 400)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
@@ -666,12 +671,12 @@ export default {
           tooltip.classList.remove('active');
 
           new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 100)
+          .to({ x: 0, y: 0, z: 0 }, 400)
           .easing(TWEEN.Easing.Quadratic.In)
           .start();
 
           new TWEEN.Tween(this.scene.children[3].children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 500)
+          .to({ x: 1, y: 1, z: 1 }, 400)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
@@ -761,28 +766,22 @@ export default {
     justify-content: center;
   }
   .buble-tooltip div{
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
-    transform: translateY(10px);
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
-    transition-delay: .1s;
   }
   .buble-tooltip.active div{
-    transform: translateY(0px);
     opacity: 1;
-    transition-delay: 0s;
+    transition-delay: .4s;
   }
   .buble-tooltip span{
     font-size: 13px;
     line-height: 18px;
     transition: .4s cubic-bezier(.79,.01,.15,.99);
-    transform: translateY(10px);
     opacity: 0;
-    transition-delay: 0s;
   }
   .buble-tooltip.active span{
-    transform: translateY(0px);
     opacity: 1;
-    transition-delay: .1s;
+    transition-delay: .4s;
   }
   .roadmap__container{
     position: relative;

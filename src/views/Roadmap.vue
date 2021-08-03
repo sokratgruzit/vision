@@ -8,13 +8,15 @@
 import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 const TWEEN = require('@tweenjs/tween.js');
 import {
   roadmap_vertex,
   line_vertex,
   line_vertex1,
   line_vertex2,
-  part_vertex
+  part_vertex,
+  text_vertex
 } from '../assets/shaders/vertex.js';
 import {
   roadmap_fragment,
@@ -69,6 +71,7 @@ export default {
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
+      filterRenderer: new CSS2DRenderer(),
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
@@ -159,6 +162,10 @@ export default {
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
       document.body.appendChild(this.labelRenderer.domElement);
+      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
+      this.filterRenderer.domElement.style.position = 'absolute';
+      this.filterRenderer.domElement.style.bottom = '0px';
+      document.body.appendChild(this.filterRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       this.camera.position.z = 150;
 
@@ -484,9 +491,117 @@ export default {
         } 
       }
       //End Rings
-      console.log(this.camera)
+      //Filter 
+      var scene = this.scene;
+      var textLoader = new THREE.FontLoader();
+      textLoader.load("./three_fonts/Kanit_Regular.json", function(
+        font
+      ) {
+        let vectorColor = "vec3(1.0,0.0,0.0)";
+        
+        var filterGeo = new THREE.TextBufferGeometry("Filter +", {
+          font: font,
+          size: 5,
+          height: 5,
+          curveSegments: 20,
+          bevelThickness: 2,
+          bevelSize: 8,
+          bevelSegments: 5
+        });
+
+        const tessellateModifier = new TessellateModifier(8, 6);
+        filterGeo = tessellateModifier.modify(filterGeo);
+        const numFaces = filterGeo.attributes.position.count / 3;
+        const colors = new Float32Array( numFaces * 3 * 3 );
+        const color = new THREE.Color();
+        const displacement = new Float32Array(numFaces * 3 * 3);
+
+        for (let f = 0; f < numFaces; f++) {
+          const index = 9 * f;
+
+          const h = 0.2 * Math.random();
+          const s = 0.5 + 0.5 * Math.random();
+          const l = 0.5 + 0.5 * Math.random();
+
+          const d = 1000 * (0.5 - Math.random());
+
+          for (let i = 0; i < 3; i++) {
+            colors[ index + ( 3 * i ) ] = color.r;
+            colors[ index + ( 3 * i ) + 1 ] = color.g;
+            colors[ index + ( 3 * i ) + 2 ] = color.b;
+
+            displacement[index + (3 * i)] = d;
+            displacement[index + (3 * i) + 1] = d;
+            displacement[index + (3 * i) + 2] = d;
+          }
+        }
+
+        filterGeo.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
+        filterGeo.setAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
+
+        var textUniforms = {
+          amplitude: { value: 7 },
+          percent: { type: "f", value: 0.0 }
+        };
+
+        const tShaderMat = new THREE.ShaderMaterial({
+          uniforms: textUniforms,
+          vertexShader: text_vertex,
+          fragmentShader: `
+            varying vec3 vNormal;
+            varying vec3 vColor;
+            uniform float percent;
+            void main() {
+              const float ambient = 0.4;
+              vec3 light = vec3( 1.0 );
+              light = normalize( light );
+              float directional = max( dot( vNormal, light ), 0.0 );
+              gl_FragColor = vec4( ( directional + ambient ) *` + vectorColor + `, 1.0 );
+              gl_FragColor.a = 1.0 * percent;
+            }
+          `,
+          transparent: true
+        });
+
+        var filterMesh = new THREE.Mesh(filterGeo, tShaderMat);
+        filterMesh.position.x = 100;
+        //filterMesh.position.z = 500;
+        filterMesh.position.y = 90;
+        console.log(filterMesh)
+
+        scene.add(filterMesh);
+      });
+
+      this.scene = scene;
+
+      const filterItemDiv = document.createElement('div');
+      filterItemDiv.id = 'year-2021';
+      filterItemDiv.textContent = "Year 2021";
+      filterItemDiv.style.marginTop = '-1em';
+      filterItemDiv.style.opacity = '1';
+
+      const filterItemObj = new CSS2DObject(filterItemDiv);
+      filterItemObj.position.set(0, 0, 100);
+      this.roadmapMesh.add(filterItemObj);
+      this.loadFilter();
+      //End Filter
 
       container.appendChild(this.renderer.domElement);
+    },
+    loadFilter: function () {
+      setTimeout(() => {
+        let filter = this.scene.children[5].material;
+
+        new TWEEN.Tween(filter.uniforms.amplitude)
+        .to({ value: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+
+        new TWEEN.Tween(filter.uniforms.percent)
+        .to({ value: 1 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+      }, 10000);
     },
     moveRoadmapToStart: function () {
       this.camera.rotation.y = 1;
@@ -783,6 +898,7 @@ export default {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
+      this.filterRenderer.render(this.scene, this.camera);
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
@@ -816,6 +932,7 @@ export default {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
       this.render();
     },
     onPointerDown: function (event) {
@@ -852,7 +969,20 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+      
+      if (this.roadmapMesh.position.x > 1400 && !this.isPointerDown) {
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: 1300 }, 500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+      }
 
+      if (this.roadmapMesh.position.x < -1400 && !this.isPointerDown) {
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: -1300 }, 500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+      }
 
       if (this.isPointerDown) {
         if (this.directionX === "left") {

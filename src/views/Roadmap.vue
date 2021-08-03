@@ -488,7 +488,7 @@ export default {
           this.roadmapMesh.add(this.ringMesh);
           this.roadmapMesh.add(this.ringMesh1);
           this.roadmapMesh.add(this.ringMesh2);
-        } 
+        }
       }
       //End Rings
       //Filter 
@@ -625,7 +625,7 @@ export default {
         cA.chain(cB);
         cA.start();
       }, 1000);
-      
+
       A.chain(B);
       A.start();
 
@@ -1091,7 +1091,7 @@ export default {
           }
         }
         for (let i = 0; i < pointAlphas.count / 2; i++) {
-          pointAlphas.array[i] = 0.3;
+          pointAlphas.array[i] = 0.1;
         }
         if (this.itemSize < 2) {
           this.itemSize += 0.05;

@@ -211,6 +211,8 @@ export default {
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
       this.roadmapMesh.receiveShadow = true;
       this.roadmapMesh.rotateX(90);
+      this.roadmapMesh.position.z = 500;
+      this.roadmapMesh.position.y = -500;
       this.scene.add(this.roadmapMesh);
 
       const partLoader = new THREE.TextureLoader();
@@ -280,7 +282,6 @@ export default {
       THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       var meshBubles = 16;
-      var blia = [];
 
       for (let i = 0; i < meshBubles; ++i) {
         let bSize = 3;
@@ -338,7 +339,6 @@ export default {
         this.meshParticles.position.setY(this.yD[i]);
         this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
-        blia.push(this.meshParticles);
       }
       //End Mesh particles
 
@@ -450,10 +450,16 @@ export default {
       container.appendChild(this.renderer.domElement);
     },
     moveRoadmapToStart: function () {
-      new TWEEN.Tween(this.roadmapMesh.position)
+      var A = new TWEEN.Tween(this.roadmapMesh.position)
+      .to({ y: 0, z: 0 }, 3000)
+      .easing(TWEEN.Easing.Quintic.Out);
+
+      var B = new TWEEN.Tween(this.roadmapMesh.position)
       .to({ x: 1100 }, 3000)
-      .easing(TWEEN.Easing.Quadratic.Out)
-      .start();
+      .easing(TWEEN.Easing.Quintic.Out);
+
+      A.chain(B);
+      A.start();
     },
     showRoadmapPath: function (index, action) {
       let object = this.roadmapMesh.children[16];
@@ -463,9 +469,9 @@ export default {
         object.material.uniformsNeedUpdate = true;
 
         new TWEEN.Tween(object.material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
 
       if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show') {
@@ -473,9 +479,9 @@ export default {
         object.material.uniformsNeedUpdate = true;
 
         new TWEEN.Tween(object.material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
 
       if ((index === 6 || index === 7 || index === 8 || index === 9 || index === 10) && action === 'show') {
@@ -483,9 +489,9 @@ export default {
         object.material.uniformsNeedUpdate = true;
 
         new TWEEN.Tween(object.material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
 
       if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show') {
@@ -493,31 +499,31 @@ export default {
         object.material.uniformsNeedUpdate = true;
 
         new TWEEN.Tween(object.material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
 
       if (action === 'hide') {
         new TWEEN.Tween(this.roadmapMesh.children[16].material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 
         new TWEEN.Tween(this.roadmapMesh.children[17].material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 
         new TWEEN.Tween(this.roadmapMesh.children[18].material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 
         new TWEEN.Tween(this.roadmapMesh.children[19].material.uniforms.opacity)
-          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
     },
     calcRoadmapPathPos: function (line) {
@@ -782,8 +788,8 @@ export default {
           setTimeout(() => {
             if (!this.isPointerDown) {
               new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x - 100 }, 300)
-              .easing(TWEEN.Easing.Quadratic.Out)
+              .to({ x: this.roadmapMesh.position.x - this.windowHalfX }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out)
               .start();
             }
           }, 1);
@@ -792,8 +798,8 @@ export default {
           setTimeout(() => {
             if (!this.isPointerDown) {
               new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x + 100 }, 300)
-              .easing(TWEEN.Easing.Quadratic.Out)
+              .to({ x: this.roadmapMesh.position.x + this.windowHalfX }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out)
               .start();
             }
           }, 1);

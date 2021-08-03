@@ -884,9 +884,8 @@ export default {
               .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
-            }
 
-            var cA = new TWEEN.Tween(this.camera.rotation)
+              var cA = new TWEEN.Tween(this.camera.rotation)
               .to({ y: -0.2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out);
 
@@ -896,6 +895,7 @@ export default {
 
               cA.chain(cB);
               cA.start();
+            }
           }, 1);
         }
 

@@ -44,8 +44,6 @@ export default {
       windowHalfX: window.innerWidth / 2,
       windowHalfY: window.innerHeight / 2,
       positions: null,
-      controls: null,
-      enableSelection: false,
       uniforms: null,
       lineUniforms: null,
       lineUniforms1: null,
@@ -894,9 +892,6 @@ export default {
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
-    },
-    dragObject: function (event) {
-      console.log('fuck')
     }
   },
   mounted () {

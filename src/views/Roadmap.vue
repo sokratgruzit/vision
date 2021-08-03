@@ -38,7 +38,6 @@ export default {
       raycaster: new THREE.Raycaster(),
       mouse: new THREE.Vector2(),
       renderer: null,
-      raycaster: new THREE.Raycaster(),
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
@@ -312,6 +311,7 @@ export default {
         tooltipLineMesh.scale.x = 0;
         tooltipLineMesh.scale.y = 0;
         tooltipLineMesh.scale.z = 0;
+        console.log(this.particles)
         // tooltipLineMesh.lookAt (0,0,0)
 
         const toolDiv = document.createElement('div');
@@ -333,7 +333,6 @@ export default {
         tooltipLineMesh.add(bubleTooltip);
 
         this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
-
         this.meshParticles.add(tooltipLineMesh);
         this.meshPartGeo.computeBoundsTree();
         this.meshParticles.position.setY(this.yD[i]);
@@ -713,6 +712,9 @@ export default {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
+
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      this.raycaster.firstHitOnly = true;
     },
     wheelScroll: function(event) {
       if (event.isPrimary === false) return;
@@ -779,8 +781,7 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-      this.raycaster.firstHitOnly = true;
+
 
       if (this.isPointerDown) {
         if (this.directionX === "left") {
@@ -819,7 +820,6 @@ export default {
           .start();
         }
       }
-
       for (let i = 0; i < 16; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
@@ -829,12 +829,12 @@ export default {
           tooltip.classList.add('active');
 
           new TWEEN.Tween(iMesh.children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 400)
+          .to({ x: 1, y: 1, z: 1 }, 200)
           .easing(TWEEN.Easing.Quadratic.In)
           .start();
 
           new TWEEN.Tween(int[0].object.scale)
-          .to({ x: 1.2, y: 1.2, z: 1.2 }, 400)
+          .to({ x: 1.2, y: 1.2, z: 1.2 }, 200)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
@@ -845,12 +845,12 @@ export default {
           tooltip.classList.remove('active');
 
           new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 400)
+          .to({ x: 0, y: 0, z: 0 }, 100)
           .easing(TWEEN.Easing.Quadratic.In)
           .start();
 
           new TWEEN.Tween(this.scene.children[3].children[i].scale)
-          .to({ x: 1, y: 1, z: 1 }, 500)
+          .to({ x: 1, y: 1, z: 1 }, 200)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
@@ -940,22 +940,27 @@ export default {
     justify-content: center;
   }
   .buble-tooltip div{
-    transition: .4s cubic-bezier(.79,.01,.15,.99);
+    transition: .2s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
+    transition-delay: .1s;
+    transform: translateY(10px);
   }
   .buble-tooltip.active div{
     opacity: 1;
-    transition-delay: .4s;
+    transition-delay: .3s;
+    transform: translateY(0px);
   }
   .buble-tooltip span{
     font-size: 13px;
     line-height: 18px;
-    transition: .4s cubic-bezier(.79,.01,.15,.99);
+    transition: .2s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
+    transform: translateY(10px);
   }
   .buble-tooltip.active span{
     opacity: 1;
     transition-delay: .4s;
+    transform: translateY(0px);
   }
   .roadmap__container{
     position: relative;

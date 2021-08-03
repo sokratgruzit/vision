@@ -788,7 +788,7 @@ export default {
           setTimeout(() => {
             if (!this.isPointerDown) {
               new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x - this.windowHalfX }, 1000)
+              .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
             }
@@ -798,7 +798,7 @@ export default {
           setTimeout(() => {
             if (!this.isPointerDown) {
               new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x + this.windowHalfX }, 1000)
+              .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
             }

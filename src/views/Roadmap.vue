@@ -45,12 +45,15 @@ export default {
       windowHalfY: window.innerHeight / 2,
       positions: null,
       controls: null,
+      enableSelection: false,
       uniforms: null,
       lineUniforms: null,
       lineUniforms1: null,
       lineUniforms2: null,
       isPointerDown: false,
       direction: "",
+      directionX: "",
+      oldX: 0,
       oldY: 0,
       count: 0,
       partMat: null,
@@ -64,6 +67,8 @@ export default {
       lineFragment1: line_fragment1,
       lineVertex2: line_vertex2,
       lineFragment2: line_fragment2,
+      lineVertex3: line_vertex2,
+      lineFragment3: line_fragment2,
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
@@ -71,17 +76,15 @@ export default {
       meshPartGeo: null,
       meshParticles: null,
       meshBubles: 16,
-      yD: [0, 40, -10, 25, 5, -40, -10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
+      yD: [0, 40, -10, 25, 5, -40, -10, -20, 30, 0, 10, 20, 50, 5, -10, -10],
       xD: [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
-      roadmapPath0: null,
-      roadmapPath1: null,
-      roadmapPath2: null,
-      roadmapPath3: null,
       itemSize: 0,
       itemAlpha: 0,
       lineGeometry0: null,
       lineGeometry1: null,
       lineGeometry2: null,
+      lineGeometry3: null,
+      controls: null,
       bubleData: [
         {
           title: 'Inception',
@@ -279,6 +282,7 @@ export default {
       THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       var meshBubles = 16;
+      var blia = [];
 
       for (let i = 0; i < meshBubles; ++i) {
         let bSize = 3;
@@ -294,10 +298,10 @@ export default {
           color: 0xFFFFFF
         });
 
-
         const tooltipLineMat = new THREE.LineBasicMaterial({
           color: 0xffffff
         });
+
         const linePoints = [];
         linePoints.push(new THREE.Vector3(0, 0, -20));
         linePoints.push(new THREE.Vector3(0, 0, 0));
@@ -310,7 +314,6 @@ export default {
         tooltipLineMesh.scale.y = 0;
         tooltipLineMesh.scale.z = 0;
         // tooltipLineMesh.lookAt (0,0,0)
-
 
         const toolDiv = document.createElement('div');
         const toolTitle = document.createElement('div');
@@ -337,6 +340,7 @@ export default {
         this.meshParticles.position.setY(this.yD[i]);
         this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
+        blia.push(this.meshParticles);
       }
       //End Mesh particles
 
@@ -347,24 +351,34 @@ export default {
 
       //Create Horizontal Lines
       const lineLoader = new THREE.TextureLoader();
-      const lineTexture = lineLoader.load(require("../assets/fire.jpg"));
+      const lineTexture0 = lineLoader.load(require("../assets/fire.jpg"));
+      const lineTexture1 = lineLoader.load(require("../assets/metal.jpg"));
+      const lineTexture2 = lineLoader.load(require("../assets/water.jpg"));
+      const lineTexture3 = lineLoader.load(require("../assets/space.jpg"));
 
       this.lineUniforms = {
-        tex: { type: "t", value: lineTexture },
+        tex: { type: "t", value: lineTexture0 },
         opacity: { type: "c", value: 0.0 },
         time: { type: "f", value: 0.0 },
         resolution: { type: "v4", value: new THREE.Vector4() }
       };
 
       this.lineUniforms1 = {
-        tex: { type: "t", value: lineTexture },
+        tex: { type: "t", value: lineTexture1 },
         opacity: { type: "c", value: 0.0 },
         time: { type: "f", value: 0.0 },
         resolution: { type: "v4", value: new THREE.Vector4() }
       };
 
       this.lineUniforms2 = {
-        tex: { type: "t", value: lineTexture },
+        tex: { type: "t", value: lineTexture2 },
+        opacity: { type: "c", value: 0.0 },
+        time: { type: "f", value: 0.0 },
+        resolution: { type: "v4", value: new THREE.Vector4() }
+      };
+
+      this.lineUniforms3 = {
+        tex: { type: "t", value: lineTexture3 },
         opacity: { type: "c", value: 0.0 },
         time: { type: "f", value: 0.0 },
         resolution: { type: "v4", value: new THREE.Vector4() }
@@ -384,6 +398,11 @@ export default {
       this.lineUniforms2.resolution.value.y = window.innerHeight;
       this.lineUniforms2.resolution.value.z = asp1;
       this.lineUniforms2.resolution.value.w = asp2;
+
+      this.lineUniforms3.resolution.value.x = window.innerWidth;
+      this.lineUniforms3.resolution.value.y = window.innerHeight;
+      this.lineUniforms3.resolution.value.z = asp1;
+      this.lineUniforms3.resolution.value.w = asp2;
 
       const lineMaterial = new THREE.ShaderMaterial({
         uniforms: this.lineUniforms,
@@ -406,6 +425,13 @@ export default {
         transparent: true
       });
 
+      const lineMaterial3 = new THREE.ShaderMaterial({
+        uniforms: this.lineUniforms3,
+        vertexShader: this.lineVertex3,
+        fragmentShader: this.lineFragment3,
+        transparent: true
+      });
+
       this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line0'));
       const lineMesh0 = new THREE.Points(this.lineGeometry0, lineMaterial);
       this.roadmapMesh.add(lineMesh0);
@@ -417,6 +443,10 @@ export default {
       this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line2'));
       const lineMesh2 = new THREE.Points(this.lineGeometry2, lineMaterial2);
       this.roadmapMesh.add(lineMesh2);
+
+      this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line3'));
+      const lineMesh3 = new THREE.Points(this.lineGeometry3, lineMaterial3);
+      this.roadmapMesh.add(lineMesh3);
       //End Create Horizontal Lines
 
       container.appendChild(this.renderer.domElement);
@@ -428,31 +458,68 @@ export default {
       .start();
     },
     showRoadmapPath: function (index, action) {
-      let object = this.roadmapMesh.children[17];
+      let object = this.roadmapMesh.children[16];
+
+      if (index === 0 && action === 'show') {
+        object = this.roadmapMesh.children[16];
+        object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+      }
 
       if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show') {
         object = this.roadmapMesh.children[17];
         object.material.uniformsNeedUpdate = true;
 
         new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+      }
+
+      if ((index === 6 || index === 7 || index === 8 || index === 9 || index === 10) && action === 'show') {
+        object = this.roadmapMesh.children[18];
+        object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+      }
+
+      if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show') {
+        object = this.roadmapMesh.children[19];
+        object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
       }
 
       if (action === 'hide') {
-        new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }
+        new TWEEN.Tween(this.roadmapMesh.children[16].material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
 
-      if (false && action === 'show') {
-        //object = this.roadmapMesh.children[18];
-      }
+        new TWEEN.Tween(this.roadmapMesh.children[17].material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
 
-      if (index === 6 && action === 'show') {
-        //this.roadmapMesh.children[16].position.y = -50;
+        new TWEEN.Tween(this.roadmapMesh.children[18].material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+
+        new TWEEN.Tween(this.roadmapMesh.children[19].material.uniforms.opacity)
+          .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
       }
     },
     calcRoadmapPathPos: function (line) {
@@ -464,7 +531,17 @@ export default {
       let delta4 = 25;
       let delta5 = 5;
       let delta6 = -40;
-      let delta7 = -10;
+      let delta7 = 0;
+      let delta8 = -10;
+      let delta9 = -20;
+      let delta10 = 30;
+      let delta11 = 0;
+      let delta12 = 10;
+      let delta13 = 0;
+      let delta14 = 20;
+      let delta15 = 50;
+      let delta16 = 5;
+      let delta17 = -10;
 
       for (let i = -2000; i < 4000; i++) {
         if (i < this.xD[0]) {
@@ -520,51 +597,101 @@ export default {
         }
 
         if (line === 'line2') {
-          if (i > this.xD[0] && i < i > this.xD[6]) {
+          if (i > this.xD[0] && i < this.xD[6]) {
             points.push(new THREE.Vector3(i, delta7, 0));
-            delta7 += 0.008888;
+            delta7 -= 0.008888;
+          }
+          if (i > this.xD[10]) {
+            points.push(new THREE.Vector3(i, delta12, 0));
+            delta12 -= 0.006;
+          }
+        }
+
+        if (line === 'line0' || line === 'line2') {
+          if (i === this.xD[6]) {
+            points.push(new THREE.Vector3(this.xD[6], this.yD[6], 0));
+          }
+          if (i > this.xD[6] && i < this.xD[7]) {
+            points.push(new THREE.Vector3(i, delta8, 0));
+            delta8 -= 0.066;
+          }
+          if (i === this.xD[7]) {
+            points.push(new THREE.Vector3(this.xD[7], this.yD[7], 0));
+          }
+          if (i > this.xD[7] && i < this.xD[8]) {
+            points.push(new THREE.Vector3(i, delta9, 0));
+            delta9 += 0.25;
+          }
+          if (i === this.xD[8]) {
+            points.push(new THREE.Vector3(this.xD[8], this.yD[8], 0));
+          }
+          if (i > this.xD[8] && i < this.xD[9]) {
+            points.push(new THREE.Vector3(i, delta10, 0));
+            delta10 -= 0.2;
+          }
+          if (i === this.xD[9]) {
+            points.push(new THREE.Vector3(this.xD[9], this.yD[9], 0));
+          }
+          if (i > this.xD[9] && i < this.xD[10]) {
+            points.push(new THREE.Vector3(i, delta11, 0));
+            delta11 += 0.05;
+          }
+          if (i === this.xD[10]) {
+            points.push(new THREE.Vector3(this.xD[10], this.yD[10], 0));
+          }
+        }
+
+        if (line === 'line3') {
+          if (i > this.xD[0] && i < this.xD[11]) {
+            points.push(new THREE.Vector3(i, delta13, 0));
+            delta13 += 0.009;
+          }
+          if (i === this.xD[11]) {
+            points.push(new THREE.Vector3(this.xD[11], this.yD[11], 0));
+          }
+          if (i > this.xD[11] && i < this.xD[12]) {
+            points.push(new THREE.Vector3(i, delta14, 0));
+            delta14 += 0.15;
+          }
+          if (i === this.xD[12]) {
+            points.push(new THREE.Vector3(this.xD[12], this.yD[12], 0));
+          }
+          if (i > this.xD[12] && i < this.xD[13]) {
+            points.push(new THREE.Vector3(i, delta15, 0));
+            delta15 -= 0.3;
+          }
+          if (i === this.xD[13]) {
+            points.push(new THREE.Vector3(this.xD[13], this.yD[13], 0));
+          }
+          if (i > this.xD[13] && i < this.xD[14]) {
+            points.push(new THREE.Vector3(i, delta16, 0));
+            delta16 -= 0.15;
+          }
+          if (i === this.xD[14]) {
+            points.push(new THREE.Vector3(this.xD[14], this.yD[14], 0));
+          }
+          if (i > this.xD[14] && i < this.xD[15]) {
+            points.push(new THREE.Vector3(i, this.yD[15], 0));
+          }
+          if (i === this.xD[15]) {
+            points.push(new THREE.Vector3(this.xD[15], this.yD[15], 0));
+          }
+          if (i > this.xD[15]) {
+            points.push(new THREE.Vector3(i, delta17, 0));
+            delta17 += 0.16;
           }
         }
       }
-        //yD: [-10, -20, -15, 0, 10, 20, 15, 5, -10, -15],
-        //xD: [-250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
-
       return points;
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
 
       this.roadmapMat.uniforms.time.value = theTime / 10;
-      this.lineUniforms.time.value = theTime / 10;
-
-      if (this.isPointerDown) {
-        this.camera.position.x += (this.mouseX * 4 - this.camera.position.x) * 0.005;
-        if (this.camera.position.x < -300 || this.camera.position.x > 2500) {
-          this.isPointerDown = false;
-        }
-
-        if (this.camera.position.x < -200) {
-          new TWEEN.Tween(this.camera.position)
-          .to({ x: -200 }, 3000)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
-        }
-
-        if (this.camera.position.x > 2350) {
-          new TWEEN.Tween(this.camera.position)
-          .to({ x: 2350 }, 3000)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
-        }
-
-        if (this.direction === "up" && this.roadmapMesh.rotation.x > 1.8) {
-          this.roadmapMesh.rotation.x -= 0.01;
-        }
-
-        if (this.direction === "down" && this.roadmapMesh.rotation.x < 2.3) {
-          this.roadmapMesh.rotation.x += 0.01;
-        }
-      }
+      this.lineUniforms.time.value = theTime;
+      this.lineUniforms1.time.value = theTime;
+      this.lineUniforms2.time.value = theTime;
+      this.lineUniforms3.time.value = theTime;
 
       let partZSin = Math.sin(theTime);
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
@@ -586,7 +713,7 @@ export default {
     wheelScroll: function(event) {
       if (event.isPrimary === false) return;
 
-      this.mouseX = event.clientX - this.windowHalfX;
+      /*this.mouseX = event.clientX - this.windowHalfX;
 
       if (this.camera.position.x < -200) {
         new TWEEN.Tween(this.camera.position)
@@ -602,7 +729,7 @@ export default {
         .start();
       }
 
-      this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;
+      this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;*/
     },
     onWindowResize: function () {
       this.windowHalfX = window.innerWidth / 2;
@@ -634,9 +761,14 @@ export default {
         this.direction = "up";
       } else if (event.pageY > this.oldY) {
         this.direction = "down";
+      } else if (event.pageX < this.oldX) {
+        this.directionX = "left";
+      } else if (event.pageX > this.oldX) {
+        this.directionX = "right";
       }
 
       this.oldY = event.pageY;
+      this.oldX = event.pageX;
 
       this.particles.rotation.y = this.mouseX * 0.0001;
       this.particles.rotation.x = this.mouseY * 0.0001;
@@ -645,6 +777,44 @@ export default {
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
+
+      if (this.isPointerDown) {
+        if (this.directionX === "left") {
+          this.roadmapMesh.position.x -= event.clientX * 0.005;
+          setTimeout(() => {
+            if (!this.isPointerDown) {
+              new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: this.roadmapMesh.position.x - 100 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
+            }
+          }, 1);
+        } else if (this.directionX === "right") {
+          this.roadmapMesh.position.x += event.clientX * 0.005;
+          setTimeout(() => {
+            if (!this.isPointerDown) {
+              new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: this.roadmapMesh.position.x + 100 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
+            }
+          }, 1);
+        }
+
+        if (this.direction === "up") {
+          new TWEEN.Tween(this.roadmapMesh.rotation)
+          .to({ x: 1.8 }, 300)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+        }
+
+        if (this.direction === "down") {
+          new TWEEN.Tween(this.roadmapMesh.rotation)
+          .to({ x: 2.3 }, 300)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+        }
+      }
 
       for (let i = 0; i < 16; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
@@ -675,8 +845,8 @@ export default {
           .easing(TWEEN.Easing.Quadratic.In)
           .start();
 
-          new TWEEN.Tween(this.scene.children[3].children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 400)
+          new TWEEN.Tween(this.scene.children[3].children[i].scale)
+          .to({ x: 1, y: 1, z: 1 }, 500)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
@@ -728,6 +898,9 @@ export default {
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
+    },
+    dragObject: function (event) {
+      console.log('fuck')
     }
   },
   mounted () {

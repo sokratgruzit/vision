@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="roadmap-container"></div>
+    <div id="filter-control"></div>
   </div>
 </template>
 
@@ -87,6 +88,7 @@ export default {
       ringMesh: null,
       ringMesh1: null,
       ringMesh2: null,
+      filterVisible: true,
       bubleData: [
         {
           title: 'Inception',
@@ -502,7 +504,7 @@ export default {
         var filterGeo = new THREE.TextBufferGeometry("Filter +", {
           font: font,
           size: 5,
-          height: 5,
+          height: 0,
           curveSegments: 20,
           bevelThickness: 2,
           bevelSize: 8,
@@ -567,22 +569,61 @@ export default {
         filterMesh.position.x = 100;
         //filterMesh.position.z = 500;
         filterMesh.position.y = 90;
-        console.log(filterMesh)
+
+        const squareMat = new THREE.LineBasicMaterial({
+          color: 0x0000ff,
+          opacity: 0,
+          transparent: true
+        });
+
+        const sPoints = [];
+        sPoints.push( new THREE.Vector3(0, 0, 0));
+        sPoints.push( new THREE.Vector3(0, 30, 0));
+        sPoints.push( new THREE.Vector3(30, 30, 0));
+        sPoints.push( new THREE.Vector3(30, 0, 0));
+        sPoints.push( new THREE.Vector3(0, 0, 0));
+
+        const squareGeo = new THREE.BufferGeometry().setFromPoints(sPoints);
+        const squareMesh = new THREE.Line(squareGeo, squareMat);
+        filterMesh.add(squareMesh);
+        
+        const filterItemDiv = document.createElement('div');
+        filterItemDiv.id = 'year-2021';
+        //filterItemDiv.onclick = this.showRoadmapPath(1, 'show');
+        filterItemDiv.textContent = "Year 2021";
+        filterItemDiv.style.marginTop = '-1em';
+        filterItemDiv.style.opacity = '0';
+
+        const filterItemDiv1 = document.createElement('div');
+        filterItemDiv1.id = 'year-2022';
+        //filterItemDiv1.onclick = this.showRoadmapPath(6, 'show');
+        filterItemDiv1.textContent = "Year 2022";
+        filterItemDiv1.style.marginTop = '-1em';
+        filterItemDiv1.style.opacity = '0';
+
+        const filterItemDiv2 = document.createElement('div');
+        filterItemDiv2.id = 'year-2023';
+        //filterItemDiv2.onclick = this.showRoadmapPath(11, 'show');
+        filterItemDiv2.textContent = "Year 2023";
+        filterItemDiv2.style.marginTop = '-1em';
+        filterItemDiv2.style.opacity = '0';
+
+        const filterItemObj = new CSS2DObject(filterItemDiv);
+        filterItemObj.position.set(12, -12, 0);
+        filterMesh.add(filterItemObj);
+
+        const filterItemObj1 = new CSS2DObject(filterItemDiv1);
+        filterItemObj1.position.set(12, -22, 0);
+        filterMesh.add(filterItemObj1);
+
+        const filterItemObj2 = new CSS2DObject(filterItemDiv2);
+        filterItemObj2.position.set(12, -32, 0);
+        filterMesh.add(filterItemObj2);
 
         scene.add(filterMesh);
       });
 
       this.scene = scene;
-
-      const filterItemDiv = document.createElement('div');
-      filterItemDiv.id = 'year-2021';
-      filterItemDiv.textContent = "Year 2021";
-      filterItemDiv.style.marginTop = '-1em';
-      filterItemDiv.style.opacity = '1';
-
-      const filterItemObj = new CSS2DObject(filterItemDiv);
-      filterItemObj.position.set(0, 0, 100);
-      this.roadmapMesh.add(filterItemObj);
       this.loadFilter();
       //End Filter
 
@@ -602,6 +643,42 @@ export default {
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
       }, 10000);
+    },
+    showFilter: function () {
+      let int = this.scene.children[5] === undefined ? false : this.scene.children[5];
+      let filter = int.children[0];
+      let v = this.filterVisible;
+      
+      new TWEEN.Tween(filter.position)
+      .to({ 
+        x: v ? -1.5 : 0, 
+        y: v ? -32 : 50, 
+        z: 0 
+      }, 2000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
+
+      new TWEEN.Tween(filter.material)
+      .to({ opacity: v ? 1 : 0 }, 500)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
+
+      new TWEEN.Tween(filter.rotation)
+      .to({ 
+        x: v ? 6.29 : 0, 
+        y: v ? 6.29 : 0, 
+        z: v ? 6.29 : 0
+      }, 2000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
+      
+      setTimeout(() => {
+        document.getElementById('year-2021').style['opacity'] = v ? '1' : '0';
+        document.getElementById('year-2022').style['opacity'] = v ? '1' : '0';
+        document.getElementById('year-2023').style['opacity'] = v ? '1' : '0';
+      }, v ? 2000 : 0);
+
+      this.filterVisible = !this.filterVisible;
     },
     moveRoadmapToStart: function () {
       this.camera.rotation.y = 1;
@@ -1136,6 +1213,7 @@ export default {
     });
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
+    document.getElementById('filter-control').addEventListener('click', this.showFilter);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     window.addEventListener('resize', this.onWindowResize, false);
@@ -1156,6 +1234,22 @@ export default {
 }
 </script>
 <style>
+  #year-2021,
+  #year-2022,
+  #year-2023{
+    cursor: pointer;
+    z-index: 10000;
+    position: absolute;
+  }
+  #filter-control{
+    position: absolute;
+    top: 46px;
+    right: 125px;
+    width: 105px;
+    height: 40px;
+    cursor: pointer;
+    z-index: 10000;
+  }
   .buble-tooltip{
     display: flex;
     flex-direction: column;

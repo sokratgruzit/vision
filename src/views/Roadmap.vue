@@ -72,7 +72,6 @@ export default {
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
-      rayPlay: true,
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
@@ -291,7 +290,7 @@ export default {
       for (let i = 0; i < meshBubles; ++i) {
         let bSize = 5;
         let linePosition = -5;
-        let tooltipPosition = -35;
+        let tooltipPosition = -30;
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           bSize = 6;
           linePosition = -12;
@@ -1122,9 +1121,7 @@ export default {
           .start();
         }
       }
-      if(this.rayPlay) {
-        console.log('hii')
-        for (let i = 0; i < 16; i++) {
+      for (let i = 0; i < 16; i++) {
           let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
           if (int.length > 0) {
             var iMesh = int[0].object;
@@ -1141,13 +1138,8 @@ export default {
               .to({ x: 1, y: 1, z: 1 }, 300)
               .easing(TWEEN.Easing.Quadratic.In)
               .start()
-
-            this.rayPlay = false;
             this.showRoadmapPath(i, 'show');
           } else {
-            setTimeout(() => {
-              this.rayPlay = true
-            },500);
             var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
             tooltip.classList.remove('active');
@@ -1165,7 +1157,6 @@ export default {
             this.showRoadmapPath(i, 'hide');
           }
         }
-      }
 
 
       var pointSizes = this.particles.geometry.attributes.size;

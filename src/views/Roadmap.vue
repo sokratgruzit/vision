@@ -72,7 +72,7 @@ export default {
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
-      filterRenderer: new CSS2DRenderer(),
+      rayPlay: true,
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
@@ -164,10 +164,6 @@ export default {
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
       document.body.appendChild(this.labelRenderer.domElement);
-      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
-      this.filterRenderer.domElement.style.position = 'absolute';
-      this.filterRenderer.domElement.style.bottom = '0px';
-      document.body.appendChild(this.filterRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       this.camera.position.z = 150;
 
@@ -295,11 +291,11 @@ export default {
       for (let i = 0; i < meshBubles; ++i) {
         let bSize = 5;
         let linePosition = -5;
-        let tooltipPosition = -23;
+        let tooltipPosition = -35;
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           bSize = 6;
           linePosition = -12;
-          tooltipPosition = -20;
+          tooltipPosition = -25;
         }
 
         this.meshPartGeo = new THREE.IcosahedronGeometry(bSize, 1);
@@ -335,7 +331,6 @@ export default {
           toolSubTitle.textContent = this.bubleData[i].category;
           toolDiv.appendChild(toolSubTitle);
         }
-        toolDiv.style.marginTop = '-1em';
 
         const bubleTooltip = new CSS2DObject(toolDiv);
         bubleTooltip.position.set(0, 0, tooltipPosition);
@@ -587,23 +582,21 @@ export default {
         const squareMesh = new THREE.Line(squareGeo, squareMat);
         filterMesh.add(squareMesh);
 
+
         const filterItemDiv = document.createElement('div');
         filterItemDiv.id = 'year-2021';
-        //filterItemDiv.onclick = this.showRoadmapPath(1, 'show');
         filterItemDiv.textContent = "Year 2021";
         filterItemDiv.style.marginTop = '-1em';
         filterItemDiv.style.opacity = '0';
 
         const filterItemDiv1 = document.createElement('div');
         filterItemDiv1.id = 'year-2022';
-        //filterItemDiv1.onclick = this.showRoadmapPath(6, 'show');
         filterItemDiv1.textContent = "Year 2022";
         filterItemDiv1.style.marginTop = '-1em';
         filterItemDiv1.style.opacity = '0';
 
         const filterItemDiv2 = document.createElement('div');
         filterItemDiv2.id = 'year-2023';
-        //filterItemDiv2.onclick = this.showRoadmapPath(11, 'show');
         filterItemDiv2.textContent = "Year 2023";
         filterItemDiv2.style.marginTop = '-1em';
         filterItemDiv2.style.opacity = '0';
@@ -671,6 +664,7 @@ export default {
       }, 2000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
+
 
       setTimeout(() => {
         document.getElementById('year-2021').style['opacity'] = v ? '1' : '0';
@@ -975,13 +969,19 @@ export default {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
-      this.filterRenderer.render(this.scene, this.camera);
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
     },
     route: function (id) {
-      console.log(id);
+      for (let i = 0; i < 16; i++) {
+        let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
+        if (int.length > 0) {
+          var iMesh = int[0].object;
+          var tooltipClass = iMesh.children[0].children[0].element.id;
+          console.log(tooltipClass);
+        }
+      }
     },
     wheelScroll: function(event) {
       if (event.isPrimary === false) return;
@@ -1012,7 +1012,6 @@ export default {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
       this.render();
     },
     onPointerDown: function (event) {
@@ -1123,43 +1122,51 @@ export default {
           .start();
         }
       }
-      for (let i = 0; i < 16; i++) {
-        let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-        if (int.length > 0) {
-          var iMesh = int[0].object;
-          var tooltipClass = iMesh.children[0].children[0].element.id;
-          var tooltip = document.getElementById(tooltipClass);
-          tooltip.classList.add('active');
+      if(this.rayPlay) {
+        console.log('hii')
+        for (let i = 0; i < 16; i++) {
+          let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
+          if (int.length > 0) {
+            var iMesh = int[0].object;
+            var tooltipClass = iMesh.children[0].children[0].element.id;
+            var tooltip = document.getElementById(tooltipClass);
+            tooltip.classList.add('active');
 
-          new TWEEN.Tween(iMesh.children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 200)
-          .easing(TWEEN.Easing.Quadratic.In)
-          .start();
+            new TWEEN.Tween(int[0].object.scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
 
-          new TWEEN.Tween(int[0].object.scale)
-          .to({ x: 1.2, y: 1.2, z: 1.2 }, 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+            new TWEEN.Tween(iMesh.children[0].scale)
+              .to({ x: 1, y: 1, z: 1 }, 300)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start()
 
-          this.showRoadmapPath(i, 'show');
-        } else {
-          var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
-          var tooltip = document.getElementById(tooltipClass);
-          tooltip.classList.remove('active');
+            this.rayPlay = false;
+            this.showRoadmapPath(i, 'show');
+          } else {
+            setTimeout(() => {
+              this.rayPlay = true
+            },500);
+            var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
+            var tooltip = document.getElementById(tooltipClass);
+            tooltip.classList.remove('active');
 
-          new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 100)
-          .easing(TWEEN.Easing.Quadratic.In)
-          .start();
+            new TWEEN.Tween(this.scene.children[3].children[i].scale)
+              .to({ x: 1, y: 1, z: 1 }, 100)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
 
-          new TWEEN.Tween(this.scene.children[3].children[i].scale)
-          .to({ x: 1, y: 1, z: 1 }, 200)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
+            new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
+              .to({ x: 0, y: 0, z: 0 }, 100)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
 
-          this.showRoadmapPath(i, 'hide');
+            this.showRoadmapPath(i, 'hide');
+          }
         }
       }
+
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;
@@ -1219,6 +1226,7 @@ export default {
     document.getElementById('filter-control').addEventListener('click', this.showFilter);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
+    document.addEventListener('mousedown', this.route);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
   },
@@ -1262,12 +1270,12 @@ export default {
   .buble-tooltip div{
     transition: .2s cubic-bezier(.79,.01,.15,.99)!important;
     opacity: 0;
-    transition-delay: .1s;
+    transition-delay: .2s;
     transform: translateY(10px);
   }
   .buble-tooltip.active div{
     opacity: 1;
-    transition-delay: .3s;
+    transition-delay: .5s;
     transform: translateY(0px);
   }
   .buble-tooltip span{
@@ -1276,10 +1284,11 @@ export default {
     transition: .2s cubic-bezier(.79,.01,.15,.99)!important;
     opacity: 0;
     transform: translateY(10px);
+    transition-delay: .1s;
   }
   .buble-tooltip.active span{
     opacity: 1;
-    transition-delay: .4s;
+    transition-delay: .6s;
     transform: translateY(0px);
   }
   .roadmap__container{

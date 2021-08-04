@@ -39,6 +39,7 @@ export default {
       roadmapMat: null,
       roadmapMesh: null,
       raycaster: new THREE.Raycaster(),
+      filterLine: false,
       mouse: new THREE.Vector2(),
       renderer: null,
       mouseX: 0,
@@ -709,7 +710,6 @@ export default {
     },
     showRoadmapPath: function (index, action) {
       let object = this.roadmapMesh.children[16];
-
       if (index === 0 && action === 'show') {
         object = this.roadmapMesh.children[16];
         object.material.uniformsNeedUpdate = true;
@@ -985,15 +985,26 @@ export default {
         }
       }
     },
+    deleteLines: function () {
+      for(let i = 0; i <  4; i++){
+        this.showRoadmapPath(i,'hide');
+      }
+    },
     filterClick: function (e) {
       if(e.target.id == 'year-2021'){
-        console.log(e.target.id)
+        this.filterLine = true;
+        this.deleteLines();
+        this.showRoadmapPath(1,'show');
       }
       if(e.target.id == 'year-2022'){
-        console.log(e.target.id)
+        this.filterLine = true;
+        this.deleteLines();
+        this.showRoadmapPath(6,'show');
       }
       if(e.target.id == 'year-2023'){
-        console.log(e.target.id)
+        this.filterLine = true;
+        this.deleteLines();
+        this.showRoadmapPath(11,'show');
       }
     },
     wheelScroll: function(event) {
@@ -1152,6 +1163,8 @@ export default {
               .to({ x: 1, y: 1, z: 1 }, 300)
               .easing(TWEEN.Easing.Quadratic.In)
               .start()
+            this.filterLine = false;
+            this.deleteLines();
             this.showRoadmapPath(i, 'show');
           } else {
             var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
@@ -1167,8 +1180,9 @@ export default {
               .to({ x: 0, y: 0, z: 0 }, 100)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
-
-            this.showRoadmapPath(i, 'hide');
+            if(!this.filterLine){
+              this.showRoadmapPath(i, 'hide');
+            }
           }
         }
 

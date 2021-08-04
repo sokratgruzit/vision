@@ -493,14 +493,14 @@ export default {
         }
       }
       //End Rings
-      //Filter 
+      //Filter
       var scene = this.scene;
       var textLoader = new THREE.FontLoader();
       textLoader.load("./three_fonts/Kanit_Regular.json", function(
         font
       ) {
         let vectorColor = "vec3(1.0,0.0,0.0)";
-        
+
         var filterGeo = new THREE.TextBufferGeometry("Filter +", {
           font: font,
           size: 5,
@@ -586,7 +586,7 @@ export default {
         const squareGeo = new THREE.BufferGeometry().setFromPoints(sPoints);
         const squareMesh = new THREE.Line(squareGeo, squareMat);
         filterMesh.add(squareMesh);
-        
+
         const filterItemDiv = document.createElement('div');
         filterItemDiv.id = 'year-2021';
         //filterItemDiv.onclick = this.showRoadmapPath(1, 'show');
@@ -648,12 +648,12 @@ export default {
       let int = this.scene.children[5] === undefined ? false : this.scene.children[5];
       let filter = int.children[0];
       let v = this.filterVisible;
-      
+
       new TWEEN.Tween(filter.position)
-      .to({ 
-        x: v ? -1.5 : 0, 
-        y: v ? -32 : 50, 
-        z: 0 
+      .to({
+        x: v ? -1.5 : 0,
+        y: v ? -32 : 50,
+        z: 0
       }, 2000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
@@ -664,14 +664,14 @@ export default {
       .start();
 
       new TWEEN.Tween(filter.rotation)
-      .to({ 
-        x: v ? 6.29 : 0, 
-        y: v ? 6.29 : 0, 
+      .to({
+        x: v ? 6.29 : 0,
+        y: v ? 6.29 : 0,
         z: v ? 6.29 : 0
       }, 2000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
-      
+
       setTimeout(() => {
         document.getElementById('year-2021').style['opacity'] = v ? '1' : '0';
         document.getElementById('year-2022').style['opacity'] = v ? '1' : '0';
@@ -776,7 +776,7 @@ export default {
         .start();
       }
     },
-    calcRoadmapPathPos: function (line) {
+     calcRoadmapPathPos: function (line) {
       const points = [];
 
       let delta1 = 0;
@@ -980,6 +980,9 @@ export default {
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
     },
+    route: function (id) {
+      console.log(id);
+    },
     wheelScroll: function(event) {
       if (event.isPrimary === false) return;
 
@@ -1046,7 +1049,7 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-      
+
       if (this.roadmapMesh.position.x > 1400 && !this.isPointerDown) {
         new TWEEN.Tween(this.roadmapMesh.position)
         .to({ x: 1300 }, 500)
@@ -1257,7 +1260,7 @@ export default {
     justify-content: center;
   }
   .buble-tooltip div{
-    transition: .2s cubic-bezier(.79,.01,.15,.99);
+    transition: .2s cubic-bezier(.79,.01,.15,.99)!important;
     opacity: 0;
     transition-delay: .1s;
     transform: translateY(10px);
@@ -1270,7 +1273,7 @@ export default {
   .buble-tooltip span{
     font-size: 13px;
     line-height: 18px;
-    transition: .2s cubic-bezier(.79,.01,.15,.99);
+    transition: .2s cubic-bezier(.79,.01,.15,.99)!important;
     opacity: 0;
     transform: translateY(10px);
   }

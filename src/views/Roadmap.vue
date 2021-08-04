@@ -72,7 +72,6 @@ export default {
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
-      filterRenderer: new CSS2DRenderer(),
       meshPartMat: null,
       meshPartGeo: null,
       meshParticles: null,
@@ -164,10 +163,6 @@ export default {
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
       document.body.appendChild(this.labelRenderer.domElement);
-      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
-      this.filterRenderer.domElement.style.position = 'absolute';
-      this.filterRenderer.domElement.style.bottom = '0px';
-      document.body.appendChild(this.filterRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       this.camera.position.z = 150;
 
@@ -587,23 +582,20 @@ export default {
         const squareMesh = new THREE.Line(squareGeo, squareMat);
         filterMesh.add(squareMesh);
         
-        const filterItemDiv = document.createElement('div');
+        /*const filterItemDiv = document.createElement('div');
         filterItemDiv.id = 'year-2021';
-        //filterItemDiv.onclick = this.showRoadmapPath(1, 'show');
         filterItemDiv.textContent = "Year 2021";
         filterItemDiv.style.marginTop = '-1em';
         filterItemDiv.style.opacity = '0';
 
         const filterItemDiv1 = document.createElement('div');
         filterItemDiv1.id = 'year-2022';
-        //filterItemDiv1.onclick = this.showRoadmapPath(6, 'show');
         filterItemDiv1.textContent = "Year 2022";
         filterItemDiv1.style.marginTop = '-1em';
         filterItemDiv1.style.opacity = '0';
 
         const filterItemDiv2 = document.createElement('div');
         filterItemDiv2.id = 'year-2023';
-        //filterItemDiv2.onclick = this.showRoadmapPath(11, 'show');
         filterItemDiv2.textContent = "Year 2023";
         filterItemDiv2.style.marginTop = '-1em';
         filterItemDiv2.style.opacity = '0';
@@ -618,7 +610,7 @@ export default {
 
         const filterItemObj2 = new CSS2DObject(filterItemDiv2);
         filterItemObj2.position.set(12, -32, 0);
-        filterMesh.add(filterItemObj2);
+        filterMesh.add(filterItemObj2);*/
 
         scene.add(filterMesh);
       });
@@ -672,11 +664,11 @@ export default {
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
       
-      setTimeout(() => {
+      /*setTimeout(() => {
         document.getElementById('year-2021').style['opacity'] = v ? '1' : '0';
         document.getElementById('year-2022').style['opacity'] = v ? '1' : '0';
         document.getElementById('year-2023').style['opacity'] = v ? '1' : '0';
-      }, v ? 2000 : 0);
+      }, v ? 2000 : 0);*/
 
       this.filterVisible = !this.filterVisible;
     },
@@ -975,7 +967,6 @@ export default {
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
-      this.filterRenderer.render(this.scene, this.camera);
 
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
@@ -1009,7 +1000,6 @@ export default {
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-      this.filterRenderer.setSize(window.innerWidth, window.innerHeight);
       this.render();
     },
     onPointerDown: function (event) {

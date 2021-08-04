@@ -584,18 +584,21 @@ export default {
 
         const filterItemDiv = document.createElement('div');
         filterItemDiv.id = 'year-2021';
+        filterItemDiv.className = 'year-select';
         filterItemDiv.textContent = "Year 2021";
         filterItemDiv.style.marginTop = '-1em';
         filterItemDiv.style.opacity = '0';
 
         const filterItemDiv1 = document.createElement('div');
         filterItemDiv1.id = 'year-2022';
+        filterItemDiv1.className = 'year-select';
         filterItemDiv1.textContent = "Year 2022";
         filterItemDiv1.style.marginTop = '-1em';
         filterItemDiv1.style.opacity = '0';
 
         const filterItemDiv2 = document.createElement('div');
         filterItemDiv2.id = 'year-2023';
+        filterItemDiv2.className = 'year-select';
         filterItemDiv2.textContent = "Year 2023";
         filterItemDiv2.style.marginTop = '-1em';
         filterItemDiv2.style.opacity = '0';
@@ -769,7 +772,7 @@ export default {
         .start();
       }
     },
-     calcRoadmapPathPos: function (line) {
+    calcRoadmapPathPos: function (line) {
       const points = [];
 
       let delta1 = 0;
@@ -980,6 +983,17 @@ export default {
           var tooltipClass = iMesh.children[0].children[0].element.id;
           console.log(tooltipClass);
         }
+      }
+    },
+    filterClick: function (e) {
+      if(e.target.id == 'year-2021'){
+        console.log(e.target.id)
+      }
+      if(e.target.id == 'year-2022'){
+        console.log(e.target.id)
+      }
+      if(e.target.id == 'year-2023'){
+        console.log(e.target.id)
       }
     },
     wheelScroll: function(event) {
@@ -1212,12 +1226,15 @@ export default {
     promise.then((value) => {
       this.animate()
     });
+
+    // console.log(filterSelect)
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.getElementById('filter-control').addEventListener('click', this.showFilter);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route);
+    document.addEventListener('mousedown', this.filterClick);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
   },
@@ -1286,5 +1303,9 @@ export default {
     position: relative;
     height: 100vh;
     width: 100%;
+  }
+  .year-select{
+    cursor: pointer!important;
+    z-index: 1000000!important;
   }
 </style>

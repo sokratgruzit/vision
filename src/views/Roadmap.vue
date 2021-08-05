@@ -163,6 +163,7 @@ export default {
       this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
+      this.labelRenderer.domElement.style.pointerEvents = 'none';
       document.body.appendChild(this.labelRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       this.camera.position.z = 150;
@@ -1008,25 +1009,69 @@ export default {
       }
     },
     wheelScroll: function(event) {
-      if (event.isPrimary === false) return;
+      if (event.deltaY < 0) {
+        this.roadmapMesh.position.x -= event.clientX * 0.008;
+        setTimeout(() => {
+          if (!this.isPointerDown) {
+            new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
+              .easing(TWEEN.Easing.Quintic.Out)
+              .start();
 
-      /*this.mouseX = event.clientX - this.windowHalfX;
+            var cA = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0.2 }, 1500)
+              .easing(TWEEN.Easing.Quintic.Out);
 
-      if (this.camera.position.x < -200) {
-        new TWEEN.Tween(this.camera.position)
-        .to({ x: -200 }, 3000)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+            var cB = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0 }, 3000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+            cA.chain(cB);
+            cA.start();
+          }
+        }, 1);
       }
+      if (event.deltaY > 0) {
+        this.roadmapMesh.position.x += event.clientX * 0.008;
+        setTimeout(() => {
+          if (!this.isPointerDown) {
+            new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
+              .easing(TWEEN.Easing.Quintic.Out)
+              .start();
 
-      if (this.camera.position.x > 2350) {
-        new TWEEN.Tween(this.camera.position)
-        .to({ x: 2350 }, 3000)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+            var cA = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: -0.2 }, 1500)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+            var cB = new TWEEN.Tween(this.camera.rotation)
+              .to({ y: 0 }, 3000)
+              .easing(TWEEN.Easing.Quintic.Out);
+
+            cA.chain(cB);
+            cA.start();
+          }
+        }, 1);
       }
-
-      this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;*/
+      // if (event.isPrimary === false) return;
+      //
+      // this.mouseX = event.clientX - this.windowHalfX;
+      //
+      // if (this.camera.position.x < -200) {
+      //   new TWEEN.Tween(this.camera.position)
+      //   .to({ x: -200 }, 3000)
+      //   .easing(TWEEN.Easing.Quadratic.Out)
+      //   .start();
+      // }
+      //
+      // if (this.camera.position.x > 2350) {
+      //   new TWEEN.Tween(this.camera.position)
+      //   .to({ x: 2350 }, 3000)
+      //   .easing(TWEEN.Easing.Quadratic.Out)
+      //   .start();
+      // }
+      //
+      // this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;
     },
     onWindowResize: function () {
       this.windowHalfX = window.innerWidth / 2;

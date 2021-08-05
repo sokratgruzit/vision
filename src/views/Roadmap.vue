@@ -388,7 +388,7 @@ export default {
         opacity: 0,
         color: this.colors[3]
       });
-      
+
       this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line0'));
       const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
       lineMesh0.add(mesh);
@@ -965,47 +965,39 @@ export default {
     wheelScroll: function(event) {
       if (event.deltaY < 0) {
         this.roadmapMesh.position.x -= event.clientX * 0.008;
-        setTimeout(() => {
-          if (!this.isPointerDown) {
-            new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
-              .easing(TWEEN.Easing.Quintic.Out)
-              .start();
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
 
-            var cA = new TWEEN.Tween(this.camera.rotation)
-              .to({ y: 0.2 }, 1500)
-              .easing(TWEEN.Easing.Quintic.Out);
+        var cA = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 0.2 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out);
 
-            var cB = new TWEEN.Tween(this.camera.rotation)
-              .to({ y: 0 }, 3000)
-              .easing(TWEEN.Easing.Quintic.Out);
+        var cB = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out);
 
-            cA.chain(cB);
-            cA.start();
-          }
-        }, 1);
+        cA.chain(cB);
+        cA.start();
       }
       if (event.deltaY > 0) {
         this.roadmapMesh.position.x += event.clientX * 0.008;
-        setTimeout(() => {
-          if (!this.isPointerDown) {
-            new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
-              .easing(TWEEN.Easing.Quintic.Out)
-              .start();
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
 
-            var cA = new TWEEN.Tween(this.camera.rotation)
-              .to({ y: -0.2 }, 1500)
-              .easing(TWEEN.Easing.Quintic.Out);
+        var cA = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: -0.2 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out);
 
-            var cB = new TWEEN.Tween(this.camera.rotation)
-              .to({ y: 0 }, 3000)
-              .easing(TWEEN.Easing.Quintic.Out);
+        var cB = new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out);
 
-            cA.chain(cB);
-            cA.start();
-          }
-        }, 1);
+        cA.chain(cB);
+        cA.start();
       }
       // if (event.isPrimary === false) return;
       //
@@ -1150,12 +1142,12 @@ export default {
           if (int.length > 0) {
             var iMesh = int[0].object;
             let color = new THREE.Color(0x878FFF);
-            
+
             if (i === 0) {
               color = this.colors[0];
               iMesh.material.color = color;
             }
-            
+
             if (i === 1 || i === 2 || i === 3 || i === 4 || i === 5) {
               color = this.colors[1];
               this.scene.children[3].children[1].material.color = color;
@@ -1164,7 +1156,7 @@ export default {
               this.scene.children[3].children[4].material.color = color;
               this.scene.children[3].children[5].material.color = color;
             }
-            
+
             if (i === 6 || i === 7 || i === 8 || i === 9 || i === 10) {
               color = this.colors[2];
               this.scene.children[3].children[6].material.color = color;
@@ -1173,7 +1165,7 @@ export default {
               this.scene.children[3].children[9].material.color = color;
               this.scene.children[3].children[10].material.color = color;
             }
-            
+
             if (i === 11 || i === 12 || i === 13 || i === 14 || i === 15) {
               color = this.colors[3];
               this.scene.children[3].children[11].material.color = color;

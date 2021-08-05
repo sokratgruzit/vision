@@ -560,6 +560,9 @@
       },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
+        if(this.$store.state.stopGalactic){
+          return false
+        }
 
         this.pointerX = event.clientX - this.windowHalfX;
         this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;

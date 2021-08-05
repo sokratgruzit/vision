@@ -76,6 +76,10 @@ export default {
       lineGeometry1: null,
       lineGeometry2: null,
       lineGeometry3: null,
+      glowM0: null,
+      glowM1: null,
+      glowM2: null,
+      glowM3: null,
       ringMesh: null,
       ringMesh1: null,
       ringMesh2: null,
@@ -344,27 +348,6 @@ export default {
       this.renderer.setClearColor(0x878FFF, 0.2);
       this.moveRoadmapToStart();
 
-      class CustomSinCurve extends THREE.Curve {
-        constructor( scale = 1 ) {
-          super();
-          this.scale = scale;
-        }
-
-        getPoint( t, optionalTarget = new THREE.Vector3() ) {
-          console.log(t);
-          const tx = t * 3 - 1.5;
-          const ty = Math.sin( 2 * Math.PI * t );
-          const tz = 0;
-
-          return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
-        }
-      }
-
-      const path = new CustomSinCurve( 100 );
-      const geometry = new THREE.TubeGeometry( path, 20, 2, 8, false );
-      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-      const mesh = new THREE.Mesh( geometry, material );
-
       const lineMaterial = new THREE.LineBasicMaterial({
         transparent: true,
         opacity: 0,
@@ -389,21 +372,120 @@ export default {
         color: this.colors[3]
       });
 
-      this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line0'));
+      const spline0 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[0], this.yD[0], 0),
+        new THREE.Vector3(this.xD[1], this.yD[1], 0),
+        new THREE.Vector3(this.xD[2], this.yD[2], 0),
+        new THREE.Vector3(this.xD[3], this.yD[3], 0),
+        new THREE.Vector3(this.xD[4], this.yD[4], 0),
+        new THREE.Vector3(this.xD[5], this.yD[5], 0),
+        new THREE.Vector3(this.xD[6], this.yD[6], 0),
+        new THREE.Vector3(this.xD[7], this.yD[7], 0),
+        new THREE.Vector3(this.xD[8], this.yD[8], 0),
+        new THREE.Vector3(this.xD[9], this.yD[9], 0),
+        new THREE.Vector3(this.xD[10], this.yD[10], 0),
+        new THREE.Vector3(this.xD[11], this.yD[11], 0),
+        new THREE.Vector3(this.xD[12], this.yD[12], 0),
+        new THREE.Vector3(this.xD[13], this.yD[13], 0),
+        new THREE.Vector3(this.xD[14], this.yD[14], 0),
+        new THREE.Vector3(this.xD[15], this.yD[15], 0),
+        new THREE.Vector3(2000, 0, 0),
+      ]);
+
+      var splinePoints0 = spline0.getPoints(4000);
+
+      const glowG0 = new THREE.TubeGeometry(spline0, 4000, 1.3, 8, false);
+      this.glowM0 = new THREE.MeshBasicMaterial({
+        color: this.colors[0],
+        opacity: 0,
+        transparent: true,
+        depthTest: false
+      });
+      const glowMesh0 = new THREE.Mesh(glowG0, this.glowM0);
+
+      const spline1 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[0], this.yD[0], 0),
+        new THREE.Vector3(this.xD[1], this.yD[1], 0),
+        new THREE.Vector3(this.xD[2], this.yD[2], 0),
+        new THREE.Vector3(this.xD[3], this.yD[3], 0),
+        new THREE.Vector3(this.xD[4], this.yD[4], 0),
+        new THREE.Vector3(this.xD[5], this.yD[5], 0),
+        new THREE.Vector3(2000, 0, 0),
+      ]);
+
+      var splinePoints1 = spline1.getPoints(4000);
+
+      const glowG1 = new THREE.TubeGeometry(spline1, 4000, 1.3, 8, false);
+      this.glowM1 = new THREE.MeshBasicMaterial({
+        color: this.colors[1],
+        opacity: 0,
+        transparent: true,
+        depthTest: false
+      });
+      const glowMesh1 = new THREE.Mesh(glowG1, this.glowM1);
+
+      const spline2 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[6], this.yD[6], 0),
+        new THREE.Vector3(this.xD[7], this.yD[7], 0),
+        new THREE.Vector3(this.xD[8], this.yD[8], 0),
+        new THREE.Vector3(this.xD[9], this.yD[9], 0),
+        new THREE.Vector3(this.xD[10], this.yD[10], 0),
+        new THREE.Vector3(2000, 0, 0),
+      ]);
+
+      var splinePoints2 = spline2.getPoints(4000);
+
+      const glowG2 = new THREE.TubeGeometry(spline2, 4000, 1.3, 8, false);
+      this.glowM2 = new THREE.MeshBasicMaterial({
+        color: this.colors[2],
+        opacity: 0,
+        transparent: true,
+        depthTest: false
+      });
+      const glowMesh2 = new THREE.Mesh(glowG2, this.glowM2);
+
+      const spline3 = new THREE.CatmullRomCurve3([
+        new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[11], this.yD[11], 0),
+        new THREE.Vector3(this.xD[12], this.yD[12], 0),
+        new THREE.Vector3(this.xD[13], this.yD[13], 0),
+        new THREE.Vector3(this.xD[14], this.yD[14], 0),
+        new THREE.Vector3(this.xD[15], this.yD[15], 0),
+        new THREE.Vector3(2000, 0, 0),
+      ]);
+
+      var splinePoints3 = spline3.getPoints(4000);
+
+      const glowG3 = new THREE.TubeGeometry(spline3, 4000, 1.3, 8, false);
+      this.glowM3 = new THREE.MeshBasicMaterial({
+        color: this.colors[3],
+        opacity: 0,
+        transparent: true,
+        depthTest: false
+      });
+      const glowMesh3 = new THREE.Mesh(glowG3, this.glowM3);
+
+      this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(splinePoints0);
       const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
-      lineMesh0.add(mesh);
+      lineMesh0.add(glowMesh0);
       this.roadmapMesh.add(lineMesh0);
 
-      this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line1'));
+      this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(splinePoints1);
       const lineMesh1 = new THREE.Line(this.lineGeometry1, lineMaterial1);
+      lineMesh1.add(glowMesh1);
       this.roadmapMesh.add(lineMesh1);
 
-      this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line2'));
+      this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(splinePoints2);
       const lineMesh2 = new THREE.Line(this.lineGeometry2, lineMaterial2);
+      lineMesh2.add(glowMesh2);
       this.roadmapMesh.add(lineMesh2);
 
-      this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line3'));
+      this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(splinePoints3);
       const lineMesh3 = new THREE.Line(this.lineGeometry3, lineMaterial3);
+      lineMesh3.add(glowMesh3);
       this.roadmapMesh.add(lineMesh3);
       //End Create Horizontal Lines
 
@@ -670,6 +752,11 @@ export default {
         object = this.roadmapMesh.children[16];
         object.material.uniformsNeedUpdate = true;
 
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
         new TWEEN.Tween(object.material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -679,6 +766,11 @@ export default {
       if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show') {
         object = this.roadmapMesh.children[17];
         object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 
         new TWEEN.Tween(object.material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
@@ -690,6 +782,11 @@ export default {
         object = this.roadmapMesh.children[18];
         object.material.uniformsNeedUpdate = true;
 
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
         new TWEEN.Tween(object.material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
@@ -699,6 +796,11 @@ export default {
       if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show') {
         object = this.roadmapMesh.children[19];
         object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
 
         new TWEEN.Tween(object.material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
@@ -712,8 +814,18 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
+        new TWEEN.Tween(this.roadmapMesh.children[16].children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
         new TWEEN.Tween(this.roadmapMesh.children[17].material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+        new TWEEN.Tween(this.roadmapMesh.children[17].children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
@@ -722,177 +834,29 @@ export default {
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
+        new TWEEN.Tween(this.roadmapMesh.children[18].children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
         new TWEEN.Tween(this.roadmapMesh.children[19].material)
         .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
+
+        new TWEEN.Tween(this.roadmapMesh.children[19].children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
       }
-    },
-    calcRoadmapPathPos: function (line) {
-      const points = [];
-
-      let delta1 = 0;
-      let delta2 = 40;
-      let delta3 = -10;
-      let delta4 = 25;
-      let delta5 = 5;
-      let delta6 = -40;
-      let delta7 = 0;
-      let delta8 = -10;
-      let delta9 = -20;
-      let delta10 = 30;
-      let delta11 = 0;
-      let delta12 = 10;
-      let delta13 = 0;
-      let delta14 = 20;
-      let delta15 = 50;
-      let delta16 = 5;
-      let delta17 = -10;
-
-      for (let i = -2000; i < 4000; i++) {
-        if (i < this.xD[0]) {
-          points.push(new THREE.Vector3(i, 0, 0));
-        }
-
-        if (line === 'line0' || line === 'line1') {
-          if (i === this.xD[0]) {
-            points.push(new THREE.Vector3(this.xD[0], this.yD[0], 0));
-          }
-          if (i > this.xD[0] && i < this.xD[1]) {
-            points.push(new THREE.Vector3(i, delta1, 0));
-            delta1 += 0.2
-          }
-          if (i === this.xD[1]) {
-            points.push(new THREE.Vector3(this.xD[1], this.yD[1], 0));
-          }
-          if (i > this.xD[1] && i < this.xD[2]) {
-            points.push(new THREE.Vector3(i, delta2, 0));
-            delta2 -= 0.5;
-          }
-          if (i === this.xD[2]) {
-            points.push(new THREE.Vector3(this.xD[2], this.yD[2], 0));
-          }
-          if (i > this.xD[2] && i < this.xD[3]) {
-            points.push(new THREE.Vector3(i, delta3, 0));
-            delta3 += 0.175;
-          }
-          if (i === this.xD[3]) {
-            points.push(new THREE.Vector3(this.xD[3], this.yD[3], 0));
-          }
-          if (i > this.xD[3] && i < this.xD[4]) {
-            points.push(new THREE.Vector3(i, delta4, 0));
-            delta4 -= 0.13;
-          }
-          if (i === this.xD[4]) {
-            points.push(new THREE.Vector3(this.xD[4], this.yD[4], 0));
-          }
-          if (i > this.xD[4] && i < this.xD[5]) {
-            points.push(new THREE.Vector3(i, delta5, 0));
-            delta5 -= 0.15;
-          }
-          if (i === this.xD[5]) {
-            points.push(new THREE.Vector3(this.xD[5], this.yD[5], 0));
-          }
-          if (i > this.xD[5] && i < 0) {
-            points.push(new THREE.Vector3(i, delta6, 0));
-            delta6 += 0.088888;
-          }
-          if (i > 0 || i === 0) {
-            points.push(new THREE.Vector3(i, 0, 0));
-          }
-        }
-
-        if (line === 'line2') {
-          if (i > this.xD[0] && i < this.xD[6]) {
-            points.push(new THREE.Vector3(i, delta7, 0));
-            delta7 -= 0.008888;
-          }
-          if (i > this.xD[10]) {
-            points.push(new THREE.Vector3(i, delta12, 0));
-            delta12 -= 0.006;
-          }
-        }
-
-        if (line === 'line0' || line === 'line2') {
-          if (i === this.xD[6]) {
-            points.push(new THREE.Vector3(this.xD[6], this.yD[6], 0));
-          }
-          if (i > this.xD[6] && i < this.xD[7]) {
-            points.push(new THREE.Vector3(i, delta8, 0));
-            delta8 -= 0.066;
-          }
-          if (i === this.xD[7]) {
-            points.push(new THREE.Vector3(this.xD[7], this.yD[7], 0));
-          }
-          if (i > this.xD[7] && i < this.xD[8]) {
-            points.push(new THREE.Vector3(i, delta9, 0));
-            delta9 += 0.25;
-          }
-          if (i === this.xD[8]) {
-            points.push(new THREE.Vector3(this.xD[8], this.yD[8], 0));
-          }
-          if (i > this.xD[8] && i < this.xD[9]) {
-            points.push(new THREE.Vector3(i, delta10, 0));
-            delta10 -= 0.2;
-          }
-          if (i === this.xD[9]) {
-            points.push(new THREE.Vector3(this.xD[9], this.yD[9], 0));
-          }
-          if (i > this.xD[9] && i < this.xD[10]) {
-            points.push(new THREE.Vector3(i, delta11, 0));
-            delta11 += 0.05;
-          }
-          if (i === this.xD[10]) {
-            points.push(new THREE.Vector3(this.xD[10], this.yD[10], 0));
-          }
-        }
-
-        if (line === 'line3') {
-          if (i > this.xD[0] && i < this.xD[11]) {
-            points.push(new THREE.Vector3(i, delta13, 0));
-            delta13 += 0.009;
-          }
-          if (i === this.xD[11]) {
-            points.push(new THREE.Vector3(this.xD[11], this.yD[11], 0));
-          }
-          if (i > this.xD[11] && i < this.xD[12]) {
-            points.push(new THREE.Vector3(i, delta14, 0));
-            delta14 += 0.15;
-          }
-          if (i === this.xD[12]) {
-            points.push(new THREE.Vector3(this.xD[12], this.yD[12], 0));
-          }
-          if (i > this.xD[12] && i < this.xD[13]) {
-            points.push(new THREE.Vector3(i, delta15, 0));
-            delta15 -= 0.3;
-          }
-          if (i === this.xD[13]) {
-            points.push(new THREE.Vector3(this.xD[13], this.yD[13], 0));
-          }
-          if (i > this.xD[13] && i < this.xD[14]) {
-            points.push(new THREE.Vector3(i, delta16, 0));
-            delta16 -= 0.15;
-          }
-          if (i === this.xD[14]) {
-            points.push(new THREE.Vector3(this.xD[14], this.yD[14], 0));
-          }
-          if (i > this.xD[14] && i < this.xD[15]) {
-            points.push(new THREE.Vector3(i, this.yD[15], 0));
-          }
-          if (i === this.xD[15]) {
-            points.push(new THREE.Vector3(this.xD[15], this.yD[15], 0));
-          }
-          if (i > this.xD[15]) {
-            points.push(new THREE.Vector3(i, delta17, 0));
-            delta17 += 0.16;
-          }
-        }
-      }
-      return points;
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
       const bubleTime = theTime / 4;
+      this.roadmapMesh.children[16].children[0].scale.setZ(Math.sin(theTime * 5));
+      this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 5));
+      this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 5));
+      this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 5));
       this.roadmapMat.uniforms.time.value = theTime / 10;
       this.roadmapMesh.children[20].rotation.set(bubleTime, 0, theTime);
       this.roadmapMesh.children[21].rotation.set(0, bubleTime, theTime);
@@ -1012,31 +976,12 @@ export default {
 
       if (this.roadmapMesh.position.x < -1300) {
         setTimeout(() => {
-        new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: -1200 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-        },1000)
+          new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: -1200 }, 1000)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .start();
+        }, 1000)
       }
-      // if (event.isPrimary === false) return;
-      //
-      // this.mouseX = event.clientX - this.windowHalfX;
-      //
-      // if (this.camera.position.x < -200) {
-      //   new TWEEN.Tween(this.camera.position)
-      //   .to({ x: -200 }, 3000)
-      //   .easing(TWEEN.Easing.Quadratic.Out)
-      //   .start();
-      // }
-      //
-      // if (this.camera.position.x > 2350) {
-      //   new TWEEN.Tween(this.camera.position)
-      //   .to({ x: 2350 }, 3000)
-      //   .easing(TWEEN.Easing.Quadratic.Out)
-      //   .start();
-      // }
-      //
-      // this.camera.position.x += (this.mouseX * 100 - this.camera.position.x) * 0.005;
     },
     onWindowResize: function () {
       this.windowHalfX = window.innerWidth / 2;

@@ -706,7 +706,7 @@ export default {
       this.intro = false;
       this.scene.remove(this.scene.children[2]);
       this.addHolder();
-    }, 4000);
+    }, 3000);
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true)

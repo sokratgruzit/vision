@@ -1,9 +1,5 @@
 <template>
-  <div class="game__container" :style="{
-    backgroundImage: 'url(' + require(`@/assets/sphere.jpg`) + ')',
-    backgroundSize: 'cover'
-    }"
-  >
+  <div class="game__container">
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
@@ -708,7 +704,9 @@ export default {
     window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
       this.intro = false;
-    },5000);
+      this.scene.remove(this.scene.children[2]);
+      this.addHolder();
+    }, 4000);
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true)

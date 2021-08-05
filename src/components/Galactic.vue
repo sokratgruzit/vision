@@ -76,7 +76,7 @@
         this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
 				this.labelRenderer.domElement.style.position = 'absolute';
 				this.labelRenderer.domElement.style.top = '0px';
-				document.body.appendChild(this.labelRenderer.domElement);
+        document.getElementById("galaxy-container").appendChild(this.labelRenderer.domElement);
         this.clock = new THREE.Clock();
         this.clock.start();
 
@@ -704,6 +704,7 @@
       window.addEventListener('resize', this.onWindowResize, false);
     },
     beforeDestroy () {
+      this.scene.remove(this.scene.children[0]);
       this.$store.commit('stopGalactic', true);
     }
   }

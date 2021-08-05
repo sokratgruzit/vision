@@ -155,7 +155,7 @@ export default {
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
       this.labelRenderer.domElement.style.pointerEvents = 'none';
-      document.body.appendChild(this.labelRenderer.domElement);
+      container.appendChild(this.labelRenderer.domElement);
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
       this.camera.position.z = 150;
 
@@ -963,41 +963,60 @@ export default {
       }
     },
     wheelScroll: function(event) {
-      if (event.deltaY < 0) {
-        this.roadmapMesh.position.x -= event.clientX * 0.008;
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
+        if (event.deltaY < 0 && this.roadmapMesh.position.x > -1300) {
+          this.roadmapMesh.position.x -= event.clientX * 0.008;
+          var cA = new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .start();
 
-        var cA = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0.2 }, 1500)
-        .easing(TWEEN.Easing.Quintic.Out);
+          var cB = new TWEEN.Tween(this.camera.rotation)
+            .to({ y: 0.2 }, 1500)
+            .easing(TWEEN.Easing.Quintic.Out);
 
-        var cB = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out);
+          var cC = new TWEEN.Tween(this.camera.rotation)
+            .to({ y: 0 }, 1000)
+            .easing(TWEEN.Easing.Quintic.Out);
 
-        cA.chain(cB);
-        cA.start();
+          cB.chain(cC);
+          cA.chain(cB);
+          cA.start();
+        }
+        if (event.deltaY > 0 && this.roadmapMesh.position.x < 1300) {
+          this.roadmapMesh.position.x += event.clientX * 0.008;
+          var cA = new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .start();
+
+          var cB = new TWEEN.Tween(this.camera.rotation)
+            .to({ y: -0.2 }, 1500)
+            .easing(TWEEN.Easing.Quintic.Out);
+
+          var cC = new TWEEN.Tween(this.camera.rotation)
+            .to({ y: 0 }, 1000)
+            .easing(TWEEN.Easing.Quintic.Out);
+
+          cB.chain(cC);
+          cA.chain(cB);
+          cA.start();
+        }
+      if (this.roadmapMesh.position.x > 1300) {
+        setTimeout(() => {
+          new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: 1200 }, 1000)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .start();
+        },1000)
       }
-      if (event.deltaY > 0) {
-        this.roadmapMesh.position.x += event.clientX * 0.008;
+
+      if (this.roadmapMesh.position.x < -1300) {
+        setTimeout(() => {
         new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-
-        var cA = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: -0.2 }, 1500)
-        .easing(TWEEN.Easing.Quintic.Out);
-
-        var cB = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out);
-
-        cA.chain(cB);
-        cA.start();
+          .to({ x: -1200 }, 1000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+        },1000)
       }
       // if (event.isPrimary === false) return;
       //
@@ -1280,6 +1299,7 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('stopRoadmap', true)
+    this.scene.remove(this.scene.children[0]);
   },
   watch: {
     '$store.state.stopRoadmap': function () {

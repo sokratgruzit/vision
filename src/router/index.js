@@ -4,6 +4,7 @@ import Home from '../views/Home.vue'
 import Roadmap from '../views/Roadmap.vue'
 import Statistic from '../views/Statistic.vue'
 import GalaxyGarbage from '../views/GalaxyGarbage.vue'
+import RoadmapSlider from '../views/RoadmapSlider.vue'
 
 Vue.use(VueRouter)
 
@@ -16,7 +17,14 @@ const routes = [
   {
     path: '/roadmap',
     name: 'Roadmap',
-    component: Roadmap
+    component: Roadmap,
+    children: [
+      {
+        path: ":sectionName",
+        name: "wiki",
+        component: RoadmapSlider
+      }
+    ]
   },
   {
     path: '/statistic',
@@ -27,6 +35,11 @@ const routes = [
     path: '/galaxy-garbage',
     name: 'GalaxyGarbage',
     component: GalaxyGarbage
+  },
+  {
+    path: '/roadmap-slider',
+    name: 'RoadmapSlider',
+    component: RoadmapSlider
   }
 ]
 

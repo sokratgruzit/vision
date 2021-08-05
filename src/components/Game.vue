@@ -163,7 +163,8 @@
         ],
         oldBadgeIndex:0,
         badgeIndex: 0,
-        badgeAnimation:false
+        badgeAnimation:false,
+        intro: false
       }
     },
     watch: {
@@ -221,7 +222,7 @@
       },
       spinner: function () {
         var geometry = new THREE.BoxGeometry(1,1,1);
-        var material = new THREE.MeshPhongMaterial( {color: "hotpink", ambient: "hotpink" } );
+        var material = new THREE.MeshPhongMaterial({color: "hotpink" });
         var cube = new THREE.Mesh(geometry, material);
         cube.position.x = 10;
         var spinner = new THREE.Object3D();
@@ -242,172 +243,177 @@
         return setNumber;
       },
       addHolder: function () {
-        this.holder = new THREE.Object3D();
-        this.holder.name = "holder"
-        for (var i = 0; i < this.totalTargets; i++) {
-          this.geometry = new THREE.IcosahedronGeometry(1.5,0);
-          var targetTexLoader = new THREE.TextureLoader();
-          var targetTexture = targetTexLoader.load(require("../assets/metal.jpg"));
-          this.uniforms = {
-            targetTex: { type: "t", value: targetTexture },
-            amplitude: { value: 0.0 }
-          };
-          const material = new THREE.ShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: this.vertex,
-            fragmentShader: this.fragment
+        if (this.intro) {
+          this.holder = new THREE.Object3D();
+          this.holder.name = "holder"
+          for (var i = 0; i < this.totalTargets; i++) {
+            this.geometry = new THREE.IcosahedronGeometry(1.5,0);
+            var targetTexLoader = new THREE.TextureLoader();
+            var targetTexture = targetTexLoader.load(require("../assets/metal.jpg"));
+            this.uniforms = {
+              targetTex: { type: "t", value: targetTexture },
+              amplitude: { value: 0.0 }
+            };
+            const material = new THREE.ShaderMaterial({
+              uniforms: this.uniforms,
+              vertexShader: this.vertex,
+              fragmentShader: this.fragment
+            });
+            var cube = new THREE.Mesh(this.geometry, material);
+            cube.position.x = i * 5;
+            cube.name = "cubeName" + i;
+            var spinner = new THREE.Object3D();
+            spinner.rotation.x = i*2.5*Math.PI;
+            spinner.name = "spinnerName" + i;
+            spinner.add(cube);
+            this.holder.add(spinner);
+          }
+          this.scene.add(this.holder);
+          var rC = new THREE.Color();
+          rC.setRGB(Math.random(), Math.random(), Math.random());
+          var pg = new THREE.IcosahedronGeometry(1,0);
+          var pm = new THREE.MeshPhongMaterial({
+            color: rC
           });
-          var cube = new THREE.Mesh(this.geometry, material);
-          cube.position.x = i * 5;
-          cube.name = "cubeName" + i;
-          var spinner = new THREE.Object3D();
-          spinner.rotation.x = i*2.5*Math.PI;
-          spinner.name = "spinnerName" + i;
-          spinner.add(cube);
-          this.holder.add(spinner);
-        }
-        this.scene.add(this.holder);
-        var rC = new THREE.Color();
-        rC.setRGB(Math.random(), Math.random(), Math.random());
-        var pg = new THREE.IcosahedronGeometry(1,0);
-        var pm = new THREE.MeshPhongMaterial({
-          color: rC,
-          ambient: rC
-        });
-        this.pointer = new THREE.Mesh(pg, pm);
-        this.scene.add(this.pointer);
-        //David code
-        const loader = new THREE.TextureLoader();
-        const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
-        const txtStar = loader.load(require("../assets/txtStar.png"));
-        const texture1 = loader.load(require( "../assets/star1.png" ));
-        const texture2 = loader.load(require("../assets/star2.png"));
-        const texture4 = loader.load(require("../assets/star3.png"));
-        /* Sphere  Background */
-        textureSphereBg.anisotropy = 16;
-        let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
-        let materialSphereBg = new THREE.MeshBasicMaterial({
-          side: THREE.BackSide,
-          map: textureSphereBg,
-        });
-        this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
-        this.scene.add(this.sphereBg);
-        /* Moving Stars */
-        let starsGeometry = new THREE.BufferGeometry();
-        const vertices = [];
-        const materials = [];
-        for (let i = 0; i < 100; i++) {
-          const x = Math.random() * 2000 - 1000;
-          const y = Math.random() * 2000 - 1000;
-          const z = Math.random() * 2000 - 1000;
-          vertices.push( x, y, z );
-        }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
-        const parameters = [
-          [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
-          [[ 0.95, 0.1, 0.5 ], texture2, 15 ],
-          [[ 0.90, 0.05, 0.5 ], texture4, 10 ],
-          [[ 0.85, 0, 0.5 ], txtStar, 8 ],
-          [[ 0.80, 0, 0.5 ], texture1, 5 ]
-        ];
-        for ( let i = 0; i < parameters.length; i ++ ) {
-          const color = parameters[i][0];
-          const sprite = parameters[i][1];
-          const size = parameters[i][2];
-          materials[i] = new THREE.PointsMaterial({
-            size: size,
-            map: sprite,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true
+          this.pointer = new THREE.Mesh(pg, pm);
+          this.scene.add(this.pointer);
+          //David code
+          const loader = new THREE.TextureLoader();
+          const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
+          const txtStar = loader.load(require("../assets/txtStar.png"));
+          const texture1 = loader.load(require( "../assets/star1.png" ));
+          const texture2 = loader.load(require("../assets/star2.png"));
+          const texture4 = loader.load(require("../assets/star3.png"));
+          /* Sphere  Background */
+          textureSphereBg.anisotropy = 16;
+          let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
+          let materialSphereBg = new THREE.MeshBasicMaterial({
+            side: THREE.BackSide,
+            map: textureSphereBg,
           });
-          materials[i].color.setHSL(color[0], color[1], color[2]);
-          const particles = new THREE.Points(starsGeometry, materials[i]);
-          //particles.rotation.x = Math.random() * 6;
-          //particles.rotation.y = Math.random() * 6;
-          //particles.rotation.z = Math.random() * 6;
-          this.scene.add(particles);
+          this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
+          this.scene.add(this.sphereBg);
+          /* Moving Stars */
+          let starsGeometry = new THREE.BufferGeometry();
+          const vertices = [];
+          const materials = [];
+          for (let i = 0; i < 100; i++) {
+            const x = Math.random() * 2000 - 1000;
+            const y = Math.random() * 2000 - 1000;
+            const z = Math.random() * 2000 - 1000;
+            vertices.push( x, y, z );
+          }
+          starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
+          const parameters = [
+            [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
+            [[ 0.95, 0.1, 0.5 ], texture2, 15 ],
+            [[ 0.90, 0.05, 0.5 ], texture4, 10 ],
+            [[ 0.85, 0, 0.5 ], txtStar, 8 ],
+            [[ 0.80, 0, 0.5 ], texture1, 5 ]
+          ];
+          for ( let i = 0; i < parameters.length; i ++ ) {
+            const color = parameters[i][0];
+            const sprite = parameters[i][1];
+            const size = parameters[i][2];
+            materials[i] = new THREE.PointsMaterial({
+              size: size,
+              map: sprite,
+              blending: THREE.AdditiveBlending,
+              depthTest: false,
+              transparent: true
+            });
+            materials[i].color.setHSL(color[0], color[1], color[2]);
+            const particles = new THREE.Points(starsGeometry, materials[i]);
+            //particles.rotation.x = Math.random() * 6;
+            //particles.rotation.y = Math.random() * 6;
+            //particles.rotation.z = Math.random() * 6;
+            this.scene.add(particles);
+          }
+          //End David code
         }
-        //End David code
       },
       animate: function() {
-        //Sphere Beckground Animation
-        this.sphereBg.rotation.x += 0.003;
-        this.sphereBg.rotation.y += 0.001;
-        this.sphereBg.rotation.z += 0.001;
+        if (this.intro) {
+          //Sphere Beckground Animation
+          this.sphereBg.rotation.x += 0.003;
+          this.sphereBg.rotation.y += 0.001;
+          this.sphereBg.rotation.z += 0.001;
+        }
 
         requestAnimationFrame(this.animate);
         this.render();
       },
       render: function () {
-        const time = Date.now() * 0.00005;
-        const dTime = Date.now() * 0.001;
-        this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
-        this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-        this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
-        this.camera.lookAt(this.scene.position);
-        for (let i = 0; i < this.scene.children.length; i++) {
-          const object = this.scene.children[i];
-          if (object instanceof THREE.Points) {
-            object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+        if (this.intro) {
+          const time = Date.now() * 0.00005;
+          const dTime = Date.now() * 0.001;
+          this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
+          this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
+          this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+          this.camera.lookAt(this.scene.position);
+          for (let i = 0; i < this.scene.children.length; i++) {
+            const object = this.scene.children[i];
+            if (object instanceof THREE.Points) {
+              object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            }
           }
-        }
-        this.holder.children.forEach(function (elem, index, array) {
-          elem.rotation.y += (0.01 * (6 - index));
-          elem.children[0].rotation.x += 0.01;
-          elem.children[0].rotation.y += 0.01;
-        });
-        this.pointer.rotation.x += 0.01;
-        this.pointer.rotation.y += 0.01;
-        var delta = this.clock.getDelta();
-        this.waveUniforms.time.value += delta;
-        if (this.waveMesh !== null && this.waveScaleUp) {
-          this.waveMesh.scale.x = this.waveMesh.scale.x + 0.05;
-          this.waveMesh.scale.y = this.waveMesh.scale.y + 0.05;
-          this.waveMesh.scale.z = this.waveMesh.scale.z + 0.05;
-          if(this.waveMesh.scale.x > 3) {
-            this.waveScaleUp = false
+          this.holder.children.forEach(function (elem, index, array) {
+            elem.rotation.y += (0.01 * (6 - index));
+            elem.children[0].rotation.x += 0.01;
+            elem.children[0].rotation.y += 0.01;
+          });
+          this.pointer.rotation.x += 0.01;
+          this.pointer.rotation.y += 0.01;
+          var delta = this.clock.getDelta();
+          this.waveUniforms.time.value += delta;
+          if (this.waveMesh !== null && this.waveScaleUp) {
+            this.waveMesh.scale.x = this.waveMesh.scale.x + 0.05;
+            this.waveMesh.scale.y = this.waveMesh.scale.y + 0.05;
+            this.waveMesh.scale.z = this.waveMesh.scale.z + 0.05;
+            if(this.waveMesh.scale.x > 3) {
+              this.waveScaleUp = false
+            }
           }
-        }
-        if (this.waveMesh !== null && !this.waveScaleUp) {
-          this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
-          this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
-          this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
-          if (this.waveMesh.scale.x < 0) {
-            this.scene.remove(this.waveMesh);
-            this.waveMesh = null;
-            this.waveScaleUp = true;
+          if (this.waveMesh !== null && !this.waveScaleUp) {
+            this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
+            this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
+            this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
+            if (this.waveMesh.scale.x < 0) {
+              this.scene.remove(this.waveMesh);
+              this.waveMesh = null;
+              this.waveScaleUp = true;
+            }
           }
-        }
-        this.renderer.autoClear = false;
-        this.renderer.clear();
-        this.renderer.setScissorTest(true);
-        this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
-        this.renderer.render(this.scene, this.camera);
-        const badgesParent = document.getElementById('badges-container');
+          this.renderer.autoClear = false;
+          this.renderer.clear();
+          this.renderer.setScissorTest(true);
+          this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+          this.renderer.render(this.scene, this.camera);
+          const badgesParent = document.getElementById('badges-container');
 
-        if (this.badgeScenes.length > 0 && badgesParent.hasChildNodes()) {
-          for (let i = 0; i < this.badgeScenes.length; i++) {
-            const badgeCont = document.getElementById('list-item' + i);
-            const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
+          if (this.badgeScenes.length > 0 && badgesParent.hasChildNodes()) {
+            for (let i = 0; i < this.badgeScenes.length; i++) {
+              const badgeCont = document.getElementById('list-item' + i);
+              const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
 
-            if (rect !== false) {
-              this.badgeScenes[i].rotation.y += 0.02;
+              if (rect !== false) {
+                this.badgeScenes[i].rotation.y += 0.02;
 
-              if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-                rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-                return; // it's off screen
-              }
-              const width = rect.right - rect.left;
-              const height = rect.bottom - rect.top;
-              const left = rect.left;
-              const bottom = this.renderer.domElement.clientHeight - rect.bottom;
-              this.renderer.clearDepth();
+                if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+                  rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+                  return; // it's off screen
+                }
+                const width = rect.right - rect.left;
+                const height = rect.bottom - rect.top;
+                const left = rect.left;
+                const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+                this.renderer.clearDepth();
 
-              if (this.badgeScenes.length > 0) {
-                this.renderer.setViewport(left, bottom, width, height);
-                this.renderer.setScissor(left, bottom, width, height);
-                this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+                if (this.badgeScenes.length > 0) {
+                  this.renderer.setViewport(left, bottom, width, height);
+                  this.renderer.setScissor(left, bottom, width, height);
+                  this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+                }
               }
             }
           }

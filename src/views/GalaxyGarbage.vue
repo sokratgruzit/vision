@@ -196,7 +196,7 @@ export default {
       } else {
         this.camera.position.z = 18;
       }
-      
+
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize( width, height );
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
@@ -445,8 +445,8 @@ export default {
         }
       } else {
         this.renderer.render(this.scene, this.camera);
-      } 
-      
+      }
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
       this.renderer.physicallyCorrectLights = true;
     },
@@ -672,7 +672,7 @@ export default {
     },
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
-      
+
       if (!this.intro) {
         this.pointerMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointerMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -706,6 +706,9 @@ export default {
       this.animate();
     });
     window.addEventListener( 'resize', this.onWindowResize, false );
+    setTimeout(() => {
+      this.intro = false;
+    },5000);
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true)

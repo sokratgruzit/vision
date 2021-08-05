@@ -13,18 +13,14 @@ import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModif
 const TWEEN = require('@tweenjs/tween.js');
 import {
   roadmap_vertex,
-  line_vertex,
-  line_vertex1,
-  line_vertex2,
   part_vertex,
-  text_vertex
+  text_vertex,
+  glow_vertex
 } from '../assets/shaders/vertex.js';
 import {
   roadmap_fragment,
-  line_fragment,
-  line_fragment1,
-  line_fragment2,
-  part_fragment
+  part_fragment,
+  glow_fragment
 } from '../assets/shaders/fragment.js';
 
 export default {
@@ -48,9 +44,6 @@ export default {
       windowHalfY: window.innerHeight / 2,
       positions: null,
       uniforms: null,
-      lineUniforms: null,
-      lineUniforms1: null,
-      lineUniforms2: null,
       isPointerDown: false,
       direction: "",
       directionX: "",
@@ -62,14 +55,6 @@ export default {
       particles: null,
       roadmapVertex: roadmap_vertex,
       roadmapFragment: roadmap_fragment,
-      lineVertex: line_vertex,
-      lineFragment: line_fragment,
-      lineVertex1: line_vertex1,
-      lineFragment1: line_fragment1,
-      lineVertex2: line_vertex2,
-      lineFragment2: line_fragment2,
-      lineVertex3: line_vertex2,
-      lineFragment3: line_fragment2,
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
@@ -77,6 +62,12 @@ export default {
       meshPartGeo: null,
       meshParticles: null,
       meshBubles: 16,
+      colors: [
+        new THREE.Color(0xFFB36D),
+        new THREE.Color(0xFF81E3),
+        new THREE.Color(0x5CFFC4),
+        new THREE.Color(0xF3F657)
+      ],
       yD: [0, 40, -10, 25, 5, -40, -10, -20, 30, 0, 10, 20, 50, 5, -10, -10],
       xD: [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
       itemSize: 0,
@@ -168,7 +159,7 @@ export default {
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
-      this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
+      //this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
 
       const loader = new THREE.TextureLoader();
@@ -292,6 +283,7 @@ export default {
         let bSize = 5;
         let linePosition = -5;
         let tooltipPosition = -30;
+
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           bSize = 6;
           linePosition = -12;
@@ -300,12 +292,12 @@ export default {
 
         this.meshPartGeo = new THREE.IcosahedronGeometry(bSize, 1);
         this.meshPartMat = new THREE.MeshBasicMaterial({
-          color: 0xFFFFFF,
+          color: 0x878FFF,
           wireframe: true
         });
 
         const tooltipLineMat = new THREE.LineBasicMaterial({
-          color: 0x878fff
+          color: 0x878FFF
         });
 
         const linePoints = [];
@@ -351,103 +343,66 @@ export default {
       this.renderer.setClearColor(0x878FFF, 0.2);
       this.moveRoadmapToStart();
 
-      //Create Horizontal Lines
-      const lineLoader = new THREE.TextureLoader();
-      const lineTexture0 = lineLoader.load(require("../assets/fire.jpg"));
-      const lineTexture1 = lineLoader.load(require("../assets/metal.jpg"));
-      const lineTexture2 = lineLoader.load(require("../assets/water.jpg"));
-      const lineTexture3 = lineLoader.load(require("../assets/space.jpg"));
+      class CustomSinCurve extends THREE.Curve {
+        constructor( scale = 1 ) {
+          super();
+          this.scale = scale;
+        }
 
-      this.lineUniforms = {
-        tex: { type: "t", value: lineTexture0 },
-        opacity: { type: "c", value: 0.0 },
-        time: { type: "f", value: 0.0 },
-        resolution: { type: "v4", value: new THREE.Vector4() }
-      };
+        getPoint( t, optionalTarget = new THREE.Vector3() ) {
+          console.log(t);
+          const tx = t * 3 - 1.5;
+          const ty = Math.sin( 2 * Math.PI * t );
+          const tz = 0;
 
-      this.lineUniforms1 = {
-        tex: { type: "t", value: lineTexture1 },
-        opacity: { type: "c", value: 0.0 },
-        time: { type: "f", value: 0.0 },
-        resolution: { type: "v4", value: new THREE.Vector4() }
-      };
+          return optionalTarget.set( tx, ty, tz ).multiplyScalar( this.scale );
+        }
+      }
 
-      this.lineUniforms2 = {
-        tex: { type: "t", value: lineTexture2 },
-        opacity: { type: "c", value: 0.0 },
-        time: { type: "f", value: 0.0 },
-        resolution: { type: "v4", value: new THREE.Vector4() }
-      };
+      const path = new CustomSinCurve( 100 );
+      const geometry = new THREE.TubeGeometry( path, 20, 2, 8, false );
+      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
+      const mesh = new THREE.Mesh( geometry, material );
 
-      this.lineUniforms3 = {
-        tex: { type: "t", value: lineTexture3 },
-        opacity: { type: "c", value: 0.0 },
-        time: { type: "f", value: 0.0 },
-        resolution: { type: "v4", value: new THREE.Vector4() }
-      };
-
-      this.lineUniforms.resolution.value.x = window.innerWidth;
-      this.lineUniforms.resolution.value.y = window.innerHeight;
-      this.lineUniforms.resolution.value.z = asp1;
-      this.lineUniforms.resolution.value.w = asp2;
-
-      this.lineUniforms1.resolution.value.x = window.innerWidth;
-      this.lineUniforms1.resolution.value.y = window.innerHeight;
-      this.lineUniforms1.resolution.value.z = asp1;
-      this.lineUniforms1.resolution.value.w = asp2;
-
-      this.lineUniforms2.resolution.value.x = window.innerWidth;
-      this.lineUniforms2.resolution.value.y = window.innerHeight;
-      this.lineUniforms2.resolution.value.z = asp1;
-      this.lineUniforms2.resolution.value.w = asp2;
-
-      this.lineUniforms3.resolution.value.x = window.innerWidth;
-      this.lineUniforms3.resolution.value.y = window.innerHeight;
-      this.lineUniforms3.resolution.value.z = asp1;
-      this.lineUniforms3.resolution.value.w = asp2;
-
-      const lineMaterial = new THREE.ShaderMaterial({
-        uniforms: this.lineUniforms,
-        vertexShader: this.lineVertex,
-        fragmentShader: this.lineFragment,
-        transparent: true
+      const lineMaterial = new THREE.LineBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        color: this.colors[0]
       });
 
-      const lineMaterial1 = new THREE.ShaderMaterial({
-        uniforms: this.lineUniforms1,
-        vertexShader: this.lineVertex1,
-        fragmentShader: this.lineFragment1,
-        transparent: true
+      const lineMaterial1 = new THREE.LineBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        color: this.colors[1]
       });
 
-      const lineMaterial2 = new THREE.ShaderMaterial({
-        uniforms: this.lineUniforms2,
-        vertexShader: this.lineVertex2,
-        fragmentShader: this.lineFragment2,
-        transparent: true
+      const lineMaterial2 = new THREE.LineBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        color: this.colors[2]
       });
 
-      const lineMaterial3 = new THREE.ShaderMaterial({
-        uniforms: this.lineUniforms3,
-        vertexShader: this.lineVertex3,
-        fragmentShader: this.lineFragment3,
-        transparent: true
+      const lineMaterial3 = new THREE.LineBasicMaterial({
+        transparent: true,
+        opacity: 0,
+        color: this.colors[3]
       });
-
+      
       this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line0'));
-      const lineMesh0 = new THREE.Points(this.lineGeometry0, lineMaterial);
+      const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
+      lineMesh0.add(mesh);
       this.roadmapMesh.add(lineMesh0);
 
       this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line1'));
-      const lineMesh1 = new THREE.Points(this.lineGeometry1, lineMaterial1);
+      const lineMesh1 = new THREE.Line(this.lineGeometry1, lineMaterial1);
       this.roadmapMesh.add(lineMesh1);
 
       this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line2'));
-      const lineMesh2 = new THREE.Points(this.lineGeometry2, lineMaterial2);
+      const lineMesh2 = new THREE.Line(this.lineGeometry2, lineMaterial2);
       this.roadmapMesh.add(lineMesh2);
 
       this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(this.calcRoadmapPathPos('line3'));
-      const lineMesh3 = new THREE.Points(this.lineGeometry3, lineMaterial3);
+      const lineMesh3 = new THREE.Line(this.lineGeometry3, lineMaterial3);
       this.roadmapMesh.add(lineMesh3);
       //End Create Horizontal Lines
 
@@ -714,8 +669,8 @@ export default {
         object = this.roadmapMesh.children[16];
         object.material.uniformsNeedUpdate = true;
 
-        new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -724,8 +679,8 @@ export default {
         object = this.roadmapMesh.children[17];
         object.material.uniformsNeedUpdate = true;
 
-        new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -734,8 +689,8 @@ export default {
         object = this.roadmapMesh.children[18];
         object.material.uniformsNeedUpdate = true;
 
-        new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -744,30 +699,30 @@ export default {
         object = this.roadmapMesh.children[19];
         object.material.uniformsNeedUpdate = true;
 
-        new TWEEN.Tween(object.material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
 
       if (action === 'hide') {
-        new TWEEN.Tween(this.roadmapMesh.children[16].material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(this.roadmapMesh.children[16].material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[17].material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(this.roadmapMesh.children[17].material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[18].material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(this.roadmapMesh.children[18].material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[19].material.uniforms.opacity)
-        .to({ value: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        new TWEEN.Tween(this.roadmapMesh.children[19].material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
         .easing(TWEEN.Easing.Quadratic.Out)
         .start();
       }
@@ -981,7 +936,6 @@ export default {
         if (int.length > 0) {
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0].element.id;
-          console.log(tooltipClass);
         }
       }
     },
@@ -1150,23 +1104,59 @@ export default {
           let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
           if (int.length > 0) {
             var iMesh = int[0].object;
+            let color = new THREE.Color(0x878FFF);
+            
+            if (i === 0) {
+              color = this.colors[0];
+              iMesh.material.color = color;
+            }
+            
+            if (i === 1 || i === 2 || i === 3 || i === 4 || i === 5) {
+              color = this.colors[1];
+              this.scene.children[3].children[1].material.color = color;
+              this.scene.children[3].children[2].material.color = color;
+              this.scene.children[3].children[3].material.color = color;
+              this.scene.children[3].children[4].material.color = color;
+              this.scene.children[3].children[5].material.color = color;
+            }
+            
+            if (i === 6 || i === 7 || i === 8 || i === 9 || i === 10) {
+              color = this.colors[2];
+              this.scene.children[3].children[6].material.color = color;
+              this.scene.children[3].children[7].material.color = color;
+              this.scene.children[3].children[8].material.color = color;
+              this.scene.children[3].children[9].material.color = color;
+              this.scene.children[3].children[10].material.color = color;
+            }
+            
+            if (i === 11 || i === 12 || i === 13 || i === 14 || i === 15) {
+              color = this.colors[3];
+              this.scene.children[3].children[11].material.color = color;
+              this.scene.children[3].children[12].material.color = color;
+              this.scene.children[3].children[13].material.color = color;
+              this.scene.children[3].children[14].material.color = color;
+              this.scene.children[3].children[15].material.color = color;
+            }
+
             var tooltipClass = iMesh.children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
             tooltip.classList.add('active');
 
             new TWEEN.Tween(int[0].object.scale)
-              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start()
+            .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start()
 
             new TWEEN.Tween(iMesh.children[0].scale)
-              .to({ x: 1, y: 1, z: 1 }, 300)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start()
+            .to({ x: 1, y: 1, z: 1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start()
+
             this.filterLine = false;
             this.deleteLines();
             this.showRoadmapPath(i, 'show');
           } else {
+            this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
             var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
             tooltip.classList.remove('active');
@@ -1241,7 +1231,6 @@ export default {
       this.animate()
     });
 
-    // console.log(filterSelect)
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.getElementById('filter-control').addEventListener('click', this.showFilter);

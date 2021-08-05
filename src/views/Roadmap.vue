@@ -853,10 +853,10 @@ export default {
     animate: function () {
       const theTime = performance.now() * 0.001;
       const bubleTime = theTime / 4;
-      this.roadmapMesh.children[16].children[0].scale.setZ(Math.sin(theTime * 5));
-      this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 5));
-      this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 5));
-      this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 5));
+      this.roadmapMesh.children[16].children[0].scale.setZ(Math.sin(theTime * 2));
+      this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 2));
+      this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 2));
+      this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMat.uniforms.time.value = theTime / 10;
       this.roadmapMesh.children[20].rotation.set(bubleTime, 0, theTime);
       this.roadmapMesh.children[21].rotation.set(0, bubleTime, theTime);

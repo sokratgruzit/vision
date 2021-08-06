@@ -68,9 +68,59 @@
         var textMat3 = text3 === undefined ? false : text3.material;
         var text4 = this.scene.getObjectByName("Story");
         var textMat4 = text4 === undefined ? false : text4.material;
-        console.log(text3.material)
         console.log(text4)
-        if (this.$store.state.currentSlide !== 0) {
+        console.log(textMat4)
+        console.log(text4.material)
+        if (this.$store.state.currentSlide == 2) {
+          this.moveGalaxyOnSlider();
+          if (textMat1) {
+            new TWEEN.Tween(textMat1.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat1.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(text1.position)
+              .to({ x: -10000, y: 2000, z: 6000 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.amplitude)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.percent)
+              .to({ value: 1 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+          }
+        }
+        if (this.$store.state.currentSlide == 1) {
           this.moveGalaxyOnSlider();
           if (textMat1) {
             new TWEEN.Tween(textMat1.uniforms.amplitude)
@@ -105,6 +155,16 @@
 
             new TWEEN.Tween(textMat3.uniforms.percent)
               .to({ value: 1 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.percent)
+              .to({ value: 0 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
           }
@@ -143,6 +203,16 @@
               .start();
 
             new TWEEN.Tween(textMat3.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat4.uniforms.percent)
               .to({ value: 0 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
@@ -384,7 +454,7 @@
         var scene = this.scene;
         var camera = this.camera;
 
-        for (let t = 0; t < 3; t++) {
+        for (let t = 0; t < 4; t++) {
           textLoader.load("./three_fonts/Kanit_Regular.json", function(
             font
           ) {
@@ -445,8 +515,8 @@
             textGeo1.setAttribute('displacement', new THREE.BufferAttribute(displacement1, 3));
 
             var textUniforms1 = {
-              amplitude: { value: textMask === "Connect" ? 7 : 0 },
-              percent: { type: "f", value: textMask === "Connect" ? 0.0 : 1.0 }
+              amplitude: { value: textMask === "Connect" || textMask === "Story" ? 7 : 0 },
+              percent: { type: "f", value: textMask === "Connect" || textMask === "Story" ? 0.0 : 1.0 }
             };
 
             const tShaderMat = new THREE.ShaderMaterial({

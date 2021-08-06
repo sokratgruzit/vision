@@ -535,11 +535,12 @@ export default {
       //End Rings
       //Filter
       const fContainer = document.getElementById('filters-container');
-      
+
       for (let i = 0; i < 5; i++) {
         this.filterScene = new THREE.Scene();
         const fEl = document.createElement('span');
         fEl.id = 'list-item' + i;
+        fEl.className = 'filter-item';
         fEl.style.setProperty('width', '200px');
         fEl.style.setProperty('height', '60px');
 
@@ -874,7 +875,7 @@ export default {
       for (let i = 0; i < this.filterScenes.length; i++) {
         const fCont = document.getElementById('list-item' + i);
         const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
-        
+
         if (rect !== false) {
           const theTime = performance.now() * 0.001;
           this.filterScenes[i].rotation.y = Math.sin(theTime) / 4;
@@ -898,7 +899,7 @@ export default {
           }
         }
       }
-      
+
       this.renderer.setPixelRatio(window.devicePixelRatio);
     },
     route: function (id) {
@@ -916,17 +917,22 @@ export default {
       }
     },
     filterClick: function (e) {
-      if(e.target.id == 'year-2021'){
+      if(e.target.id == 'list-item1'){
+        this.filterLine = true;
+        this.deleteLines();
+        this.showRoadmapPath(0,'show');
+      }
+      if(e.target.id == 'list-item2'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(1,'show');
       }
-      if(e.target.id == 'year-2022'){
+      if(e.target.id == 'list-item3'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(6,'show');
       }
-      if(e.target.id == 'year-2023'){
+      if(e.target.id == 'list-item4'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(11,'show');
@@ -1264,6 +1270,13 @@ export default {
 }
 </script>
 <style>
+  .filter-item{
+    display: flex;
+    align-items: center;
+    padding-left: 55px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    cursor: pointer;
+  }
   #filters-container {
     width: 200px;
     height: 400px;
@@ -1277,13 +1290,27 @@ export default {
   }
   #list-item0 {
     opacity: 0;
-    justify-content: center;
   }
+  #list-item1:hover{
+    color: #FFB36D;
+  }
+  #list-item2:hover{
+    color: #FF81E3;
+  }
+  #list-item3:hover{
+    color: #5CFFC4;
+  }
+  #list-item4:hover{
+    color: #F3F657;
+  }
+  /*new THREE.Color(0xFFB36D),*/
+  /*new THREE.Color(0xFF81E3),*/
+  /*new THREE.Color(0x5CFFC4),*/
+  /*new THREE.Color(0xF3F657)*/
   #list-item1,
   #list-item2,
   #list-item3,
   #list-item4 {
-    justify-content: center;
     opacity: 0;
   }
   #year-2021,

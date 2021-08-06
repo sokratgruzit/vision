@@ -601,91 +601,78 @@ export default {
         .start();
       }, 10000);
     },
-    showFilter: function () {
-      new TWEEN.Tween(this.filterScenes[1].children[0].scale)
-      .to({ x: 1, y: 1, z: 1 }, 500)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .onComplete(function() {
-        document.getElementById('list-item1').style['opacity'] = 1;
-      })
-      .start();
-
-      setTimeout(() => {
-        new TWEEN.Tween(this.filterScenes[2].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .onComplete(function() {
-          document.getElementById('list-item2').style['opacity'] = 1;
-        })
-        .start();
-      }, 500);
-
-      setTimeout(() => {
-        new TWEEN.Tween(this.filterScenes[3].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .onComplete(function() {
-          document.getElementById('list-item3').style['opacity'] = 1;
-        })
-        .start();
-      }, 1000);
-
-      setTimeout(() => {
-        new TWEEN.Tween(this.filterScenes[4].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .onComplete(function() {
-          document.getElementById('list-item4').style['opacity'] = 1;
-          this.filterVisible = !this.filterVisible;
-        })
-        .start();
-      }, 1500);
+    updateUiData: function (event) {
+      if (event.target.id === 'list-item0') {
+        this.filterVisible = !this.filterVisible;
+      } else {
+        this.filterVisible = false;
+      }
+      this.toggleFilter(this.filterVisible);
     },
-    hideFilter: function (event) {
-      if (event.target.id !== 'list-item0' ||
-        event.target.id !== 'list-item1' ||
-        event.target.id !== 'list-item2' ||
-        event.target.id !== 'list-item3' ||
-        event.target.id !== 'list-item4'
-      ) {
-        new TWEEN.Tween(this.filterScenes[4].children[0].scale)
-        .to({ x: 0, y: 0, z: 0 }, 500)
+    toggleFilter: function (status) {
+      let value = 0;
+      let el1, el2, el3, el4, class1, class2, class3, class4;
+
+      if (status) {
+        value = 1;
+        el1 = this.filterScenes[1].children[0].scale;
+        el2 = this.filterScenes[2].children[0].scale;
+        el3 = this.filterScenes[3].children[0].scale;
+        el4 = this.filterScenes[4].children[0].scale;
+        class1 = 'list-item1'; 
+        class2 = 'list-item2';
+        class3 = 'list-item3'; 
+        class4 = 'list-item4'; 
+      } else {
+        value = 0;
+        el1 = this.filterScenes[4].children[0].scale;
+        el2 = this.filterScenes[3].children[0].scale;
+        el3 = this.filterScenes[2].children[0].scale;
+        el4 = this.filterScenes[1].children[0].scale;
+        class1 = 'list-item4'; 
+        class2 = 'list-item3';
+        class3 = 'list-item2'; 
+        class4 = 'list-item1'; 
+      }
+
+      if (this.filterScenes[0].children[0].scale.x === 1) {
+        new TWEEN.Tween(el1)
+        .to({ x: value, y: value, z: value }, 100)
         .easing(TWEEN.Easing.Quintic.Out)
         .onComplete(function() {
-          document.getElementById('list-item4').style['opacity'] = 0;
+          document.getElementById(class1).style['opacity'] = value;
         })
         .start();
 
         setTimeout(() => {
-          new TWEEN.Tween(this.filterScenes[3].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 500)
+          new TWEEN.Tween(el2)
+          .to({ x: value, y: value, z: value }, 100)
           .easing(TWEEN.Easing.Quintic.Out)
           .onComplete(function() {
-            document.getElementById('list-item3').style['opacity'] = 0;
+            document.getElementById(class2).style['opacity'] = value;
           })
           .start();
-        }, 500);
+        }, 100);
 
         setTimeout(() => {
-          new TWEEN.Tween(this.filterScenes[2].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 500)
+          new TWEEN.Tween(el3)
+          .to({ x: value, y: value, z: value }, 100)
           .easing(TWEEN.Easing.Quintic.Out)
           .onComplete(function() {
-            document.getElementById('list-item2').style['opacity'] = 0;
+            document.getElementById(class3).style['opacity'] = value;
           })
           .start();
-        }, 1000);
+        }, 200);
 
         setTimeout(() => {
-          new TWEEN.Tween(this.filterScenes[1].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 500)
+          new TWEEN.Tween(el4)
+          .to({ x: value, y: value, z: value }, 100)
           .easing(TWEEN.Easing.Quintic.Out)
           .onComplete(function() {
-            document.getElementById('list-item1').style['opacity'] = 0;
-            this.filterVisible = !this.filterVisible;
+            document.getElementById(class4).style['opacity'] = value;
           })
           .start();
-        }, 1500);
+        }, 300);
       }
     },
     moveRoadmapToStart: function () {
@@ -1245,8 +1232,7 @@ export default {
 
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
-    document.getElementById('list-item0').addEventListener('mouseenter', this.showFilter);
-    document.getElementById('filters-container').addEventListener('mouseout', this.hideFilter);
+    document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route);

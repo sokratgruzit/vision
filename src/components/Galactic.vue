@@ -395,6 +395,9 @@
             if (t === 2) {
               textMask = "Connect";
             }
+            if (t === 3) {
+              textMask = "Story";
+            }
 
             var textGeo1 = new THREE.TextBufferGeometry(textMask, {
               font: font,
@@ -558,6 +561,20 @@
         this.camera.lookAt(this.scene.position);
         this.render();
       },
+      planetClick: function () {
+        this.int0 = this.raycaster.intersectObjects([this.particles.children[0]]);
+        this.int1 = this.raycaster.intersectObjects([this.particles.children[1]]);
+        this.int2 = this.raycaster.intersectObjects([this.particles.children[2]]);
+        if (this.int0.length > 0) {
+          this.$store.commit('changeSlide', 0);
+        }
+        if (this.int1.length > 0) {
+          this.$store.commit('changeSlide', 1);
+        }
+        if (this.int2.length > 0) {
+          this.$store.commit('changeSlide', 2);
+        }
+      },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
         if(this.$store.state.stopGalactic){
@@ -703,6 +720,7 @@
       document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
+      document.addEventListener('mousedown', this.planetClick, false);
       document.addEventListener('pointermove', this.onPointerMove);
       window.addEventListener('resize', this.onWindowResize, false);
     },

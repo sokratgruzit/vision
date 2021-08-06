@@ -1,12 +1,15 @@
 <template>
   <div class="home-slider">
-    <hooper @slide="updateCarousel" :mouseDrag="false" :class="!$store.state.firstAnimation ? 'nopointern' : ''">
+    <hooper ref="carousel" @slide="updateCarousel" :mouseDrag="false" :class="!$store.state.firstAnimation ? 'nopointern' : ''">
       <slide>
 <!--        <MainSlide v-if="this.$store.state.currentSlide == 0"/>-->
         <MainSlide v-if="true"/>
       </slide>
       <slide>
         <GameStart/>
+      </slide>
+      <slide>
+        <Story/>
       </slide>
     </hooper>
     <Game v-if="$store.state.playGame"/>
@@ -22,6 +25,7 @@ import Game from '@/components/Game.vue'
 import MainSlide from '../components/MainSlide'
 import GameStart from '../components/GameStart'
 import Galactic from '../components/Galactic'
+import Story from '../components/Story'
 
 export default {
   name: 'Home',
@@ -31,7 +35,8 @@ export default {
     Hooper,
     Slide,
     GameStart,
-    Galactic
+    Galactic,
+    Story
   },
   data () {
     return {
@@ -47,6 +52,11 @@ export default {
       this.$store.commit('setChangeSlide', true);
     }
   },
+  watch: {
+    '$store.state.currentSlide': function () {
+      this.$refs.carousel.slideTo(this.$store.state.currentSlide);
+    }
+  }
 
 }
 </script>

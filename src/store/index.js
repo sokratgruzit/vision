@@ -13,7 +13,7 @@ export default new Vuex.Store({
     stopGalaxyGarbage: false,
     currentSlide: 0,
     slideChange: true,
-    firstAnimation: false
+    firstAnimation: false,
   },
   mutations: {
     setFirstAnimation (state, data) {

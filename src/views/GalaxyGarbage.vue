@@ -485,7 +485,7 @@ export default {
       part.position.y = point.y;
       part.position.z = point.z;
       this.scene.add(part);
-      
+
       setTimeout(() => {
         this.scene.remove(part);
       }, 15000);
@@ -648,7 +648,7 @@ export default {
         const cGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
         const cMesh = new THREE.Line(cGeo, cMat);
 
-        const glowG = new THREE.TubeGeometry(curve, 100, 0.7, 8, false);
+        const glowG = new THREE.TubeGeometry(curve, 100, 0.2, 8, false);
         const glowM = new THREE.MeshBasicMaterial({
           color: new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()),
           opacity: 0.25,

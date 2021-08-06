@@ -73,6 +73,7 @@ import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import {
   target_vertex,
   wave_vertex
@@ -159,7 +160,9 @@ export default {
       oldBadgeIndex:0,
       badgeIndex: 0,
       badgeAnimation:false,
-      intro: true
+      intro: true,
+      vectors: [],
+      transControls: null
     }
   },
   methods: {
@@ -228,7 +231,6 @@ export default {
         this.scene.add(stars);
       }
       //End Intro Strars Field
-      console.log(this.scene)
       //End David code
     },
     spinner: function () {
@@ -264,9 +266,9 @@ export default {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
         for (var i = 0; i < this.totalTargets; i++) {
-          this.geometry = new THREE.IcosahedronGeometry(1.5,0);
+          this.geometry = new THREE.IcosahedronGeometry(1.5, 16);
           var targetTexLoader = new THREE.TextureLoader();
-          var targetTexture = targetTexLoader.load(require("../assets/metal.jpg"));
+          var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
           this.uniforms = {
             targetTex: { type: "t", value: targetTexture },
             amplitude: { value: 0.0 }
@@ -277,23 +279,23 @@ export default {
             fragmentShader: this.fragment
           });
           var cube = new THREE.Mesh(this.geometry, material);
-          cube.position.x = i * 5;
+          cube.position.x = i * 1.2 + 5;
           cube.name = "cubeName" + i;
           var spinner = new THREE.Object3D();
-          spinner.rotation.x = i*2.5*Math.PI;
+          spinner.rotation.x = i * 2.5 * Math.PI;
           spinner.name = "spinnerName" + i;
           spinner.add(cube);
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        var rC = new THREE.Color();
-        rC.setRGB(Math.random(), Math.random(), Math.random());
-        var pg = new THREE.IcosahedronGeometry(1,0);
+        /*const pointerLoader = new THREE.TextureLoader();
+        const pointerTex = pointerLoader.load(require("../assets/badge_star.png"));
+        var pg = new THREE.CylinderGeometry(1, 1, 0.15, 25);
         var pm = new THREE.MeshPhongMaterial({
-          color: rC
+          map: pointerTex
         });
         this.pointer = new THREE.Mesh(pg, pm);
-        this.scene.add(this.pointer);
+        this.scene.add(this.pointer);*/
         //David code
         const loader = new THREE.TextureLoader();
         const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
@@ -347,6 +349,7 @@ export default {
           this.scene.add(particles);
         }
         //End David code
+        console.log(this.scene)
       }
     },
     animate: function() {
@@ -384,8 +387,8 @@ export default {
           elem.children[0].rotation.x += 0.01;
           elem.children[0].rotation.y += 0.01;
         });
-        this.pointer.rotation.x += 0.01;
-        this.pointer.rotation.y += 0.01;
+        //this.pointer.rotation.x += 0.01;
+        //this.pointer.rotation.y += 0.01;
         var delta = this.clock.getDelta();
         this.waveUniforms.time.value += delta;
         if (this.waveMesh !== null && this.waveScaleUp) {
@@ -448,17 +451,17 @@ export default {
     },
     addExplosion: function (point) {
       //Object Explosion
-      var geometry = new THREE.IcosahedronGeometry(1.5,0);
+      var geometry = new THREE.IcosahedronGeometry(1.5, 16);
       const numFaces = geometry.attributes.position.count / 3;
       var timeNow = this.clock.getElapsedTime();
       const tessellateModifier = new TessellateModifier(8, 6);
       geometry = tessellateModifier.modify(geometry);
       const displacement = new Float32Array(numFaces * 3 * 3);
       var targetTexLoader = new THREE.TextureLoader();
-      var targetTexture = targetTexLoader.load(require("../assets/metal.jpg"));
+      var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
       for (let f = 0; f < numFaces; f++) {
         const index = 9 * f;
-        const d = 50 * (0.5 - Math.random());
+        const d = 100 * (0.5 - Math.random());
         for (let j = 0; j < 3; j++) {
           displacement[index + (3 * j)] = d;
           displacement[index + (3 * j) + 1] = d;
@@ -473,15 +476,20 @@ export default {
       const material = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
         vertexShader: this.vertex,
-        fragmentShader: this.fragment
+        fragmentShader: this.fragment,
+        opacity: 0.7,
+        transparent: true
       });
       var part = new THREE.Mesh(geometry, material);
       part.position.x = point.x;
       part.position.y = point.y;
       part.position.z = point.z;
-      part.name = "garbage";
-      part.birthDay = timeNow;
       this.scene.add(part);
+      
+      setTimeout(() => {
+        this.scene.remove(part);
+      }, 15000);
+
       //End of Object Explosion
       //Waves
       var waveGeo = new THREE.IcosahedronGeometry(5, 40);
@@ -627,6 +635,44 @@ export default {
         }
       }
     },
+    drawCurve: function (vectors) {
+      if (vectors.length > 3) {
+        const curve = new THREE.CatmullRomCurve3(vectors);
+        var curvePoints = curve.getPoints(100);
+        const cMat = new THREE.MeshBasicMaterial({
+          color: new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()),
+          opacity: 1,
+          transparent: true,
+          depthTest: false
+        });
+        const cGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
+        const cMesh = new THREE.Line(cGeo, cMat);
+
+        const glowG = new THREE.TubeGeometry(curve, 100, 0.7, 8, false);
+        const glowM = new THREE.MeshBasicMaterial({
+          color: new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()),
+          opacity: 0.25,
+          transparent: true,
+          depthTest: false
+        });
+        const glowMesh = new THREE.Mesh(glowG, glowM);
+        cMesh.add(glowMesh);
+        cMesh.name = 'pointer_glow';
+        this.scene.add(cMesh);
+
+        if (this.vectors.length > 50) {
+          this.vectors = [];
+        }
+      }
+
+      setTimeout(() => {
+        this.removeCurve();
+      }, 500);
+    },
+    removeCurve: function () {
+      let curve = this.scene.getObjectByName('pointer_glow');
+      this.scene.remove(curve);
+    },
     restartScene: function () {
       // this.myScore.innerHTML = "";
       if (this.level < this.totalLevels) {
@@ -637,11 +683,6 @@ export default {
         this.speed = 0.01;
         this.totalTargets = 3;
         this.level = 1;
-      }
-      for (let i = 0; i < this.scene.children.length; i++) {
-        if (this.scene.children[i].name === 'garbage') {
-          this.scene.remove(this.scene.children[i]);
-        }
       }
       this.badgeAnimation = false;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
@@ -654,7 +695,8 @@ export default {
         this.animateText = false
       },2500)
       this.scene.remove(this.holder);
-      this.scene.remove(this.pointer);
+      this.scene.remove(this.sphereBg);
+      //this.scene.remove(this.pointer);
       if (this. level == 1) {
         this.badgeScenes = [];
       }
@@ -679,7 +721,9 @@ export default {
         let dir = vector.sub(this.camera.position).normalize();
         let distance = -this.camera.position.z / dir.z;
         let pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-        this.pointer.position.copy(pos);
+        //this.pointer.position.copy(pos);
+        this.vectors.push(pos);
+        this.drawCurve(this.vectors);
       }
     }
   },
@@ -706,7 +750,7 @@ export default {
       this.intro = false;
       this.scene.remove(this.scene.children[2]);
       this.addHolder();
-    }, 4000);
+    }, 3000);
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true)

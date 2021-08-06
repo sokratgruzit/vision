@@ -73,7 +73,6 @@ import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js';
 import {
   target_vertex,
   wave_vertex
@@ -161,8 +160,7 @@ export default {
       badgeIndex: 0,
       badgeAnimation:false,
       intro: true,
-      vectors: [],
-      transControls: null
+      vectors: []
     }
   },
   methods: {
@@ -349,7 +347,6 @@ export default {
           this.scene.add(particles);
         }
         //End David code
-        console.log(this.scene)
       }
     },
     animate: function() {
@@ -648,7 +645,7 @@ export default {
         const cGeo = new THREE.BufferGeometry().setFromPoints(curvePoints);
         const cMesh = new THREE.Line(cGeo, cMat);
 
-        const glowG = new THREE.TubeGeometry(curve, 100, 0.7, 8, false);
+        const glowG = new THREE.TubeGeometry(curve, 100, 0.2, 8, false);
         const glowM = new THREE.MeshBasicMaterial({
           color: new THREE.Color().setRGB(Math.random(), Math.random(), Math.random()),
           opacity: 0.25,

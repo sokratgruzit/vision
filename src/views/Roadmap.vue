@@ -16,7 +16,6 @@ const TWEEN = require('@tweenjs/tween.js');
 import {
   roadmap_vertex,
   part_vertex,
-  text_vertex,
   glow_vertex
 } from '../assets/shaders/vertex.js';
 import {
@@ -535,167 +534,46 @@ export default {
       }
       //End Rings
       //Filter
-      var scene = this.scene;
-      var textLoader = new THREE.FontLoader();
-      textLoader.load("./three_fonts/Kanit_Regular.json", function(
-        font
-      ) {
-        let vectorColor = "vec3(1.0,0.0,0.0)";
-
-        var filterGeo = new THREE.TextBufferGeometry("Filter +", {
-          font: font,
-          size: 5,
-          height: 0,
-          curveSegments: 20,
-          bevelThickness: 2,
-          bevelSize: 8,
-          bevelSegments: 5
-        });
-
-        const tessellateModifier = new TessellateModifier(8, 6);
-        filterGeo = tessellateModifier.modify(filterGeo);
-        const numFaces = filterGeo.attributes.position.count / 3;
-        const colors = new Float32Array( numFaces * 3 * 3 );
-        const color = new THREE.Color();
-        const displacement = new Float32Array(numFaces * 3 * 3);
-
-        for (let f = 0; f < numFaces; f++) {
-          const index = 9 * f;
-
-          const h = 0.2 * Math.random();
-          const s = 0.5 + 0.5 * Math.random();
-          const l = 0.5 + 0.5 * Math.random();
-
-          const d = 1000 * (0.5 - Math.random());
-
-          for (let i = 0; i < 3; i++) {
-            colors[ index + ( 3 * i ) ] = color.r;
-            colors[ index + ( 3 * i ) + 1 ] = color.g;
-            colors[ index + ( 3 * i ) + 2 ] = color.b;
-
-            displacement[index + (3 * i)] = d;
-            displacement[index + (3 * i) + 1] = d;
-            displacement[index + (3 * i) + 2] = d;
-          }
-        }
-
-        filterGeo.setAttribute('customColor', new THREE.BufferAttribute(colors, 3 ));
-        filterGeo.setAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
-
-        var textUniforms = {
-          amplitude: { value: 7 },
-          percent: { type: "f", value: 0.0 }
-        };
-
-        const tShaderMat = new THREE.ShaderMaterial({
-          uniforms: textUniforms,
-          vertexShader: text_vertex,
-          fragmentShader: `
-            varying vec3 vNormal;
-            varying vec3 vColor;
-            uniform float percent;
-            void main() {
-              const float ambient = 0.4;
-              vec3 light = vec3( 1.0 );
-              light = normalize( light );
-              float directional = max( dot( vNormal, light ), 0.0 );
-              gl_FragColor = vec4( ( directional + ambient ) *` + vectorColor + `, 1.0 );
-              gl_FragColor.a = 1.0 * percent;
-            }
-          `,
-          transparent: true
-        });
-
-        var filterMesh = new THREE.Mesh(filterGeo, tShaderMat);
-        filterMesh.position.x = 100;
-        //filterMesh.position.z = 500;
-        filterMesh.position.y = 90;
-
-        /*const squareMat = new THREE.LineBasicMaterial({
-          color: 0x0000ff,
-          opacity: 0,
-          transparent: true
-        });
-
-        const sPoints = [];
-        sPoints.push( new THREE.Vector3(0, 0, 0));
-        sPoints.push( new THREE.Vector3(0, 30, 0));
-        sPoints.push( new THREE.Vector3(30, 30, 0));
-        sPoints.push( new THREE.Vector3(30, 0, 0));
-        sPoints.push( new THREE.Vector3(0, 0, 0));
-
-        const squareGeo = new THREE.BufferGeometry().setFromPoints(sPoints);
-        const squareMesh = new THREE.Line(squareGeo, squareMat);
-        filterMesh.add(squareMesh);
-
-
-        const filterItemDiv = document.createElement('div');
-        filterItemDiv.id = 'year-2021';
-        filterItemDiv.className = 'year-select';
-        filterItemDiv.textContent = "Year 2021";
-        filterItemDiv.style.marginTop = '-1em';
-        filterItemDiv.style.opacity = '0';
-
-        const filterItemDiv1 = document.createElement('div');
-        filterItemDiv1.id = 'year-2022';
-        filterItemDiv1.className = 'year-select';
-        filterItemDiv1.textContent = "Year 2022";
-        filterItemDiv1.style.marginTop = '-1em';
-        filterItemDiv1.style.opacity = '0';
-
-        const filterItemDiv2 = document.createElement('div');
-        filterItemDiv2.id = 'year-2023';
-        filterItemDiv2.className = 'year-select';
-        filterItemDiv2.textContent = "Year 2023";
-        filterItemDiv2.style.marginTop = '-1em';
-        filterItemDiv2.style.opacity = '0';
-
-        const filterItemObj = new CSS2DObject(filterItemDiv);
-        filterItemObj.position.set(12, -12, 0);
-        filterMesh.add(filterItemObj);
-
-        const filterItemObj1 = new CSS2DObject(filterItemDiv1);
-        filterItemObj1.position.set(12, -22, 0);
-        filterMesh.add(filterItemObj1);
-
-        const filterItemObj2 = new CSS2DObject(filterItemDiv2);
-        filterItemObj2.position.set(12, -32, 0);
-        filterMesh.add(filterItemObj2);*/
-
-        scene.add(filterMesh);
-      });
-
-      this.scene = scene;
-      this.loadFilter();
       const fContainer = document.getElementById('filters-container');
       
-      for (let i = 0; i < 4; i++) {
+      for (let i = 0; i < 5; i++) {
         this.filterScene = new THREE.Scene();
         const fEl = document.createElement('span');
         fEl.id = 'list-item' + i;
         fEl.style.setProperty('width', '200px');
         fEl.style.setProperty('height', '60px');
-        fEl.innerHTML = "Fuck" + i;
+
+        let label = "Filter";
+
+        if (i === 1) {
+          label = "Inception";
+        } else if (i === 2) {
+          label = "Year 2021";
+        } else if (i === 3) {
+          label = "Year 2022";
+        } else if (i === 4) {
+          label = "Year 2023";
+        }
+
+        fEl.innerHTML = label;
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
 
-        this.filterGeo = new THREE.CylinderGeometry(1, 1, 0.15, 25);
+        this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
         this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
         this.filterCamera.position.z = 4;
         this.filterScene.userData.camera = this.filterCamera;
-        const controls = new OrbitControls(this.filterScene.userData.camera, this.filterScene.userData.element);
-        controls.minDistance = 2;
-        controls.maxDistance = 5;
-        controls.enablePan = false;
-        controls.enableZoom = true;
-        this.filterScene.userData.controls = controls;
         this.filterMat = new THREE.MeshBasicMaterial({
-          color: this.colors[i]
+          color: i === 0 ? 0x878FFF : this.colors[i - 1],
+          transparent: true,
+          opacity: 0.5,
+          wireframe: true
         });
         this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
         this.filterMesh.rotation.z = Math.PI / 2;
         this.filterMesh.rotation.y = Math.PI / 2;
+        this.filterMesh.scale.set(0, 0, 0);
         this.filterScene.add(this.filterMesh);
         this.filterScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
         this.filterScene.name = "filter" + i;
@@ -705,60 +583,63 @@ export default {
         this.filterScenes.push(this.filterScene);
       }
       //End Filter
-
+      console.log(this.filterScenes)
+      this.loadFilter();
       container.appendChild(this.renderer.domElement);
     },
     loadFilter: function () {
       setTimeout(() => {
-        let filter = this.scene.children[5].material;
+        let filter = this.filterScenes[0].children[0];
 
-        new TWEEN.Tween(filter.uniforms.amplitude)
-        .to({ value: 0 }, 3000)
+        new TWEEN.Tween(filter.scale)
+        .to({ x: 1, y: 1, z: 1 }, 3000)
         .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-
-        new TWEEN.Tween(filter.uniforms.percent)
-        .to({ value: 1 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out)
+        .onComplete(function() {
+          document.getElementById('list-item0').style['opacity'] = 1;
+        })
         .start();
       }, 10000);
     },
     showFilter: function () {
-      let int = this.scene.children[5] === undefined ? false : this.scene.children[5];
-      let filter = int.children[0];
-      let v = this.filterVisible;
+      console.log('overed')
 
-      new TWEEN.Tween(filter.position)
-      .to({
-        x: v ? -1.5 : 0,
-        y: v ? -32 : 50,
-        z: 0
-      }, 2000)
+      new TWEEN.Tween(this.filterScenes[1].children[0].scale)
+      .to({ x: 1, y: 1, z: 1 }, 1000)
       .easing(TWEEN.Easing.Quintic.Out)
+      .onComplete(function() {
+        document.getElementById('list-item1').style['opacity'] = 1;
+      })
       .start();
-
-      new TWEEN.Tween(filter.material)
-      .to({ opacity: v ? 1 : 0 }, 500)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .start();
-
-      new TWEEN.Tween(filter.rotation)
-      .to({
-        x: v ? 6.29 : 0,
-        y: v ? 6.29 : 0,
-        z: v ? 6.29 : 0
-      }, 2000)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .start();
-
 
       setTimeout(() => {
-        document.getElementById('year-2021').style['opacity'] = v ? '1' : '0';
-        document.getElementById('year-2022').style['opacity'] = v ? '1' : '0';
-        document.getElementById('year-2023').style['opacity'] = v ? '1' : '0';
-      }, v ? 2000 : 0);
+        new TWEEN.Tween(this.filterScenes[2].children[0].scale)
+        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .onComplete(function() {
+          document.getElementById('list-item2').style['opacity'] = 1;
+        })
+        .start();
+      }, 1000);
 
-      this.filterVisible = !this.filterVisible;
+      setTimeout(() => {
+        new TWEEN.Tween(this.filterScenes[3].children[0].scale)
+        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .onComplete(function() {
+          document.getElementById('list-item3').style['opacity'] = 1;
+        })
+        .start();
+      }, 1500);
+
+      setTimeout(() => {
+        new TWEEN.Tween(this.filterScenes[4].children[0].scale)
+        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .onComplete(function() {
+          document.getElementById('list-item4').style['opacity'] = 1;
+        })
+        .start();
+      }, 2000);
     },
     moveRoadmapToStart: function () {
       this.camera.rotation.y = 1;
@@ -949,7 +830,10 @@ export default {
         const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
         
         if (rect !== false) {
-          this.filterScenes[i].rotation.y += 0.02;
+          const theTime = performance.now() * 0.001;
+          this.filterScenes[i].rotation.y = Math.sin(theTime) / 4;
+          this.filterScenes[i].rotation.x = Math.sin(theTime) / 2;
+          this.filterScenes[i].rotation.z = Math.sin(theTime) / 2;
 
           if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
             rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
@@ -962,8 +846,8 @@ export default {
           this.renderer.clearDepth();
 
           if (this.filterScenes.length > 0) {
-            this.renderer.setViewport(left, bottom, width, height);
-            this.renderer.setScissor(left, bottom, width, height);
+            this.renderer.setViewport(left , bottom, width / 4, height);
+            this.renderer.setScissor(left, bottom, width / 4, height);
             this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
           }
         }
@@ -1309,7 +1193,7 @@ export default {
 
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
-    document.getElementById('filter-control').addEventListener('click', this.showFilter);
+    document.getElementById('list-item0').addEventListener('mouseenter', this.showFilter);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route);
@@ -1334,21 +1218,26 @@ export default {
 </script>
 <style>
   #filters-container {
-    width: 240px;
+    width: 200px;
     height: 400px;
     z-index: 10000000;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: absolute;
-    top: 0;
-    right: 0;
+    top: 55px;
+    right: 80px;
   }
-  #list-item0,
+  #list-item0 {
+    opacity: 0;
+    justify-content: center;
+  }
   #list-item1,
   #list-item2,
-  #list-item3 {
+  #list-item3,
+  #list-item4 {
     justify-content: center;
+    opacity: 0;
   }
   #year-2021,
   #year-2022,

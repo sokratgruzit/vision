@@ -1,6 +1,7 @@
 <template>
   <div>
     <div id="roadmap-container"></div>
+    <div id="filters-container" class="filters"></div>
     <div id="filter-control"></div>
   </div>
 </template>
@@ -10,6 +11,7 @@ import * as THREE from 'three';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 const TWEEN = require('@tweenjs/tween.js');
 import {
   roadmap_vertex,
@@ -149,7 +151,13 @@ export default {
           title: 'Q4',
           category: 'Category4'
         }
-      ]
+      ],
+      filterScenes: [],
+      filterScene: null,
+      filterCamera: null,
+      filterGeo: null,
+      filterMat: null,
+      filterMesh: null
     }
   },
   methods: {
@@ -603,7 +611,7 @@ export default {
         //filterMesh.position.z = 500;
         filterMesh.position.y = 90;
 
-        const squareMat = new THREE.LineBasicMaterial({
+        /*const squareMat = new THREE.LineBasicMaterial({
           color: 0x0000ff,
           opacity: 0,
           transparent: true
@@ -652,13 +660,50 @@ export default {
 
         const filterItemObj2 = new CSS2DObject(filterItemDiv2);
         filterItemObj2.position.set(12, -32, 0);
-        filterMesh.add(filterItemObj2);
+        filterMesh.add(filterItemObj2);*/
 
         scene.add(filterMesh);
       });
 
       this.scene = scene;
       this.loadFilter();
+      const fContainer = document.getElementById('filters-container');
+      
+      for (let i = 0; i < 4; i++) {
+        this.filterScene = new THREE.Scene();
+        const fEl = document.createElement('span');
+        fEl.id = 'list-item' + i;
+        fEl.style.setProperty('width', '200px');
+        fEl.style.setProperty('height', '60px');
+        fEl.innerHTML = "Fuck" + i;
+
+        this.filterScene.userData.element = fEl;
+        fContainer.appendChild(fEl);
+
+        this.filterGeo = new THREE.CylinderGeometry(1, 1, 0.15, 25);
+        this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
+        this.filterCamera.position.z = 4;
+        this.filterScene.userData.camera = this.filterCamera;
+        const controls = new OrbitControls(this.filterScene.userData.camera, this.filterScene.userData.element);
+        controls.minDistance = 2;
+        controls.maxDistance = 5;
+        controls.enablePan = false;
+        controls.enableZoom = true;
+        this.filterScene.userData.controls = controls;
+        this.filterMat = new THREE.MeshBasicMaterial({
+          color: this.colors[i]
+        });
+        this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
+        this.filterMesh.rotation.z = Math.PI / 2;
+        this.filterMesh.rotation.y = Math.PI / 2;
+        this.filterScene.add(this.filterMesh);
+        this.filterScene.add(new THREE.HemisphereLight(0xaaaaaa, 0x444444));
+        this.filterScene.name = "filter" + i;
+        const flight = new THREE.DirectionalLight(0xffffff, 0.5);
+        flight.position.set(1, 1, 1);
+        this.filterScene.add(flight);
+        this.filterScenes.push(this.filterScene);
+      }
       //End Filter
 
       container.appendChild(this.renderer.domElement);
@@ -888,12 +933,43 @@ export default {
       this.render();
     },
     render: function () {
-      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.autoClear = false;
+      this.renderer.clear();
+      this.renderer.setScissorTest(true);
+      this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
       this.renderer.render(this.scene, this.camera);
       this.labelRenderer.render(this.scene, this.camera);
-
       this.raycaster.setFromCamera(this.mouse, this.camera);
       this.raycaster.firstHitOnly = true;
+
+      const fParent = document.getElementById('filters-container');
+
+      for (let i = 0; i < this.filterScenes.length; i++) {
+        const fCont = document.getElementById('list-item' + i);
+        const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
+        
+        if (rect !== false) {
+          this.filterScenes[i].rotation.y += 0.02;
+
+          if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+            rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+            return; // it's off screen
+          }
+          const width = rect.right - rect.left;
+          const height = rect.bottom - rect.top;
+          const left = rect.left;
+          const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+          this.renderer.clearDepth();
+
+          if (this.filterScenes.length > 0) {
+            this.renderer.setViewport(left, bottom, width, height);
+            this.renderer.setScissor(left, bottom, width, height);
+            this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
+          }
+        }
+      }
+      
+      this.renderer.setPixelRatio(window.devicePixelRatio);
     },
     route: function (id) {
       for (let i = 0; i < 16; i++) {
@@ -1102,81 +1178,80 @@ export default {
         }
       }
       for (let i = 0; i < 16; i++) {
-          let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-          if (int.length > 0) {
-            var iMesh = int[0].object;
-            let color = new THREE.Color(0x878FFF);
+        let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
+        if (int.length > 0) {
+          var iMesh = int[0].object;
+          let color = new THREE.Color(0x878FFF);
 
-            if (i === 0) {
-              color = this.colors[0];
-              iMesh.material.color = color;
-            }
+          if (i === 0) {
+            color = this.colors[0];
+            iMesh.material.color = color;
+          }
 
-            if (i === 1 || i === 2 || i === 3 || i === 4 || i === 5) {
-              color = this.colors[1];
-              this.scene.children[3].children[1].material.color = color;
-              this.scene.children[3].children[2].material.color = color;
-              this.scene.children[3].children[3].material.color = color;
-              this.scene.children[3].children[4].material.color = color;
-              this.scene.children[3].children[5].material.color = color;
-            }
+          if (i === 1 || i === 2 || i === 3 || i === 4 || i === 5) {
+            color = this.colors[1];
+            this.scene.children[3].children[1].material.color = color;
+            this.scene.children[3].children[2].material.color = color;
+            this.scene.children[3].children[3].material.color = color;
+            this.scene.children[3].children[4].material.color = color;
+            this.scene.children[3].children[5].material.color = color;
+          }
 
-            if (i === 6 || i === 7 || i === 8 || i === 9 || i === 10) {
-              color = this.colors[2];
-              this.scene.children[3].children[6].material.color = color;
-              this.scene.children[3].children[7].material.color = color;
-              this.scene.children[3].children[8].material.color = color;
-              this.scene.children[3].children[9].material.color = color;
-              this.scene.children[3].children[10].material.color = color;
-            }
+          if (i === 6 || i === 7 || i === 8 || i === 9 || i === 10) {
+            color = this.colors[2];
+            this.scene.children[3].children[6].material.color = color;
+            this.scene.children[3].children[7].material.color = color;
+            this.scene.children[3].children[8].material.color = color;
+            this.scene.children[3].children[9].material.color = color;
+            this.scene.children[3].children[10].material.color = color;
+          }
 
-            if (i === 11 || i === 12 || i === 13 || i === 14 || i === 15) {
-              color = this.colors[3];
-              this.scene.children[3].children[11].material.color = color;
-              this.scene.children[3].children[12].material.color = color;
-              this.scene.children[3].children[13].material.color = color;
-              this.scene.children[3].children[14].material.color = color;
-              this.scene.children[3].children[15].material.color = color;
-            }
+          if (i === 11 || i === 12 || i === 13 || i === 14 || i === 15) {
+            color = this.colors[3];
+            this.scene.children[3].children[11].material.color = color;
+            this.scene.children[3].children[12].material.color = color;
+            this.scene.children[3].children[13].material.color = color;
+            this.scene.children[3].children[14].material.color = color;
+            this.scene.children[3].children[15].material.color = color;
+          }
 
-            var tooltipClass = iMesh.children[0].children[0].element.id;
-            var tooltip = document.getElementById(tooltipClass);
-            tooltip.classList.add('active');
+          var tooltipClass = iMesh.children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.classList.add('active');
 
-            new TWEEN.Tween(int[0].object.scale)
-            .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+          new TWEEN.Tween(int[0].object.scale)
+          .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start()
+
+          new TWEEN.Tween(iMesh.children[0].scale)
+          .to({ x: 1, y: 1, z: 1 }, 300)
+          .easing(TWEEN.Easing.Quadratic.In)
+          .start()
+
+          this.filterLine = false;
+          this.deleteLines();
+          this.showRoadmapPath(i, 'show');
+        } else {
+          this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
+          var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.classList.remove('active');
+
+          new TWEEN.Tween(this.scene.children[3].children[i].scale)
+            .to({ x: 1, y: 1, z: 1 }, 100)
             .easing(TWEEN.Easing.Quadratic.Out)
-            .start()
+            .start();
 
-            new TWEEN.Tween(iMesh.children[0].scale)
-            .to({ x: 1, y: 1, z: 1 }, 300)
+          new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
+            .to({ x: 0, y: 0, z: 0 }, 100)
             .easing(TWEEN.Easing.Quadratic.In)
-            .start()
-
-            this.filterLine = false;
-            this.deleteLines();
-            this.showRoadmapPath(i, 'show');
-          } else {
-            this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
-            var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
-            var tooltip = document.getElementById(tooltipClass);
-            tooltip.classList.remove('active');
-
-            new TWEEN.Tween(this.scene.children[3].children[i].scale)
-              .to({ x: 1, y: 1, z: 1 }, 100)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start();
-
-            new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-              .to({ x: 0, y: 0, z: 0 }, 100)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start();
-            if(!this.filterLine){
-              this.showRoadmapPath(i, 'hide');
-            }
+            .start();
+          if(!this.filterLine){
+            this.showRoadmapPath(i, 'hide');
           }
         }
-
+      }
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;
@@ -1258,6 +1333,23 @@ export default {
 }
 </script>
 <style>
+  #filters-container {
+    width: 240px;
+    height: 400px;
+    z-index: 10000000;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: absolute;
+    top: 0;
+    right: 0;
+  }
+  #list-item0,
+  #list-item1,
+  #list-item2,
+  #list-item3 {
+    justify-content: center;
+  }
   #year-2021,
   #year-2022,
   #year-2023{

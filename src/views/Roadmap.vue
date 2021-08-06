@@ -84,7 +84,7 @@ export default {
       ringMesh: null,
       ringMesh1: null,
       ringMesh2: null,
-      filterVisible: true,
+      filterVisible: false,
       bubleData: [
         {
           title: 'Inception',
@@ -601,10 +601,8 @@ export default {
       }, 10000);
     },
     showFilter: function () {
-      console.log('overed')
-
       new TWEEN.Tween(this.filterScenes[1].children[0].scale)
-      .to({ x: 1, y: 1, z: 1 }, 1000)
+      .to({ x: 1, y: 1, z: 1 }, 500)
       .easing(TWEEN.Easing.Quintic.Out)
       .onComplete(function() {
         document.getElementById('list-item1').style['opacity'] = 1;
@@ -613,33 +611,81 @@ export default {
 
       setTimeout(() => {
         new TWEEN.Tween(this.filterScenes[2].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quintic.Out)
         .onComplete(function() {
           document.getElementById('list-item2').style['opacity'] = 1;
         })
         .start();
-      }, 1000);
+      }, 500);
 
       setTimeout(() => {
         new TWEEN.Tween(this.filterScenes[3].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quintic.Out)
         .onComplete(function() {
           document.getElementById('list-item3').style['opacity'] = 1;
         })
         .start();
-      }, 1500);
+      }, 1000);
 
       setTimeout(() => {
         new TWEEN.Tween(this.filterScenes[4].children[0].scale)
-        .to({ x: 1, y: 1, z: 1 }, 1000)
+        .to({ x: 1, y: 1, z: 1 }, 500)
         .easing(TWEEN.Easing.Quintic.Out)
         .onComplete(function() {
           document.getElementById('list-item4').style['opacity'] = 1;
+          this.filterVisible = !this.filterVisible;
         })
         .start();
-      }, 2000);
+      }, 1500);
+    },
+    hideFilter: function (event) {
+      if (event.target.id !== 'list-item0' ||
+        event.target.id !== 'list-item1' ||
+        event.target.id !== 'list-item2' ||
+        event.target.id !== 'list-item3' ||
+        event.target.id !== 'list-item4'
+      ) {
+        new TWEEN.Tween(this.filterScenes[4].children[0].scale)
+        .to({ x: 0, y: 0, z: 0 }, 500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .onComplete(function() {
+          document.getElementById('list-item4').style['opacity'] = 0;
+        })
+        .start();
+
+        setTimeout(() => {
+          new TWEEN.Tween(this.filterScenes[3].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 500)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .onComplete(function() {
+            document.getElementById('list-item3').style['opacity'] = 0;
+          })
+          .start();
+        }, 500);
+
+        setTimeout(() => {
+          new TWEEN.Tween(this.filterScenes[2].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 500)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .onComplete(function() {
+            document.getElementById('list-item2').style['opacity'] = 0;
+          })
+          .start();
+        }, 1000);
+
+        setTimeout(() => {
+          new TWEEN.Tween(this.filterScenes[1].children[0].scale)
+          .to({ x: 0, y: 0, z: 0 }, 500)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .onComplete(function() {
+            document.getElementById('list-item1').style['opacity'] = 0;
+            this.filterVisible = !this.filterVisible;
+          })
+          .start();
+        }, 1500);
+      }
     },
     moveRoadmapToStart: function () {
       this.camera.rotation.y = 1;
@@ -1194,6 +1240,7 @@ export default {
     this.$store.commit('stopRoadmap', false)
     document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
     document.getElementById('list-item0').addEventListener('mouseenter', this.showFilter);
+    document.getElementById('filters-container').addEventListener('mouseout', this.hideFilter);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route);

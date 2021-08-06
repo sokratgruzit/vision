@@ -58,6 +58,96 @@
         }else{
           this.renderer = null;
         }
+      },
+      '$store.state.currentSlide': function () {
+        var text1 = this.scene.getObjectByName("Core");
+        var textMat1 = text1 === undefined ? false : text1.material;
+        var text2 = this.scene.getObjectByName("Vision");
+        var textMat2 = text2 === undefined ? false : text2.material;
+        var text3 = this.scene.getObjectByName("Connect");
+        var textMat3 = text3 === undefined ? false : text3.material;
+        var text4 = this.scene.getObjectByName("Story");
+        var textMat4 = text4 === undefined ? false : text4.material;
+        console.log(text3.material)
+        console.log(text4)
+        if (this.$store.state.currentSlide !== 0) {
+          this.moveGalaxyOnSlider();
+          if (textMat1) {
+            new TWEEN.Tween(textMat1.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat1.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(text1.position)
+              .to({ x: -10000, y: 2000, z: 6000 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.amplitude)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.percent)
+              .to({ value: 1 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+          }
+        }
+        if (this.$store.state.currentSlide == 0) {
+          if (textMat1) {
+            this.moveGalaxyOnSlider();
+            new TWEEN.Tween(textMat1.uniforms.amplitude)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat1.uniforms.percent)
+              .to({ value: 1 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(text1.position)
+              .to({ x: -1100, y: 50, z: 500 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.amplitude)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat2.uniforms.percent)
+              .to({ value: 1 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.amplitude)
+              .to({ value: 7 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+
+            new TWEEN.Tween(textMat3.uniforms.percent)
+              .to({ value: 0 }, 1000)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+          }
+        }
       }
     },
     methods: {
@@ -289,92 +379,6 @@
         this.scene.add(this.particles);
         this.changeSlide();
       },
-      wheelScroll: function(event) {
-        var text1 = this.scene.getObjectByName("Core");
-        var textMat1 = text1 === undefined ? false : text1.material;
-        var text2 = this.scene.getObjectByName("Vision");
-        var textMat2 = text2 === undefined ? false : text2.material;
-        var text3 = this.scene.getObjectByName("Connect");
-        var textMat3 = text3 === undefined ? false : text3.material;
-        if (this.$store.state.currentSlide !== 0) {
-          this.moveGalaxyOnSlider();
-          if (textMat1) {
-            new TWEEN.Tween(textMat1.uniforms.amplitude)
-            .to({ value: 7 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat1.uniforms.percent)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(text1.position)
-            .to({ x: -10000, y: 2000, z: 6000 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat2.uniforms.amplitude)
-            .to({ value: 7 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat2.uniforms.percent)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat3.uniforms.amplitude)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat3.uniforms.percent)
-            .to({ value: 1 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-          }
-        }
-        if (this.$store.state.currentSlide == 0) {
-          if (textMat1) {
-            this.moveGalaxyOnSlider();
-            new TWEEN.Tween(textMat1.uniforms.amplitude)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat1.uniforms.percent)
-            .to({ value: 1 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(text1.position)
-            .to({ x: -1100, y: 50, z: 500 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat2.uniforms.amplitude)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat2.uniforms.percent)
-            .to({ value: 1 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat3.uniforms.amplitude)
-            .to({ value: 7 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-
-            new TWEEN.Tween(textMat3.uniforms.percent)
-            .to({ value: 0 }, 1000)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-          }
-        }
-      },
       changeSlide: function(slide) {
         var textLoader = new THREE.FontLoader();
         var scene = this.scene;
@@ -466,7 +470,7 @@
 
             var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
 
-            if (textMask === "Core" || textMask === "Connect") {
+            if (textMask === "Core" || textMask === "Connect" || textMask === "Story") {
               textMesh.position.x = -1100;
               textMesh.position.z = 500;
               textMesh.position.y = 50;
@@ -717,7 +721,6 @@
       promise.then((value) => {
         this.animate()
       });
-      document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
       document.addEventListener('mousedown', this.planetClick, false);

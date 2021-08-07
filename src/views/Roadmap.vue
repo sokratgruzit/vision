@@ -589,6 +589,9 @@ export default {
     },
     loadFilter: function () {
       setTimeout(() => {
+        if(this.$store.state.stopRoadmap == true){
+          return false
+        }
         let filter = this.filterScenes[0].children[0];
 
         new TWEEN.Tween(filter.scale)
@@ -868,8 +871,11 @@ export default {
       this.render();
     },
     render: function () {
-      this.renderer.autoClear = false;
-      this.renderer.clear();
+      if (this.$store.state.stopRoadmap == false){
+
+
+      // this.renderer.autoClear = false;
+      // this.renderer.clear();
       this.renderer.setScissorTest(true);
       this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
       this.renderer.render(this.scene, this.camera);
@@ -908,13 +914,17 @@ export default {
       }
 
       this.renderer.setPixelRatio(window.devicePixelRatio);
+      }
     },
     route: function (id) {
       for (let i = 0; i < 16; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
           var iMesh = int[0].object;
-          var tooltipClass = iMesh.children[0].children[0].element.id;
+          var tooltipClass = iMesh.children[0].children[0];
+          console.log(i)
+          this.$store.commit('roadmapIndex', i)
+          this.$router.push({ path: 'roadmap-slider' })
         }
       }
     },
@@ -1027,6 +1037,9 @@ export default {
     },
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
+      if(this.$store.state.stopRoadmap == true){
+        return false
+      }
 
       if (event.pageY < this.oldY) {
         this.direction = "up";
@@ -1250,16 +1263,25 @@ export default {
     });
 
     this.$store.commit('stopRoadmap', false)
-    document.getElementById('app').addEventListener('wheel', this.wheelScroll, false);
+    document.addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
-    document.addEventListener('mousedown', this.route);
-    document.addEventListener('mousedown', this.filterClick);
+    document.addEventListener('mousedown', this.route,false);
+    document.addEventListener('mousedown', this.filterClick,false);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
+    document.removeEventListener('wheel', this.wheelScroll, false);
+    document.removeEventListener('click', this.updateUiData);
+    document.removeEventListener('mouseup', this.onPointerUp, false);
+    document.removeEventListener('mousedown', this.onPointerDown, false);
+    document.removeEventListener('mousedown', this.route,false);
+    document.removeEventListener('mousedown', this.filterClick,false);
+    window.removeEventListener('resize', this.onWindowResize, false);
+    window.removeEventListener('pointermove', this.onPointerMove);
+    this.raycaster = null;
     this.$store.commit('stopRoadmap', true)
     this.scene.remove(this.scene.children[0]);
     this.renderer = null;

@@ -14,8 +14,12 @@ export default new Vuex.Store({
     currentSlide: 0,
     slideChange: true,
     firstAnimation: false,
+    roadmapIndex: null
   },
   mutations: {
+    setRoadmapIndex (state, data) {
+      state.roadmapIndex = data
+    },
     setFirstAnimation (state, data) {
       state.firstAnimation = data
     },

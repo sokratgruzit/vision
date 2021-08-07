@@ -619,20 +619,20 @@ export default {
         el2 = this.filterScenes[2].children[0].scale;
         el3 = this.filterScenes[3].children[0].scale;
         el4 = this.filterScenes[4].children[0].scale;
-        class1 = 'list-item1'; 
+        class1 = 'list-item1';
         class2 = 'list-item2';
-        class3 = 'list-item3'; 
-        class4 = 'list-item4'; 
+        class3 = 'list-item3';
+        class4 = 'list-item4';
       } else {
         value = 0;
         el1 = this.filterScenes[4].children[0].scale;
         el2 = this.filterScenes[3].children[0].scale;
         el3 = this.filterScenes[2].children[0].scale;
         el4 = this.filterScenes[1].children[0].scale;
-        class1 = 'list-item4'; 
+        class1 = 'list-item4';
         class2 = 'list-item3';
-        class3 = 'list-item2'; 
-        class4 = 'list-item1'; 
+        class3 = 'list-item2';
+        class4 = 'list-item1';
       }
 
       if (this.filterScenes[0].children[0].scale.x === 1) {
@@ -1152,8 +1152,7 @@ export default {
           .easing(TWEEN.Easing.Quadratic.In)
           .start()
 
-          this.filterLine = false;
-          this.deleteLines();
+          // this.filterLine = false;
           this.showRoadmapPath(i, 'show');
         } else {
           this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);

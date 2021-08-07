@@ -76,6 +76,7 @@
         this.camera.position.z = 1000;
 
         this.scene = new THREE.Scene();
+        this.camera.lookAt(this.scene.position);
         this.sliderGeo = new THREE.PlaneBufferGeometry(820*1.5, 480*1.5, 820, 480);
 
         const loader = new THREE.TextureLoader();
@@ -138,7 +139,6 @@
 				this.composer = new EffectComposer( this.renderer );
 				this.composer.addPass( this.renderScene );
 				this.composer.addPass( this.bloomPass );
-        this.disposeImage();
       },
       disposeImage: function () {
         var cA = new TWEEN.Tween(this.uniforms.distortion)
@@ -170,7 +170,9 @@
       animate: function () {
         this.time += 0.05;
         this.uniforms.time.value = this.time;
-        //this.uniforms.distortion.value = 0;
+        this.sliderMesh.rotation.y = Math.sin(this.time) / 8;
+        //this.sliderMesh.rotation.x = Math.sin(this.time) / 8;
+        //this.sliderMesh.rotation.z = Math.sin(this.time) / 15;
         
         requestAnimationFrame(this.animate);
         
@@ -204,6 +206,7 @@
     mounted () {
       this.sliderScene();
       this.animate();
+      document.addEventListener('click', this.disposeImage);
     }
   }
 </script>

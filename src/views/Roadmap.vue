@@ -607,6 +607,27 @@ export default {
       } else {
         this.filterVisible = false;
       }
+
+      let el = document.getElementById('list-item0');
+
+      if (event.target.id === 'list-item1') {
+        el.innerHTML = 'Inception';
+        el.style['color'] = '#FFB36D';
+        this.filterScenes[0].children[0].material.color = this.colors[0];
+      } else if (event.target.id === 'list-item2') {
+        el.innerHTML = 'Year 2021';
+        el.style['color'] = '#FF81E3';
+        this.filterScenes[0].children[0].material.color = this.colors[1];
+      } else if (event.target.id === 'list-item3') {
+        el.innerHTML = 'Year 2022';
+        el.style['color'] = '#5CFFC4';
+        this.filterScenes[0].children[0].material.color = this.colors[2];
+      } else if (event.target.id === 'list-item4') {
+        el.innerHTML = 'Year 2023';
+        el.style['color'] = '#F3F657';
+        this.filterScenes[0].children[0].material.color = this.colors[3];
+      }
+
       this.toggleFilter(this.filterVisible);
     },
     toggleFilter: function (status) {

@@ -1263,6 +1263,7 @@ export default {
   beforeDestroy () {
     this.$store.commit('stopRoadmap', true)
     this.scene.remove(this.scene.children[0]);
+    this.renderer = null;
   },
   watch: {
     '$store.state.stopRoadmap': function () {

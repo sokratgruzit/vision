@@ -127,7 +127,7 @@
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(this.renderer.domElement);
-        
+
         this.renderScene = new RenderPass(this.scene, this.camera);
 
 				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
@@ -138,17 +138,17 @@
 				this.composer = new EffectComposer( this.renderer );
 				this.composer.addPass( this.renderScene );
 				this.composer.addPass( this.bloomPass );
-        this.disposeImage();
+        // this.disposeImage();
       },
       disposeImage: function () {
         var cA = new TWEEN.Tween(this.uniforms.distortion)
         .to({ value: 3 }, 2000)
         .easing(TWEEN.Easing.Cubic.InOut);
-        
+
         var cB = new TWEEN.Tween(this.uniforms.distortion)
         .to({ value: 0 }, 2000)
         .easing(TWEEN.Easing.Cubic.InOut);
-        
+
         cA.chain(cB);
         cA.start();
 
@@ -163,7 +163,7 @@
         var B = new TWEEN.Tween(this.bloomPass)
         .to({ strength: 0 }, 2000)
         .easing(TWEEN.Easing.Cubic.Out);
-        
+
         A.chain(B);
         A.start();
       },
@@ -171,9 +171,9 @@
         this.time += 0.05;
         this.uniforms.time.value = this.time;
         //this.uniforms.distortion.value = 0;
-        
+
         requestAnimationFrame(this.animate);
-        
+
         TWEEN.update();
         this.render();
       },
@@ -204,6 +204,7 @@
     mounted () {
       this.sliderScene();
       this.animate();
+      document.addEventListener('click', this.disposeImage);
     }
   }
 </script>

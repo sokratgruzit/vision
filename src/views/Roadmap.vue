@@ -171,7 +171,6 @@ export default {
       this.camera.position.z = 150;
 
       this.scene = new THREE.Scene();
-      //this.scene.fog = new THREE.FogExp2(0x878FFF, 10, 1000);
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
 
       const loader = new THREE.TextureLoader();

@@ -1158,8 +1158,7 @@ export default {
       }
       for (let i = 0; i < 16; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-        if (int.length > 0 && this.filterLineIndex !== i && !this.roadmapHover) {
-          this.roadmapHover = true;
+        if (int.length > 0 && this.filterLineIndex !== i) {
           var iMesh = int[0].object;
           let color = new THREE.Color(0x878FFF);
 
@@ -1210,7 +1209,6 @@ export default {
             .start()
           this.showRoadmapPath(i, 'show');
         } else {
-          if(this.roadmapHover){
           if(this.filterLineIndex === i){
             this.showRoadmapPath(i, 'show');
           }else{
@@ -1235,7 +1233,6 @@ export default {
               .start();
             this.showRoadmapPath(i, 'hide');
             }
-          }
         }
       }
 

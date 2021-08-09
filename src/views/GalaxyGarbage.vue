@@ -1,5 +1,18 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
+    <div class="start-timer">
+      <div class="level__container-outer">
+        <div class="level__container" :style="{
+          transform: `translateY(-${(1 - 1) * 60}px)`
+        }">
+          <div class="level__num">3</div>
+          <div class="level__num">2</div>
+          <div class="level__num">1</div>
+          <div class="level__num">0</div>
+        </div>
+      </div>
+
+    </div>
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
@@ -776,6 +789,15 @@ export default {
 </script>
 
 <style scoped>
+  .start-timer{
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
   .explore-button__text{
     text-transform: uppercase;
   }

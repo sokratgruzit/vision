@@ -35,6 +35,7 @@ export default {
       roadmapGeo: null,
       roadmapMat: null,
       roadmapMesh: null,
+      roadmapHover: false,
       raycaster: new THREE.Raycaster(),
       filterLine: false,
       filterLineIndex: false,
@@ -983,7 +984,8 @@ export default {
           this.roadmapMesh.position.x -= event.clientX * 0.008;
           var cA = new TWEEN.Tween(this.roadmapMesh.position)
             .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
-            .easing(TWEEN.Easing.Quintic.Out);
+            .easing(TWEEN.Easing.Quintic.Out)
+
 
           var cB = new TWEEN.Tween(this.camera.rotation)
             .to({ y: 0.2 }, 1500)
@@ -1001,7 +1003,7 @@ export default {
           this.roadmapMesh.position.x += event.clientX * 0.008;
           var cA = new TWEEN.Tween(this.roadmapMesh.position)
             .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
-            .easing(TWEEN.Easing.Quintic.Out);
+            .easing(TWEEN.Easing.Quintic.Out)
 
           var cB = new TWEEN.Tween(this.camera.rotation)
             .to({ y: -0.2 }, 1500)
@@ -1156,7 +1158,8 @@ export default {
       }
       for (let i = 0; i < 16; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-        if (int.length > 0 && this.filterLineIndex !== i) {
+        if (int.length > 0 && this.filterLineIndex !== i && !this.roadmapHover) {
+          this.roadmapHover = true;
           var iMesh = int[0].object;
           let color = new THREE.Color(0x878FFF);
 
@@ -1206,36 +1209,32 @@ export default {
             .easing(TWEEN.Easing.Quadratic.In)
             .start()
           this.showRoadmapPath(i, 'show');
-
-
-          // this.filterLine = false;
-          // if(this.filterLineIndex === i){
-          // }else{
-          //
-          // }
         } else {
+          if(this.roadmapHover){
           if(this.filterLineIndex === i){
-            console.log(this.filterLineIndex + ' ' + i)
             this.showRoadmapPath(i, 'show');
           }else{
 
 
-          this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
-          var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
-          var tooltip = document.getElementById(tooltipClass);
-          tooltip.classList.remove('active');
+            setTimeout(() => {
+              this.roadmapHover = false;
+            },2000)
+            this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
+            var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
+            var tooltip = document.getElementById(tooltipClass);
+            tooltip.classList.remove('active');
 
-          new TWEEN.Tween(this.scene.children[3].children[i].scale)
-            .to({ x: 1, y: 1, z: 1 }, 100)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
+            new TWEEN.Tween(this.scene.children[3].children[i].scale)
+              .to({ x: 1, y: 1, z: 1 }, 100)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
 
-          new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-            .to({ x: 0, y: 0, z: 0 }, 100)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-          this.showRoadmapPath(i, 'hide');
-
+            new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
+              .to({ x: 0, y: 0, z: 0 }, 100)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
+            this.showRoadmapPath(i, 'hide');
+            }
           }
         }
       }

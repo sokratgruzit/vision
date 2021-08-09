@@ -251,38 +251,28 @@
         ]);
 
         const spline1 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 520, 0),
-          new THREE.Vector3(-500, 220, 0),
-          new THREE.Vector3(0, 820, 0),
-          new THREE.Vector3(500, 520, 0),
-          new THREE.Vector3(1500, 820, 0)
+          new THREE.Vector3(-1500, 0, 0),
+          new THREE.Vector3(-500, -100, 0),
+          new THREE.Vector3(0, -400, 0),
+          new THREE.Vector3(500, 250, 0),
+          new THREE.Vector3(1500, -300, 0)
         ]);
 
         const spline2 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 540, 0),
-          new THREE.Vector3(-500, 240, 0),
-          new THREE.Vector3(0, 840, 0),
-          new THREE.Vector3(500, 540, 0),
-          new THREE.Vector3(1500, 840, 0)
-        ]);
-
-        const spline3 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 560, 0),
-          new THREE.Vector3(-500, 260, 0),
-          new THREE.Vector3(0, 860, 0),
-          new THREE.Vector3(500, 560, 0),
-          new THREE.Vector3(1500, 860, 0)
+          new THREE.Vector3(-1500, 0, 0),
+          new THREE.Vector3(-500, 100, 0),
+          new THREE.Vector3(0, 0, 0),
+          new THREE.Vector3(500, -100, 0),
+          new THREE.Vector3(1500, 0, 0)
         ]);
 
         var splinePoints0 = spline0.getPoints(4000);
         var splinePoints1 = spline1.getPoints(4000);
         var splinePoints2 = spline2.getPoints(4000);
-        var splinePoints3 = spline3.getPoints(4000);
 
         const glowG0 = new THREE.TubeGeometry(spline0, 4000, 5, 8, false);
         const glowG1 = new THREE.TubeGeometry(spline1, 4000, 5, 8, false);
         const glowG2 = new THREE.TubeGeometry(spline2, 4000, 5, 8, false);
-        const glowG3 = new THREE.TubeGeometry(spline3, 4000, 5, 8, false);
 
         this.glowM = new THREE.MeshBasicMaterial({
           color: this.colors[0],
@@ -294,27 +284,24 @@
         const glowMesh0 = new THREE.Mesh(glowG0, this.glowM);
         const glowMesh1 = new THREE.Mesh(glowG1, this.glowM);
         const glowMesh2 = new THREE.Mesh(glowG2, this.glowM);
-        const glowMesh3 = new THREE.Mesh(glowG3, this.glowM);
 
         this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(splinePoints0);
         const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
         lineMesh0.add(glowMesh0);
+        lineMesh0.position.y = -900;
         this.scene.add(lineMesh0);
 
         this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(splinePoints1);
         const lineMesh1 = new THREE.Line(this.lineGeometry1, lineMaterial);
         lineMesh1.add(glowMesh1);
+        lineMesh1.position.y = -400;
         this.scene.add(lineMesh1);
 
         this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(splinePoints2);
         const lineMesh2 = new THREE.Line(this.lineGeometry2, lineMaterial);
         lineMesh2.add(glowMesh2);
+        lineMesh2.position.y = -400;
         this.scene.add(lineMesh2);
-
-        this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(splinePoints3);
-        const lineMesh3 = new THREE.Line(this.lineGeometry3, lineMaterial);
-        lineMesh3.add(glowMesh3);
-        this.scene.add(lineMesh3);
         //End Lighted curves
       },
       disposeImage: function (direction) {
@@ -357,6 +344,7 @@
         this.rightMesh.rotateX(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
+        this.scene.children[6].children[0].scale.setZ(Math.sin(this.time * 20));
 
         requestAnimationFrame(this.animate);
 

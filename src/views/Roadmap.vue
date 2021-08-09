@@ -591,9 +591,8 @@ export default {
     },
     loadFilter: function () {
       setTimeout(() => {
-        if(this.$store.state.stopRoadmap == true){
-          return false
-        }
+        if(this.$store.state.stopRoadmap !== true){
+
         let filter = this.filterScenes[0].children[0];
 
         new TWEEN.Tween(filter.scale)
@@ -603,6 +602,7 @@ export default {
           document.getElementById('list-item0').style['opacity'] = 1;
         })
         .start();
+        }
       }, 10000);
     },
     updateUiData: function (event) {

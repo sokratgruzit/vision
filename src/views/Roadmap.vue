@@ -929,6 +929,16 @@ export default {
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
+          new TWEEN.Tween(iMesh.rotation)
+          .to({ x: 5 }, 3000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
+          new TWEEN.Tween(this.roadmapMesh.position)
+          .to({ x: 0, y: 100, z: -200 }, 3000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
           this.$store.commit('roadmapIndex', i);
           setTimeout(() => {
             this.$router.push({ path: 'roadmap-slider' });

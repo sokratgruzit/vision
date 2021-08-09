@@ -1,5 +1,5 @@
 <template>
-  <div class="game__container">
+  <div class="game__container" :class="gameStart ? 'active' : ''">
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
@@ -160,7 +160,8 @@ export default {
       badgeIndex: 0,
       badgeAnimation:false,
       intro: true,
-      vectors: []
+      vectors: [],
+      gameStart: false
     }
   },
   methods: {
@@ -729,6 +730,7 @@ export default {
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
     document.body.addEventListener('pointermove', this.onPointerMove);
+    this.$store.commit('setHeader', false)
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
 
 
@@ -747,6 +749,7 @@ export default {
       this.intro = false;
       this.scene.remove(this.scene.children[2]);
       this.addHolder();
+      this.gameStart = true;
     }, 3000);
   },
   beforeDestroy () {
@@ -1031,6 +1034,25 @@ export default {
     font-size: 18px;
     margin-bottom: 15px;
     color: #ABB0BC;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  .hud__inner:nth-child(2){
+    transition-delay: .1s;
+  }
+  .hud__inner:nth-child(3){
+    transition-delay: .2s;
+  }
+  .hud__inner:nth-child(4){
+    transition-delay: .3s;
+  }
+  .hud__inner:nth-child(5){
+    transition-delay: .4s;
+  }
+  .game__container.active .hud__inner{
+    transform: translateY(0px);
+    opacity: 1;
   }
   .word-animation{
     display: flex;

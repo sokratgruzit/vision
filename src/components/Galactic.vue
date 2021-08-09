@@ -796,6 +796,7 @@
       document.addEventListener('mousedown', this.planetClick, false);
       document.addEventListener('pointermove', this.onPointerMove);
       window.addEventListener('resize', this.onWindowResize, false);
+      this.$store.commit('setHeader', true);
     },
     beforeDestroy () {
       this.scene.remove(this.scene.children[0]);

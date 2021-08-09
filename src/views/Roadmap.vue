@@ -37,6 +37,7 @@ export default {
       roadmapMesh: null,
       raycaster: new THREE.Raycaster(),
       filterLine: false,
+      filterLineIndex: false,
       mouse: new THREE.Vector2(),
       renderer: null,
       mouseX: 0,
@@ -938,22 +939,27 @@ export default {
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(0,'show');
+        this.filterLineIndex = 0;
       }
       if(e.target.id == 'list-item2'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(1,'show');
+        this.filterLineIndex = 1;
       }
       if(e.target.id == 'list-item3'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(6,'show');
+        this.filterLineIndex = 6;
       }
       if(e.target.id == 'list-item4'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(11,'show');
+        this.filterLineIndex = 11;
       }
+      console.log(this.filterLineIndex)
     },
     wheelScroll: function(event) {
         if (event.deltaY < 0 && this.roadmapMesh.position.x > -1300) {
@@ -1175,34 +1181,41 @@ export default {
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.add('active');
 
-          new TWEEN.Tween(int[0].object.scale)
-          .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start()
 
-          new TWEEN.Tween(iMesh.children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 300)
-          .easing(TWEEN.Easing.Quadratic.In)
-          .start()
 
           // this.filterLine = false;
-          this.showRoadmapPath(i, 'show');
+          if(this.filterLineIndex === i){
+          }else{
+            new TWEEN.Tween(int[0].object.scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
+
+            new TWEEN.Tween(iMesh.children[0].scale)
+              .to({ x: 1, y: 1, z: 1 }, 300)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start()
+            this.showRoadmapPath(i, 'show');
+          }
         } else {
           this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
           var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.remove('active');
 
-          new TWEEN.Tween(this.scene.children[3].children[i].scale)
-            .to({ x: 1, y: 1, z: 1 }, 100)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
+          if(this.filterLineIndex === i){
+            console.log(this.filterLineIndex + ' ' + i)
+            this.showRoadmapPath(i, 'show');
+          }else{
+            new TWEEN.Tween(this.scene.children[3].children[i].scale)
+              .to({ x: 1, y: 1, z: 1 }, 100)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
 
-          new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-            .to({ x: 0, y: 0, z: 0 }, 100)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start();
-          if(!this.filterLine){
+            new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
+              .to({ x: 0, y: 0, z: 0 }, 100)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start();
             this.showRoadmapPath(i, 'hide');
           }
         }

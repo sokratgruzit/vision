@@ -1,5 +1,5 @@
 <template>
-    <header>
+    <header :class="$store.state.header ? 'active' : ''">
       <div class="container">
         <div class="header__inner">
         <router-link to="/" class="logo" @click.native="closeMenu">
@@ -43,6 +43,9 @@ export default {
     closeMenu () {
       this.$store.commit('openNavigation', false)
     }
+  },
+  mounted () {
+    this.$store.commit('setHeader', true)
   }
 }
 </script>
@@ -60,10 +63,25 @@ export default {
   .header__last-button{
     position: relative;
     z-index: 2;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  header.active .header__last-button{
+    transform: translateY(0px);
+    opacity: 1;
+    transition-delay: .2s;
   }
   .logo{
     position: relative;
     z-index: 2;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  header.active .logo{
+    transform: translateY(0px);
+    opacity: 1;
   }
   header{
     height: 130px;
@@ -81,8 +99,12 @@ export default {
     width: 100%;
     justify-content: space-between;
     position: relative;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0);
     align-items: center;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  header.active .header__inner{
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
   }
   .burger{
     height: 18px;
@@ -91,6 +113,14 @@ export default {
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  header.active .burger{
+    transform: translateY(0px);
+    opacity: 1;
+    transition-delay: .1s;
   }
   .burger span{
     height: 2px;

@@ -238,7 +238,7 @@
         //Lighted curves
         const lineMaterial = new THREE.LineBasicMaterial({
           transparent: true,
-          opacity: 0.5,
+          opacity: 0.2,
           color: this.colors[0]
         });
 
@@ -270,13 +270,13 @@
         var splinePoints1 = spline1.getPoints(4000);
         var splinePoints2 = spline2.getPoints(4000);
 
-        const glowG0 = new THREE.TubeGeometry(spline0, 4000, 5, 8, false);
-        const glowG1 = new THREE.TubeGeometry(spline1, 4000, 5, 8, false);
-        const glowG2 = new THREE.TubeGeometry(spline2, 4000, 5, 8, false);
+        const glowG0 = new THREE.TubeGeometry(spline0, 4000, 15, 8, false);
+        const glowG1 = new THREE.TubeGeometry(spline1, 4000, 15, 8, false);
+        const glowG2 = new THREE.TubeGeometry(spline2, 4000, 15, 8, false);
 
         this.glowM = new THREE.MeshBasicMaterial({
           color: this.colors[0],
-          opacity: 0.25,
+          opacity: 0.1,
           transparent: true,
           depthTest: false
         });
@@ -344,7 +344,9 @@
         this.rightMesh.rotateX(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
-        this.scene.children[6].children[0].scale.setZ(Math.sin(this.time * 20));
+        this.scene.children[6].children[0].scale.setZ(Math.sin(this.time * 2));
+        this.scene.children[7].children[0].scale.setZ(Math.sin(this.time * 2));
+        this.scene.children[8].children[0].scale.setZ(Math.sin(this.time * 2));
 
         requestAnimationFrame(this.animate);
 
@@ -427,6 +429,9 @@
         }
       },
       updateUiData: function () {
+        let int = this.raycaster.intersectObjects([this.scene.children[3].children[0]]);
+        let int2 = this.raycaster.intersectObjects([this.scene.children[4].children[0]]);
+
         if (this.leftTarget) {
           this.slideCount--;
         }
@@ -439,7 +444,9 @@
         if (this.slideCount > 3) {
           this.slideCount = 0;
         }
-        this.disposeImage(this.slideCount);
+        if (int.length > 0 || int2.length > 0) {
+          this.disposeImage(this.slideCount);
+        }
       },
       handleScroll (event) {
         console.log('hii')

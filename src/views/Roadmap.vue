@@ -924,9 +924,16 @@ export default {
         if (int.length > 0) {
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
-          console.log(i)
-          this.$store.commit('roadmapIndex', i)
-          this.$router.push({ path: 'roadmap-slider' })
+
+          new TWEEN.Tween(iMesh.scale)
+          .to({ x: 50, y: 50, z: 50 }, 3000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
+          this.$store.commit('roadmapIndex', i);
+          setTimeout(() => {
+            this.$router.push({ path: 'roadmap-slider' });
+          }, 3000);
         }
       }
     },
@@ -968,6 +975,7 @@ export default {
           var cA = new TWEEN.Tween(this.roadmapMesh.position)
             .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
             .easing(TWEEN.Easing.Quintic.Out)
+
 
           var cB = new TWEEN.Tween(this.camera.rotation)
             .to({ y: 0.2 }, 1500)

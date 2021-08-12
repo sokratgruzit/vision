@@ -926,34 +926,34 @@ export default {
           var tooltipClass = iMesh.children[0].children[0];
 
           new TWEEN.Tween(iMesh.scale)
-          .to({ x: 30, y: 30, z: 30 }, 3000)
+          .to({ x: 30, y: 30, z: 30 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(iMesh.rotation)
-          .to({ x: 5 }, 3000)
+          .to({ x: 5 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(iMesh.position)
-          .to({ x: 0 }, 3000)
+          .to({ x: 0 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: 0, y: 50, z: -80 }, 3000)
+          .to({ x: 0, y: 50, z: -80 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 6 }, 3000)
+          .to({ x: 6 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           this.$store.commit('roadmapIndex', i);
           setTimeout(() => {
             this.$router.push({ path: 'roadmap-slider' });
-          }, 2800);
+          }, 4700);
         }
       }
     },

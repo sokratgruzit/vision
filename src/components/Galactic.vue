@@ -60,9 +60,9 @@
         }
       },
       '$store.state.currentSlide': function () {
-        var text1 = this.scene.getObjectByName("Core");
+        var text1 = this.scene.getObjectByName("CORE");
         var textMat1 = text1 === undefined ? false : text1.material;
-        var text2 = this.scene.getObjectByName("Vision");
+        var text2 = this.scene.getObjectByName("VISION");
         var textMat2 = text2 === undefined ? false : text2.material;
         var text3 = this.scene.getObjectByName("Connect");
         var textMat3 = text3 === undefined ? false : text3.material;
@@ -458,12 +458,12 @@
           textLoader.load("./three_fonts/Kanit_Regular.json", function(
             font
           ) {
-            let textMask = "Core";
+            let textMask = "CORE";
             let vectorColor = "vColor";
 
             if (t === 1) {
-              textMask = "Vision";
-              vectorColor = "vec3(1.0,0.0,0.0)";
+              textMask = "VISION";
+              vectorColor = "vec3(1.,0.443,0.322)";
             }
 
             if (t === 2) {
@@ -540,12 +540,12 @@
 
             var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
 
-            if (textMask === "Core" || textMask === "Connect" || textMask === "Story") {
-              textMesh.position.x = -1100;
+            if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+              textMesh.position.x = -1300;
               textMesh.position.z = 500;
               textMesh.position.y = 50;
             } else {
-              textMesh.position.x = -880;
+              textMesh.position.x = -1080;
               textMesh.position.z = 500;
               textMesh.position.y = -150;
             }

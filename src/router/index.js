@@ -5,6 +5,7 @@ import Roadmap from '../views/Roadmap.vue'
 import Statistic from '../views/Statistic.vue'
 import GalaxyGarbage from '../views/GalaxyGarbage.vue'
 import RoadmapSlider from '../views/RoadmapSlider.vue'
+import About from '../views/About.vue'
 
 Vue.use(VueRouter)
 
@@ -40,6 +41,11 @@ const routes = [
     path: '/roadmap-slider',
     name: 'RoadmapSlider',
     component: RoadmapSlider
+  },
+  {
+    path: '/about',
+    name: 'About',
+    component: About
   }
 ]
 

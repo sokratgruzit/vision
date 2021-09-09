@@ -1,7 +1,7 @@
 <template>
-  <div class="home-slider">
-    <div id="slider-container"></div>
-  </div>
+    <div class="home-slider">
+      <div id="slider-container"></div>
+    </div>
 </template>
 
 <script>
@@ -348,17 +348,21 @@
         this.scene.children[7].children[0].scale.setZ(Math.sin(this.time * 2));
         this.scene.children[8].children[0].scale.setZ(Math.sin(this.time * 2));
 
-        requestAnimationFrame(this.animate);
+        if (this.$store.state.stopRoadmapInner == false){
+          requestAnimationFrame(this.animate);
+        }
 
         TWEEN.update();
         this.render();
       },
       render: function () {
-        //this.renderer.render(this.scene, this.camera);
-        //this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.raycaster.firstHitOnly = true;
-        this.composer.render();
+        if (this.$store.state.stopRoadmapInner == false) {
+          //this.renderer.render(this.scene, this.camera);
+          //this.renderer.setPixelRatio(window.devicePixelRatio);
+          this.raycaster.setFromCamera(this.mouse, this.camera);
+          this.raycaster.firstHitOnly = true;
+          this.composer.render();
+        }
       },
       onWindowResize: function () {
         this.windowHalfX = window.innerWidth / 2;
@@ -373,13 +377,15 @@
       },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
-
+        if(this.$store.state.stopRoadmapInner == true){
+          return false
+        }
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[0]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[4].children[0]]);
-        
+
         if (int.length > 0) {
           this.leftTarget = true;
           new TWEEN.Tween(this.leftUniforms.distortion)
@@ -461,6 +467,24 @@
       this.animate();
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
+      this.$store.commit('stopRoadmapInner', false)
+    },
+    beforeDestroy () {
+      document.removeEventListener('click', this.updateUiData);
+      window.removeEventListener('pointermove', this.onPointerMove);
+      this.raycaster = null;
+      this.$store.commit('stopRoadmapInner', true)
+      this.scene.remove(this.scene.children[0]);
+      this.renderer = null;
+    },
+    watch: {
+      '$store.state.stopRoadmapInner': function () {
+        if (this.$store.state.stopRoadmapInner == false) {
+          this.animate();
+        }else{
+          this.renderer = null;
+        }
+      }
     }
   }
 </script>

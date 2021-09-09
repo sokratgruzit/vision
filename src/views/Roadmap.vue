@@ -590,23 +590,28 @@ export default {
       }
       //End Filter
       console.log(this.filterScenes)
-      this.loadFilter();
+      if(this.$store.state.stopRoadmap !== true) {
+        this.loadFilter();
+      }
       container.appendChild(this.renderer.domElement);
     },
     loadFilter: function () {
-      if(this.$store.state.stopRoadmap !== true){
-      setTimeout(() => {
-        let filter = this.filterScenes[0].children[0];
-        new TWEEN.Tween(filter.scale)
-        .to({ x: 1, y: 1, z: 1 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .onComplete(function() {
-          document.getElementById('list-item0').style['opacity'] = 1;
-        })
-        .start();
 
+      setTimeout(() => {
+          let filter = this.filterScenes[0].children[0];
+          new TWEEN.Tween(filter.scale)
+            .to({
+              x: 1,
+              y: 1,
+              z: 1
+            }, 3000)
+            .easing(TWEEN.Easing.Quintic.Out)
+            .onComplete(function () {
+              document.getElementById('list-item0').style['opacity'] = 1;
+            })
+            .start();
       }, 10000);
-      }
+
     },
     updateUiData: function (event) {
       if (event.target.id === 'list-item0') {

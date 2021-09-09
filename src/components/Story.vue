@@ -9,13 +9,13 @@
       <div class="main-slide__description">
         <p>With the company’s previous customer service system, calls from healthcare providers to authorize patient were too oftern being transferred.</p>
         <div class="explore-button__container">
-          <router-link to="/galaxy-garbage" class="explore-button">
+          <router-link to="/story-scene" class="explore-button">
             <span></span>
             <span></span>
             <span></span>
             <span></span>
             <div class="explore-button__text">
-              play Now
+              Watch Story
             </div>
           </router-link>
         </div>

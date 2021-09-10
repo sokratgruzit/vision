@@ -35,11 +35,12 @@
             </svg>
           </div>
         </router-link>
-        <router-link to="/" class="navigation__link">
-          <span>T</span>
-          <span>E</span>
+        <router-link to="/about" class="navigation__link">
           <span>A</span>
-          <span>M</span>
+          <span>B</span>
+          <span>O</span>
+          <span>U</span>
+          <span>T</span>
           <div class="arrow">
             <svg width="60" height="60" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M27 5L53 30L27 55" stroke="#FF7152" stroke-width="4"/>

@@ -5,7 +5,7 @@ import Roadmap from '../views/Roadmap.vue'
 import Statistic from '../views/Statistic.vue'
 import GalaxyGarbage from '../views/GalaxyGarbage.vue'
 import RoadmapSlider from '../views/RoadmapSlider.vue'
-import StoryScene from '../views/StoryScene.vue'
+import About from '../views/About.vue'
 
 Vue.use(VueRouter)
 
@@ -43,9 +43,9 @@ const routes = [
     component: RoadmapSlider
   },
   {
-    path: '/story-scene',
-    name: 'StoryScene',
-    component: StoryScene
+    path: '/about',
+    name: 'About',
+    component: About
   }
 ]
 

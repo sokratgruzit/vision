@@ -961,7 +961,7 @@ export default {
           // this.$store.commit('roadmapIndex', i);
           setTimeout(() => {
             this.$router.push({ path: 'roadmap-slider' });
-          }, 4700);
+          }, 1500);
         }
       }
     },

@@ -467,7 +467,7 @@
       this.animate();
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
-      this.$store.commit('stopRoadmapInner', false)
+      this.$store.commit('stopRoadmapInner', false);
     },
     beforeDestroy () {
       document.removeEventListener('click', this.updateUiData);

@@ -32,15 +32,16 @@
     },
     methods: {
       myScene: function () {
+        var container = document.getElementById('statistic-container');
         this.scene = new THREE.Scene();
+
         var light = new THREE.AmbientLight(0xffffff);
         var width = window.innerWidth;
         var height = window.innerHeight;
+        
         this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
-
-        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize( width, height );
-        document.getElementById("statistic-container").appendChild(this.renderer.domElement);
+        this.camera.position.z = 1000;
+        this.camera.lookAt(this.scene.position);
         
         var sLight = new THREE.SpotLight(0xffffff);
         sLight.position.set(-100, 100, 100);
@@ -58,12 +59,16 @@
         this.scene.add(this.sphereMesh1);
 
         var geometry = new THREE.PlaneGeometry( 1000, 1000, 1, 1 );
-	var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
-	var floor = new THREE.Mesh( geometry, material );
-	floor.material.side = THREE.DoubleSide;
-	floor.rotation.x = 90;
-	this.scene.add( floor ); 
-  console.log(this.scene)
+        var material = new THREE.MeshBasicMaterial( { color: 0x0000ff } );
+        var floor = new THREE.Mesh( geometry, material );
+        floor.material.side = THREE.DoubleSide;
+        floor.rotation.x = 90;
+        this.scene.add( floor ); 
+        console.log(this.scene)
+
+        this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        this.renderer.setSize( width, height );
+        container.appendChild(this.renderer.domElement);
       },
       animate: function() {
         requestAnimationFrame(this.animate);
@@ -72,11 +77,10 @@
       render: function () {
         this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
         this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
-        this.camera.lookAt(this.scene);
        
         this.renderer.render(this.scene, this.camera);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        //this.renderer.physicallyCorrectLights = true;
+        this.renderer.physicallyCorrectLights = true;
       },
       onWindowResize: function() {
         this.camera.aspect = window.innerWidth / window.innerHeight;

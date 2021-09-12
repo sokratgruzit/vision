@@ -70,8 +70,8 @@
         var height = window.innerHeight;
         
         this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 3000);
-        this.camera.position.z = 1500;
-        this.camera.position.y = 300;
+        this.camera.position.z = 1700;
+        this.camera.position.y = 700;
         
         var sLight = new THREE.PointLight(0xff00ff);
         sLight.position.set(-100, 100, 100);
@@ -179,7 +179,7 @@
         var sphereGeo1 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat1 = new THREE.MeshLambertMaterial({
           color: this.colors[0],
-          wireframe: false
+          wireframe: true
         });
         this.sphereMesh1 = new THREE.Mesh(sphereGeo1, sphereMat1);
         this.sphereMesh1.position.y = 550;
@@ -199,7 +199,7 @@
         });
         this.floor1 = new THREE.Mesh(floorGeo1, floorMat1);
         this.floor1.material.side = THREE.DoubleSide;
-        this.floor1.position.x = -1500;
+        this.floor1.position.x = -width;
         this.floor1.rotation.y = 4.8;
         this.floor1.add(this.sphereMesh1);
         this.floor1.add(this.diagram1);
@@ -209,7 +209,7 @@
         var sphereGeo2 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat2 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
-          wireframe: false
+          wireframe: true
         });
         this.sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
         this.sphereMesh2.position.y = 550;
@@ -229,7 +229,7 @@
         });
         this.floor2 = new THREE.Mesh(floorGeo2, floorMat2);
         this.floor2.material.side = THREE.DoubleSide;
-        this.floor2.position.x = 1500;
+        this.floor2.position.z = 200;
         this.floor2.rotation.y = 4.8;
         this.floor2.add(this.sphereMesh2);
         this.floor2.add(this.diagram2);
@@ -239,7 +239,7 @@
         var sphereGeo3 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat3 = new THREE.MeshLambertMaterial({
           color: this.colors[2],
-          wireframe: false
+          wireframe: true
         });
         this.sphereMesh3 = new THREE.Mesh(sphereGeo3, sphereMat3);
         this.sphereMesh3.position.y = 550;
@@ -259,8 +259,7 @@
         });
         this.floor3 = new THREE.Mesh(floorGeo3, floorMat3);
         this.floor3.material.side = THREE.DoubleSide;
-        this.floor3.position.x = -1500;
-        this.floor3.position.y = -1300;
+        this.floor3.position.x = width;
         this.floor3.rotation.y = 4.8;
         this.floor3.add(this.sphereMesh3);
         this.floor3.add(this.diagram3);

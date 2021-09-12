@@ -84,10 +84,10 @@
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
 
-            new TWEEN.Tween(text1.position)
-              .to({ x: -10000, y: 2000, z: 6000 }, 1000)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start();
+            // new TWEEN.Tween(text1.position)
+            //   .to({ x: -10000, y: 2000, z: 6000 }, 1000)
+            //   .easing(TWEEN.Easing.Quadratic.In)
+            //   .start();
 
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 7 }, 1000)
@@ -133,10 +133,10 @@
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
 
-            new TWEEN.Tween(text1.position)
-              .to({ x: -10000, y: 2000, z: 6000 }, 1000)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start();
+            // new TWEEN.Tween(text1.position)
+            //   .to({ x: -10000, y: 2000, z: 6000 }, 1000)
+            //   .easing(TWEEN.Easing.Quadratic.In)
+            //   .start();
 
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 7 }, 1000)
@@ -182,10 +182,10 @@
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
 
-            new TWEEN.Tween(text1.position)
-              .to({ x: -1300, y: 50, z: 500 }, 1000)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start();
+            // new TWEEN.Tween(text1.position)
+            //   .to({ x: -1300, y: 50, z: 500 }, 1000)
+            //   .easing(TWEEN.Easing.Quadratic.In)
+            //   .start();
 
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 0 }, 1000)
@@ -540,66 +540,62 @@
 
             var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
 
-            let leftZero = (window.innerWidth + window.innerHeight) * -1
-            console.log(window.innerWidth * window.innerHeight / 2 / 100 - window.innerHeight)
-            console.log(window.innerHeight)
-            console.log((window.innerWidth / 2) + (window.innerWidth / 2))
             if(window.innerWidth > 1300) {
               if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
                 textMesh.position.x = -1300;
                 textMesh.position.z = 500;
-                textMesh.position.y = 50;
+                textMesh.position.y = window.innerHeight / 2 - 500;
               } else {
                 textMesh.position.x = -1100;
                 textMesh.position.z = 500;
-                textMesh.position.y = -150;
+                textMesh.position.y = window.innerHeight / 2 - 700;
               }
             }
-            // if(window.innerWidth <= 1299 && window.innerWidth >= 1051){
-            //   if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
-            //     textMesh.position.x = -1300;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = 50;
-            //   } else {
-            //     textMesh.position.x = -1100;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = -150;
-            //   }
-            // }
-            // if(window.innerWidth <= 1050 && window.innerWidth >= 1298){
-            //   if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
-            //     textMesh.position.x = -650;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = 250;
-            //     textMesh.scale.x = 0.5
-            //     textMesh.scale.y = 0.5
-            //     textMesh.scale.z = 0.5
-            //   } else {
-            //     textMesh.position.x = -550;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = 150;
-            //     textMesh.scale.x = 0.5
-            //     textMesh.scale.y = 0.5
-            //     textMesh.scale.z = 0.5
-            //   }
-            // }
-            // if(window.innerWidth <= 767){
-            //   if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
-            //     textMesh.position.x = -500;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = 250;
-            //     textMesh.scale.x = 0.5
-            //     textMesh.scale.y = 0.5
-            //     textMesh.scale.z = 0.5
-            //   } else {
-            //     textMesh.position.x = -400;
-            //     textMesh.position.z = 500;
-            //     textMesh.position.y = 150;
-            //     textMesh.scale.x = 0.5
-            //     textMesh.scale.y = 0.5
-            //     textMesh.scale.z = 0.5
-            //   }
-            // }
+            if(window.innerWidth <= 1299 && window.innerWidth >= 1051){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -1100;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 500;
+              } else {
+                textMesh.position.x = -900;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 700;
+              }
+            }
+            if(window.innerWidth <= 1050 && window.innerWidth >= 767){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -650;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 300;
+                textMesh.scale.x = 0.7
+                textMesh.scale.y = 0.7
+                textMesh.scale.z = 0.7
+              } else {
+                textMesh.position.x = -550;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 450;
+                textMesh.scale.x = 0.7
+                textMesh.scale.y = 0.7
+                textMesh.scale.z = 0.7
+              }
+            }
+            if(window.innerWidth <= 767){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -500;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 100;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
+              } else {
+                textMesh.position.x = -400;
+                textMesh.position.z = 500;
+                textMesh.position.y = window.innerHeight / 2 - 200;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
+              }
+            }
 
 
             textMesh.rotation.x = 0.35;
@@ -835,26 +831,81 @@
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
         this.render();
-        console.log(this.scene)
         if(window.innerWidth > 1300){
           this.scene.children[4].position.x = -1300
+          this.scene.children[4].position.y = window.innerHeight / 2 - 500;
           this.scene.children[5].position.x = -1100
+          this.scene.children[5].position.y = window.innerHeight / 2 - 700;
+          this.scene.children[6].position.x = -1300
+          this.scene.children[6].position.y = window.innerHeight / 2 - 500;
+          this.scene.children[7].position.x = -1300
+          this.scene.children[7].position.y = window.innerHeight / 2 - 500;
         }
         if(window.innerWidth <= 1299 && window.innerWidth >= 1051){
-          this.scene.children[4].position.x = -1000
-          this.scene.children[5].position.x = -800
-          // console.log(this.scene.children[4])
+          this.scene.children[4].position.x = -1100;
+          this.scene.children[4].position.y = window.innerHeight / 2 - 500;
+          this.scene.children[4].scale.x = 1
+          this.scene.children[4].scale.y = 1
+          this.scene.children[4].scale.z = 1
+          this.scene.children[5].position.x = -900;
+          this.scene.children[5].position.y = window.innerHeight / 2 - 700;
+          this.scene.children[5].scale.x = 1
+          this.scene.children[5].scale.y = 1
+          this.scene.children[5].scale.z = 1
+          this.scene.children[6].position.x = -1100;
+          this.scene.children[6].position.y = window.innerHeight / 2 - 500;
+          this.scene.children[6].scale.x = 1
+          this.scene.children[6].scale.y = 1
+          this.scene.children[6].scale.z = 1
+          this.scene.children[7].position.x = -1100;
+          this.scene.children[7].position.y = window.innerHeight / 2 - 500;
+          this.scene.children[7].scale.x = 1
+          this.scene.children[7].scale.y = 1
+          this.scene.children[7].scale.z = 1
         }
-        if(window.innerWidth <= 1050){
-          this.scene.children[4].position.x = -1000
-          this.scene.children[5].position.x = -800
+        if(window.innerWidth <= 1050 && window.innerWidth >= 767){
+          this.scene.children[4].position.x = -650;
+          this.scene.children[4].position.y = window.innerHeight / 2 - 300;
+          this.scene.children[4].scale.x = 0.7
+          this.scene.children[4].scale.y = 0.7
+          this.scene.children[4].scale.z = 0.7
+          this.scene.children[5].position.x = -550;
+          this.scene.children[5].position.y = window.innerHeight / 2 - 450;
+          this.scene.children[5].scale.x = 0.7
+          this.scene.children[5].scale.y = 0.7
+          this.scene.children[5].scale.z = 0.7
+          this.scene.children[6].position.x = -650;
+          this.scene.children[6].position.y = window.innerHeight / 2 - 350;
+          this.scene.children[6].scale.x = 0.7
+          this.scene.children[6].scale.y = 0.7
+          this.scene.children[6].scale.z = 0.7
+          this.scene.children[7].position.x = -650;
+          this.scene.children[7].position.y = window.innerHeight / 2 - 350;
+          this.scene.children[7].scale.x = 0.7
+          this.scene.children[7].scale.y = 0.7
+          this.scene.children[7].scale.z = 0.7
+        }
+        if(window.innerWidth <= 767){
+          this.scene.children[4].position.x = -500;
+          this.scene.children[4].position.y = window.innerHeight / 2 - 100;
           this.scene.children[4].scale.x = 0.5
           this.scene.children[4].scale.y = 0.5
           this.scene.children[4].scale.z = 0.5
+          this.scene.children[5].position.x = -400;
+          this.scene.children[5].position.y = window.innerHeight / 2 - 200;
           this.scene.children[5].scale.x = 0.5
           this.scene.children[5].scale.y = 0.5
           this.scene.children[5].scale.z = 0.5
-          // console.log(this.scene.children[4])
+          this.scene.children[6].position.x = -500;
+          this.scene.children[6].position.y = window.innerHeight / 2 - 100;
+          this.scene.children[6].scale.x = 0.5
+          this.scene.children[6].scale.y = 0.5
+          this.scene.children[6].scale.z = 0.5
+          this.scene.children[7].position.x = -500;
+          this.scene.children[7].position.y = window.innerHeight / 2 - 100;
+          this.scene.children[7].scale.x = 0.5
+          this.scene.children[7].scale.y = 0.5
+          this.scene.children[7].scale.z = 0.5
         }
       },
     },

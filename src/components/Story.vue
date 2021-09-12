@@ -1,11 +1,6 @@
 <template>
   <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
     <div v-if="true" class="main-slide__inner">
-      <h2 class="main-slide__title second-slide__title">
-        <div class="main-slide__title-out">
-          <!--<div class="main-slide__title-in"><span>01</span>connection</div>-->
-        </div>
-      </h2>
       <div class="main-slide__description">
         <p>With the company’s previous customer service system, calls from healthcare providers to authorize patient were too oftern being transferred.</p>
         <div class="explore-button__container">
@@ -227,6 +222,7 @@
     display: flex;
     flex-direction: column;
     padding-top: 295px;
+    margin-left: auto;
   }
   .main-slide__description p{
     text-align: left;
@@ -281,7 +277,7 @@
       line-height: 100px;
     }
     .main-slide__description{
-      padding-top: 205px;
+      width: 290px;
     }
   }
   /*Ipad 768*/
@@ -291,8 +287,7 @@
       justify-content: flex-start;
     }
     .main-slide__description{
-      padding-top: 0px;
-      margin-top: 50px;
+      padding-top: 440px;
     }
     .main-slide__video-container {
       transform: translateX(0%) translateY(30%);
@@ -314,8 +309,7 @@
       font-size: 16px;
     }
     .main-slide__description{
-      width: 100%;
-      margin-top: 30px;
+      padding-top: 270px;
     }
     .main-slide__description .explore-button{
       margin-top: 30px;

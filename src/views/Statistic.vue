@@ -36,6 +36,7 @@
         m4: new THREE.Matrix4(),
         div: null,
         div2: null,
+        div3: null,
 				params: {
           exposure: 1,
           bloomStrength: 0,
@@ -54,7 +55,10 @@
         floor1: null,
         sphereMesh2: null,
         diagram2: new THREE.Group(),
-        floor2: null
+        floor2: null,
+        sphereMesh3: null,
+        diagram3: new THREE.Group(),
+        floor3: null
       }
     },
     methods: {
@@ -75,14 +79,6 @@
         var aLight = new THREE.DirectionalLight(0xffffff);
         aLight.position.set( 0, 0, 1 );
         this.scene.add(aLight);
-
-        var sphereGeo1 = new THREE.SphereBufferGeometry(200, 10, 5);
-        var sphereMat1 = new THREE.MeshLambertMaterial({
-          color: this.colors[0],
-          wireframe: false
-        });
-        this.sphereMesh1 = new THREE.Mesh(sphereGeo1, sphereMat1);
-        this.sphereMesh1.position.y = 550;
 
         var dGeo11 = new THREE.BoxBufferGeometry(100, 400, 100);
         var dMat11 = new THREE.MeshLambertMaterial({
@@ -136,6 +132,32 @@
         dMesh23.position.x = 150;
         dMesh23.position.y = -550;
 
+        var dGeo31 = new THREE.BoxBufferGeometry(100, 400, 100);
+        var dMat31 = new THREE.MeshLambertMaterial({
+          color: this.colors[2],
+          wireframe: false
+        });
+        var dMesh31 = new THREE.Mesh(dGeo31, dMat31);
+        dMesh31.position.x = -150;
+        dMesh31.position.y = -550;
+
+        var dGeo32 = new THREE.BoxBufferGeometry(100, 400, 100);
+        var dMat32 = new THREE.MeshLambertMaterial({
+          color: this.colors[2],
+          wireframe: false
+        });
+        var dMesh32 = new THREE.Mesh(dGeo32, dMat32);
+        dMesh32.position.y = -550;
+
+        var dGeo33 = new THREE.BoxBufferGeometry(100, 400, 100);
+        var dMat33 = new THREE.MeshLambertMaterial({
+          color: this.colors[2],
+          wireframe: false
+        });
+        var dMesh33 = new THREE.Mesh(dGeo33, dMat33);
+        dMesh33.position.x = 150;
+        dMesh33.position.y = -550;
+
         this.diagram1.position.y = 550;
         this.diagram1.rotation.y = 5;
         this.diagram1.add(dMesh11);
@@ -147,6 +169,20 @@
         this.diagram2.add(dMesh21);
         this.diagram2.add(dMesh22);
         this.diagram2.add(dMesh23);
+
+        this.diagram3.position.y = 550;
+        this.diagram3.rotation.y = 5;
+        this.diagram3.add(dMesh31);
+        this.diagram3.add(dMesh32);
+        this.diagram3.add(dMesh33);
+
+        var sphereGeo1 = new THREE.SphereBufferGeometry(200, 40, 40);
+        var sphereMat1 = new THREE.MeshLambertMaterial({
+          color: this.colors[0],
+          wireframe: false
+        });
+        this.sphereMesh1 = new THREE.Mesh(sphereGeo1, sphereMat1);
+        this.sphereMesh1.position.y = 550;
 
         this.div = document.createElement('div');
         this.div.className = 'label';
@@ -170,7 +206,7 @@
         this.floor1.add(label);
         this.scene.add(this.floor1); 
         
-        var sphereGeo2 = new THREE.SphereBufferGeometry(200, 10, 5);
+        var sphereGeo2 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat2 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
           wireframe: false
@@ -200,6 +236,37 @@
         this.floor2.add(label2);
         this.scene.add(this.floor2); 
 
+        var sphereGeo3 = new THREE.SphereBufferGeometry(200, 40, 40);
+        var sphereMat3 = new THREE.MeshLambertMaterial({
+          color: this.colors[2],
+          wireframe: false
+        });
+        this.sphereMesh3 = new THREE.Mesh(sphereGeo3, sphereMat3);
+        this.sphereMesh3.position.y = 550;
+
+        this.div3 = document.createElement('div');
+        this.div3.className = 'label';
+        this.div3.textContent = 'Check Stats 3';
+        var label3 = new CSS3DObject(this.div3);
+        label3.position.copy(this.pos);
+        label3.rotation.y = Math.PI * 0.5;
+        label3.scale.set(5, 5, 5);
+
+        var floorGeo3 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
+        var floorMat3 = new THREE.MeshLambertMaterial({ 
+          color: 0x00050F,
+          wireframe: false
+        });
+        this.floor3 = new THREE.Mesh(floorGeo3, floorMat3);
+        this.floor3.material.side = THREE.DoubleSide;
+        this.floor3.position.x = -1500;
+        this.floor3.position.y = -1300;
+        this.floor3.rotation.y = 4.8;
+        this.floor3.add(this.sphereMesh3);
+        this.floor3.add(this.diagram3);
+        this.floor3.add(label3);
+        this.scene.add(this.floor3); 
+
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
         THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -228,6 +295,8 @@
 	      this.sphereMesh1.rotation.y += 0.01;
         this.sphereMesh2.rotation.x += 0.01;
 	      this.sphereMesh2.rotation.y += 0.01;
+        this.sphereMesh3.rotation.x -= 0.01;
+	      this.sphereMesh3.rotation.y -= 0.01;
 
         TWEEN.update();
         requestAnimationFrame(this.animate);
@@ -273,6 +342,8 @@
 
         let int1 = this.raycaster.intersectObjects([this.scene.children[2]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[3]]);
+        let int3 = this.raycaster.intersectObjects([this.scene.children[4]]);
+
         if (this.isDragging) {
           if (int1 !== null && int1.length > 0) {
             this.floor1.rotation.y = this.floor1.rotation.y + this.mouse.x;
@@ -323,6 +394,31 @@
             B2.chain(C2);
             S2.start();
           }
+
+          if (int3 !== null && int3.length > 0) {
+            this.floor3.rotation.y = this.floor3.rotation.y + this.mouse.x;
+
+            var S3 = new TWEEN.Tween(this.sphereMesh3.position)
+            .to({ y: 0 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
+
+            var A3 = new TWEEN.Tween(this.floor3.children[1].children[0].position)
+            .to({ y: -200 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
+
+            var B3 = new TWEEN.Tween(this.floor3.children[1].children[1].position)
+            .to({ y: -180 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
+
+            var C3 = new TWEEN.Tween(this.floor3.children[1].children[2].position)
+            .to({ y: -110 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
+
+            S3.chain(A3);
+            A3.chain(B3);
+            B3.chain(C3);
+            S3.start();
+          }
         } 
         
         if (!this.isDragging && int1.length == 0) {
@@ -370,6 +466,29 @@
           C2.chain(S2);
           A2.start();
         }
+
+        if (!this.isDragging && int3.length == 0) {
+          var S3 = new TWEEN.Tween(this.sphereMesh3.position)
+          .to({ y: 550 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var A3 = new TWEEN.Tween(this.floor3.children[1].children[0].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var B3 = new TWEEN.Tween(this.floor3.children[1].children[1].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var C3 = new TWEEN.Tween(this.floor3.children[1].children[2].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          A3.chain(B3);
+          B3.chain(C3);
+          C3.chain(S3);
+          A3.start();
+        }
       }
     },
     mounted () {
@@ -383,6 +502,17 @@
   }
 </script>
 <style scoped>
+  .statistic__wrapper {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100vh;
+  }
+  #statistic-container {
+    width: 100%;
+    height: 100vh;
+  }
   .label {
     text-align: center;
     width: 200px;

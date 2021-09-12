@@ -9,6 +9,10 @@
   import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
   import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
   import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+  import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+  import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+  import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+  import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
   const TWEEN = require('@tweenjs/tween.js');
   export default {
     name: 'Statistic',
@@ -22,6 +26,23 @@
         raycaster: new THREE.Raycaster(),
         mouse: new THREE.Vector2(),
         isDragging: false,
+        renderScene: null,
+        bloomPass: null,
+        labelRenderer: new CSS3DRenderer(),
+        pos: new THREE.Vector3(2, 0.5, 0),
+        normal: new THREE.Vector3(1, 0, 0),
+        cNormal: new THREE.Vector3(),
+        cPos: new THREE.Vector3(),
+        m4: new THREE.Matrix4(),
+        div: null,
+        div2: null,
+				params: {
+          exposure: 1,
+          bloomStrength: 0,
+          bloomThreshold: 0,
+          bloomRadius: 0
+        },
+				composer: null,
         colors: [
           new THREE.Color(0xFFB36D),
           new THREE.Color(0xFF81E3),
@@ -45,109 +66,138 @@
         var height = window.innerHeight;
         
         this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 3000);
-        this.camera.position.z = 2500;
+        this.camera.position.z = 1500;
+        this.camera.position.y = 300;
         
         var sLight = new THREE.PointLight(0xff00ff);
         sLight.position.set(-100, 100, 100);
         this.scene.add(sLight);
-        var aLight = new THREE.DirectionalLight( 0xffffff );
+        var aLight = new THREE.DirectionalLight(0xffffff);
         aLight.position.set( 0, 0, 1 );
         this.scene.add(aLight);
 
         var sphereGeo1 = new THREE.SphereBufferGeometry(200, 10, 5);
-        var sphereMat1 = new THREE.MeshBasicMaterial ({
+        var sphereMat1 = new THREE.MeshLambertMaterial({
           color: this.colors[0],
-          wireframe: true
+          wireframe: false
         });
         this.sphereMesh1 = new THREE.Mesh(sphereGeo1, sphereMat1);
         this.sphereMesh1.position.y = 550;
 
         var dGeo11 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat11 = new THREE.MeshBasicMaterial ({
+        var dMat11 = new THREE.MeshLambertMaterial({
           color: this.colors[0],
-          wireframe: true
+          wireframe: false
         });
         var dMesh11 = new THREE.Mesh(dGeo11, dMat11);
         dMesh11.position.x = -150;
         dMesh11.position.y = -550;
 
         var dGeo12 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat12 = new THREE.MeshBasicMaterial ({
+        var dMat12 = new THREE.MeshLambertMaterial({
           color: this.colors[0],
-          wireframe: true
+          wireframe: false
         });
         var dMesh12 = new THREE.Mesh(dGeo12, dMat12);
         dMesh12.position.y = -550;
 
         var dGeo13 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat13 = new THREE.MeshBasicMaterial ({
+        var dMat13 = new THREE.MeshLambertMaterial({
           color: this.colors[0],
-          wireframe: true
+          wireframe: false
         });
         var dMesh13 = new THREE.Mesh(dGeo13, dMat13);
         dMesh13.position.x = 150;
         dMesh13.position.y = -550;
 
         var dGeo21 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat21 = new THREE.MeshBasicMaterial ({
+        var dMat21 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
-          wireframe: true
+          wireframe: false
         });
         var dMesh21 = new THREE.Mesh(dGeo21, dMat21);
         dMesh21.position.x = -150;
         dMesh21.position.y = -550;
 
         var dGeo22 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat22 = new THREE.MeshBasicMaterial ({
+        var dMat22 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
-          wireframe: true
+          wireframe: false
         });
         var dMesh22 = new THREE.Mesh(dGeo22, dMat22);
         dMesh22.position.y = -550;
 
         var dGeo23 = new THREE.BoxBufferGeometry(100, 400, 100);
-        var dMat23 = new THREE.MeshBasicMaterial ({
+        var dMat23 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
-          wireframe: true
+          wireframe: false
         });
         var dMesh23 = new THREE.Mesh(dGeo23, dMat23);
         dMesh23.position.x = 150;
         dMesh23.position.y = -550;
 
         this.diagram1.position.y = 550;
+        this.diagram1.rotation.y = 5;
         this.diagram1.add(dMesh11);
         this.diagram1.add(dMesh12);
         this.diagram1.add(dMesh13);
 
         this.diagram2.position.y = 550;
+        this.diagram2.rotation.y = 5;
         this.diagram2.add(dMesh21);
         this.diagram2.add(dMesh22);
         this.diagram2.add(dMesh23);
 
+        this.div = document.createElement('div');
+        this.div.className = 'label';
+        this.div.textContent = 'Check Stats 1';
+        var label = new CSS3DObject(this.div);
+        label.position.copy(this.pos);
+        label.rotation.y = Math.PI * 0.5;
+        label.scale.set(5, 5, 5);
+
         var floorGeo1 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
-        var floorMat1 = new THREE.MeshBasicMaterial({ color: 0x00050F });
+        var floorMat1 = new THREE.MeshLambertMaterial({ 
+          color: 0x00050F,
+          wireframe: false
+        });
         this.floor1 = new THREE.Mesh(floorGeo1, floorMat1);
         this.floor1.material.side = THREE.DoubleSide;
         this.floor1.position.x = -1500;
+        this.floor1.rotation.y = 4.8;
         this.floor1.add(this.sphereMesh1);
         this.floor1.add(this.diagram1);
+        this.floor1.add(label);
         this.scene.add(this.floor1); 
         
         var sphereGeo2 = new THREE.SphereBufferGeometry(200, 10, 5);
-        var sphereMat2 = new THREE.MeshBasicMaterial ({
+        var sphereMat2 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
-          wireframe: true
+          wireframe: false
         });
         this.sphereMesh2 = new THREE.Mesh(sphereGeo2, sphereMat2);
         this.sphereMesh2.position.y = 550;
 
+        this.div2 = document.createElement('div');
+        this.div2.className = 'label';
+        this.div2.textContent = 'Check Stats 2';
+        var label2 = new CSS3DObject(this.div2);
+        label2.position.copy(this.pos);
+        label2.rotation.y = Math.PI * 0.5;
+        label2.scale.set(5, 5, 5);
+
         var floorGeo2 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
-        var floorMat2 = new THREE.MeshBasicMaterial({ color: 0x00050F });
+        var floorMat2 = new THREE.MeshLambertMaterial({ 
+          color: 0x00050F,
+          wireframe: false
+        });
         this.floor2 = new THREE.Mesh(floorGeo2, floorMat2);
         this.floor2.material.side = THREE.DoubleSide;
         this.floor2.position.x = 1500;
+        this.floor2.rotation.y = 4.8;
         this.floor2.add(this.sphereMesh2);
         this.floor2.add(this.diagram2);
+        this.floor2.add(label2);
         this.scene.add(this.floor2); 
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -155,8 +205,23 @@
         THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize( width, height );
+        this.renderer.setSize(width, height);
         container.appendChild(this.renderer.domElement);
+        this.labelRenderer.setSize(width, height);
+        this.labelRenderer.domElement.style.position = 'absolute';
+        this.labelRenderer.domElement.style.top = '0px';
+        container.appendChild(this.labelRenderer.domElement);
+
+        this.renderScene = new RenderPass(this.scene, this.camera);
+
+				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+				this.bloomPass.threshold = this.params.bloomThreshold;
+				this.bloomPass.strength = this.params.bloomStrength;
+				this.bloomPass.radius = this.params.bloomRadius;
+
+        this.composer = new EffectComposer(this.renderer);
+				this.composer.addPass(this.renderScene);
+				this.composer.addPass(this.bloomPass);
       },
       animate: function() {
         this.sphereMesh1.rotation.x += 0.01;
@@ -169,11 +234,16 @@
         this.render();
       },
       render: function () {
+        //this.cNormal.copy(this.normal).applyMatrix3(this.floor1.normalMatrix);
+        //this.cPos.copy(this.pos).applyMatrix4(this.m4.multiplyMatrices(this.camera.matrixWorldInverse, this.floor1.matrixWorld));
+
         this.raycaster.setFromCamera(this.mouse, this.camera);
         this.raycaster.firstHitOnly = true;
         this.renderer.render(this.scene, this.camera);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.physicallyCorrectLights = true;
+        this.composer.render();
+        this.labelRenderer.render(this.scene, this.camera);
       },
       onWindowResize: function() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -183,9 +253,19 @@
       },
       onMouseDown: function() {
         this.isDragging = true;
+
+        new TWEEN.Tween(this.bloomPass)
+        .to({ strength: 1 }, 500)
+        .easing(TWEEN.Easing.Cubic.In)
+        .start();
       },
       onMouseUp: function() {
         this.isDragging = false;
+
+        new TWEEN.Tween(this.bloomPass)
+        .to({ strength: 0 }, 500)
+        .easing(TWEEN.Easing.Cubic.In)
+        .start();
       },
       onMouseMove: function (event) {
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
@@ -222,35 +302,30 @@
           if (int2 !== null && int2.length > 0) {
             this.floor2.rotation.y = this.floor2.rotation.y + this.mouse.x;
 
-            new TWEEN.Tween(this.sphereMesh2.position)
+            var S2 = new TWEEN.Tween(this.sphereMesh2.position)
             .to({ y: 0 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut)
-            .start();
+            .easing(TWEEN.Easing.Cubic.InOut);
 
-            setTimeout(() => {
-              new TWEEN.Tween(this.floor2.children[1].children[0].position)
-              .to({ y: -200 }, 500)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }, 500);
+            var A2 = new TWEEN.Tween(this.floor2.children[1].children[0].position)
+            .to({ y: -200 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
 
-            setTimeout(() => {
-              new TWEEN.Tween(this.floor2.children[1].children[1].position)
-              .to({ y: -180 }, 500)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }, 700);
+            var B2 = new TWEEN.Tween(this.floor2.children[1].children[1].position)
+            .to({ y: -180 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
 
-            setTimeout(() => {
-              new TWEEN.Tween(this.floor2.children[1].children[2].position)
-              .to({ y: -110 }, 500)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }, 900);
+            var C2 = new TWEEN.Tween(this.floor2.children[1].children[2].position)
+            .to({ y: -110 }, 500)
+            .easing(TWEEN.Easing.Cubic.InOut);
+
+            S2.chain(A2);
+            A2.chain(B2);
+            B2.chain(C2);
+            S2.start();
           }
         } 
         
-        if (!this.isDragging) {
+        if (!this.isDragging && int1.length == 0) {
           var A1 = new TWEEN.Tween(this.floor1.children[1].children[0].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
@@ -271,26 +346,29 @@
           B1.chain(C1);
           C1.chain(S1);
           A1.start();
+        }
 
-          new TWEEN.Tween(this.sphereMesh2.position)
+        if (!this.isDragging && int2.length == 0) {
+          var S2 = new TWEEN.Tween(this.sphereMesh2.position)
           .to({ y: 550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
+          .easing(TWEEN.Easing.Cubic.InOut);
 
-          new TWEEN.Tween(this.floor2.children[1].children[0].position)
-          .to({ y: -550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
+          var A2 = new TWEEN.Tween(this.floor2.children[1].children[0].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
 
-          new TWEEN.Tween(this.floor2.children[1].children[1].position)
-          .to({ y: -550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
+          var B2 = new TWEEN.Tween(this.floor2.children[1].children[1].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
 
-          new TWEEN.Tween(this.floor2.children[1].children[2].position)
-          .to({ y: -550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
+          var C2 = new TWEEN.Tween(this.floor2.children[1].children[2].position)
+          .to({ y: -550 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          A2.chain(B2);
+          B2.chain(C2);
+          C2.chain(S2);
+          A2.start();
         }
       }
     },
@@ -305,5 +383,15 @@
   }
 </script>
 <style scoped>
-  
+  .label {
+    text-align: center;
+    width: 200px;
+    height: 200px;
+    border: 1px solid white;
+    border-radius: 5px;
+    color: #ffffff;
+    font-family: sans-serif;
+    background: rgba( 0, 0, 0, .6 );
+    z-index: 100000;
+  }
 </style>

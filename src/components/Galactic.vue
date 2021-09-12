@@ -183,7 +183,7 @@
               .start();
 
             new TWEEN.Tween(text1.position)
-              .to({ x: -1100, y: 50, z: 500 }, 1000)
+              .to({ x: -1300, y: 50, z: 500 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
 
@@ -539,22 +539,36 @@
             });
 
             var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
-
-            if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
-              textMesh.position.x = -1300;
-              textMesh.position.z = 500;
-              textMesh.position.y = 50;
-            } else {
-              textMesh.position.x = -1080;
-              textMesh.position.z = 500;
-              textMesh.position.y = -150;
+            if(window.innerWidth > 1300){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -1300;
+                textMesh.position.z = 500;
+                textMesh.position.y = 50;
+              } else {
+                textMesh.position.x = -1100;
+                textMesh.position.z = 500;
+                textMesh.position.y = -150;
+              }
             }
+            if(window.innerWidth <= 1299){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -1300;
+                textMesh.position.z = 500;
+                textMesh.position.y = 50;
+              } else {
+                textMesh.position.x = -1100;
+                textMesh.position.z = 500;
+                textMesh.position.y = -150;
+              }
+            }
+
 
             textMesh.rotation.x = 0.35;
             textMesh.rotation.y = -0.3;
             textMesh.rotation.z = 0.085;
             textMesh.name = textMask;
             scene.add(textMesh);
+            console.log()
           });
         }
 
@@ -782,6 +796,14 @@
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
         this.render();
+        console.log(this.scene)
+        if(window.innerWidth > 1300){
+
+        }
+        if(window.innerWidth <= 1299){
+          this.scene.children[4].position.x = -1000
+          // console.log(this.scene.children[4])
+        }
       },
     },
     mounted () {

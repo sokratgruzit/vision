@@ -540,11 +540,13 @@
 
             var textMesh = new THREE.Mesh(textGeo1, tShaderMat);
 
-            let leftZero = window.innerWidth * -1
-            console.log(leftZero)
-            if(window.innerWidth > 1300){
+            let leftZero = (window.innerWidth + window.innerHeight) * -1
+            console.log(window.innerWidth * window.innerHeight / 2 / 100 - window.innerHeight)
+            console.log(window.innerHeight)
+            console.log((window.innerWidth / 2) + (window.innerWidth / 2))
+            if(window.innerWidth > 1300) {
               if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
-                textMesh.position.x = leftZero * 1.1;
+                textMesh.position.x = -1300;
                 textMesh.position.z = 500;
                 textMesh.position.y = 50;
               } else {

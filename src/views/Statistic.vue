@@ -58,7 +58,8 @@
         floor2: null,
         sphereMesh3: null,
         diagram3: new THREE.Group(),
-        floor3: null
+        floor3: null,
+        dText: null
       }
     },
     methods: {
@@ -79,6 +80,8 @@
         var aLight = new THREE.DirectionalLight(0xffffff);
         aLight.position.set( 0, 0, 1 );
         this.scene.add(aLight);
+
+        var dNumbersLoader = new THREE.FontLoader();
 
         var dGeo11 = new THREE.BoxBufferGeometry(100, 400, 100);
         var dMat11 = new THREE.MeshLambertMaterial({
@@ -158,19 +161,65 @@
         dMesh33.position.x = 150;
         dMesh33.position.y = -550;
 
-        this.diagram1.position.y = 550;
+        dNumbersLoader.load("./three_fonts/Kanit_Regular.json", function(
+          font
+        ) {
+          var dNumbers = ['50%', '20%', '30%', '21%', '15%', '7%', '56%', '78%', '23%'];
+
+          for (let i = 0; i < dNumbers.length; i++) {
+            var text = new THREE.TextBufferGeometry(dNumbers[i], {
+              font: font,
+              size: 50,
+              height: 5,
+              curveSegments: 10
+            });
+
+            const mat = new THREE.MeshBasicMaterial({
+              color: 0xff7152
+            });
+
+            let mesh = dMesh11;
+
+            if (i == 0) {
+              mesh = dMesh11;
+            } else if (i == 1) {
+              mesh = dMesh12;
+            } else if (i == 2) {
+              mesh = dMesh13;
+            } else if (i == 3) {
+              mesh = dMesh21;
+            } else if (i == 4) {
+              mesh = dMesh22;
+            } else if (i == 5) {
+              mesh = dMesh23;
+            } else if (i == 6) {
+              mesh = dMesh31;
+            } else if (i == 7) {
+              mesh = dMesh32;
+            } else if (i == 8) {
+              mesh = dMesh33;
+            }
+
+            let textMesh = new THREE.Mesh(text, mat);
+            textMesh.position.y = 230;
+            textMesh.position.x = -35;
+            mesh.add(textMesh);
+          }
+        });
+
+        this.diagram1.position.y = 500;
         this.diagram1.rotation.y = 5;
         this.diagram1.add(dMesh11);
         this.diagram1.add(dMesh12);
         this.diagram1.add(dMesh13);
 
-        this.diagram2.position.y = 550;
+        this.diagram2.position.y = 500;
         this.diagram2.rotation.y = 5;
         this.diagram2.add(dMesh21);
         this.diagram2.add(dMesh22);
         this.diagram2.add(dMesh23);
 
-        this.diagram3.position.y = 550;
+        this.diagram3.position.y = 500;
         this.diagram3.rotation.y = 5;
         this.diagram3.add(dMesh31);
         this.diagram3.add(dMesh32);
@@ -323,7 +372,7 @@
         this.isDragging = true;
 
         new TWEEN.Tween(this.bloomPass)
-        .to({ strength: 1 }, 500)
+        .to({ strength: 0.5 }, 500)
         .easing(TWEEN.Easing.Cubic.In)
         .start();
       },

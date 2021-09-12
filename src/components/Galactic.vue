@@ -550,7 +550,7 @@
                 textMesh.position.y = -150;
               }
             }
-            if(window.innerWidth <= 1299){
+            if(window.innerWidth <= 1299 && window.innerWidth >= 1051){
               if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
                 textMesh.position.x = -1300;
                 textMesh.position.z = 500;
@@ -559,6 +559,40 @@
                 textMesh.position.x = -1100;
                 textMesh.position.z = 500;
                 textMesh.position.y = -150;
+              }
+            }
+            if(window.innerWidth <= 1050 && window.innerWidth >= 1298){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -650;
+                textMesh.position.z = 500;
+                textMesh.position.y = 250;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
+              } else {
+                textMesh.position.x = -550;
+                textMesh.position.z = 500;
+                textMesh.position.y = 150;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
+              }
+            }
+            if(window.innerWidth <= 767){
+              if (textMask === "CORE" || textMask === "Connect" || textMask === "Story") {
+                textMesh.position.x = -500;
+                textMesh.position.z = 500;
+                textMesh.position.y = 250;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
+              } else {
+                textMesh.position.x = -400;
+                textMesh.position.z = 500;
+                textMesh.position.y = 150;
+                textMesh.scale.x = 0.5
+                textMesh.scale.y = 0.5
+                textMesh.scale.z = 0.5
               }
             }
 
@@ -798,10 +832,23 @@
         this.render();
         console.log(this.scene)
         if(window.innerWidth > 1300){
-
+          this.scene.children[4].position.x = -1300
+          this.scene.children[5].position.x = -1100
         }
-        if(window.innerWidth <= 1299){
+        if(window.innerWidth <= 1299 && window.innerWidth >= 1051){
           this.scene.children[4].position.x = -1000
+          this.scene.children[5].position.x = -800
+          // console.log(this.scene.children[4])
+        }
+        if(window.innerWidth <= 1050){
+          this.scene.children[4].position.x = -1000
+          this.scene.children[5].position.x = -800
+          this.scene.children[4].scale.x = 0.5
+          this.scene.children[4].scale.y = 0.5
+          this.scene.children[4].scale.z = 0.5
+          this.scene.children[5].scale.x = 0.5
+          this.scene.children[5].scale.y = 0.5
+          this.scene.children[5].scale.z = 0.5
           // console.log(this.scene.children[4])
         }
       },

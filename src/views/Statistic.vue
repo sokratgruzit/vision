@@ -1,7 +1,22 @@
 <template>
-  <div class="statistic__wrapper">
-    <div id="statistic-container"></div>
+  <div>
+    <div class="statistic__wrapper">
+      <div id="statistic-container"></div>
+    </div>
+    <div class="statistic-text__container">
+      <div class="statistic-text__block">
+        <div class="statistic-text__block-inner">
+          <h2 class="statistic-text__ttl">Text</h2>
+          <div class="statistic-text__text">
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+            Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
+
 </template>
 
 <script>
@@ -73,11 +88,11 @@
 
         var width = window.innerWidth;
         var height = window.innerHeight;
-        
+
         this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 5000);
         this.camera.position.z = 2500;
         this.camera.position.y = 600;
-        
+
         var sLight = new THREE.PointLight(0xff00ff);
         sLight.position.set(-100, 100, 100);
         this.scene.add(sLight);
@@ -247,7 +262,7 @@
         label.scale.set(5, 5, 5);
 
         var floorGeo1 = new THREE.CylinderGeometry(300, 300, 500, 32);
-        var floorMat1 = new THREE.MeshLambertMaterial({ 
+        var floorMat1 = new THREE.MeshLambertMaterial({
           color: 0x00050F,
           wireframe: false
         });
@@ -258,7 +273,7 @@
         this.floor1.add(this.sphereMesh1);
         this.floor1.add(this.diagram1);
         this.floor1.add(label);
-        
+
         var sphereGeo2 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat2 = new THREE.MeshLambertMaterial({
           color: this.colors[1],
@@ -276,7 +291,7 @@
         label2.scale.set(5, 5, 5);
 
         var floorGeo2 = new THREE.CylinderGeometry(300, 300, 500, 32);
-        var floorMat2 = new THREE.MeshLambertMaterial({ 
+        var floorMat2 = new THREE.MeshLambertMaterial({
           color: 0x00050F,
           wireframe: false
         });
@@ -306,7 +321,7 @@
         label3.scale.set(5, 5, 5);
 
         var floorGeo3 = new THREE.CylinderGeometry(300, 300, 500, 32);
-        var floorMat3 = new THREE.MeshLambertMaterial({ 
+        var floorMat3 = new THREE.MeshLambertMaterial({
           color: 0x00050F,
           wireframe: false,
           clippingPlanes: [this.floor1],
@@ -322,7 +337,7 @@
         this.floor3.add(label3);
 
         var wrapperGeo = new THREE.CylinderGeometry(1500, 1500, 1, 50);
-        var wrapperMat = new THREE.MeshLambertMaterial({ 
+        var wrapperMat = new THREE.MeshLambertMaterial({
           color: 0x00050F,
           wireframe: false
         });
@@ -419,11 +434,11 @@
         let int1 = this.raycaster.intersectObjects([this.scene.children[2].children[0]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[2].children[1]]);
         let int3 = this.raycaster.intersectObjects([this.scene.children[2].children[2]]);
-        
+
         int1 = int1[0] !== undefined ? int1[0] : false;
         int2 = int2[0] !== undefined ? int2[0] : false;
         int3 = int3[0] !== undefined ? int3[0] : false;
-        
+
         if (this.isDragging) {
           if (int1 && !int2 && !int3) {
             let fl1 = int1.object;
@@ -443,11 +458,11 @@
             var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
             .to({ y: -150 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
-            
+
             var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
             .to({ y: -180 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
-            
+
             var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
             .to({ y: -100 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
@@ -455,12 +470,12 @@
             S1.chain(A1);
             A1.chain(B1);
             B1.chain(C1);
-            S1.start();     
-          } 
+            S1.start();
+          }
 
           if (int2 && !int1 && !int3) {
             let fl2 = int2.object;
-            
+
             if (this.directionX === "right") {
               fl2.rotation.y = fl2.rotation.y + this.mouse.x;
             }
@@ -493,7 +508,7 @@
 
           if (int3 && !int1 && !int2) {
             let fl3 = int3.object;
-            
+
             if (this.directionX === "right") {
               fl3.rotation.y = fl3.rotation.y + this.mouse.x;
             }
@@ -523,8 +538,8 @@
             B3.chain(C3);
             S3.start();
           }
-        } 
-        
+        }
+
         if (!int1) {
           let fl1 = this.scene.children[2].children[0];
 
@@ -539,7 +554,7 @@
           var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
-          
+
           var S1 = new TWEEN.Tween(this.sphereMesh1.position)
           .to({ y: 550 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut);
@@ -622,6 +637,76 @@
   }
 </script>
 <style scoped>
+  .statistic-text__container:before{
+    height: 30px;
+    width: 100%;
+    content: '';
+    bottom: 0px;
+    right: 0px;
+    z-index: 10;
+    position: absolute;
+    background: rgb(0,5,15);
+    background: linear-gradient(180deg, rgba(0,5,15,0) 0%, rgba(0,5,15,1) 100%);
+  }
+  .statistic-text__container:after{
+    height: 30px;
+    width: 100%;
+    content: '';
+    top: 0px;
+    right: 0px;
+    z-index: 10;
+    position: absolute;
+    background: rgb(0,5,15);
+    background: linear-gradient(0deg, rgba(0,5,15,0) 0%, rgba(0,5,15,1) 100%);
+  }
+  .statistic-text__block{
+    position: absolute;
+    max-height: 100%;
+    width: 100%;
+    top: 0px;
+    right: 0px;
+    overflow-y: auto;
+  }
+  /* width */
+  .statistic-text__block::-webkit-scrollbar {
+    width: 3px;
+  }
+
+  /* Track */
+  .statistic-text__block::-webkit-scrollbar-track {
+    background: rgb(0,5,15);
+  }
+
+  /* Handle */
+  .statistic-text__block::-webkit-scrollbar-thumb {
+    background: #FF7152;
+  }
+  .statistic-text__text{
+    text-align: left;
+    color: rgba(171, 176, 188, 1);
+    padding-bottom: 100px;
+  }
+  .statistic-text__ttl{
+    text-align: left;
+    font-size: 70px;
+    line-height: 70px;
+    color: #FF7152;
+    margin-bottom: 30px;
+    margin-top: 30px;
+  }
+  .statistic-text__block-inner{
+    display: flex;
+    flex-direction: column;
+    padding-right: 30px;
+  }
+  .statistic-text__container{
+    position: absolute;
+    width: 40%;
+    right: 80px;
+    height: calc(100% - 138px);
+    z-index: 10;
+    bottom: 0px;
+  }
   .statistic__wrapper {
     position: absolute;
     top: 0px;

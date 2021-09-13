@@ -1438,6 +1438,7 @@ export default {
   #list-item3,
   #list-item4 {
     opacity: 0;
+    display: none;
   }
   #year-2021,
   #year-2022,

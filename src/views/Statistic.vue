@@ -558,7 +558,7 @@
           A1.start();
         }
 
-        if (!this.isDragging && int1.length == 0) {
+        if (!this.isDragging && int2.length == 0) {
           let fl2 = this.scene.children[2].children[1];
 
           var S2 = new TWEEN.Tween(this.sphereMesh2.position)
@@ -583,7 +583,7 @@
           A2.start();
         }
 
-        if (!this.isDragging && int2.length == 0) {
+        if (!this.isDragging && int3.length == 0) {
           let fl3 = this.scene.children[2].children[2];
 
           var S3 = new TWEEN.Tween(this.sphereMesh3.position)

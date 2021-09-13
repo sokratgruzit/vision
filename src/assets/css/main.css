@@ -78,10 +78,97 @@ button {
 .dg.ac{
     display: none;
 }
+.roadmap-hepler__outer{
+    display: flex;
+    width: 160px;
+    height: 75px;
+    position: relative;
+}
+.roadmap-hepler__drag-ttl{
+    font-size: 14px;
+    line-height: 18px;
+    margin-top: 10px;
+}
+.roadmap-hepler__drag{
+    position: relative;
+}
+.roadmap-hepler__drag-line{
+    width: 160px;
+    height: 1px;
+    background: #fff;
+}
+.roadmap-hepler{
+    display: flex;
+    position: absolute;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+    width: 100%;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+}
+.roadmap-hepler.active{
+    opacity: 1;
+    transition-delay: .6s;
+}
+.roadmap-hepler__drag svg{
+    height: 40px;
+    width: 40px;
+    margin-top: -20px;
+}
+.roadmap-hepler__drag-icon{
+    animation-name: swinging;
+    animation-duration: 1.2s;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-delay: 0s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    animation-play-state: running;
+}
+.roadmap-hepler__click-icon{
+    animation-name: clickin;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-delay: 0s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    animation-play-state: running;
+}
+@keyframes clickin{
+    0%{transform: scale(1) }
+    100%{transform: scale(.8) }
+}
+@keyframes swinging{
+    0%{transform: translate3d(-15px, 0, 0) }
+    100%{transform: translate3d(15px, 0, 0) }
+}
+.roadmap-hepler__container{
+    position: fixed;
+    bottom: 30px;
+    width: 100%;
+    left: 0px;
+    justify-content: center;
+    z-index: 10;
+    display: flex;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    pointer-events: none;
+}
 /*Ipad 768*/
 @media (max-width: 1023px){
     .container{
         padding: 0px 40px;
+    }
+    .roadmap-hepler__container{
+        top: 0px;
+        left: 0px;
+        right: 0px;
+        bottom: 0px;
+        align-items: center;
+    }
+    .roadmap-hepler__container.active{
+        background: rgba(0,5,15,.5);
     }
 }
 /*Mobile 320*/

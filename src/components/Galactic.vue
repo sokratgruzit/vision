@@ -234,8 +234,8 @@
         this.renderer.setSize(width, height);
         document.getElementById("galaxy-container").appendChild(this.renderer.domElement);
         this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
-				this.labelRenderer.domElement.style.position = 'absolute';
-				this.labelRenderer.domElement.style.top = '0px';
+        this.labelRenderer.domElement.style.position = 'absolute';
+        this.labelRenderer.domElement.style.top = '0px';
         document.getElementById("galaxy-container").appendChild(this.labelRenderer.domElement);
         this.clock = new THREE.Clock();
         this.clock.start();
@@ -612,10 +612,10 @@
       },
       moveGalaxyOnSlider: function () {
         var A = new TWEEN.Tween(this.particles.position).to({ x: -1000, y: -1500, z: 3000 }, 500)
-        .easing(TWEEN.Easing.Quadratic.In);
+          .easing(TWEEN.Easing.Quadratic.In);
 
         var B = new TWEEN.Tween(this.particles.position).to({ x: -280, y: -900, z: 748 }, 500)
-        .easing(TWEEN.Easing.Quadratic.In);
+          .easing(TWEEN.Easing.Quadratic.In);
 
         A.chain(B);
 
@@ -755,9 +755,9 @@
           tooltip.style.opacity = 1;
 
           new TWEEN.Tween(iMesh.children[0].scale)
-          .to({ x: 1, y: 1, z: 1 }, 300)
-          .easing(TWEEN.Easing.Quadratic.In)
-          .start();
+            .to({ x: 1, y: 1, z: 1 }, 300)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
           new TWEEN.Tween(iMesh.scale)
             .to({ x: 2, y: 2, z: 2 }, 300)
@@ -770,9 +770,9 @@
 
 
           new TWEEN.Tween(this.particles.children[1].children[0].scale)
-          .to({ x: 0, y: 0, z: 0 }, 100)
-          .easing(TWEEN.Easing.Quadratic.In)
-          .start();
+            .to({ x: 0, y: 0, z: 0 }, 100)
+            .easing(TWEEN.Easing.Quadratic.In)
+            .start();
 
           new TWEEN.Tween(this.particles.children[1].scale)
             .to({ x: 1, y: 1, z: 1 }, 200)

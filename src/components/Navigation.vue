@@ -64,7 +64,7 @@
         </router-link>
       </div>
       <footer>
-        <div class="footer__text">© CORE Academy, 2021</div>
+        <div class="footer__text">© CORE Vision, 2021</div>
         <div class="footer__text">All rights reserved</div>
         <router-link to="/" class="footer__link">Privacy & Terms</router-link>
       </footer>

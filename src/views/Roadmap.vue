@@ -632,7 +632,7 @@ export default {
       container.appendChild(this.renderer.domElement);
     },
     loadFilter: function () {
-    setTimeout(() => {
+      setTimeout(() => {
         if(this.$store.state.stopRoadmap !== true) {
           let filter = this.filterScenes[0].children[0];
           new TWEEN.Tween(filter.scale)
@@ -684,24 +684,36 @@ export default {
 
       if (status) {
         value = 1;
-        el1 = this.filterScenes[1].children[0].scale;
-        el2 = this.filterScenes[2].children[0].scale;
-        el3 = this.filterScenes[3].children[0].scale;
-        el4 = this.filterScenes[4].children[0].scale;
         class1 = 'list-item1';
         class2 = 'list-item2';
         class3 = 'list-item3';
         class4 = 'list-item4';
+
+        document.getElementById(class1).style['display'] = 'block';
+        document.getElementById(class2).style['display'] = 'block';
+        document.getElementById(class3).style['display'] = 'block';
+        document.getElementById(class4).style['display'] = 'block';
+
+        el1 = this.filterScenes[1].children[0].scale;
+        el2 = this.filterScenes[2].children[0].scale;
+        el3 = this.filterScenes[3].children[0].scale;
+        el4 = this.filterScenes[4].children[0].scale;
       } else {
         value = 0;
-        el1 = this.filterScenes[4].children[0].scale;
-        el2 = this.filterScenes[3].children[0].scale;
-        el3 = this.filterScenes[2].children[0].scale;
-        el4 = this.filterScenes[1].children[0].scale;
         class1 = 'list-item4';
         class2 = 'list-item3';
         class3 = 'list-item2';
         class4 = 'list-item1';
+
+        document.getElementById(class1).style['display'] = 'none';
+        document.getElementById(class2).style['display'] = 'none';
+        document.getElementById(class3).style['display'] = 'none';
+        document.getElementById(class4).style['display'] = 'none';
+
+        el1 = this.filterScenes[4].children[0].scale;
+        el2 = this.filterScenes[3].children[0].scale;
+        el3 = this.filterScenes[2].children[0].scale;
+        el4 = this.filterScenes[1].children[0].scale;
       }
 
       if (this.filterScenes[0].children[0].scale.x === 1) {
@@ -1381,6 +1393,12 @@ export default {
 }
 </script>
 <style>
+  #list-item1,
+  #list-item2,
+  #list-item3,
+  #list-item4 {
+    display: none;
+  }
   .roadmap-hepler__drag-ttl{
     font-size: 14px;
     line-height: 18px;

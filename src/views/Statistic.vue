@@ -208,7 +208,6 @@
             textMesh.position.y = 230;
             textMesh.position.x = 35;
             textMesh.rotation.y = 35;
-            textMesh.name = 'number' + i;
             mesh.add(textMesh);
           }
         });
@@ -309,7 +308,9 @@
         var floorGeo3 = new THREE.CylinderGeometry(300, 300, 500, 32);
         var floorMat3 = new THREE.MeshLambertMaterial({ 
           color: 0x00050F,
-          wireframe: false
+          wireframe: false,
+          clippingPlanes: [this.floor1],
+          clipShadows: true
         });
         this.floor3 = new THREE.Mesh(floorGeo3, floorMat3);
         this.floor3.position.z = -1060;
@@ -330,6 +331,7 @@
         wrapper.add(this.floor2);
         wrapper.add(this.floor3);
         this.scene.add(wrapper);
+        wrapper.position.x = -width;
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -367,9 +369,6 @@
         this.render();
       },
       render: function () {
-        //this.cNormal.copy(this.normal).applyMatrix3(this.floor1.normalMatrix);
-        //this.cPos.copy(this.pos).applyMatrix4(this.m4.multiplyMatrices(this.camera.matrixWorldInverse, this.floor1.matrixWorld));
-
         this.raycaster.setFromCamera(this.mouse, this.camera);
         this.raycaster.firstHitOnly = true;
         this.renderer.render(this.scene, this.camera);
@@ -417,24 +416,17 @@
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-        let wrapper = this.raycaster.intersectObjects([this.scene.children[2]]);
         let int1 = this.raycaster.intersectObjects([this.scene.children[2].children[0]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[2].children[1]]);
         let int3 = this.raycaster.intersectObjects([this.scene.children[2].children[2]]);
         
+        int1 = int1[0] !== undefined ? int1[0] : false;
+        int2 = int2[0] !== undefined ? int2[0] : false;
+        int3 = int3[0] !== undefined ? int3[0] : false;
+        
         if (this.isDragging) {
-          if (wrapper !== null && wrapper.length > 0) {
-            if (this.directionX === "right") {
-              this.scene.children[2].rotation.y = this.scene.children[2].rotation.y + this.mouse.x;
-            }
-
-            if (this.directionX === "left") {
-              this.scene.children[2].rotation.y = this.scene.children[2].rotation.y - this.mouse.x;
-            }
-          }
-
-          if (int1 !== null && int1.length > 0) {
-            let fl1 = this.scene.children[2].children[0];
+          if (int1 && !int2 && !int3) {
+            let fl1 = int1.object;
 
             if (this.directionX === "right") {
               fl1.rotation.y = fl1.rotation.y + this.mouse.x;
@@ -466,8 +458,8 @@
             S1.start();     
           } 
 
-          if (int2 !== null && int2.length > 0) {
-            let fl2 = this.scene.children[2].children[1];
+          if (int2 && !int1 && !int3) {
+            let fl2 = int2.object;
             
             if (this.directionX === "right") {
               fl2.rotation.y = fl2.rotation.y + this.mouse.x;
@@ -499,8 +491,8 @@
             S2.start();
           }
 
-          if (int3 !== null && int3.length > 0) {
-            let fl3 = this.scene.children[2].children[2];
+          if (int3 && !int1 && !int2) {
+            let fl3 = int3.object;
             
             if (this.directionX === "right") {
               fl3.rotation.y = fl3.rotation.y + this.mouse.x;
@@ -533,7 +525,7 @@
           }
         } 
         
-        if (!this.isDragging && int1.length == 0) {
+        if (!int1) {
           let fl1 = this.scene.children[2].children[0];
 
           var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
@@ -558,7 +550,7 @@
           A1.start();
         }
 
-        if (!this.isDragging && int2.length == 0) {
+        if (!int2) {
           let fl2 = this.scene.children[2].children[1];
 
           var S2 = new TWEEN.Tween(this.sphereMesh2.position)
@@ -583,7 +575,7 @@
           A2.start();
         }
 
-        if (!this.isDragging && int3.length == 0) {
+        if (!int3) {
           let fl3 = this.scene.children[2].children[2];
 
           var S3 = new TWEEN.Tween(this.sphereMesh3.position)
@@ -607,6 +599,15 @@
           C3.chain(S3);
           A3.start();
         }
+      },
+      wheelScroll: function (event) {
+        if (event.deltaY < 0) {
+          this.scene.children[2].rotation.y -= event.clientX * 0.0008;
+        }
+
+        if (event.deltaY > 0) {
+          this.scene.children[2].rotation.y += event.clientX * 0.0008;
+        }
       }
     },
     mounted () {
@@ -616,6 +617,7 @@
       window.addEventListener('mousedown', this.onMouseDown, false);
       window.addEventListener('mouseup', this.onMouseUp, false);
       window.addEventListener('pointermove', this.onMouseMove);
+      document.addEventListener('wheel', this.wheelScroll, false);
     },
   }
 </script>

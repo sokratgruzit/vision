@@ -1,14 +1,6 @@
 <template>
     <div class="main-slide container" :class="firstAnimation ? 'animated' : ''">
       <div class="main-slide__inner">
-        <h1 class="main-slide__title">
-          <!--<div class="main-slide__title-out">
-            <div class="main-slide__title-in">CORE</div>
-          </div>
-          <div class="main-slide__title-out">
-            <div class="main-slide__title-in">VISION</div>
-          </div>-->
-        </h1>
         <div class="main-slide__description">
           <p>Multi Chain PoS Network focused
             on Interoperability, Scalability and Usability.
@@ -176,6 +168,7 @@ export default {
     display: flex;
     flex-direction: column;
     padding-top: 295px;
+    margin-left: auto;
   }
   .main-slide__description p{
     text-align: left;
@@ -230,18 +223,22 @@ export default {
       line-height: 100px;
     }
     .main-slide__description{
-      padding-top: 205px;
+      width: 290px;
+    }
+    .main-slide__description p{
+      font-size: 14px;
+      line-height: 22px;
+    }
+    .main-slide__description .explore-button {
+      margin-top: 30px;
+      height: 45px;
+      padding: 0px 27px;
     }
   }
   /*Ipad 768*/
   @media (max-width: 1023px){
-    .main-slide__inner{
-      flex-direction: column;
-      justify-content: flex-start;
-    }
     .main-slide__description{
-      padding-top: 0px;
-      margin-top: 50px;
+      padding-top: 440px;
     }
     .main-slide__video-container {
       transform: translateX(0%) translateY(30%);
@@ -259,12 +256,8 @@ export default {
     .main-slide__title {
       padding-top: 120px;
     }
-    .main-slide__description p{
-      font-size: 16px;
-    }
     .main-slide__description{
-      width: 100%;
-      margin-top: 30px;
+      padding-top: 270px;
     }
     .main-slide__description .explore-button{
       margin-top: 30px;

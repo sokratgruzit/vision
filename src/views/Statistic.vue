@@ -22,7 +22,7 @@
         cube: null,
         camera: null,
         renderer: null,
-        clock: null,
+        time: 0,
         raycaster: new THREE.Raycaster(),
         mouse: new THREE.Vector2(),
         isDragging: false,
@@ -34,6 +34,10 @@
         cNormal: new THREE.Vector3(),
         cPos: new THREE.Vector3(),
         m4: new THREE.Matrix4(),
+        direction: "",
+        directionX: "",
+        oldX: 0,
+        oldY: 0,
         div: null,
         div2: null,
         div3: null,
@@ -70,9 +74,9 @@
         var width = window.innerWidth;
         var height = window.innerHeight;
         
-        this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 3000);
-        this.camera.position.z = 1700;
-        this.camera.position.y = 700;
+        this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 5000);
+        this.camera.position.z = 2500;
+        this.camera.position.y = 600;
         
         var sLight = new THREE.PointLight(0xff00ff);
         sLight.position.set(-100, 100, 100);
@@ -202,13 +206,15 @@
 
             let textMesh = new THREE.Mesh(text, mat);
             textMesh.position.y = 230;
-            textMesh.position.x = -35;
+            textMesh.position.x = 35;
+            textMesh.rotation.y = 35;
+            textMesh.name = 'number' + i;
             mesh.add(textMesh);
           }
         });
 
         this.diagram1.position.y = 500;
-        this.diagram1.rotation.y = 5;
+        this.diagram1.rotation.y = 4.8;
         this.diagram1.add(dMesh11);
         this.diagram1.add(dMesh12);
         this.diagram1.add(dMesh13);
@@ -220,7 +226,7 @@
         this.diagram2.add(dMesh23);
 
         this.diagram3.position.y = 500;
-        this.diagram3.rotation.y = 5;
+        this.diagram3.rotation.y = 4.5;
         this.diagram3.add(dMesh31);
         this.diagram3.add(dMesh32);
         this.diagram3.add(dMesh33);
@@ -241,19 +247,18 @@
         label.rotation.y = Math.PI * 0.5;
         label.scale.set(5, 5, 5);
 
-        var floorGeo1 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
+        var floorGeo1 = new THREE.CylinderGeometry(300, 300, 500, 32);
         var floorMat1 = new THREE.MeshLambertMaterial({ 
           color: 0x00050F,
           wireframe: false
         });
         this.floor1 = new THREE.Mesh(floorGeo1, floorMat1);
-        this.floor1.material.side = THREE.DoubleSide;
-        this.floor1.position.x = -width;
+        this.floor1.position.x = -1200;
+        this.floor1.position.y = 245;
         this.floor1.rotation.y = 4.8;
         this.floor1.add(this.sphereMesh1);
         this.floor1.add(this.diagram1);
         this.floor1.add(label);
-        this.scene.add(this.floor1); 
         
         var sphereGeo2 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat2 = new THREE.MeshLambertMaterial({
@@ -271,19 +276,19 @@
         label2.rotation.y = Math.PI * 0.5;
         label2.scale.set(5, 5, 5);
 
-        var floorGeo2 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
+        var floorGeo2 = new THREE.CylinderGeometry(300, 300, 500, 32);
         var floorMat2 = new THREE.MeshLambertMaterial({ 
           color: 0x00050F,
           wireframe: false
         });
         this.floor2 = new THREE.Mesh(floorGeo2, floorMat2);
-        this.floor2.material.side = THREE.DoubleSide;
-        this.floor2.position.z = 200;
+        this.floor2.position.x = 600;
+        this.floor2.position.z = 1045;
+        this.floor2.position.y = 245;
         this.floor2.rotation.y = 4.8;
         this.floor2.add(this.sphereMesh2);
         this.floor2.add(this.diagram2);
         this.floor2.add(label2);
-        this.scene.add(this.floor2); 
 
         var sphereGeo3 = new THREE.SphereBufferGeometry(200, 40, 40);
         var sphereMat3 = new THREE.MeshLambertMaterial({
@@ -301,19 +306,30 @@
         label3.rotation.y = Math.PI * 0.5;
         label3.scale.set(5, 5, 5);
 
-        var floorGeo3 = new THREE.BoxBufferGeometry(500, 500, 500, 500);
+        var floorGeo3 = new THREE.CylinderGeometry(300, 300, 500, 32);
         var floorMat3 = new THREE.MeshLambertMaterial({ 
           color: 0x00050F,
           wireframe: false
         });
         this.floor3 = new THREE.Mesh(floorGeo3, floorMat3);
-        this.floor3.material.side = THREE.DoubleSide;
-        this.floor3.position.x = width;
+        this.floor3.position.z = -1060;
+        this.floor3.position.x = 550;
+        this.floor3.position.y = 245;
         this.floor3.rotation.y = 4.8;
         this.floor3.add(this.sphereMesh3);
         this.floor3.add(this.diagram3);
         this.floor3.add(label3);
-        this.scene.add(this.floor3); 
+
+        var wrapperGeo = new THREE.CylinderGeometry(1500, 1500, 1, 50);
+        var wrapperMat = new THREE.MeshLambertMaterial({ 
+          color: 0x00050F,
+          wireframe: false
+        });
+        var wrapper = new THREE.Mesh(wrapperGeo, wrapperMat);
+        wrapper.add(this.floor1);
+        wrapper.add(this.floor2);
+        wrapper.add(this.floor3);
+        this.scene.add(wrapper);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -385,30 +401,62 @@
         .start();
       },
       onMouseMove: function (event) {
+        if (event.pageY < this.oldY) {
+          this.direction = "up";
+        } else if (event.pageY > this.oldY) {
+          this.direction = "down";
+        } else if (event.pageX < this.oldX) {
+          this.directionX = "left";
+        } else if (event.pageX > this.oldX) {
+          this.directionX = "right";
+        }
+
+        this.oldY = event.pageY;
+        this.oldX = event.pageX;
+
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-        let int1 = this.raycaster.intersectObjects([this.scene.children[2]]);
-        let int2 = this.raycaster.intersectObjects([this.scene.children[3]]);
-        let int3 = this.raycaster.intersectObjects([this.scene.children[4]]);
-
+        let wrapper = this.raycaster.intersectObjects([this.scene.children[2]]);
+        let int1 = this.raycaster.intersectObjects([this.scene.children[2].children[0]]);
+        let int2 = this.raycaster.intersectObjects([this.scene.children[2].children[1]]);
+        let int3 = this.raycaster.intersectObjects([this.scene.children[2].children[2]]);
+        
         if (this.isDragging) {
+          if (wrapper !== null && wrapper.length > 0) {
+            if (this.directionX === "right") {
+              this.scene.children[2].rotation.y = this.scene.children[2].rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              this.scene.children[2].rotation.y = this.scene.children[2].rotation.y - this.mouse.x;
+            }
+          }
+
           if (int1 !== null && int1.length > 0) {
-            this.floor1.rotation.y = this.floor1.rotation.y + this.mouse.x;
+            let fl1 = this.scene.children[2].children[0];
+
+            if (this.directionX === "right") {
+              fl1.rotation.y = fl1.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl1.rotation.y = fl1.rotation.y - this.mouse.x;
+            }
 
             var S1 = new TWEEN.Tween(this.sphereMesh1.position)
             .to({ y: 0 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var A1 = new TWEEN.Tween(this.floor1.children[1].children[0].position)
+            var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
             .to({ y: -150 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
             
-            var B1 = new TWEEN.Tween(this.floor1.children[1].children[1].position)
+            var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
             .to({ y: -180 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
             
-            var C1 = new TWEEN.Tween(this.floor1.children[1].children[2].position)
+            var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
             .to({ y: -100 }, 200)
             .easing(TWEEN.Easing.Cubic.InOut);
 
@@ -419,21 +467,29 @@
           } 
 
           if (int2 !== null && int2.length > 0) {
-            this.floor2.rotation.y = this.floor2.rotation.y + this.mouse.x;
+            let fl2 = this.scene.children[2].children[1];
+            
+            if (this.directionX === "right") {
+              fl2.rotation.y = fl2.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl2.rotation.y = fl2.rotation.y - this.mouse.x;
+            }
 
             var S2 = new TWEEN.Tween(this.sphereMesh2.position)
             .to({ y: 0 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var A2 = new TWEEN.Tween(this.floor2.children[1].children[0].position)
+            var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
             .to({ y: -200 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var B2 = new TWEEN.Tween(this.floor2.children[1].children[1].position)
+            var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
             .to({ y: -180 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var C2 = new TWEEN.Tween(this.floor2.children[1].children[2].position)
+            var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
             .to({ y: -110 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
@@ -444,21 +500,29 @@
           }
 
           if (int3 !== null && int3.length > 0) {
-            this.floor3.rotation.y = this.floor3.rotation.y + this.mouse.x;
+            let fl3 = this.scene.children[2].children[2];
+            
+            if (this.directionX === "right") {
+              fl3.rotation.y = fl3.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl3.rotation.y = fl3.rotation.y - this.mouse.x;
+            }
 
             var S3 = new TWEEN.Tween(this.sphereMesh3.position)
             .to({ y: 0 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var A3 = new TWEEN.Tween(this.floor3.children[1].children[0].position)
+            var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
             .to({ y: -200 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var B3 = new TWEEN.Tween(this.floor3.children[1].children[1].position)
+            var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
             .to({ y: -180 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
-            var C3 = new TWEEN.Tween(this.floor3.children[1].children[2].position)
+            var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
             .to({ y: -110 }, 500)
             .easing(TWEEN.Easing.Cubic.InOut);
 
@@ -470,15 +534,17 @@
         } 
         
         if (!this.isDragging && int1.length == 0) {
-          var A1 = new TWEEN.Tween(this.floor1.children[1].children[0].position)
+          let fl1 = this.scene.children[2].children[0];
+
+          var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var B1 = new TWEEN.Tween(this.floor1.children[1].children[1].position)
+          var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var C1 = new TWEEN.Tween(this.floor1.children[1].children[2].position)
+          var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
           
@@ -492,20 +558,22 @@
           A1.start();
         }
 
-        if (!this.isDragging && int2.length == 0) {
+        if (!this.isDragging && int1.length == 0) {
+          let fl2 = this.scene.children[2].children[1];
+
           var S2 = new TWEEN.Tween(this.sphereMesh2.position)
           .to({ y: 550 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var A2 = new TWEEN.Tween(this.floor2.children[1].children[0].position)
+          var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var B2 = new TWEEN.Tween(this.floor2.children[1].children[1].position)
+          var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var C2 = new TWEEN.Tween(this.floor2.children[1].children[2].position)
+          var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
@@ -515,20 +583,22 @@
           A2.start();
         }
 
-        if (!this.isDragging && int3.length == 0) {
+        if (!this.isDragging && int2.length == 0) {
+          let fl3 = this.scene.children[2].children[2];
+
           var S3 = new TWEEN.Tween(this.sphereMesh3.position)
           .to({ y: 550 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var A3 = new TWEEN.Tween(this.floor3.children[1].children[0].position)
+          var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var B3 = new TWEEN.Tween(this.floor3.children[1].children[1].position)
+          var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 
-          var C3 = new TWEEN.Tween(this.floor3.children[1].children[2].position)
+          var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
           .to({ y: -550 }, 200)
           .easing(TWEEN.Easing.Cubic.InOut);
 

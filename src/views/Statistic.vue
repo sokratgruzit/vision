@@ -616,12 +616,17 @@
         }
       },
       wheelScroll: function (event) {
-        if (event.deltaY < 0) {
-          this.scene.children[2].rotation.y -= event.clientX * 0.0008;
-        }
+        let wrapper = this.raycaster.intersectObjects([this.scene.children[2]]);
+        wrapper = wrapper[0] !== undefined ? wrapper[0] : false;
 
-        if (event.deltaY > 0) {
-          this.scene.children[2].rotation.y += event.clientX * 0.0008;
+        if (wrapper) {
+          if (event.deltaY < 0) {
+            this.scene.children[2].rotation.y -= event.clientX * 0.0008;
+          }
+
+          if (event.deltaY > 0) {
+            this.scene.children[2].rotation.y += event.clientX * 0.0008;
+          }
         }
       }
     },

@@ -27,6 +27,13 @@
   import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
   import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
   const TWEEN = require('@tweenjs/tween.js');
+  import {
+    fractal_vertex
+  } from '../assets/shaders/vertex.js';
+  import {
+    fractal_fragment
+  } from '../assets/shaders/fragment.js';
+
   export default {
     name: 'Statistic',
     data () {
@@ -395,6 +402,58 @@
         this.composer = new EffectComposer(this.renderer);
 				this.composer.addPass(this.renderScene);
 				this.composer.addPass(this.bloomPass);
+
+        //Fractal
+        this.fractalUniforms = {
+          res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
+          aspect: {type: 'float', value: window.innerWidth / window.innerHeight},
+          zoom: {type:'float', value: this.fractalZoom},
+          opacity: {value: 0.05},
+					color: {value: this.colors[3]},
+          offset: {type:'vec2', value: this.fractalOffset},
+          pset1: {type:'vec3', value: new THREE.Vector3(this.fractalParams['a'], this.fractalParams['b'], this.fractalParams['c'])},
+          pset2: {type:'vec3', value: new THREE.Vector3(this.fractalParams['d'], this.fractalParams['e'], this.fractalParams['f'])}
+        };
+
+        let fractalGeo = new THREE.PlaneBufferGeometry(6000, 5000);
+        let fractalMat = new THREE.ShaderMaterial({
+          uniforms: this.fractalUniforms,
+          fragmentShader: fractal_fragment,
+          vertexShader: fractal_vertex,
+          blending: THREE.AdditiveBlending,
+					depthTest: false,
+					transparent: true
+        });
+
+        this.fractalMesh = new THREE.Mesh(fractalGeo, fractalMat);
+        this.fractalMesh.position.x = -width * 1.8;
+        this.scene.add(this.fractalMesh);
+
+        this.fractalUniforms2 = {
+          res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
+          aspect: {type: 'float', value: window.innerWidth / window.innerHeight},
+          zoom: {type:'float', value: this.fractalZoom2},
+          opacity: {value: 0.1},
+					color: {value: this.colors[3]},
+          offset: {type:'vec2', value: this.fractalOffset2},
+          pset1: {type:'vec3', value: new THREE.Vector3(this.fractalParams['a'], this.fractalParams['b'], this.fractalParams['c'])},
+          pset2: {type:'vec3', value: new THREE.Vector3(this.fractalParams['d'], this.fractalParams['e'], this.fractalParams['f'])}
+        };
+
+        let fractalGeo2 = new THREE.PlaneBufferGeometry(6000, 5000);
+        let fractalMat2 = new THREE.ShaderMaterial({
+          uniforms: this.fractalUniforms2,
+          fragmentShader: fractal_fragment,
+          vertexShader: fractal_vertex,
+          blending: THREE.AdditiveBlending,
+					depthTest: false,
+					transparent: true
+        });
+
+        this.fractalMesh2 = new THREE.Mesh(fractalGeo2, fractalMat2);
+        this.fractalMesh2.position.x = -width * 1.8;
+        this.scene.add(this.fractalMesh2);
+        //End Fractal
       },
       animate: function() {
         this.sphereMesh1.rotation.x += 0.01;
@@ -403,6 +462,54 @@
 	      this.sphereMesh2.rotation.y += 0.01;
         this.sphereMesh3.rotation.x -= 0.01;
 	      this.sphereMesh3.rotation.y -= 0.01;
+        
+        if (this.zoomUp) {
+          this.fractalZoom = this.fractalZoom - 0.005;
+          if (this.fractalZoom < 0) {
+            this.zoomUp = false;
+            this.zoomDown = true;
+          }
+        }
+
+        if (this.zoomDown) {
+          this.fractalZoom = this.fractalZoom + 0.005;
+          if (this.fractalZoom > 4) {
+            this.zoomUp = true;
+            this.zoomDown = false;
+          }
+        }
+
+        this.fractalOffset = this.fractalOffset.add(new THREE.Vector2(
+          -this.fractalOffset.x + -1, 
+          -this.fractalOffset.y + -0.33
+        ));
+
+        this.fractalUniforms['zoom']['value'] = this.fractalZoom;
+        this.fractalUniforms['offset']['value'] = this.fractalOffset;
+
+        if (this.zoomUp2) {
+          this.fractalZoom2 = this.fractalZoom2 - 0.01;
+          if (this.fractalZoom2 < 0) {
+            this.zoomUp2 = false;
+            this.zoomDown2 = true;
+          }
+        }
+
+        if (this.zoomDown2) {
+          this.fractalZoom2 = this.fractalZoom2 + 0.01;
+          if (this.fractalZoom2 > 6) {
+            this.zoomUp2 = true;
+            this.zoomDown2 = false;
+          }
+        }
+
+        this.fractalOffset2 = this.fractalOffset2.add(new THREE.Vector2(
+          -this.fractalOffset2.x + -1, 
+          -this.fractalOffset2.y + -0.33
+        ));
+
+        this.fractalUniforms2['zoom']['value'] = this.fractalZoom2;
+        this.fractalUniforms2['offset']['value'] = this.fractalOffset2;
 
         TWEEN.update();
         requestAnimationFrame(this.animate);

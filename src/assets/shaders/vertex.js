@@ -1049,3 +1049,20 @@ void main() {
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
+
+export let storm_vertex = `
+  void main() {
+    gl_Position = vec4( position, 1.0 );
+  }
+`;
+
+export let fractal_vertex = `
+attribute vec3 customColor;
+
+varying vec3 vColor;
+
+void main() {
+  vColor = customColor;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+}
+`;

@@ -391,10 +391,10 @@ export default {
         var delta = this.clock.getDelta();
         this.waveUniforms.time.value += delta;
         if (this.waveMesh !== null && this.waveScaleUp) {
-          this.waveMesh.scale.x = this.waveMesh.scale.x + 0.05;
-          this.waveMesh.scale.y = this.waveMesh.scale.y + 0.05;
-          this.waveMesh.scale.z = this.waveMesh.scale.z + 0.05;
-          if(this.waveMesh.scale.x > 3) {
+          this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
+          this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
+          this.waveMesh.scale.z = this.waveMesh.scale.z + 0.1;
+          if(this.waveMesh.scale.x > 2) {
             this.waveScaleUp = false
           }
         }

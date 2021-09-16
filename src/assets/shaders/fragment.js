@@ -420,3 +420,129 @@ void main() {
   if(gl_FragColor.r<0.1 && gl_FragColor.b<0.1 && gl_FragColor.g<0.1) discard;
 }
 `;
+
+export let storm_fragment = `
+uniform vec2 u_resolution;
+  uniform vec2 u_mouse;
+  uniform float u_time;
+  uniform sampler2D u_noise;
+  uniform sampler2D u_bg;
+  uniform float u_scroll;
+  
+  const vec3 cloudcolour = vec3(.07,0.0,.24);
+  const vec3 lightcolour = vec3(.25,0.6,1.);
+  
+  float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+  vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+  vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
+
+  float noise(vec3 p){
+      vec3 a = floor(p);
+      vec3 d = p - a;
+      d = d * d * (3.0 - 2.0 * d);
+
+      vec4 b = a.xxyy + vec4(0.0, 1.0, 0.0, 1.0);
+      vec4 k1 = perm(b.xyxy);
+      vec4 k2 = perm(k1.xyxy + b.zzww);
+
+      vec4 c = k2 + a.zzzz;
+      vec4 k3 = perm(c);
+      vec4 k4 = perm(c + 1.0);
+
+      vec4 o1 = fract(k3 * (1.0 / 41.0));
+      vec4 o2 = fract(k4 * (1.0 / 41.0));
+
+      vec4 o3 = o2 * d.z + o1 * (1.0 - d.z);
+      vec2 o4 = o3.yw * d.x + o3.xz * (1.0 - d.x);
+
+      return o4.y * d.y + o4.x * (1.0 - d.y);
+  }
+
+  void main() {
+    vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.y, u_resolution.x);
+    
+    float noise1 = noise(vec3(uv * 3. * noise(vec3(uv * 3. + 100., u_time * 3. + 10.)), u_time * 2.))  * 2.;
+    
+    float noise2 = noise(vec3(uv + 2.35, u_time * 1.357 - 10.));
+    
+    uv.y -= u_scroll * .0001;
+    
+    uv += texture2D(u_bg, uv * vec2(.5, 1.) - vec2(u_time * .05, 1.) - .5 * .05).rg * 0.08 + noise1 * .008 * (1. - clamp(noise1 * noise1 * 2. + .2, 0., 1.));
+    
+    vec3 tex = texture2D(u_bg, uv * vec2(.5, 1.) - vec2(u_time * .02, 1.) - .5).rgb;
+    
+    uv.y -= u_scroll * .0001;
+    vec3 tex1 = texture2D(u_bg, uv * vec2(.5, 1.) - vec2(u_time * .08, 1.)).rgb;
+    
+    uv.y -= u_scroll * .0001;
+    vec3 tex2 = texture2D(u_bg, (uv * .8 + .5) * vec2(.5, 1.) - vec2(u_time * .1, 1.)).rgb;
+    
+    vec3 fragcolour = tex;
+    
+    float shade = tex.r;
+    shade *= clamp(noise1 * noise2 * sin(u_time * 3.), .2, 10.);
+    shade += shade * shade * 3.;
+    shade -= (1. - clamp(tex1 * 4., 0., 1.).r) * .2;
+    shade -= (1. - clamp(tex2 * 4., 0., 1.).r) * .1;
+    
+    fragcolour = mix(cloudcolour, lightcolour, shade);
+
+    gl_FragColor = vec4(fragcolour, 1.);
+  }
+`;
+
+export let fractal_fragment = `
+precision highp float;
+uniform vec2 res;
+uniform float aspect;
+uniform float zoom;
+uniform vec2 offset;
+uniform vec3 color;
+uniform float opacity;
+varying vec3 vColor;
+// gui parameters
+uniform vec3 pset1;
+uniform vec3 pset2;
+vec2 cm (vec2 a, vec2 b){
+  return vec2(a.x*b.x - a.y*b.y, a.x*b.y + b.x*a.y);
+}
+vec2 conj (vec2 a){
+  return vec2(a.x, -a.y);
+}
+float mandelbrot(vec2 c){
+  float alpha = 1.0;
+  vec2 z = vec2(0.0 , 0.0);
+  vec2 z_0;
+  vec2 z_1;
+  vec2 z_2;
+  for(int i=0; i < 200; i++){  // i < max iterations
+    z_2 = z_1;
+    z_1 = z_0;
+    z_0 = z;
+    float x_0_sq = z_0.x*z_0.x;
+    float y_0_sq = z_0.y*z_0.y;
+    vec2 z_0_sq = vec2(x_0_sq - y_0_sq, 2.0*z_0.x*z_0.y);
+    float x_1_sq = z_1.x*z_1.x;
+    float y_1_sq = z_1.y*z_1.y;
+    vec2 z_1_sq = vec2(x_1_sq - y_1_sq, 2.0*z_1.x*z_1.y);
+    // the recurrence equation
+    z = pset1.x*z_0_sq + c + pset1.y*z_1_sq
+    + pset1.z*cm(z_1_sq, z_2) + pset2.x*cm(z_1_sq, z_0)
+    + pset2.y*cm(z_2, z_0) + pset2.z*cm(z_1, z_2);
+    float z_0_mag = x_0_sq + y_0_sq;
+    float z_1_mag = x_1_sq + y_1_sq;
+    if(z_0_mag > 12.0){
+      float frac = (12.0 - z_1_mag) / (z_0_mag - z_1_mag);
+      alpha = (float(i) - 1.0 + frac)/200.0; // should be same as max iterations
+      break;
+    }
+  }
+  return alpha;
+}
+void main(){ // gl_FragCoord in [0,1]
+  vec2 uv = zoom * vec2(aspect, 1.0) * gl_FragCoord.xy / res + offset;
+  float s = 1.0 - mandelbrot(uv);
+  vec3 coord = vec3(s, s, s);
+  gl_FragColor = vec4(pow(coord, color * vColor), opacity);
+}
+`;

@@ -1031,6 +1031,7 @@ export default {
       }
     },
     wheelScroll: function(event) {
+      console.log(event.clientX);
       if (event.deltaY < 0 && this.roadmapMesh.position.x > -1300) {
         this.roadmapMesh.position.x -= event.clientX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
@@ -1332,10 +1333,10 @@ export default {
       this.mouseY = event.clientY - this.windowHalfY;
     },
     swipeHandler (direction, event) {
-      console.log(direction);
+      console.log(this.roadmapMesh);
       console.log(event);
-      if (direction == 'left') {
-        // this.roadmapMesh.position.x -= event.clientX * 0.008;
+      if (direction == 'left' && this.roadmapMesh.position.x > -1300) {
+        this.roadmapMesh.position.x -= event.changedTouches[0].clientX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
           .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 1.5 }, 1500)
           .easing(TWEEN.Easing.Quintic.Out)
@@ -1353,8 +1354,8 @@ export default {
         cA.chain(cB);
         cA.start();
       }
-      if (direction == 'right') {
-        // this.roadmapMesh.position.x += event.clientX * 0.008;
+      if (direction == 'right'  && this.roadmapMesh.position.x < 1300) {
+        this.roadmapMesh.position.x += event.changedTouches[0].clientX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
           .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 1.5 }, 1500)
           .easing(TWEEN.Easing.Quintic.Out)

@@ -1333,12 +1333,12 @@ export default {
       this.mouseY = event.clientY - this.windowHalfY;
     },
     swipeHandler (direction, event) {
-      console.log(this.roadmapMesh);
+      console.log(event.changedTouches[0].clientX);
       console.log(event);
       if (direction == 'left' && this.roadmapMesh.position.x > -1300) {
-        this.roadmapMesh.position.x -= event.changedTouches[0].clientX * 0.008;
+        this.roadmapMesh.position.x -= event.changedTouches[0].screenX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 1.5 }, 1500)
+          .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
           .easing(TWEEN.Easing.Quintic.Out)
 
 
@@ -1355,9 +1355,9 @@ export default {
         cA.start();
       }
       if (direction == 'right'  && this.roadmapMesh.position.x < 1300) {
-        this.roadmapMesh.position.x += event.changedTouches[0].clientX * 0.008;
+        this.roadmapMesh.position.x += event.changedTouches[0].screenX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 1.5 }, 1500)
+          .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 1500)
           .easing(TWEEN.Easing.Quintic.Out)
 
         var cB = new TWEEN.Tween(this.camera.rotation)

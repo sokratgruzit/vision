@@ -14,7 +14,6 @@
       </div>
     </div>
   </div>
-
 </template>
 
 <script>
@@ -102,34 +101,9 @@
           }
         ],
         activeStat: 1,
-        zoomUp: true,
-        zoomDown: false,
-        zoomUp2: true,
-        zoomDown2: false,
-        zoomUp3: true,
-        zppmDown3: false,
-        fractalMesh: null,
-        fractalMesh2: null,
-        fractalMesh3: null,
-        fractalOffset: new THREE.Vector2(-2.0 * window.innerWidth / window.innerHeight, -2.0),
-        fractalOffset2: new THREE.Vector2(-3 * window.innerWidth / window.innerHeight, -3.0),
-        fractalOffset3: new THREE.Vector2(-2.0 * window.innerWidth / window.innerHeight, -2.0),
-        fractalZoom: 4,
-        fractalZoom2: {
-          value: 6
-        },
-        fractalZoom3: {
-          value: 2
-        },
-        fractalParams: {
-          a: 1.01,
-          b: 0.01,
-          c: 0.01,
-          d: 0.01,
-          e: 0.01,
-          f: 0.01
-        },
-        fractal2Scale: new THREE.Vector3(1, 1, 1),
+        int1: null,
+        int2: null,
+        int3: null
       }
     },
     methods: {
@@ -401,7 +375,6 @@
         wrapper.add(this.floor2);
         wrapper.add(this.floor3);
         this.scene.add(wrapper);
-        // console.log(this.scene.children[2].children[0].children[2].position.copy(this.pos))
         if(window.innerWidth < 1023){
           wrapper.position.x = 0;
         }else{
@@ -432,56 +405,6 @@
 				this.composer.addPass(this.bloomPass);
 
         //Fractal
-        this.fractalUniforms = {
-          res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
-          aspect: {type: 'float', value: window.innerWidth / window.innerHeight},
-          zoom: {type:'float', value: this.fractalZoom},
-          opacity: {value: 0.05},
-					color: {value: this.colors[3]},
-          offset: {type:'vec2', value: this.fractalOffset},
-          pset1: {type:'vec3', value: new THREE.Vector3(this.fractalParams['a'], this.fractalParams['b'], this.fractalParams['c'])},
-          pset2: {type:'vec3', value: new THREE.Vector3(this.fractalParams['d'], this.fractalParams['e'], this.fractalParams['f'])}
-        };
-
-        let fractalGeo = new THREE.PlaneBufferGeometry(6000, 5000);
-        let fractalMat = new THREE.ShaderMaterial({
-          uniforms: this.fractalUniforms,
-          fragmentShader: fractal_fragment,
-          vertexShader: fractal_vertex,
-          blending: THREE.AdditiveBlending,
-					depthTest: false,
-					transparent: true
-        });
-
-        this.fractalMesh = new THREE.Mesh(fractalGeo, fractalMat);
-        //this.fractalMesh.position.x = -width * 1.8;
-        //this.scene.add(this.fractalMesh);
-
-        this.fractalUniforms3 = {
-          res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
-          aspect: {type: 'float', value: window.innerWidth / window.innerHeight},
-          zoom: {type:'float', value: this.fractalZoom3},
-          opacity: {value: 0.15},
-					color: {value: this.colors[3]},
-          offset: {type:'vec2', value: this.fractalOffset3},
-          pset1: {type:'vec3', value: new THREE.Vector3(this.fractalParams['a'], this.fractalParams['b'], this.fractalParams['c'])},
-          pset2: {type:'vec3', value: new THREE.Vector3(this.fractalParams['d'], this.fractalParams['e'], this.fractalParams['f'])}
-        };
-
-        let fractalGeo3 = new THREE.PlaneBufferGeometry(6000, 5000);
-        let fractalMat3 = new THREE.ShaderMaterial({
-          uniforms: this.fractalUniforms3,
-          fragmentShader: fractal_fragment,
-          vertexShader: fractal_vertex,
-          blending: THREE.AdditiveBlending,
-					depthTest: false,
-					transparent: true
-        });
-
-        this.fractalMesh3 = new THREE.Mesh(fractalGeo3, fractalMat3);
-        //this.fractalMesh3.position.x = -width * 1.8;
-        //this.scene.add(this.fractalMesh3);
-        this.createFractal();
         //End Fractal
       },
       animate: function() {
@@ -491,119 +414,10 @@
 	      this.sphereMesh2.rotation.y += 0.01;
         this.sphereMesh3.rotation.x -= 0.01;
 	      this.sphereMesh3.rotation.y -= 0.01;
-        
-        if (this.zoomUp) {
-          this.fractalZoom = this.fractalZoom - 0.005;
-          if (this.fractalZoom < 0) {
-            this.zoomUp = false;
-            this.zoomDown = true;
-          }
-        }
-
-        if (this.zoomDown) {
-          this.fractalZoom = this.fractalZoom + 0.005;
-          if (this.fractalZoom > 4) {
-            this.zoomUp = true;
-            this.zoomDown = false;
-          }
-        }
-
-        this.fractalOffset = this.fractalOffset.add(new THREE.Vector2(
-          -this.fractalOffset.x + -1, 
-          -this.fractalOffset.y + -0.33
-        ));
-
-        this.fractalUniforms['zoom']['value'] = this.fractalZoom;
-        this.fractalUniforms['offset']['value'] = this.fractalOffset;
-
-        this.fractalMesh2.scale.copy(new THREE.Vector3(
-          2,
-          2,
-          2
-        ));
-
-        if (this.zoomUp2 && false) {
-          this.fractalZoom2.value = this.fractalZoom2.value - 0.005;
-          this.fractalOffset2.x = this.fractalOffset2.x + -0.000000000000000000000000001;
-          this.fractalOffset2.y = this.fractalOffset2.y + -0.000000000000000000000000001;
-
-          if (this.fractalZoom2.value < 0) {
-            this.zoomUp2 = false;
-            this.zoomDown2 = true;
-          }
-        }
-
-        //if (this.zoomDown2) {
-        //  this.fractalZoom2 = this.fractalZoom2 + 0.01;
-        //  if (this.fractalZoom2 > 6) {
-        //    this.zoomUp2 = true;
-        //    this.zoomDown2 = false;
-        //  }
-        //}
-
-        this.fractalUniforms2['zoom']['value'] = this.fractalZoom2.value;
-        this.fractalUniforms2['offset']['value'] = this.fractalOffset2;
-        //console.log(this.fractalZoom2.value)
-
-        if (this.zoomUp3) {
-          this.fractalZoom3 = this.fractalZoom3 - 0.005;
-          if (this.fractalZoom3 < 0) {
-            this.zoomUp3 = false;
-            this.zoomDown3 = true;
-          }
-        }
-
-        if (this.zoomDown3) {
-          this.fractalZoom3 = this.fractalZoom3 + 0.005;
-          if (this.fractalZoom3 > 2) {
-            this.zoomUp3 = true;
-            this.zoomDown3 = false;
-          }
-        }
-
-        this.fractalOffset3 = this.fractalOffset3.add(new THREE.Vector2(
-          -this.fractalOffset3.x + -1, 
-          -this.fractalOffset3.y + -0.33
-        ));
-
-        this.fractalUniforms3['zoom']['value'] = this.fractalZoom3;
-        this.fractalUniforms3['offset']['value'] = this.fractalOffset3;
 
         TWEEN.update();
         requestAnimationFrame(this.animate);
         this.render();
-      },
-      createFractal: function () {
-        this.fractalUniforms2 = {
-          res: {type: 'vec2', value: new THREE.Vector2(window.innerWidth, window.innerHeight)},
-          aspect: {type: 'float', value: window.innerWidth / window.innerHeight},
-          zoom: {type:'float', value: this.fractalZoom2.value},
-          opacity: {value: 0.1},
-					color: {value: this.colors[3]},
-          offset: {type:'vec2', value: this.fractalOffset2},
-          pset1: {type:'vec3', value: new THREE.Vector3(this.fractalParams['a'], this.fractalParams['b'], this.fractalParams['c'])},
-          pset2: {type:'vec3', value: new THREE.Vector3(this.fractalParams['d'], this.fractalParams['e'], this.fractalParams['f'])}
-        };
-
-        let fractalGeo2 = new THREE.PlaneBufferGeometry(9000, 5000);
-        let fractalMat2 = new THREE.ShaderMaterial({
-          uniforms: this.fractalUniforms2,
-          fragmentShader: fractal_fragment,
-          vertexShader: fractal_vertex,
-          blending: THREE.AdditiveBlending,
-					depthTest: false,
-					transparent: true
-        });
-
-        this.fractalMesh2 = new THREE.Mesh(fractalGeo2, fractalMat2);
-        //this.fractalMesh2.position.x = -width * 1.8;
-        this.scene.add(this.fractalMesh2);
-
-        //new TWEEN.Tween(this.fractalZoom2)
-        //.to({ value: 0 }, 30000)
-        //.easing(TWEEN.Easing.Quintic.Out)
-        //.start();
-        //console.log(this.fractalMesh2.position)
       },
       render: function () {
         this.raycaster.setFromCamera(this.mouse, this.camera);
@@ -618,11 +432,8 @@
         this.camera.aspect = window.innerWidth / window.innerHeight;
         this.camera.updateProjectionMatrix();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        // this.scene.children[2].children[0].children[2].position.copy(this.pos)
         this.scene.children[2].children[0].children[2].matrixWorld.set(this.floor1.matrixWorld)
-        this.scene.children[2].children[0].children[2].updateMatrixWorld()
-        console.log(this.floor1)
-        console.log(this.scene.children[2].children[0].children[2])
+        this.scene.children[2].children[0].children[2].updateMatrixWorld();
         this.render();
       },
       onMouseDown: function() {
@@ -632,6 +443,84 @@
         .to({ strength: 0.5 }, 500)
         .easing(TWEEN.Easing.Cubic.In)
         .start();
+
+        if (this.int1 && !this.int2 && !this.int3) {
+          this.activeStat = 1;
+          let fl1 = this.int1.object;
+
+          var S1 = new TWEEN.Tween(this.sphereMesh1.position)
+          .to({ y: 0 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
+          .to({ y: -150 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
+          .to({ y: -180 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
+          .to({ y: -100 }, 200)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          S1.chain(A1);
+          A1.chain(B1);
+          B1.chain(C1);
+          S1.start();
+        }
+
+        if (this.int2 && !this.int1 && !this.int3) {
+          this.activeStat = 2;
+          let fl2 = this.int2.object;
+
+          var S2 = new TWEEN.Tween(this.sphereMesh2.position)
+          .to({ y: 0 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
+          .to({ y: -200 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
+          .to({ y: -180 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
+          .to({ y: -110 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          S2.chain(A2);
+          A2.chain(B2);
+          B2.chain(C2);
+          S2.start();
+        }
+
+        if (this.int3 && !this.int1 && !this.int2) {
+          this.activeStat = 3;
+          let fl3 = this.int3.object;
+
+          var S3 = new TWEEN.Tween(this.sphereMesh3.position)
+          .to({ y: 0 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
+          .to({ y: -200 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
+          .to({ y: -180 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
+          .to({ y: -110 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut);
+
+          S3.chain(A3);
+          A3.chain(B3);
+          B3.chain(C3);
+          S3.start();
+        }
       },
       onMouseUp: function() {
         this.isDragging = false;
@@ -640,137 +529,8 @@
         .to({ strength: 0 }, 500)
         .easing(TWEEN.Easing.Cubic.In)
         .start();
-      },
-      onMouseMove: function (event) {
-        if (event.pageY < this.oldY) {
-          this.direction = "up";
-        } else if (event.pageY > this.oldY) {
-          this.direction = "down";
-        } else if (event.pageX < this.oldX) {
-          this.directionX = "left";
-        } else if (event.pageX > this.oldX) {
-          this.directionX = "right";
-        }
 
-        this.oldY = event.pageY;
-        this.oldX = event.pageX;
-
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-        let int1 = this.raycaster.intersectObjects([this.scene.children[2].children[0]]);
-        let int2 = this.raycaster.intersectObjects([this.scene.children[2].children[1]]);
-        let int3 = this.raycaster.intersectObjects([this.scene.children[2].children[2]]);
-
-        int1 = int1[0] !== undefined ? int1[0] : false;
-        int2 = int2[0] !== undefined ? int2[0] : false;
-        int3 = int3[0] !== undefined ? int3[0] : false;
-
-        if (this.isDragging) {
-          if (int1 && !int2 && !int3) {
-            this.activeStat = 1;
-            let fl1 = int1.object;
-
-            if (this.directionX === "right") {
-              fl1.rotation.y = fl1.rotation.y + this.mouse.x;
-            }
-
-            if (this.directionX === "left") {
-              fl1.rotation.y = fl1.rotation.y - this.mouse.x;
-            }
-
-            var S1 = new TWEEN.Tween(this.sphereMesh1.position)
-            .to({ y: 0 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
-            .to({ y: -150 }, 200)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
-            .to({ y: -180 }, 200)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
-            .to({ y: -100 }, 200)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            S1.chain(A1);
-            A1.chain(B1);
-            B1.chain(C1);
-            S1.start();
-          }
-
-          if (int2 && !int1 && !int3) {
-            this.activeStat = 2;
-            let fl2 = int2.object;
-
-            if (this.directionX === "right") {
-              fl2.rotation.y = fl2.rotation.y + this.mouse.x;
-            }
-
-            if (this.directionX === "left") {
-              fl2.rotation.y = fl2.rotation.y - this.mouse.x;
-            }
-
-            var S2 = new TWEEN.Tween(this.sphereMesh2.position)
-            .to({ y: 0 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
-            .to({ y: -200 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
-            .to({ y: -180 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
-            .to({ y: -110 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            S2.chain(A2);
-            A2.chain(B2);
-            B2.chain(C2);
-            S2.start();
-          }
-
-          if (int3 && !int1 && !int2) {
-            this.activeStat = 3;
-            let fl3 = int3.object;
-
-            if (this.directionX === "right") {
-              fl3.rotation.y = fl3.rotation.y + this.mouse.x;
-            }
-
-            if (this.directionX === "left") {
-              fl3.rotation.y = fl3.rotation.y - this.mouse.x;
-            }
-
-            var S3 = new TWEEN.Tween(this.sphereMesh3.position)
-            .to({ y: 0 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
-            .to({ y: -200 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
-            .to({ y: -180 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
-            .to({ y: -110 }, 500)
-            .easing(TWEEN.Easing.Cubic.InOut);
-
-            S3.chain(A3);
-            A3.chain(B3);
-            B3.chain(C3);
-            S3.start();
-          }
-        }
-
-        if (!int1) {
+        if (!this.int1) {
           let fl1 = this.scene.children[2].children[0];
 
           var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
@@ -795,7 +555,7 @@
           A1.start();
         }
 
-        if (!int2) {
+        if (!this.int2) {
           let fl2 = this.scene.children[2].children[1];
 
           var S2 = new TWEEN.Tween(this.sphereMesh2.position)
@@ -820,7 +580,7 @@
           A2.start();
         }
 
-        if (!int3) {
+        if (!this.int3) {
           let fl3 = this.scene.children[2].children[2];
 
           var S3 = new TWEEN.Tween(this.sphereMesh3.position)
@@ -843,6 +603,69 @@
           B3.chain(C3);
           C3.chain(S3);
           A3.start();
+        }
+      },
+      onMouseMove: function (event) {
+        if (event.pageY < this.oldY) {
+          this.direction = "up";
+        } else if (event.pageY > this.oldY) {
+          this.direction = "down";
+        } else if (event.pageX < this.oldX) {
+          this.directionX = "left";
+        } else if (event.pageX > this.oldX) {
+          this.directionX = "right";
+        }
+
+        this.oldY = event.pageY;
+        this.oldX = event.pageX;
+
+        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
+        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        let int1 = this.raycaster.intersectObjects([this.scene.children[2].children[0]]);
+        let int2 = this.raycaster.intersectObjects([this.scene.children[2].children[1]]);
+        let int3 = this.raycaster.intersectObjects([this.scene.children[2].children[2]]);
+
+        this.int1 = int1[0] !== undefined ? int1[0] : false;
+        this.int2 = int2[0] !== undefined ? int2[0] : false;
+        this.int3 = int3[0] !== undefined ? int3[0] : false;
+
+        if (this.isDragging) {
+          if (this.int1 && !this.int2 && !this.int3) {
+            let fl1 = this.int1.object;
+
+            if (this.directionX === "right") {
+              fl1.rotation.y = fl1.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl1.rotation.y = fl1.rotation.y - this.mouse.x;
+            }
+          }
+
+          if (this.int2 && !this.int1 && !this.int3) {
+            let fl2 = this.int2.object;
+
+            if (this.directionX === "right") {
+              fl2.rotation.y = fl2.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl2.rotation.y = fl2.rotation.y - this.mouse.x;
+            }
+          }
+
+          if (this.int3 && !this.int1 && !this.int2) {
+            let fl3 = this.int3.object;
+
+            if (this.directionX === "right") {
+              fl3.rotation.y = fl3.rotation.y + this.mouse.x;
+            }
+
+            if (this.directionX === "left") {
+              fl3.rotation.y = fl3.rotation.y - this.mouse.x;
+            }
+          }
         }
       },
       wheelScroll: function (event) {

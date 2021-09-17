@@ -35,7 +35,7 @@
             </svg>
           </div>
         </router-link>
-        <router-link to="/statistic" class="navigation__link" @click.native="closeMenu">
+        <router-link to="/about" class="navigation__link" @click.native="closeMenu">
           <span>A</span>
           <span>B</span>
           <span>O</span>

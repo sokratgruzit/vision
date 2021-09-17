@@ -983,7 +983,7 @@ export default {
           var tooltipClass = iMesh.children[0].children[0];
 
           new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: 0, y: 2000, z: -1000 }, 60000)
+          .to({ x: 0, z: -1000 }, 30000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 

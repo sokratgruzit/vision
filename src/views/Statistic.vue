@@ -112,7 +112,7 @@
         fractalMesh2: null,
         fractalMesh3: null,
         fractalOffset: new THREE.Vector2(-2.0 * window.innerWidth / window.innerHeight, -2.0),
-        fractalOffset2: new THREE.Vector2(-3, -3),
+        fractalOffset2: new THREE.Vector2(-3 * window.innerWidth / window.innerHeight, -3.0),
         fractalOffset3: new THREE.Vector2(-2.0 * window.innerWidth / window.innerHeight, -2.0),
         fractalZoom: 4,
         fractalZoom2: {
@@ -128,7 +128,8 @@
           d: 0.01,
           e: 0.01,
           f: 0.01
-        }
+        },
+        fractal2Scale: new THREE.Vector3(1, 1, 1),
       }
     },
     methods: {
@@ -515,10 +516,16 @@
         this.fractalUniforms['zoom']['value'] = this.fractalZoom;
         this.fractalUniforms['offset']['value'] = this.fractalOffset;
 
-        if (this.zoomUp2) {
-          this.fractalZoom2.value = this.fractalZoom2.value - 0.01;
-          this.fractalOffset2.x = this.fractalOffset2.x + -0.0001;
-          this.fractalOffset2.y = this.fractalOffset2.y + 0.01;
+        this.fractalMesh2.scale.copy(new THREE.Vector3(
+          2,
+          2,
+          2
+        ));
+
+        if (this.zoomUp2 && false) {
+          this.fractalZoom2.value = this.fractalZoom2.value - 0.005;
+          this.fractalOffset2.x = this.fractalOffset2.x + -0.000000000000000000000000001;
+          this.fractalOffset2.y = this.fractalOffset2.y + -0.000000000000000000000000001;
 
           if (this.fractalZoom2.value < 0) {
             this.zoomUp2 = false;
@@ -597,11 +604,6 @@
         //.easing(TWEEN.Easing.Quintic.Out)
         //.start();
         //console.log(this.fractalMesh2.position)
-
-        //new TWEEN.Tween(this.fractalOffset2)
-        //.to({ x: 3, y: 4 }, 60000)
-        //.easing(TWEEN.Easing.Quintic.Out)
-        //.start();
       },
       render: function () {
         this.raycaster.setFromCamera(this.mouse, this.camera);

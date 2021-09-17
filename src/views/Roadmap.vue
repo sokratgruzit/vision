@@ -1344,38 +1344,15 @@ export default {
       if (direction == 'left' && this.roadmapMesh.position.x > -1400) {
         this.roadmapMesh.position.x -= event.changedTouches[0].screenX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x - this.windowHalfX }, 1000)
+          .to({ x: this.roadmapMesh.position.x - this.windowHalfX * 1.3 }, 1000)
           .easing(TWEEN.Easing.Quadratic.InOut)
-
-
-        var cB = new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out);
-
-        var cC = new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out);
-
-        cB.chain(cC);
-        cA.chain(cB);
         cA.start();
       }
       if (direction == 'right'  && this.roadmapMesh.position.x < 1400) {
         this.roadmapMesh.position.x += event.changedTouches[0].screenX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x + this.windowHalfX }, 1000)
+          .to({ x: this.roadmapMesh.position.x + this.windowHalfX * 1.3}, 1000)
           .easing(TWEEN.Easing.Quadratic.InOut)
-
-        var cB = new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out);
-
-        var cC = new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out);
-
-        cB.chain(cC);
-        cA.chain(cB);
         cA.start();
       }
       if (this.roadmapMesh.position.x > 1400) {

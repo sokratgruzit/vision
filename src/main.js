@@ -7,6 +7,7 @@ import './assets/css/main.css'
 import VueKinesis from 'vue-kinesis'
 import VueAwesomeSwiper from 'vue-awesome-swiper'
 import VueCountdown from '@chenfengyuan/vue-countdown'
+import Vue2TouchEvents from 'vue2-touch-events'
 
 Vue.component(VueCountdown.name, VueCountdown)
 import Swiper, {
@@ -31,6 +32,8 @@ Swiper.use([
   Controller,
   EffectFade
 ]);
+Vue.use(Vue2TouchEvents);
+
 Vue.use(VueAwesomeSwiper, {Navigation, Pagination});
 
 Vue.use(VueKinesis)

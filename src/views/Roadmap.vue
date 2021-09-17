@@ -692,10 +692,10 @@ export default {
         class3 = 'list-item3';
         class4 = 'list-item4';
 
-        document.getElementById(class1).style['display'] = 'block';
-        document.getElementById(class2).style['display'] = 'block';
-        document.getElementById(class3).style['display'] = 'block';
-        document.getElementById(class4).style['display'] = 'block';
+        document.getElementById(class1).style['display'] = 'flex';
+        document.getElementById(class2).style['display'] = 'flex';
+        document.getElementById(class3).style['display'] = 'flex';
+        document.getElementById(class4).style['display'] = 'flex';
 
         el1 = this.filterScenes[1].children[0].scale;
         el2 = this.filterScenes[2].children[0].scale;
@@ -721,8 +721,8 @@ export default {
 
       if (this.filterScenes[0].children[0].scale.x === 1) {
         new TWEEN.Tween(el1)
-        .to({ x: value, y: value, z: value }, 100)
-        .easing(TWEEN.Easing.Quintic.Out)
+        .to({ x: value, y: value, z: value }, 200)
+        .easing(TWEEN.Easing.Quintic.In)
         .onComplete(function() {
           document.getElementById(class1).style['opacity'] = value;
         })
@@ -730,33 +730,33 @@ export default {
 
         setTimeout(() => {
           new TWEEN.Tween(el2)
-          .to({ x: value, y: value, z: value }, 100)
-          .easing(TWEEN.Easing.Quintic.Out)
+          .to({ x: value, y: value, z: value }, 200)
+          .easing(TWEEN.Easing.Quintic.In)
           .onComplete(function() {
             document.getElementById(class2).style['opacity'] = value;
-          })
-          .start();
-        }, 100);
-
-        setTimeout(() => {
-          new TWEEN.Tween(el3)
-          .to({ x: value, y: value, z: value }, 100)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .onComplete(function() {
-            document.getElementById(class3).style['opacity'] = value;
           })
           .start();
         }, 200);
 
         setTimeout(() => {
+          new TWEEN.Tween(el3)
+          .to({ x: value, y: value, z: value }, 200)
+          .easing(TWEEN.Easing.Quintic.In)
+          .onComplete(function() {
+            document.getElementById(class3).style['opacity'] = value;
+          })
+          .start();
+        }, 400);
+
+        setTimeout(() => {
           new TWEEN.Tween(el4)
-          .to({ x: value, y: value, z: value }, 100)
-          .easing(TWEEN.Easing.Quintic.Out)
+          .to({ x: value, y: value, z: value }, 200)
+          .easing(TWEEN.Easing.Quintic.In)
           .onComplete(function() {
             document.getElementById(class4).style['opacity'] = value;
           })
           .start();
-        }, 300);
+        }, 600);
       }
     },
     moveRoadmapToStart: function () {
@@ -1400,7 +1400,7 @@ export default {
     display: flex;
     align-items: center;
     padding-left: 55px;
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: .15s cubic-bezier(.79,.01,.15,.99);
     cursor: pointer;
   }
   #filters-container {

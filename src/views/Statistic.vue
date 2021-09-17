@@ -403,9 +403,6 @@
         this.composer = new EffectComposer(this.renderer);
 				this.composer.addPass(this.renderScene);
 				this.composer.addPass(this.bloomPass);
-
-        //Fractal
-        //End Fractal
       },
       animate: function() {
         this.sphereMesh1.rotation.x += 0.01;
@@ -436,7 +433,90 @@
         this.scene.children[2].children[0].children[2].updateMatrixWorld();
         this.render();
       },
-      onMouseDown: function() {
+      animationIn: function (statsNumber) {
+        let obj = this.int1.object;
+        let pos = this.sphereMesh1.position;
+
+        if (statsNumber === 'first') {
+          obj = this.int1.object;
+          pos = this.sphereMesh1.position;
+          this.animated1 = false;
+        }
+
+        if (statsNumber === 'second') {
+          obj = this.int2.object;
+          pos = this.sphereMesh2.position;
+          this.animated2 = false;
+        }
+
+        if (statsNumber === 'third') {
+          obj = this.int3.object;
+          pos = this.sphereMesh3.position;
+          this.animated3 = false;
+        }
+        
+        var S1 = new TWEEN.Tween(pos)
+        .to({ y: 0 }, 500)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var A1 = new TWEEN.Tween(obj.children[1].children[0].position)
+        .to({ y: -150 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var B1 = new TWEEN.Tween(obj.children[1].children[1].position)
+        .to({ y: -180 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var C1 = new TWEEN.Tween(obj.children[1].children[2].position)
+        .to({ y: -100 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        S1.chain(A1);
+        A1.chain(B1);
+        B1.chain(C1);
+        S1.start();
+      },
+      animationOut: function (statsNumber) {
+        let obj = this.scene.children[2].children[0];
+        let pos = this.sphereMesh1.position;
+
+        if (statsNumber === 'first') {
+          obj = this.scene.children[2].children[0];
+          pos = this.sphereMesh1.position;
+        }
+
+        if (statsNumber === 'second') {
+          obj = this.scene.children[2].children[1];
+          pos = this.sphereMesh2.position;
+        }
+
+        if (statsNumber === 'third') {
+          obj = this.scene.children[2].children[2];
+          pos = this.sphereMesh3.position;
+        }
+
+        var A1 = new TWEEN.Tween(obj.children[1].children[0].position)
+        .to({ y: -550 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var B1 = new TWEEN.Tween(obj.children[1].children[1].position)
+        .to({ y: -550 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var C1 = new TWEEN.Tween(obj.children[1].children[2].position)
+        .to({ y: -550 }, 200)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        var S1 = new TWEEN.Tween(pos)
+        .to({ y: 550 }, 500)
+        .easing(TWEEN.Easing.Cubic.InOut);
+
+        A1.chain(B1);
+        B1.chain(C1);
+        C1.chain(S1);
+        A1.start();
+      },
+      onMouseDown: function(statsNumber) {
         this.isDragging = true;
 
         new TWEEN.Tween(this.bloomPass)
@@ -444,166 +524,41 @@
         .easing(TWEEN.Easing.Cubic.In)
         .start();
 
-        if (this.int1 && !this.int2 && !this.int3) {
+        if (this.int1 && this.sphereMesh1.position.y === 550) {
           this.activeStat = 1;
-          let fl1 = this.int1.object;
-
-          var S1 = new TWEEN.Tween(this.sphereMesh1.position)
-          .to({ y: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
-          .to({ y: -150 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
-          .to({ y: -180 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
-          .to({ y: -100 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          S1.chain(A1);
-          A1.chain(B1);
-          B1.chain(C1);
-          S1.start();
+          this.animationIn('first');
         }
-
-        if (this.int2 && !this.int1 && !this.int3) {
+        
+        if (this.int2 && this.sphereMesh2.position.y === 550) {
           this.activeStat = 2;
-          let fl2 = this.int2.object;
-
-          var S2 = new TWEEN.Tween(this.sphereMesh2.position)
-          .to({ y: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
-          .to({ y: -200 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
-          .to({ y: -180 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
-          .to({ y: -110 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          S2.chain(A2);
-          A2.chain(B2);
-          B2.chain(C2);
-          S2.start();
+          this.animationIn('second');
+        }
+        
+        if (this.int3 && this.sphereMesh3.position.y === 550) {
+          this.activeStat = 3;
+          this.animationIn('third');
+        }
+        
+        if (!this.int1 && this.sphereMesh1.position.y === 0) {
+          this.animationOut('first');
         }
 
-        if (this.int3 && !this.int1 && !this.int2) {
-          this.activeStat = 3;
-          let fl3 = this.int3.object;
+        if (!this.int2 && this.sphereMesh2.position.y === 0) {
+          this.animationOut('second');
+        }
 
-          var S3 = new TWEEN.Tween(this.sphereMesh3.position)
-          .to({ y: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
-          .to({ y: -200 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
-          .to({ y: -180 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
-          .to({ y: -110 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          S3.chain(A3);
-          A3.chain(B3);
-          B3.chain(C3);
-          S3.start();
+        if (!this.int3 && this.sphereMesh3.position.y === 0) {
+          this.animationOut('third');
         }
       },
       onMouseUp: function() {
         this.isDragging = false;
+        this.animated1 = false;
 
         new TWEEN.Tween(this.bloomPass)
         .to({ strength: 0 }, 500)
         .easing(TWEEN.Easing.Cubic.In)
         .start();
-
-        if (!this.int1) {
-          let fl1 = this.scene.children[2].children[0];
-
-          var A1 = new TWEEN.Tween(fl1.children[1].children[0].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B1 = new TWEEN.Tween(fl1.children[1].children[1].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C1 = new TWEEN.Tween(fl1.children[1].children[2].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var S1 = new TWEEN.Tween(this.sphereMesh1.position)
-          .to({ y: 550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          A1.chain(B1);
-          B1.chain(C1);
-          C1.chain(S1);
-          A1.start();
-        }
-
-        if (!this.int2) {
-          let fl2 = this.scene.children[2].children[1];
-
-          var S2 = new TWEEN.Tween(this.sphereMesh2.position)
-          .to({ y: 550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var A2 = new TWEEN.Tween(fl2.children[1].children[0].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B2 = new TWEEN.Tween(fl2.children[1].children[1].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C2 = new TWEEN.Tween(fl2.children[1].children[2].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          A2.chain(B2);
-          B2.chain(C2);
-          C2.chain(S2);
-          A2.start();
-        }
-
-        if (!this.int3) {
-          let fl3 = this.scene.children[2].children[2];
-
-          var S3 = new TWEEN.Tween(this.sphereMesh3.position)
-          .to({ y: 550 }, 500)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var A3 = new TWEEN.Tween(fl3.children[1].children[0].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var B3 = new TWEEN.Tween(fl3.children[1].children[1].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          var C3 = new TWEEN.Tween(fl3.children[1].children[2].position)
-          .to({ y: -550 }, 200)
-          .easing(TWEEN.Easing.Cubic.InOut);
-
-          A3.chain(B3);
-          B3.chain(C3);
-          C3.chain(S3);
-          A3.start();
-        }
       },
       onMouseMove: function (event) {
         if (event.pageY < this.oldY) {

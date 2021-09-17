@@ -932,49 +932,47 @@ export default {
       this.render();
     },
     render: function () {
-      if (this.$store.state.stopRoadmap == false){
+      if (this.$store.state.stopRoadmap == false) {
+        // this.renderer.autoClear = false;
+        // this.renderer.clear();
+        this.renderer.setScissorTest(true);
+        this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+        this.renderer.render(this.scene, this.camera);
+        this.labelRenderer.render(this.scene, this.camera);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.raycaster.firstHitOnly = true;
 
+        const fParent = document.getElementById('filters-container');
 
-      // this.renderer.autoClear = false;
-      // this.renderer.clear();
-      this.renderer.setScissorTest(true);
-      this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
-      this.renderer.render(this.scene, this.camera);
-      this.labelRenderer.render(this.scene, this.camera);
-      this.raycaster.setFromCamera(this.mouse, this.camera);
-      this.raycaster.firstHitOnly = true;
+        for (let i = 0; i < this.filterScenes.length; i++) {
+          const fCont = document.getElementById('list-item' + i);
+          const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
 
-      const fParent = document.getElementById('filters-container');
+          if (rect !== false) {
+            const theTime = performance.now() * 0.001;
+            this.filterScenes[i].rotation.y = Math.sin(theTime) / 4;
+            this.filterScenes[i].rotation.x = Math.sin(theTime) / 2;
+            this.filterScenes[i].rotation.z = Math.sin(theTime) / 2;
 
-      for (let i = 0; i < this.filterScenes.length; i++) {
-        const fCont = document.getElementById('list-item' + i);
-        const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
+            if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+              rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+              return; // it's off screen
+            }
+            const width = rect.right - rect.left;
+            const height = rect.bottom - rect.top;
+            const left = rect.left;
+            const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+            this.renderer.clearDepth();
 
-        if (rect !== false) {
-          const theTime = performance.now() * 0.001;
-          this.filterScenes[i].rotation.y = Math.sin(theTime) / 4;
-          this.filterScenes[i].rotation.x = Math.sin(theTime) / 2;
-          this.filterScenes[i].rotation.z = Math.sin(theTime) / 2;
-
-          if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-            rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-            return; // it's off screen
-          }
-          const width = rect.right - rect.left;
-          const height = rect.bottom - rect.top;
-          const left = rect.left;
-          const bottom = this.renderer.domElement.clientHeight - rect.bottom;
-          this.renderer.clearDepth();
-
-          if (this.filterScenes.length > 0) {
-            this.renderer.setViewport(left , bottom, width / 4, height);
-            this.renderer.setScissor(left, bottom, width / 4, height);
-            this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
+            if (this.filterScenes.length > 0) {
+              this.renderer.setViewport(left , bottom, width / 4, height);
+              this.renderer.setScissor(left, bottom, width / 4, height);
+              this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
+            }
           }
         }
-      }
 
-      this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
       }
     },
     route: function (id) {
@@ -984,28 +982,8 @@ export default {
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
 
-          new TWEEN.Tween(iMesh.scale)
-          .to({ x: 30, y: 30, z: 30 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(iMesh.rotation)
-          .to({ x: 5 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(iMesh.position)
-          .to({ x: 0 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
           new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: 0, y: 50, z: -80 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 6 }, 5000)
+          .to({ x: 0, y: 2000, z: -1000 }, 60000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
@@ -1015,6 +993,11 @@ export default {
           }, 1500);
         }
       }
+
+      new TWEEN.Tween(this.particles.position)
+      .to({ z: -1000 }, 5000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
     },
     deleteLines: function () {
       for(let i = 0; i <  4; i++){
@@ -1046,7 +1029,6 @@ export default {
         this.showRoadmapPath(11,'show');
         this.filterLineIndex = 11;
       }
-      console.log(this.filterLineIndex)
     },
     wheelScroll: function(event) {
       if (event.deltaY < 0 && this.roadmapMesh.position.x > -1300) {
@@ -1054,7 +1036,6 @@ export default {
         var cA = new TWEEN.Tween(this.roadmapMesh.position)
           .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1500)
           .easing(TWEEN.Easing.Quintic.Out)
-
 
         var cB = new TWEEN.Tween(this.camera.rotation)
           .to({ y: 0.2 }, 1500)
@@ -1280,12 +1261,11 @@ export default {
         } else {
           if(this.filterLineIndex === i){
             this.showRoadmapPath(i, 'show');
-          }else{
-
-
+          } else {
             setTimeout(() => {
               this.roadmapHover = false;
-            },2000)
+            }, 2000);
+
             this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
             var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
@@ -1300,8 +1280,9 @@ export default {
               .to({ x: 0, y: 0, z: 0 }, 100)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
+
             this.showRoadmapPath(i, 'hide');
-            }
+          }
         }
       }
 

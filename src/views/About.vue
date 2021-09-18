@@ -36,7 +36,17 @@
         direction: "",
         directionX: "",
         oldX: 0,
-        oldY: 0
+        oldY: 0,
+        renderScene: null,
+        bloomPass: null,
+				params: {
+          exposure: 1,
+          bloomStrength: 0,
+          bloomThreshold: 0,
+          bloomRadius: 0
+        },
+				composer: null,
+        uniforms: null
       }
     },
     methods: {
@@ -77,23 +87,41 @@
 				}
 
 				const geometry = new THREE.BufferGeometry();
-				geometry.setAttribute( 'position', positionAttribute );
-				geometry.setAttribute( 'customColor', new THREE.Float32BufferAttribute( colors, 3 ) );
-				geometry.setAttribute( 'size', new THREE.Float32BufferAttribute( sizes, 1 ) );
+				geometry.setAttribute('position', positionAttribute);
+				geometry.setAttribute('customColor', new THREE.Float32BufferAttribute(colors, 3));
+				geometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1));
         
         let loader = new THREE.TextureLoader();
+        this.uniforms = {
+          tex: { type: "t", value: loader.load(require("../assets/circle2.png")) },
+          time: { type: "f", value: 0.0 },
+          distortion: { type: "f", value: 0.0 },
+          resolution: { type: "v4", value: new THREE.Vector4() },
+          color: { value: new THREE.Color( 0xffffff ) },
+					alphaTest: { value: 0.9 }
+        };
+
+        let asp1, asp2;
+        if (window.innerHeight / window.innerWidth > this.imageAspect) {
+          asp1 = (window.innerWidth / window.innerHeight) * this.imageAspect;
+          asp2 = 1;
+        } else {
+          asp1 = 1;
+          asp2 = (window.innerHeight / window.innerWidth) / this.imageAspect;
+        }
+
+        this.uniforms.resolution.value.x = window.innerWidth;
+        this.uniforms.resolution.value.y = window.innerHeight;
+        this.uniforms.resolution.value.z = asp1;
+        this.uniforms.resolution.value.w = asp2;
 
 				const material = new THREE.ShaderMaterial({
-					uniforms: {
-						color: { value: new THREE.Color( 0xffffff ) },
-						pointTexture: { value: loader.load(require("../assets/circle2.png")) },
-						alphaTest: { value: 0.9 }
-					},
+					uniforms: this.uniforms,
 					vertexShader: logo_vertex,
 					fragmentShader: logo_fragment
 				});
 
-				this.sphere = new THREE.Points( geometry, material );
+				this.sphere = new THREE.Points(geometry, material);
 				this.scene.add(this.sphere);
 
         const loader2 = new THREE.TextureLoader();
@@ -105,7 +133,7 @@
         this.logo = new THREE.Mesh(logoGeo, logoMat);
         this.logo.rotation.x = 1;
         this.logo.rotation.y = 1.5;
-        this.scene.add(this.logo)
+        this.scene.add(this.logo);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -114,6 +142,17 @@
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
         this.renderer.setSize(width, height);
         container.appendChild(this.renderer.domElement);
+
+        this.renderScene = new RenderPass(this.scene, this.camera);
+
+				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+				this.bloomPass.threshold = this.params.bloomThreshold;
+				this.bloomPass.strength = this.params.bloomStrength;
+				this.bloomPass.radius = this.params.bloomRadius;
+
+				this.composer = new EffectComposer(this.renderer);
+				this.composer.addPass(this.renderScene);
+				this.composer.addPass(this.bloomPass);
 
         new TWEEN.Tween(this.camera.position)
         .to({ y: 0, z: 500 }, 7000)
@@ -126,6 +165,9 @@
         this.logo.rotation.x -= 0.005;
         this.logo.rotation.y += 0.005;
 
+        this.time += 0.05;
+        this.uniforms.time.value = this.time;
+
         TWEEN.update();
         requestAnimationFrame(this.animate);
         this.render();
@@ -135,7 +177,8 @@
         this.raycaster.firstHitOnly = true;
         this.renderer.render(this.scene, this.camera);
         this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.physicallyCorrectLights = true
+        this.renderer.physicallyCorrectLights = true;
+        this.composer.render();
       },
       onWindowResize: function() {
         this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -165,6 +208,31 @@
 
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        let int = this.raycaster.intersectObjects([this.scene.children[3]]);
+        int = int.length > 0 ? int[0] : false;
+
+        if (int) {
+          new TWEEN.Tween(this.uniforms.distortion)
+          .to({ value: 0.5 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+          new TWEEN.Tween(this.bloomPass)
+          .to({ strength: 1 }, 500)
+          .easing(TWEEN.Easing.Cubic.In)
+          .start();
+        } else {
+          new TWEEN.Tween(this.uniforms.distortion)
+          .to({ value: 0 }, 500)
+          .easing(TWEEN.Easing.Cubic.InOut)
+          .start();
+
+          new TWEEN.Tween(this.bloomPass)
+          .to({ strength: 0 }, 500)
+          .easing(TWEEN.Easing.Cubic.In)
+          .start();
+        }
       },
       wheelScroll: function (event) {
       

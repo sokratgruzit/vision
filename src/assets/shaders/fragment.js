@@ -549,14 +549,14 @@ void main(){ // gl_FragCoord in [0,1]
 
 export let logo_fragment = `
 uniform vec3 color;
-uniform sampler2D pointTexture;
+uniform sampler2D tex;
 uniform float alphaTest;
 
 varying vec3 vColor;
 
 void main() {
   gl_FragColor = vec4( color * vColor, 1.0 );
-  gl_FragColor = gl_FragColor * texture2D( pointTexture, gl_PointCoord );
+  gl_FragColor = gl_FragColor * texture2D( tex, gl_PointCoord );
   if ( gl_FragColor.a < alphaTest ) discard;
 }
 `;

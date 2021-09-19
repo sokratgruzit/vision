@@ -12,6 +12,7 @@ export default new Vuex.Store({
     stopRoadmap: false,
     stopGalaxyGarbage: false,
     stopRoadmapInner: false,
+    stopStatistic: false,
     currentSlide: 0,
     slideChange: true,
     firstAnimation: false,
@@ -48,6 +49,9 @@ export default new Vuex.Store({
     },
     stopGalactic (state, data) {
       state.stopGalactic = data
+    },
+    stopStatistic (state, data) {
+      state.stopStatistic = data
     },
     hideGalactic (state, data) {
       state.currentSlide = data

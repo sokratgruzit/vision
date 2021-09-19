@@ -68,9 +68,7 @@
         var textMat3 = text3 === undefined ? false : text3.material;
         var text4 = this.scene.getObjectByName("Story");
         var textMat4 = text4 === undefined ? false : text4.material;
-        console.log(text4)
-        console.log(textMat4)
-        console.log(text4.material)
+        
         if (this.$store.state.currentSlide == 2) {
           this.moveGalaxyOnSlider();
           if (textMat1) {
@@ -83,11 +81,6 @@
               .to({ value: 0 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
-
-            // new TWEEN.Tween(text1.position)
-            //   .to({ x: -10000, y: 2000, z: 6000 }, 1000)
-            //   .easing(TWEEN.Easing.Quadratic.In)
-            //   .start();
 
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 7 }, 1000)
@@ -133,11 +126,6 @@
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
 
-            // new TWEEN.Tween(text1.position)
-            //   .to({ x: -10000, y: 2000, z: 6000 }, 1000)
-            //   .easing(TWEEN.Easing.Quadratic.In)
-            //   .start();
-
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 7 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
@@ -181,11 +169,6 @@
               .to({ value: 1 }, 1000)
               .easing(TWEEN.Easing.Quadratic.In)
               .start();
-
-            // new TWEEN.Tween(text1.position)
-            //   .to({ x: -1300, y: 50, z: 500 }, 1000)
-            //   .easing(TWEEN.Easing.Quadratic.In)
-            //   .start();
 
             new TWEEN.Tween(textMat2.uniforms.amplitude)
               .to({ value: 0 }, 1000)
@@ -246,11 +229,10 @@
 
         var aLight = new THREE.AmbientLight(0xffffff);
         this.scene.add(aLight);
-        //David code
+        
         var directionalLight = new THREE.DirectionalLight("#fff", 2);
         directionalLight.position.set(0, 50, -20);
         this.scene.add(directionalLight);
-        //End David code
 
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
         THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
@@ -325,8 +307,6 @@
         for (let i = clouds; i < clouds + stars; ++i) {
           var f = (clouds + stars - i) / (clouds + stars);
           var g = i / (clouds + stars);
-          //var a = Math.random() * 3.14159 * 2.0;
-          // var r = f * 700;
           var x = Math.random() * 4000.0 - 2000.0;
           var y = Math.random() * 4000.0 - 2000.0;
           var z = Math.random() * 4000.0 - 2000.0;
@@ -597,13 +577,11 @@
               }
             }
 
-
             textMesh.rotation.x = 0.35;
             textMesh.rotation.y = -0.3;
             textMesh.rotation.z = 0.085;
             textMesh.name = textMask;
             scene.add(textMesh);
-            console.log()
           });
         }
 
@@ -625,7 +603,6 @@
         if (this.$store.state.stopGalactic == false){
           requestAnimationFrame(this.animate);
         }
-        //console.log(this.$store.state.currentSlide)
         // this.requestAnimation;
         var plRot = 0.01;
 

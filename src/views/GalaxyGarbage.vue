@@ -1,6 +1,5 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
-    
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
@@ -137,7 +136,7 @@ export default {
           type: "t",
           value: new THREE.TextureLoader().load(require("../assets/fire.jpg"))
         },
-        time: { // float initialized to 0
+        time: { 
           type: "f",
           value: 0.0
         }
@@ -288,14 +287,6 @@ export default {
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        /*const pointerLoader = new THREE.TextureLoader();
-        const pointerTex = pointerLoader.load(require("../assets/badge_star.png"));
-        var pg = new THREE.CylinderGeometry(1, 1, 0.15, 25);
-        var pm = new THREE.MeshPhongMaterial({
-          map: pointerTex
-        });
-        this.pointer = new THREE.Mesh(pg, pm);
-        this.scene.add(this.pointer);*/
         //David code
         const loader = new THREE.TextureLoader();
         const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
@@ -362,10 +353,10 @@ export default {
         this.scene.children[2].position.z += 20;
       }
 
-      if (this.$store.state.stopRoadmap == false){
+      if (this.$store.state.stopGalaxyGarbage == false) {
         requestAnimationFrame(this.animate);
+        this.render();
       }
-      this.render();
     },
     render: function () {
       if (!this.intro) {
@@ -413,9 +404,10 @@ export default {
         this.renderer.setScissorTest(true);
         this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
         this.renderer.render(this.scene, this.camera);
-        const badgesParent = document.getElementById('badges-container');
+        let badgesParent = document.getElementById('badges-container');
+        badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
-        if (this.badgeScenes.length > 0 && badgesParent.hasChildNodes()) {
+        if (this.badgeScenes.length > 0 && badgesParent) {
           for (let i = 0; i < this.badgeScenes.length; i++) {
             const badgeCont = document.getElementById('list-item' + i);
             const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
@@ -488,7 +480,6 @@ export default {
       setTimeout(() => {
         this.scene.remove(part);
       }, 15000);
-
       //End of Object Explosion
       //Waves
       var waveGeo = new THREE.IcosahedronGeometry(5, 40);
@@ -500,11 +491,11 @@ export default {
       });
       this.waveUniforms.time.value = .00025 * (Date.now() - this.waveStart);
       this.waveMesh = new THREE.Mesh(waveGeo, waveMat);
+      this.scene.add(this.waveMesh);
       this.waveMesh.scale.x = 0;
       this.waveMesh.scale.y = 0;
       this.waveMesh.scale.z = 0;
       this.waveMesh.name = "wave0";
-      this.scene.add(this.waveMesh);
       //End of Waves
     },
     onDocumentMouseDown: function(event) {
@@ -542,11 +533,11 @@ export default {
             let intersects = raycaster.intersectObjects(elem.children);
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
+              console.log(intersects[0])
               addExplosion(intersects[0].point);
               score += 1;
               if (score < totalTargets) {
                 // myScore.innerHTML = "<span class='hit'>HIT!</span> Score: " + score + "/" + totalTargets;
-                console.log(score)
               } else {
                 complete = true;
                 let badgeTextures = [
@@ -593,8 +584,6 @@ export default {
                   const badgeLoader = new THREE.TextureLoader();
                   const badgeTex = badgeLoader.load(badgeTextures[i]);
                   bMat = new THREE.MeshBasicMaterial({
-                    roughness: 0.5,
-                    metalness: 1,
                     map: badgeTex
                   });
                   bMesh = new THREE.Mesh(bGeo, bMat);
@@ -607,13 +596,6 @@ export default {
                   blight.position.set(1, 1, 1);
                   bScene.add(blight);
                   bScenes.push(bScene);
-                }
-                if (level < totalLevels) {
-                  // myScore.innerHTML = "<strong>You got 'em all!</strong> Click the screen for level "  + (level+1) + ".";
-                  console.log(level+1)
-                } else {
-                  // myScore.innerHTML = "<strong>You win!</strong> Click the screen to play again.";
-                  console.log("You win!  Click the screen to play again.")
                 }
               }
             }
@@ -673,7 +655,6 @@ export default {
       this.scene.remove(curve);
     },
     restartScene: function () {
-      // this.myScore.innerHTML = "";
       if (this.level < this.totalLevels) {
         this.speed += 0.005;
         this.totalTargets += 1;
@@ -731,10 +712,8 @@ export default {
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
     document.body.addEventListener('pointermove', this.onPointerMove);
-    this.$store.commit('setHeader', false)
+    this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
-
-
     const promise = new Promise((resolve, reject) => {
       resolve (this.myScene())
     });
@@ -742,7 +721,7 @@ export default {
       this.addHolder();
     });
     promise.then((value) => {
-      this.$store.commit('stopRoadmap', false)
+      this.$store.commit('stopRoadmap', false);
       this.animate();
     });
     window.addEventListener( 'resize', this.onWindowResize, false );
@@ -754,13 +733,16 @@ export default {
     }, 3000);
   },
   beforeDestroy () {
-    this.$store.commit('stopGalaxyGarbage', true)
+    this.$store.commit('stopGalaxyGarbage', true);
+    while(this.scene.children.length > 0){ 
+      this.scene.remove(this.scene.children[0]); 
+    }
+    this.renderer = null;
   },
   watch: {
     'badgeIndex': function () {
       if(this.badgeIndex == 4){
         this.statistic = true;
-        console.log(this.badgeIndex)
       }
       if(this.badgeIndex !== 4 && this.oldBadgeIndex + 1 == this.badgeIndex){
         this.oldBadgeIndex++;

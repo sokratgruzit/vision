@@ -2,7 +2,7 @@
   <div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
-      <div class="clearFilter">
+      <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
         <span></span>
         <span></span>
       </div>
@@ -196,7 +196,8 @@ export default {
       filterGeo: null,
       filterMat: null,
       filterMesh: null,
-      help: null
+      help: null,
+      closeFilter: false
     }
   },
   methods: {
@@ -599,7 +600,6 @@ export default {
         fEl.style.setProperty('height', '60px');
 
         let label = "Filter";
-
         if (i === 1) {
           label = "Inception";
         } else if (i === 2) {
@@ -663,6 +663,8 @@ export default {
       }, 10000);
     },
     updateUiData: function (event) {
+      console.log(event.target.id);
+      console.log(event.target);
       if (event.target.id === 'list-itemf0') {
         this.filterVisible = !this.filterVisible;
       } else {
@@ -670,8 +672,12 @@ export default {
       }
 
       let el = document.getElementById('list-itemf0');
-
-      if (event.target.id === 'list-itemf1') {
+      if (event.target.id === 'clear-filter') {
+        el.innerHTML = 'Filter';
+        el.style['color'] = '#FFFFFF';
+        this.filterScenes[0].children[0].material.color = new THREE.Color(0x878FFF);
+      }
+      else if (event.target.id === 'list-itemf1') {
         el.innerHTML = 'Inception';
         el.style['color'] = '#FFB36D';
         this.filterScenes[0].children[0].material.color = this.colors[0];
@@ -1010,30 +1016,40 @@ export default {
       .start();
     },
     deleteLines: function () {
-      for(let i = 0; i <  4; i++){
+      for(let i = 0; i < 4; i++){
         this.showRoadmapPath(i,'hide');
       }
     },
+    closeFilters() {
+      this.closeFilter = false;
+      this.filterLine = false;
+      this.deleteLines();
+      this.filterLineIndex = null;
+    },
     filterClick: function (e) {
       if(e.target.id == 'list-itemf1'){
+        this.closeFilter = true;
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(0,'show');
         this.filterLineIndex = 0;
       }
       if(e.target.id == 'list-itemf2'){
+        this.closeFilter = true;
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(1,'show');
         this.filterLineIndex = 1;
       }
       if(e.target.id == 'list-itemf3'){
+        this.closeFilter = true;
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(6,'show');
         this.filterLineIndex = 6;
       }
       if(e.target.id == 'list-itemf4'){
+        this.closeFilter = true;
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(11,'show');
@@ -1343,40 +1359,38 @@ export default {
       this.mouseY = event.clientY - this.windowHalfY;
     },
     swipeHandler (direction, event) {
-      console.log(direction);
-      console.log(event.changedTouches[0].clientX);
-      console.log(event);
-      console.log(this.roadmapMesh.position.x);
-      if (direction == 'left' && this.roadmapMesh.position.x > -1400) {
-        this.roadmapMesh.position.x -= event.changedTouches[0].screenX * 0.008;
-        var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x - this.windowHalfX * 1.3 }, 1000)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-        cA.start();
-      }
-      if (direction == 'right'  && this.roadmapMesh.position.x < 1400) {
-        this.roadmapMesh.position.x += event.changedTouches[0].screenX * 0.008;
-        var cA = new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x + this.windowHalfX * 1.3}, 1000)
-          .easing(TWEEN.Easing.Quadratic.InOut)
-        cA.start();
-      }
-      if (this.roadmapMesh.position.x > 1400) {
-        setTimeout(() => {
-          new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ x: 1400 }, 1000)
-            .easing(TWEEN.Easing.Quintic.Out)
-            .start();
-        },1000)
-      }
+      if(window.innerWidth < 1023){
+        if (direction == 'left' && this.roadmapMesh.position.x > -1400) {
+          this.roadmapMesh.position.x -= event.changedTouches[0].screenX * 0.008;
+          var cA = new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: this.roadmapMesh.position.x - this.windowHalfX * 1.3 }, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+          cA.start();
+        }
+        if (direction == 'right'  && this.roadmapMesh.position.x < 1400) {
+          this.roadmapMesh.position.x += event.changedTouches[0].screenX * 0.008;
+          var cA = new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ x: this.roadmapMesh.position.x + this.windowHalfX * 1.3}, 1000)
+            .easing(TWEEN.Easing.Quadratic.InOut)
+          cA.start();
+        }
+        if (this.roadmapMesh.position.x > 1400) {
+          setTimeout(() => {
+            new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: 1400 }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out)
+              .start();
+          },1000)
+        }
 
-      if (this.roadmapMesh.position.x < -1400) {
-        setTimeout(() => {
-          new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ x: -1300 }, 1000)
-            .easing(TWEEN.Easing.Quintic.Out)
-            .start();
-        }, 1000)
+        if (this.roadmapMesh.position.x < -1400) {
+          setTimeout(() => {
+            new TWEEN.Tween(this.roadmapMesh.position)
+              .to({ x: -1300 }, 1000)
+              .easing(TWEEN.Easing.Quintic.Out)
+              .start();
+          }, 1000)
+        }
       }
     }
   },
@@ -1430,14 +1444,25 @@ export default {
     width: 100%;
     background: #fff;
     transition: .6s cubic-bezier(.79,.01,.15,.99);
+    pointer-events: none;
   }
   .clearFilter:hover span{
     background: rgba(255, 113, 82, 1);
   }
-  .clearFilter span:nth-child(1){
+  .clearFilter span:nth-child(1) {
+    transform: rotate(
+      0deg
+    ) translateY(7px) translateX(0px);
+  }
+  .clearFilter span:nth-child(2) {
+    transform: rotate(
+      0deg
+    ) translateY(-7px) translateX(0px);
+  }
+  .clearFilter.active span:nth-child(1){
     transform: rotate(45deg) translateY(5px) translateX(5px);
   }
-  .clearFilter span:nth-child(2){
+  .clearFilter.active span:nth-child(2){
     transform: rotate(-45deg) translateY(-5px) translateX(5px)
   }
   .clearFilter{
@@ -1445,12 +1470,19 @@ export default {
     right: 0px;
     width: 15px;
     height: 15px;
-    z-index: 5;
+    z-index: 30;
     top: 22px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     cursor: pointer;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .clearFilter.active{
+    opacity: 1;
+    pointer-events: all;
   }
   .roadmap__about{
     position: absolute;
@@ -1491,7 +1523,7 @@ export default {
     align-items: center;
     position: absolute;
     top: 38px;
-    right: 115px;
+    right: 120px;
   }
   #list-itemf0 {
     opacity: 0;

@@ -12,7 +12,6 @@
         <Story/>
       </slide>
     </hooper>
-    <Game v-if="$store.state.playGame"/>
     <Galactic/>
   </div>
 </template>
@@ -21,7 +20,6 @@
 // @ is an alias to /src
 import { Hooper, Slide } from 'hooper'
 import 'hooper/dist/hooper.css'
-import Game from '@/components/Game.vue'
 import MainSlide from '../components/MainSlide'
 import GameStart from '../components/GameStart'
 import Galactic from '../components/Galactic'
@@ -31,7 +29,6 @@ export default {
   name: 'Home',
   components: {
     MainSlide,
-    Game,
     Hooper,
     Slide,
     GameStart,
@@ -45,7 +42,7 @@ export default {
   },
   methods: {
     handleScroll (event) {
-      console.log('hii')
+      
     },
     updateCarousel (payload) {
       this.$store.commit('changeSlide', payload.currentSlide);

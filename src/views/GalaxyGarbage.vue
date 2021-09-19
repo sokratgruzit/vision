@@ -1,6 +1,5 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
-    
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>
@@ -137,7 +136,7 @@ export default {
           type: "t",
           value: new THREE.TextureLoader().load(require("../assets/fire.jpg"))
         },
-        time: { // float initialized to 0
+        time: { 
           type: "f",
           value: 0.0
         }
@@ -288,14 +287,6 @@ export default {
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        /*const pointerLoader = new THREE.TextureLoader();
-        const pointerTex = pointerLoader.load(require("../assets/badge_star.png"));
-        var pg = new THREE.CylinderGeometry(1, 1, 0.15, 25);
-        var pm = new THREE.MeshPhongMaterial({
-          map: pointerTex
-        });
-        this.pointer = new THREE.Mesh(pg, pm);
-        this.scene.add(this.pointer);*/
         //David code
         const loader = new THREE.TextureLoader();
         const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
@@ -488,7 +479,6 @@ export default {
       setTimeout(() => {
         this.scene.remove(part);
       }, 15000);
-
       //End of Object Explosion
       //Waves
       var waveGeo = new THREE.IcosahedronGeometry(5, 40);
@@ -500,11 +490,11 @@ export default {
       });
       this.waveUniforms.time.value = .00025 * (Date.now() - this.waveStart);
       this.waveMesh = new THREE.Mesh(waveGeo, waveMat);
+      this.scene.add(this.waveMesh);
       this.waveMesh.scale.x = 0;
       this.waveMesh.scale.y = 0;
       this.waveMesh.scale.z = 0;
       this.waveMesh.name = "wave0";
-      this.scene.add(this.waveMesh);
       //End of Waves
     },
     onDocumentMouseDown: function(event) {
@@ -542,11 +532,11 @@ export default {
             let intersects = raycaster.intersectObjects(elem.children);
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
+              console.log(intersects[0])
               addExplosion(intersects[0].point);
               score += 1;
               if (score < totalTargets) {
                 // myScore.innerHTML = "<span class='hit'>HIT!</span> Score: " + score + "/" + totalTargets;
-                console.log(score)
               } else {
                 complete = true;
                 let badgeTextures = [
@@ -608,13 +598,6 @@ export default {
                   bScene.add(blight);
                   bScenes.push(bScene);
                 }
-                if (level < totalLevels) {
-                  // myScore.innerHTML = "<strong>You got 'em all!</strong> Click the screen for level "  + (level+1) + ".";
-                  console.log(level+1)
-                } else {
-                  // myScore.innerHTML = "<strong>You win!</strong> Click the screen to play again.";
-                  console.log("You win!  Click the screen to play again.")
-                }
               }
             }
           });
@@ -673,7 +656,6 @@ export default {
       this.scene.remove(curve);
     },
     restartScene: function () {
-      // this.myScore.innerHTML = "";
       if (this.level < this.totalLevels) {
         this.speed += 0.005;
         this.totalTargets += 1;
@@ -760,7 +742,6 @@ export default {
     'badgeIndex': function () {
       if(this.badgeIndex == 4){
         this.statistic = true;
-        console.log(this.badgeIndex)
       }
       if(this.badgeIndex !== 4 && this.oldBadgeIndex + 1 == this.badgeIndex){
         this.oldBadgeIndex++;

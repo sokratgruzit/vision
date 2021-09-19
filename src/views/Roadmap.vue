@@ -1,7 +1,12 @@
 <template>
   <div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
-    <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''"></div>
+    <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
+      <div class="clearFilter">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
     <div data-v-1afa4326="" class="roadmap__socials">
       <a data-v-1afa4326="" href="https://twitter.com/COREMultichain" target="_blank"><svg data-v-1afa4326="" width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M20 2.79875C19.2563 3.125 18.4637 3.34125 17.6375 3.44625C18.4875 2.93875 19.1363 2.14125 19.4412 1.18C18.6488 1.6525 17.7738 1.98625 16.8412 2.1725C16.0887 1.37125 15.0162 0.875 13.8462 0.875C11.5763 0.875 9.74875 2.7175 9.74875 4.97625C9.74875 5.30125 9.77625 5.61375 9.84375 5.91125C6.435 5.745 3.41875 4.11125 1.3925 1.6225C1.03875 2.23625 0.83125 2.93875 0.83125 3.695C0.83125 5.115 1.5625 6.37375 2.6525 7.1025C1.99375 7.09 1.3475 6.89875 0.8 6.5975C0.8 6.61 0.8 6.62625 0.8 6.6425C0.8 8.635 2.22125 10.29 4.085 10.6712C3.75125 10.7625 3.3875 10.8062 3.01 10.8062C2.7475 10.8062 2.4825 10.7913 2.23375 10.7362C2.765 12.36 4.2725 13.5538 6.065 13.5925C4.67 14.6838 2.89875 15.3412 0.98125 15.3412C0.645 15.3412 0.3225 15.3263 0 15.285C1.81625 16.4563 3.96875 17.125 6.29 17.125C13.835 17.125 17.96 10.875 17.96 5.4575C17.96 5.27625 17.9538 5.10125 17.945 4.9275C18.7588 4.35 19.4425 3.62875 20 2.79875Z" fill="white"></path></svg></a>
       <a data-v-1afa4326="" href="https://t.me/coreblockchain" target="_blank"><svg data-v-1afa4326="" width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M6.278 9.12066L6.01333 12.8433C6.392 12.8433 6.556 12.6807 6.75266 12.4853L8.528 10.7887L12.2067 13.4827C12.8813 13.8587 13.3567 13.6607 13.5387 12.862L15.9533 1.54732L15.954 1.54666C16.168 0.549324 15.5933 0.159324 14.936 0.403991L0.742663 5.83799C-0.226003 6.21399 -0.211337 6.75399 0.577996 6.99866L4.20666 8.12732L12.6353 2.85332C13.032 2.59066 13.3927 2.73599 13.096 2.99866L6.278 9.12066Z" fill="white"></path></svg></a>
@@ -34,6 +39,7 @@
         </div>
       </div>
     </div>
+    <router-link to="/about" class="roadmap__about">About</router-link>
   </div>
 </template>
 
@@ -587,7 +593,7 @@ export default {
       for (let i = 0; i < 5; i++) {
         this.filterScene = new THREE.Scene();
         const fEl = document.createElement('span');
-        fEl.id = 'list-item' + i;
+        fEl.id = 'list-itemf' + i;
         fEl.className = 'filter-item';
         fEl.style.setProperty('width', '200px');
         fEl.style.setProperty('height', '60px');
@@ -650,34 +656,34 @@ export default {
             }, 3000)
             .easing(TWEEN.Easing.Quintic.Out)
             .onComplete(function () {
-              document.getElementById('list-item0').style['opacity'] = 1;
+              document.getElementById('list-itemf0').style['opacity'] = 1;
             })
             .start();
         }
       }, 10000);
     },
     updateUiData: function (event) {
-      if (event.target.id === 'list-item0') {
+      if (event.target.id === 'list-itemf0') {
         this.filterVisible = !this.filterVisible;
       } else {
         this.filterVisible = false;
       }
 
-      let el = document.getElementById('list-item0');
+      let el = document.getElementById('list-itemf0');
 
-      if (event.target.id === 'list-item1') {
+      if (event.target.id === 'list-itemf1') {
         el.innerHTML = 'Inception';
         el.style['color'] = '#FFB36D';
         this.filterScenes[0].children[0].material.color = this.colors[0];
-      } else if (event.target.id === 'list-item2') {
+      } else if (event.target.id === 'list-itemf2') {
         el.innerHTML = 'Year 2021';
         el.style['color'] = '#FF81E3';
         this.filterScenes[0].children[0].material.color = this.colors[1];
-      } else if (event.target.id === 'list-item3') {
+      } else if (event.target.id === 'list-itemf3') {
         el.innerHTML = 'Year 2022';
         el.style['color'] = '#5CFFC4';
         this.filterScenes[0].children[0].material.color = this.colors[2];
-      } else if (event.target.id === 'list-item4') {
+      } else if (event.target.id === 'list-itemf4') {
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#F3F657';
         this.filterScenes[0].children[0].material.color = this.colors[3];
@@ -691,10 +697,10 @@ export default {
 
       if (status) {
         value = 1;
-        class1 = 'list-item1';
-        class2 = 'list-item2';
-        class3 = 'list-item3';
-        class4 = 'list-item4';
+        class1 = 'list-itemf1';
+        class2 = 'list-itemf2';
+        class3 = 'list-itemf3';
+        class4 = 'list-itemf4';
 
         document.getElementById(class1).style['display'] = 'flex';
         document.getElementById(class2).style['display'] = 'flex';
@@ -707,10 +713,10 @@ export default {
         el4 = this.filterScenes[4].children[0].scale;
       } else {
         value = 0;
-        class1 = 'list-item4';
-        class2 = 'list-item3';
-        class3 = 'list-item2';
-        class4 = 'list-item1';
+        class1 = 'list-itemf4';
+        class2 = 'list-itemf3';
+        class3 = 'list-itemf2';
+        class4 = 'list-itemf1';
 
         document.getElementById(class1).style['display'] = 'none';
         document.getElementById(class2).style['display'] = 'none';
@@ -949,7 +955,7 @@ export default {
         const fParent = document.getElementById('filters-container');
 
         for (let i = 0; i < this.filterScenes.length; i++) {
-          const fCont = document.getElementById('list-item' + i);
+          const fCont = document.getElementById('list-itemf' + i);
           const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
 
           if (rect !== false) {
@@ -1009,25 +1015,25 @@ export default {
       }
     },
     filterClick: function (e) {
-      if(e.target.id == 'list-item1'){
+      if(e.target.id == 'list-itemf1'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(0,'show');
         this.filterLineIndex = 0;
       }
-      if(e.target.id == 'list-item2'){
+      if(e.target.id == 'list-itemf2'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(1,'show');
         this.filterLineIndex = 1;
       }
-      if(e.target.id == 'list-item3'){
+      if(e.target.id == 'list-itemf3'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(6,'show');
         this.filterLineIndex = 6;
       }
-      if(e.target.id == 'list-item4'){
+      if(e.target.id == 'list-itemf4'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(11,'show');
@@ -1419,6 +1425,56 @@ export default {
 }
 </script>
 <style>
+  .clearFilter span{
+    height: 1px;
+    width: 100%;
+    background: #fff;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .clearFilter:hover span{
+    background: rgba(255, 113, 82, 1);
+  }
+  .clearFilter span:nth-child(1){
+    transform: rotate(45deg) translateY(5px) translateX(5px);
+  }
+  .clearFilter span:nth-child(2){
+    transform: rotate(-45deg) translateY(-5px) translateX(5px)
+  }
+  .clearFilter{
+    position: absolute;
+    right: 0px;
+    width: 15px;
+    height: 15px;
+    z-index: 5;
+    top: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    cursor: pointer;
+  }
+  .roadmap__about{
+    position: absolute;
+    bottom: 30px;
+    right: 80px;
+    z-index: 11;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .roadmap__about:after{
+    content: '';
+    height: 1px;
+    width: 100%;
+    bottom: 0px;
+    background: #fff;
+    left: 0px;
+    position: absolute;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .roadmap__about:hover{
+    color: rgba(255, 113, 82, 1);
+  }
+  .roadmap__about:hover::after{
+    transform: scaleX(0);
+  }
   .filter-item{
     display: flex;
     align-items: center;
@@ -1427,39 +1483,39 @@ export default {
     cursor: pointer;
   }
   #filters-container {
-    width: 200px;
-    height: 400px;
+    width: 125px;
+    /* height: 400px; */
     z-index: 30;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: absolute;
     top: 38px;
-    right: 80px;
+    right: 115px;
   }
-  #list-item0 {
+  #list-itemf0 {
     opacity: 0;
   }
-  #list-item1:hover{
+  #list-itemf1:hover{
     color: #FFB36D;
   }
-  #list-item2:hover{
+  #list-itemf2:hover{
     color: #FF81E3;
   }
-  #list-item3:hover{
+  #list-itemf3:hover{
     color: #5CFFC4;
   }
-  #list-item4:hover{
+  #list-itemf4:hover{
     color: #F3F657;
   }
   /*new THREE.Color(0xFFB36D),*/
   /*new THREE.Color(0xFF81E3),*/
   /*new THREE.Color(0x5CFFC4),*/
   /*new THREE.Color(0xF3F657)*/
-  #list-item1,
-  #list-item2,
-  #list-item3,
-  #list-item4 {
+  #list-itemf1,
+  #list-itemf2,
+  #list-itemf3,
+  #list-itemf4 {
     opacity: 0;
     display: none;
   }
@@ -1529,7 +1585,7 @@ export default {
   .roadmap__socials{
     position: absolute;
     bottom: 30px;
-    left: 100px;
+    left: 80px;
     z-index: 11;
     display: flex;
     align-items: center;

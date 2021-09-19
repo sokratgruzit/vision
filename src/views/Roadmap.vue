@@ -1,7 +1,12 @@
 <template>
   <div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
-    <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''"></div>
+    <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
+      <div class="clearFilter">
+        <span></span>
+        <span></span>
+      </div>
+    </div>
     <div data-v-1afa4326="" class="roadmap__socials">
       <a data-v-1afa4326="" href="https://twitter.com/COREMultichain" target="_blank"><svg data-v-1afa4326="" width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M20 2.79875C19.2563 3.125 18.4637 3.34125 17.6375 3.44625C18.4875 2.93875 19.1363 2.14125 19.4412 1.18C18.6488 1.6525 17.7738 1.98625 16.8412 2.1725C16.0887 1.37125 15.0162 0.875 13.8462 0.875C11.5763 0.875 9.74875 2.7175 9.74875 4.97625C9.74875 5.30125 9.77625 5.61375 9.84375 5.91125C6.435 5.745 3.41875 4.11125 1.3925 1.6225C1.03875 2.23625 0.83125 2.93875 0.83125 3.695C0.83125 5.115 1.5625 6.37375 2.6525 7.1025C1.99375 7.09 1.3475 6.89875 0.8 6.5975C0.8 6.61 0.8 6.62625 0.8 6.6425C0.8 8.635 2.22125 10.29 4.085 10.6712C3.75125 10.7625 3.3875 10.8062 3.01 10.8062C2.7475 10.8062 2.4825 10.7913 2.23375 10.7362C2.765 12.36 4.2725 13.5538 6.065 13.5925C4.67 14.6838 2.89875 15.3412 0.98125 15.3412C0.645 15.3412 0.3225 15.3263 0 15.285C1.81625 16.4563 3.96875 17.125 6.29 17.125C13.835 17.125 17.96 10.875 17.96 5.4575C17.96 5.27625 17.9538 5.10125 17.945 4.9275C18.7588 4.35 19.4425 3.62875 20 2.79875Z" fill="white"></path></svg></a>
       <a data-v-1afa4326="" href="https://t.me/coreblockchain" target="_blank"><svg data-v-1afa4326="" width="16" height="14" viewBox="0 0 16 14" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M6.278 9.12066L6.01333 12.8433C6.392 12.8433 6.556 12.6807 6.75266 12.4853L8.528 10.7887L12.2067 13.4827C12.8813 13.8587 13.3567 13.6607 13.5387 12.862L15.9533 1.54732L15.954 1.54666C16.168 0.549324 15.5933 0.159324 14.936 0.403991L0.742663 5.83799C-0.226003 6.21399 -0.211337 6.75399 0.577996 6.99866L4.20666 8.12732L12.6353 2.85332C13.032 2.59066 13.3927 2.73599 13.096 2.99866L6.278 9.12066Z" fill="white"></path></svg></a>
@@ -34,6 +39,7 @@
         </div>
       </div>
     </div>
+    <router-link to="/about" class="roadmap__about">About</router-link>
   </div>
 </template>
 
@@ -1419,6 +1425,52 @@ export default {
 }
 </script>
 <style>
+  .clearFilter span{
+    height: 1px;
+    width: 100%;
+    background: #fff;
+  }
+  .clearFilter span:nth-child(1){
+    transform: rotate(40deg) translateY(5px) translateX(4px);
+  }
+  .clearFilter span:nth-child(2){
+    transform: rotate(-45deg) translateY(-5px) translateX(5px)
+  }
+  .clearFilter{
+    position: absolute;
+    right: 0px;
+    width: 15px;
+    height: 15px;
+    background: red;
+    z-index: 5;
+    top: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+  .roadmap__about{
+    position: absolute;
+    bottom: 30px;
+    right: 80px;
+    z-index: 11;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .roadmap__about:after{
+    content: '';
+    height: 1px;
+    width: 100%;
+    bottom: 0px;
+    background: #fff;
+    left: 0px;
+    position: absolute;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .roadmap__about:hover{
+    color: rgba(255, 113, 82, 1);
+  }
+  .roadmap__about:hover::after{
+    transform: scaleX(0);
+  }
   .filter-item{
     display: flex;
     align-items: center;
@@ -1427,15 +1479,15 @@ export default {
     cursor: pointer;
   }
   #filters-container {
-    width: 200px;
-    height: 400px;
+    width: 125px;
+    /* height: 400px; */
     z-index: 30;
     display: flex;
     flex-direction: column;
     align-items: center;
     position: absolute;
     top: 38px;
-    right: 80px;
+    right: 115px;
   }
   #list-item0 {
     opacity: 0;
@@ -1529,7 +1581,7 @@ export default {
   .roadmap__socials{
     position: absolute;
     bottom: 30px;
-    left: 100px;
+    left: 80px;
     z-index: 11;
     display: flex;
     align-items: center;

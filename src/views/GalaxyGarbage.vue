@@ -353,10 +353,10 @@ export default {
         this.scene.children[2].position.z += 20;
       }
 
-      if (this.$store.state.stopRoadmap == false){
+      if (this.$store.state.stopGalaxyGarbage == false) {
         requestAnimationFrame(this.animate);
+        this.render();
       }
-      this.render();
     },
     render: function () {
       if (!this.intro) {
@@ -404,9 +404,10 @@ export default {
         this.renderer.setScissorTest(true);
         this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
         this.renderer.render(this.scene, this.camera);
-        const badgesParent = document.getElementById('badges-container');
+        let badgesParent = document.getElementById('badges-container');
+        badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
-        if (this.badgeScenes.length > 0 && badgesParent.hasChildNodes()) {
+        if (this.badgeScenes.length > 0 && badgesParent) {
           for (let i = 0; i < this.badgeScenes.length; i++) {
             const badgeCont = document.getElementById('list-item' + i);
             const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
@@ -583,8 +584,6 @@ export default {
                   const badgeLoader = new THREE.TextureLoader();
                   const badgeTex = badgeLoader.load(badgeTextures[i]);
                   bMat = new THREE.MeshBasicMaterial({
-                    roughness: 0.5,
-                    metalness: 1,
                     map: badgeTex
                   });
                   bMesh = new THREE.Mesh(bGeo, bMat);
@@ -713,10 +712,8 @@ export default {
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
     document.body.addEventListener('pointermove', this.onPointerMove);
-    this.$store.commit('setHeader', false)
+    this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
-
-
     const promise = new Promise((resolve, reject) => {
       resolve (this.myScene())
     });
@@ -724,7 +721,7 @@ export default {
       this.addHolder();
     });
     promise.then((value) => {
-      this.$store.commit('stopRoadmap', false)
+      this.$store.commit('stopRoadmap', false);
       this.animate();
     });
     window.addEventListener( 'resize', this.onWindowResize, false );
@@ -736,7 +733,11 @@ export default {
     }, 3000);
   },
   beforeDestroy () {
-    this.$store.commit('stopGalaxyGarbage', true)
+    this.$store.commit('stopGalaxyGarbage', true);
+    while(this.scene.children.length > 0){ 
+      this.scene.remove(this.scene.children[0]); 
+    }
+    this.renderer = null;
   },
   watch: {
     'badgeIndex': function () {

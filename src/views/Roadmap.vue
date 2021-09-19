@@ -593,7 +593,7 @@ export default {
       for (let i = 0; i < 5; i++) {
         this.filterScene = new THREE.Scene();
         const fEl = document.createElement('span');
-        fEl.id = 'list-item' + i;
+        fEl.id = 'list-itemf' + i;
         fEl.className = 'filter-item';
         fEl.style.setProperty('width', '200px');
         fEl.style.setProperty('height', '60px');
@@ -656,34 +656,34 @@ export default {
             }, 3000)
             .easing(TWEEN.Easing.Quintic.Out)
             .onComplete(function () {
-              document.getElementById('list-item0').style['opacity'] = 1;
+              document.getElementById('list-itemf0').style['opacity'] = 1;
             })
             .start();
         }
       }, 10000);
     },
     updateUiData: function (event) {
-      if (event.target.id === 'list-item0') {
+      if (event.target.id === 'list-itemf0') {
         this.filterVisible = !this.filterVisible;
       } else {
         this.filterVisible = false;
       }
 
-      let el = document.getElementById('list-item0');
+      let el = document.getElementById('list-itemf0');
 
-      if (event.target.id === 'list-item1') {
+      if (event.target.id === 'list-itemf1') {
         el.innerHTML = 'Inception';
         el.style['color'] = '#FFB36D';
         this.filterScenes[0].children[0].material.color = this.colors[0];
-      } else if (event.target.id === 'list-item2') {
+      } else if (event.target.id === 'list-itemf2') {
         el.innerHTML = 'Year 2021';
         el.style['color'] = '#FF81E3';
         this.filterScenes[0].children[0].material.color = this.colors[1];
-      } else if (event.target.id === 'list-item3') {
+      } else if (event.target.id === 'list-itemf3') {
         el.innerHTML = 'Year 2022';
         el.style['color'] = '#5CFFC4';
         this.filterScenes[0].children[0].material.color = this.colors[2];
-      } else if (event.target.id === 'list-item4') {
+      } else if (event.target.id === 'list-itemf4') {
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#F3F657';
         this.filterScenes[0].children[0].material.color = this.colors[3];
@@ -697,10 +697,10 @@ export default {
 
       if (status) {
         value = 1;
-        class1 = 'list-item1';
-        class2 = 'list-item2';
-        class3 = 'list-item3';
-        class4 = 'list-item4';
+        class1 = 'list-itemf1';
+        class2 = 'list-itemf2';
+        class3 = 'list-itemf3';
+        class4 = 'list-itemf4';
 
         document.getElementById(class1).style['display'] = 'flex';
         document.getElementById(class2).style['display'] = 'flex';
@@ -713,10 +713,10 @@ export default {
         el4 = this.filterScenes[4].children[0].scale;
       } else {
         value = 0;
-        class1 = 'list-item4';
-        class2 = 'list-item3';
-        class3 = 'list-item2';
-        class4 = 'list-item1';
+        class1 = 'list-itemf4';
+        class2 = 'list-itemf3';
+        class3 = 'list-itemf2';
+        class4 = 'list-itemf1';
 
         document.getElementById(class1).style['display'] = 'none';
         document.getElementById(class2).style['display'] = 'none';
@@ -955,7 +955,7 @@ export default {
         const fParent = document.getElementById('filters-container');
 
         for (let i = 0; i < this.filterScenes.length; i++) {
-          const fCont = document.getElementById('list-item' + i);
+          const fCont = document.getElementById('list-itemf' + i);
           const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
 
           if (rect !== false) {
@@ -1015,25 +1015,25 @@ export default {
       }
     },
     filterClick: function (e) {
-      if(e.target.id == 'list-item1'){
+      if(e.target.id == 'list-itemf1'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(0,'show');
         this.filterLineIndex = 0;
       }
-      if(e.target.id == 'list-item2'){
+      if(e.target.id == 'list-itemf2'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(1,'show');
         this.filterLineIndex = 1;
       }
-      if(e.target.id == 'list-item3'){
+      if(e.target.id == 'list-itemf3'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(6,'show');
         this.filterLineIndex = 6;
       }
-      if(e.target.id == 'list-item4'){
+      if(e.target.id == 'list-itemf4'){
         this.filterLine = true;
         this.deleteLines();
         this.showRoadmapPath(11,'show');
@@ -1429,9 +1429,13 @@ export default {
     height: 1px;
     width: 100%;
     background: #fff;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .clearFilter:hover span{
+    background: rgba(255, 113, 82, 1);
   }
   .clearFilter span:nth-child(1){
-    transform: rotate(40deg) translateY(5px) translateX(4px);
+    transform: rotate(45deg) translateY(5px) translateX(5px);
   }
   .clearFilter span:nth-child(2){
     transform: rotate(-45deg) translateY(-5px) translateX(5px)
@@ -1441,12 +1445,12 @@ export default {
     right: 0px;
     width: 15px;
     height: 15px;
-    background: red;
     z-index: 5;
     top: 22px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    cursor: pointer;
   }
   .roadmap__about{
     position: absolute;
@@ -1489,29 +1493,29 @@ export default {
     top: 38px;
     right: 115px;
   }
-  #list-item0 {
+  #list-itemf0 {
     opacity: 0;
   }
-  #list-item1:hover{
+  #list-itemf1:hover{
     color: #FFB36D;
   }
-  #list-item2:hover{
+  #list-itemf2:hover{
     color: #FF81E3;
   }
-  #list-item3:hover{
+  #list-itemf3:hover{
     color: #5CFFC4;
   }
-  #list-item4:hover{
+  #list-itemf4:hover{
     color: #F3F657;
   }
   /*new THREE.Color(0xFFB36D),*/
   /*new THREE.Color(0xFF81E3),*/
   /*new THREE.Color(0x5CFFC4),*/
   /*new THREE.Color(0xF3F657)*/
-  #list-item1,
-  #list-item2,
-  #list-item3,
-  #list-item4 {
+  #list-itemf1,
+  #list-itemf2,
+  #list-itemf3,
+  #list-itemf4 {
     opacity: 0;
     display: none;
   }

@@ -60,9 +60,6 @@
         leftGeo: null,
         leftMesh: null,
         leftUniforms: null,
-        curveMesh: null,
-        curveMesh2: null,
-        cureveMesh3: null,
         leftTarget: false,
         rightTarget: false,
         slideCount: 0,
@@ -71,28 +68,25 @@
           new THREE.Color(0xFF81E3),
           new THREE.Color(0x5CFFC4),
           new THREE.Color(0xF3F657)
-        ],
-        lineGeometry0: null,
-        lineGeometry1: null,
-        lineGeometry2: null,
-        lineGeometry3: null,
-        glowM0: null,
-        glowM1: null,
-        glowM2: null,
-        glowM3: null
+        ]
       }
     },
     methods: {
       sliderScene: function() {
         var container = document.getElementById('slider-container');
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-        this.camera.position.z = 1000;
+        this.camera.position.z = 400;
 
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
-        this.leftGeo = new THREE.SphereBufferGeometry(100, 50, 50);
-        this.rightGeo = new THREE.SphereBufferGeometry(100, 50, 50);
-        this.sliderGeo = new THREE.PlaneBufferGeometry(480*1.5, 240*1.5, 480, 240);
+        this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+        this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+        this.sliderGeo = new THREE.PlaneBufferGeometry(
+          this.windowHalfX * 0.5,
+          this.windowHalfX * 0.5,
+          this.windowHalfX * 0.5,
+          this.windowHalfX * 0.5
+        );
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -175,7 +169,7 @@
           fragmentShader: this.arrowFragment
         });
 
-        const subLeftGeo = new THREE.SphereBufferGeometry(70, 32, 32);
+        const subLeftGeo = new THREE.SphereBufferGeometry(100, 32, 32);
         const subLeftMat = new THREE.MeshBasicMaterial({
           color: 0x878FFF,
           transparent: true,
@@ -183,7 +177,7 @@
         });
         const subLeftMesh = new THREE.Mesh(subLeftGeo, subLeftMat);
 
-        const subRightGeo = new THREE.SphereBufferGeometry(70, 32, 32);
+        const subRightGeo = new THREE.SphereBufferGeometry(100, 32, 32);
         const subRightMat = new THREE.MeshBasicMaterial({
           color: 0xFFB36D,
           transparent: true,
@@ -202,13 +196,17 @@
         this.scene.add(directionalLight);
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
+        this.sliderMesh.position.set(
+          -this.windowHalfX * 0.35, 
+          -this.windowHalfY * 0.1, 
+        0);
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-        this.leftMesh.position.set(-850, 0, 0);
+        this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
 
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-        this.rightMesh.position.set(850, 0, 0);
+        this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
 
@@ -236,72 +234,7 @@
         this.composer.addPass(this.leftBloom);
 
         //Lighted curves
-        const lineMaterial = new THREE.LineBasicMaterial({
-          transparent: true,
-          opacity: 0.2,
-          color: this.colors[0]
-        });
-
-        const spline0 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 500, 0),
-          new THREE.Vector3(-500, 200, 0),
-          new THREE.Vector3(0, 800, 0),
-          new THREE.Vector3(500, 500, 0),
-          new THREE.Vector3(1500, 800, 0)
-        ]);
-
-        const spline1 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 0, 0),
-          new THREE.Vector3(-500, -100, 0),
-          new THREE.Vector3(0, -400, 0),
-          new THREE.Vector3(500, 250, 0),
-          new THREE.Vector3(1500, -300, 0)
-        ]);
-
-        const spline2 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 0, 0),
-          new THREE.Vector3(-500, 100, 0),
-          new THREE.Vector3(0, 0, 0),
-          new THREE.Vector3(500, -100, 0),
-          new THREE.Vector3(1500, 0, 0)
-        ]);
-
-        var splinePoints0 = spline0.getPoints(4000);
-        var splinePoints1 = spline1.getPoints(4000);
-        var splinePoints2 = spline2.getPoints(4000);
-
-        const glowG0 = new THREE.TubeGeometry(spline0, 4000, 15, 8, false);
-        const glowG1 = new THREE.TubeGeometry(spline1, 4000, 15, 8, false);
-        const glowG2 = new THREE.TubeGeometry(spline2, 4000, 15, 8, false);
-
-        this.glowM = new THREE.MeshBasicMaterial({
-          color: this.colors[0],
-          opacity: 0.1,
-          transparent: true,
-          depthTest: false
-        });
-
-        const glowMesh0 = new THREE.Mesh(glowG0, this.glowM);
-        const glowMesh1 = new THREE.Mesh(glowG1, this.glowM);
-        const glowMesh2 = new THREE.Mesh(glowG2, this.glowM);
-
-        this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(splinePoints0);
-        const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
-        lineMesh0.add(glowMesh0);
-        lineMesh0.position.y = -900;
-        this.scene.add(lineMesh0);
-
-        this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(splinePoints1);
-        const lineMesh1 = new THREE.Line(this.lineGeometry1, lineMaterial);
-        lineMesh1.add(glowMesh1);
-        lineMesh1.position.y = -400;
-        this.scene.add(lineMesh1);
-
-        this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(splinePoints2);
-        const lineMesh2 = new THREE.Line(this.lineGeometry2, lineMaterial);
-        lineMesh2.add(glowMesh2);
-        lineMesh2.position.y = -400;
-        this.scene.add(lineMesh2);
+        
         //End Lighted curves
       },
       disposeImage: function (direction) {
@@ -344,9 +277,6 @@
         this.rightMesh.rotateX(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
-        this.scene.children[6].children[0].scale.setZ(Math.sin(this.time * 2));
-        this.scene.children[7].children[0].scale.setZ(Math.sin(this.time * 2));
-        this.scene.children[8].children[0].scale.setZ(Math.sin(this.time * 2));
 
         if (this.$store.state.stopRoadmapInner == false){
           requestAnimationFrame(this.animate);

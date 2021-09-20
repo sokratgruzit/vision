@@ -1,5 +1,6 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
+    <router-link to="/statistic">stat</router-link>
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>

@@ -62,7 +62,7 @@ import {
 } from '../assets/shaders/fragment.js';
 
 export default {
-  name: 'Home',
+  name: 'Roadmap',
   components: {
   },
   data () {
@@ -197,7 +197,8 @@ export default {
       filterMat: null,
       filterMesh: null,
       help: null,
-      closeFilter: false
+      closeFilter: false,
+      hoveredRoad: false
     }
   },
   methods: {
@@ -805,7 +806,7 @@ export default {
     },
     showRoadmapPath: function (index, action) {
       let object = this.roadmapMesh.children[16];
-      if (index === 0 && action === 'show') {
+      if (index === 0 && action === 'show' && this.roadmapMesh.children[16].material.opacity == 0 ) {
         object = this.roadmapMesh.children[16];
         object.material.uniformsNeedUpdate = true;
 
@@ -820,7 +821,7 @@ export default {
         .start();
       }
 
-      if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show') {
+      if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show' && this.roadmapMesh.children[17].material.opacity == 0) {
         object = this.roadmapMesh.children[17];
         object.material.uniformsNeedUpdate = true;
 
@@ -835,7 +836,7 @@ export default {
         .start();
       }
 
-      if ((index === 6 || index === 7 || index === 8 || index === 9 || index === 10) && action === 'show') {
+      if ((index === 6 || index === 7 || index === 8 || index === 9 || index === 10) && action === 'show'  && this.roadmapMesh.children[18].material.opacity == 0) {
         object = this.roadmapMesh.children[18];
         object.material.uniformsNeedUpdate = true;
 
@@ -850,7 +851,7 @@ export default {
         .start();
       }
 
-      if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show') {
+      if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show' && this.roadmapMesh.children[19].material.opacity == 0) {
         object = this.roadmapMesh.children[19];
         object.material.uniformsNeedUpdate = true;
 
@@ -865,46 +866,54 @@ export default {
         .start();
       }
 
-      if (action === 'hide') {
-        new TWEEN.Tween(this.roadmapMesh.children[16].material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+      if (action === 'hide' && (this.roadmapMesh.children[16].material.opacity == 1 || this.roadmapMesh.children[17].material.opacity == 1 || this.roadmapMesh.children[18].material.opacity == 1 || this.roadmapMesh.children[19].material.opacity == 1)) {
 
-        new TWEEN.Tween(this.roadmapMesh.children[16].children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+        if( this.filterLineIndex !== 0) {
+          new TWEEN.Tween(this.roadmapMesh.children[16].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[17].material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+          new TWEEN.Tween(this.roadmapMesh.children[16].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[17].children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+        }
+        if( this.filterLineIndex !== 1) {
+          new TWEEN.Tween(this.roadmapMesh.children[17].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[18].material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+          new TWEEN.Tween(this.roadmapMesh.children[17].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
 
-        new TWEEN.Tween(this.roadmapMesh.children[18].children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+        if( this.filterLineIndex !== 6) {
+          new TWEEN.Tween(this.roadmapMesh.children[18].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[19].material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+          new TWEEN.Tween(this.roadmapMesh.children[18].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
+        if( this.filterLineIndex !== 11) {
+          new TWEEN.Tween(this.roadmapMesh.children[19].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
 
-        new TWEEN.Tween(this.roadmapMesh.children[19].children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
+          new TWEEN.Tween(this.roadmapMesh.children[19].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
       }
     },
     animate: function () {
@@ -1069,7 +1078,11 @@ export default {
           .easing(TWEEN.Easing.Quintic.Out);
 
         cB.chain(cC);
-        cA.chain(cB);
+
+
+        if(this.camera.rotation.y === 0){
+          cB.start();
+        }
         cA.start();
       }
       if (event.deltaY > 0 && this.roadmapMesh.position.x < 1300) {
@@ -1086,8 +1099,11 @@ export default {
           .to({ y: 0 }, 1000)
           .easing(TWEEN.Easing.Quintic.Out);
 
-        cB.chain(cC);
-        cA.chain(cB);
+          cB.chain(cC);
+
+        if(this.camera.rotation.y === 0){
+          cB.start();
+        }
         cA.start();
       }
       if (this.roadmapMesh.position.x > 1300) {
@@ -1175,21 +1191,25 @@ export default {
           this.roadmapMesh.position.x -= event.clientX * 0.005;
           setTimeout(() => {
             if (!this.isPointerDown) {
-              new TWEEN.Tween(this.roadmapMesh.position)
+              var cA = new TWEEN.Tween(this.roadmapMesh.position)
               .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
 
-              var cA = new TWEEN.Tween(this.camera.rotation)
+              var cB = new TWEEN.Tween(this.camera.rotation)
               .to({ y: 0.2 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out);
 
-              var cB = new TWEEN.Tween(this.camera.rotation)
+              var cC = new TWEEN.Tween(this.camera.rotation)
               .to({ y: 0 }, 3000)
               .easing(TWEEN.Easing.Quintic.Out);
 
-              cA.chain(cB);
-              cA.start();
+              if(this.camera.rotation.y === 0){
+                cB.chain(cC);
+              }
+              cA.start()
+
+
             }
           }, 1);
         } else if (this.directionX === "right") {
@@ -1208,9 +1228,10 @@ export default {
               var cB = new TWEEN.Tween(this.camera.rotation)
               .to({ y: 0 }, 3000)
               .easing(TWEEN.Easing.Quintic.Out);
-
               cA.chain(cB);
-              cA.start();
+              if(this.camera.rotation.y === 0 ){
+                cA.start();
+              }
             }
           }, 1);
         }
@@ -1234,7 +1255,6 @@ export default {
         if (int.length > 0 && this.filterLineIndex !== i) {
           var iMesh = int[0].object;
           let color = new THREE.Color(0x878FFF);
-
           if (i === 0) {
             color = this.colors[0];
             iMesh.material.color = color;
@@ -1271,38 +1291,42 @@ export default {
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.add('active');
 
-          new TWEEN.Tween(int[0].object.scale)
-            .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start()
+          if(int[0].object.scale.x !== 1.2){
+            new TWEEN.Tween(int[0].object.scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
+          }
 
-          new TWEEN.Tween(iMesh.children[0].scale)
-            .to({ x: 1, y: 1, z: 1 }, 300)
-            .easing(TWEEN.Easing.Quadratic.In)
-            .start()
-          this.showRoadmapPath(i, 'show');
+          if(iMesh.children[0].scale.x !== 1){
+            new TWEEN.Tween(iMesh.children[0].scale)
+              .to({ x: 1, y: 1, z: 1 }, 300)
+              .easing(TWEEN.Easing.Quadratic.In)
+              .start()
+          }
+
+
+            this.showRoadmapPath(i, 'show');
         } else {
           if(this.filterLineIndex === i){
             this.showRoadmapPath(i, 'show');
           } else {
-            setTimeout(() => {
-              this.roadmapHover = false;
-            }, 2000);
-
             this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
             var tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
             var tooltip = document.getElementById(tooltipClass);
             tooltip.classList.remove('active');
-
-            new TWEEN.Tween(this.scene.children[3].children[i].scale)
-              .to({ x: 1, y: 1, z: 1 }, 100)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start();
-
-            new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
-              .to({ x: 0, y: 0, z: 0 }, 100)
-              .easing(TWEEN.Easing.Quadratic.In)
-              .start();
+            if(this.scene.children[3].children[i].scale !== 1){
+              new TWEEN.Tween(this.scene.children[3].children[i].scale)
+                .to({ x: 1, y: 1, z: 1 }, 100)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start();
+            }
+            if(this.scene.children[3].children[i].children[0].scale.x !== 0){
+              new TWEEN.Tween(this.scene.children[3].children[i].children[0].scale)
+                .to({ x: 0, y: 0, z: 0 }, 100)
+                .easing(TWEEN.Easing.Quadratic.In)
+                .start();
+            }
 
             this.showRoadmapPath(i, 'hide');
           }

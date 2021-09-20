@@ -454,7 +454,7 @@
           pos = this.sphereMesh3.position;
           this.animated3 = false;
         }
-        
+
         var S1 = new TWEEN.Tween(pos)
         .to({ y: 0 }, 500)
         .easing(TWEEN.Easing.Cubic.InOut);
@@ -528,17 +528,17 @@
           this.activeStat = 1;
           this.animationIn('first');
         }
-        
+
         if (this.int2 && this.sphereMesh2.position.y === 550) {
           this.activeStat = 2;
           this.animationIn('second');
         }
-        
+
         if (this.int3 && this.sphereMesh3.position.y === 550) {
           this.activeStat = 3;
           this.animationIn('third');
         }
-        
+
         if (!this.int1 && this.sphereMesh1.position.y === 0) {
           this.animationOut('first');
         }
@@ -642,6 +642,7 @@
       window.addEventListener('mouseup', this.onMouseUp, false);
       window.addEventListener('pointermove', this.onMouseMove);
       document.addEventListener('wheel', this.wheelScroll, false);
+      this.$store.commit('setHeader', true);
     },
   }
 </script>

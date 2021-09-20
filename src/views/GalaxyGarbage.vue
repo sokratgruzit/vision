@@ -136,7 +136,7 @@ export default {
           type: "t",
           value: new THREE.TextureLoader().load(require("../assets/fire.jpg"))
         },
-        time: { 
+        time: {
           type: "f",
           value: 0.0
         }
@@ -343,102 +343,103 @@ export default {
       }
     },
     animate: function() {
-      if (!this.intro) {
-        //Sphere Beckground Animation
-        this.sphereBg.rotation.x += 0.003;
-        this.sphereBg.rotation.y += 0.001;
-        this.sphereBg.rotation.z += 0.001;
-      } else {
-        //this.camera.rotation.x = Math.PI/2;
-        this.scene.children[2].position.z += 20;
-      }
-
-      if (this.$store.state.stopGalaxyGarbage == false) {
+      if (this.$store.state.stopGalaxyGarbage == false && this.scene.children.length !== 0) {
+          if (!this.intro) {
+            //Sphere Beckground Animation
+            this.sphereBg.rotation.x += 0.003;
+            this.sphereBg.rotation.y += 0.001;
+            this.sphereBg.rotation.z += 0.001;
+          } else {
+            //this.camera.rotation.x = Math.PI/2;
+            this.scene.children[2].position.z += 20;
+          }
         requestAnimationFrame(this.animate);
         this.render();
       }
     },
     render: function () {
-      if (!this.intro) {
-        const time = Date.now() * 0.00005;
-        const dTime = Date.now() * 0.001;
-        this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
-        this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-        this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
-        this.camera.lookAt(this.scene.position);
-        for (let i = 0; i < this.scene.children.length; i++) {
-          const object = this.scene.children[i];
-          if (object instanceof THREE.Points) {
-            object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+      if (this.$store.state.stopGalaxyGarbage == false){
+        if (!this.intro) {
+          const time = Date.now() * 0.00005;
+          const dTime = Date.now() * 0.001;
+          this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
+          this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
+          this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+          this.camera.lookAt(this.scene.position);
+          for (let i = 0; i < this.scene.children.length; i++) {
+            const object = this.scene.children[i];
+            if (object instanceof THREE.Points) {
+              object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+            }
           }
-        }
-        this.holder.children.forEach(function (elem, index, array) {
-          elem.rotation.y += (0.01 * (6 - index));
-          elem.children[0].rotation.x += 0.01;
-          elem.children[0].rotation.y += 0.01;
-        });
-        //this.pointer.rotation.x += 0.01;
-        //this.pointer.rotation.y += 0.01;
-        var delta = this.clock.getDelta();
-        this.waveUniforms.time.value += delta;
-        if (this.waveMesh !== null && this.waveScaleUp) {
-          this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
-          this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
-          this.waveMesh.scale.z = this.waveMesh.scale.z + 0.1;
-          if(this.waveMesh.scale.x > 2) {
-            this.waveScaleUp = false
+          this.holder.children.forEach(function (elem, index, array) {
+            elem.rotation.y += (0.01 * (6 - index));
+            elem.children[0].rotation.x += 0.01;
+            elem.children[0].rotation.y += 0.01;
+          });
+          //this.pointer.rotation.x += 0.01;
+          //this.pointer.rotation.y += 0.01;
+          var delta = this.clock.getDelta();
+          this.waveUniforms.time.value += delta;
+          if (this.waveMesh !== null && this.waveScaleUp) {
+            this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
+            this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
+            this.waveMesh.scale.z = this.waveMesh.scale.z + 0.1;
+            if(this.waveMesh.scale.x > 2) {
+              this.waveScaleUp = false
+            }
           }
-        }
-        if (this.waveMesh !== null && !this.waveScaleUp) {
-          this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
-          this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
-          this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
-          if (this.waveMesh.scale.x < 0) {
-            this.scene.remove(this.waveMesh);
-            this.waveMesh = null;
-            this.waveScaleUp = true;
+          if (this.waveMesh !== null && !this.waveScaleUp) {
+            this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
+            this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
+            this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
+            if (this.waveMesh.scale.x < 0) {
+              this.scene.remove(this.waveMesh);
+              this.waveMesh = null;
+              this.waveScaleUp = true;
+            }
           }
-        }
-        this.renderer.autoClear = false;
-        this.renderer.clear();
-        this.renderer.setScissorTest(true);
-        this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
-        this.renderer.render(this.scene, this.camera);
-        let badgesParent = document.getElementById('badges-container');
-        badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
+          this.renderer.autoClear = false;
+          this.renderer.clear();
+          this.renderer.setScissorTest(true);
+          this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+          this.renderer.render(this.scene, this.camera);
+          let badgesParent = document.getElementById('badges-container');
+          badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
-        if (this.badgeScenes.length > 0 && badgesParent) {
-          for (let i = 0; i < this.badgeScenes.length; i++) {
-            const badgeCont = document.getElementById('list-item' + i);
-            const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
+          if (this.badgeScenes.length > 0 && badgesParent) {
+            for (let i = 0; i < this.badgeScenes.length; i++) {
+              const badgeCont = document.getElementById('list-item' + i);
+              const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
 
-            if (rect !== false) {
-              this.badgeScenes[i].rotation.y += 0.02;
+              if (rect !== false) {
+                this.badgeScenes[i].rotation.y += 0.02;
 
-              if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-                rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-                return; // it's off screen
-              }
-              const width = rect.right - rect.left;
-              const height = rect.bottom - rect.top;
-              const left = rect.left;
-              const bottom = this.renderer.domElement.clientHeight - rect.bottom;
-              this.renderer.clearDepth();
+                if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+                  rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+                  return; // it's off screen
+                }
+                const width = rect.right - rect.left;
+                const height = rect.bottom - rect.top;
+                const left = rect.left;
+                const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+                this.renderer.clearDepth();
 
-              if (this.badgeScenes.length > 0) {
-                this.renderer.setViewport(left, bottom, width, height);
-                this.renderer.setScissor(left, bottom, width, height);
-                this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+                if (this.badgeScenes.length > 0) {
+                  this.renderer.setViewport(left, bottom, width, height);
+                  this.renderer.setScissor(left, bottom, width, height);
+                  this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
+                }
               }
             }
           }
+        } else {
+          this.renderer.render(this.scene, this.camera);
         }
-      } else {
-        this.renderer.render(this.scene, this.camera);
-      }
 
-      this.renderer.setPixelRatio(window.devicePixelRatio);
-      this.renderer.physicallyCorrectLights = true;
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.renderer.physicallyCorrectLights = true;
+      }
     },
     addExplosion: function (point) {
       //Object Explosion
@@ -734,9 +735,12 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true);
-    while(this.scene.children.length > 0){ 
-      this.scene.remove(this.scene.children[0]); 
+    document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.body.removeEventListener('pointermove', this.onPointerMove);
+    while(this.scene.children.length > 0){
+      this.scene.remove(this.scene.children[0]);
     }
+    // this.scene.remove(this.scene.children[0]);
     this.renderer = null;
   },
   watch: {
@@ -752,6 +756,8 @@ export default {
     '$store.state.stopGalaxyGarbage': function () {
       if (this.$store.state.stopGalaxyGarbage == false) {
         this.animate();
+      }else{
+        this.renderer = null;
       }
     }
   }

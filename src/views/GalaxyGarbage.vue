@@ -534,7 +534,6 @@ export default {
             let intersects = raycaster.intersectObjects(elem.children);
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
-              console.log(intersects[0])
               addExplosion(intersects[0].point);
               score += 1;
               if (score < totalTargets) {

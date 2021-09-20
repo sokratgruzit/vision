@@ -638,7 +638,6 @@ export default {
         this.filterScenes.push(this.filterScene);
       }
       //End Filter
-      console.log(this.filterScenes)
       if(this.$store.state.stopRoadmap !== true) {
         this.loadFilter();
       }
@@ -663,8 +662,6 @@ export default {
       }, 10000);
     },
     updateUiData: function (event) {
-      console.log(event.target.id);
-      console.log(event.target);
       if (event.target.id === 'list-itemf0') {
         this.filterVisible = !this.filterVisible;
       } else {
@@ -1057,7 +1054,6 @@ export default {
       }
     },
     wheelScroll: function(event) {
-      console.log(event.clientX);
       if (event.deltaY < 0 && this.roadmapMesh.position.x > -1300) {
         this.roadmapMesh.position.x -= event.clientX * 0.008;
         var cA = new TWEEN.Tween(this.roadmapMesh.position)

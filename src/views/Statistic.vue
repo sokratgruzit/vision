@@ -636,6 +636,7 @@
     mounted () {
       this.myScene();
       this.animate();
+      this.$store.commit('setHeader', true);
       window.addEventListener('resize', this.onWindowResize, false);
       window.addEventListener('mousedown', this.onMouseDown, false);
       window.addEventListener('mouseup', this.onMouseUp, false);

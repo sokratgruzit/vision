@@ -10,21 +10,17 @@
   import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
   import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
   import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
-  import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
   const TWEEN = require('@tweenjs/tween.js');
   import {
-    slider_vertex,
-    arrow_vertex
+    
   } from '../assets/shaders/vertex.js';
   import {
-    slider_fragment,
-    arrow_fragment
+    
   } from '../assets/shaders/fragment.js';
   export default {
     name: 'StoryScene',
     data () {
       return {
-        activeSlide: 0,
         scene: null,
         camera: null,
         raycaster: new THREE.Raycaster(),
@@ -44,39 +40,36 @@
           bloomRadius: 0
         },
 				composer: null,
-        curveMesh: null,
         colors: [
           new THREE.Color(0xFFB36D),
           new THREE.Color(0xFF81E3),
           new THREE.Color(0x5CFFC4),
           new THREE.Color(0xF3F657)
         ],
-        lineGeometry0: null,
-        glowM0: null
+        mouseDown: false,
+        mesh: null,
+        tronBlocks: []
       }
     },
     methods: {
-      sliderScene: function() {
+      storyScene: function() {
         var container = document.getElementById('story-container');
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-        this.camera.position.z = 1000;
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
+        this.camera.position.set(0, -100, 250);
 
         this.scene = new THREE.Scene();
-        this.camera.lookAt(this.scene.position);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
         THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
-        var sLight = new THREE.SpotLight(0xffffff);
-        this.scene.add(sLight);
-
-        var aLight = new THREE.AmbientLight(0xffffff);
-        this.scene.add(aLight);
-
-        var directionalLight = new THREE.DirectionalLight("#fff", 2);
-        directionalLight.position.set(0, 50, -20);
+        var directionalLight = new THREE.DirectionalLight("#ff7152", 2);
+        directionalLight.position.set(0, 50, 200);
         this.scene.add(directionalLight);
+
+        var aLight = new THREE.AmbientLight("#ff7152");
+        aLight.position.set(100, 100, 1000);
+        this.scene.add(aLight);
 
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -93,40 +86,86 @@
 				this.composer.addPass(this.renderScene);
 				this.composer.addPass(this.bloomPass);
 
-        //Lighted curves
-        const lineMaterial = new THREE.LineBasicMaterial({
+        const material = new THREE.MeshLambertMaterial({
+          wireframe: false,
+          color: 0xff7152,
           transparent: true,
-          opacity: 0.2,
-          color: this.colors[0]
+          opacity: 0.3
         });
 
-        const spline0 = new THREE.CatmullRomCurve3([
-          new THREE.Vector3(-1500, 500, 0),
-          new THREE.Vector3(-500, 200, 0),
-          new THREE.Vector3(0, 800, 0),
-          new THREE.Vector3(500, 500, 0),
-          new THREE.Vector3(1500, 800, 0)
-        ]);
+        const geometry = new THREE.PlaneBufferGeometry(500, 500, 500, 500);
+        this.mesh = new THREE.Mesh(geometry, material);
+        this.mesh.rotation.x = -1;
+        this.scene.add(this.mesh);
 
-        var splinePoints0 = spline0.getPoints(4000);
+        this.createSpace();
+        this.animateSpace();
+      },
+      createSpace: function () {
+        let xStep = -100;
+        let yStep = -200;
+        for (let i = 0; i < 20; i++) {
+          const material = new THREE.MeshLambertMaterial({
+            wireframe: false,
+            color: 0xff7152,
+            transparent: true
+          });
 
-        const glowG0 = new THREE.TubeGeometry(spline0, 4000, 15, 8, false);
+          const geometry = new THREE.BoxBufferGeometry(20, 20, 50);
+          const mesh = new THREE.Mesh(geometry, material);
+          mesh.position.set(xStep, yStep, -26);
+          xStep = xStep + 20;
 
-        this.glowM = new THREE.MeshBasicMaterial({
-          color: this.colors[0],
-          opacity: 0.1,
-          transparent: true,
-          depthTest: false
-        });
+          if (i === 10) {
+            yStep = yStep + 100;
+            xStep = -100;
+          }
 
-        const glowMesh0 = new THREE.Mesh(glowG0, this.glowM);
+          this.tronBlocks.push(mesh);
+          this.mesh.add(this.tronBlocks[i]);
+        }
+      },
+      animateSpace: function () {
+        for (let i = 0; i < this.tronBlocks.length; i++) {
+          let minTime = 2000;
+          let maxTime = 15000;
+          let delay = 0;
 
-        this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(splinePoints0);
-        const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
-        lineMesh0.add(glowMesh0);
-        lineMesh0.position.y = -900;
-        this.scene.add(lineMesh0);
-        //End Lighted curves
+          switch (true) {
+            case (i < 9):
+              break;
+            case (i < 19):
+              minTime = 15000;
+              maxTime = 60000;
+              delay = 15000;
+              break;
+            default:
+              break;
+          }
+
+          setTimeout(() => {
+            new TWEEN.Tween(this.tronBlocks[i].position)
+            .to({ z: this.randomRange(-20, 24) }, this.randomRange(minTime, maxTime))
+            .easing(TWEEN.Easing.Quintic.Out)
+            .start();
+          }, delay);
+        }
+
+        new TWEEN.Tween(this.camera.position)
+        .to({ y: -100, z: 400 }, 5000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        
+      },
+      randomRange: function (min, max) {  
+        return Math.floor(
+          Math.random() * (max - min) + min
+        );
+      },
+      bloom: function (value) {
+        new TWEEN.Tween(this.bloomPass)
+        .to({ strength: value }, 500)
+        .easing(TWEEN.Easing.Cubic.In)
+        .start();
       },
       animate: function () {
         this.time += 0.05;
@@ -160,18 +199,25 @@
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
       },
+      onPointerDown: function () {
+        this.mouseDown = true;
+        this.bloom(0.5);
+      },
+      onPointerUp: function () {
+        this.mouseDown = false;
+        this.bloom(0);
+      },
       handleScroll (event) {
         console.log('hii')
-      },
-      updateCarousel (payload) {
-        // this.$store.commit('changeSlide', payload.currentSlide);
-        // this.$store.commit('setChangeSlide', true);
       }
     },
     mounted () {
-      this.sliderScene();
+      this.storyScene();
       this.animate();
+      this.$store.commit('setHeader', true);
       window.addEventListener('pointermove', this.onPointerMove);
+      document.addEventListener('mouseup', this.onPointerUp, false);
+      document.addEventListener('mousedown', this.onPointerDown, false);
     }
   }
 </script>

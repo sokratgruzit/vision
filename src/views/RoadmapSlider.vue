@@ -1,11 +1,12 @@
 <template>
     <div class="home-slider">
+      <router-link to="/roadmap" class="to_roadmap">Roadmap</router-link>
       <div id="slider-container"></div>
       <div class="roadmap-text__container">
         <div class="roadmap-text__main-ttl">
-          2021
+          {{roadmapData[activeYear].title}}
         </div>
-        <div class="roadmap-text__block" v-for="roadtext in roadmapData[0].inner" :class="activeStat == roadtext.id ? 'active' : ''">
+        <div class="roadmap-text__block" v-for="roadtext in roadmapData[activeYear].inner" :class="activeStat == roadtext.id ? 'active' : ''">
           <div class="roadmap-text__block-inner">
             <h2 class="roadmap-text__ttl">{{roadtext.title}}</h2>
             <div class="roadmap-text__text">
@@ -82,24 +83,8 @@
           new THREE.Color(0x5CFFC4),
           new THREE.Color(0xF3F657)
         ],
-        roadTexts: [
-          {
-            id: 1,
-            title: 'Text',
-            text:'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
-          },
-          {
-            id: 2,
-            title: 'Text 2',
-            text:'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
-          },
-          {
-            id: 3,
-            title: 'Text 3',
-            text:'It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum. Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.'
-          }
-        ],
         activeStat: 1,
+        activeYear: 0,
         roadmapData: [
           {
             id: 1,
@@ -132,18 +117,22 @@
             title: 2022,
             inner:[
               {
+                id: 1,
                 title:'q1',
                 list: ["Public test-net launch","Catena Layer Testing","Consensus & Sharding Optimizations","CORE Universal Explorer","PolyChains Testing","Cross-Chain Communication Protocol","Aura Layer Testing","Staking launch"]
               },
               {
+                id: 2,
                 title:'q2',
                 list: ["CORE Main-net Launch","Apeirogon Framework Release","Development Toolkit","CORE Hackathon 2022","CORE VM Beta Release","Smart Contracts"]
               },
               {
+                id: 3,
                 title:'q3',
                 list: ["Trustless Bridge","Voting system","Storage Sharing Protocol","Fast State Sync and Re-sharding","Cryptography Engine","Consensus Engine"]
               },
               {
+                id: 4,
                 title:'q4',
                 list: ["On-Chain Governance","IPFS Integration","Web3.js Integration","Randomizer Engine"]
               }
@@ -154,18 +143,22 @@
             title: 2023,
             inner:[
               {
+                id: 1,
                 title:'q1',
                 list: ["Universal blockchain Access API","Off-Chain Data Access (CORE Oracles)","CORE Global Bridge","State Engine"]
               },
               {
+                id: 2,
                 title:'q2',
                 list: ["CORE Name Service","DeFI Tools for Developers","CORE Hackathon 2023","Tokenizer Engine"]
               },
               {
+                id: 3,
                 title:'q3',
                 list: ["CORE OS Beta","Synthetic Gate","Cross-Chain Smart Contracts"]
               },
               {
+                id: 4,
                 title:'q4',
                 list: ["Core Mesh testing","TPPL Public Access","State Sync Engine","Blockchain Distribution Network (BDN)"]
               }
@@ -473,11 +466,19 @@
 
         if (this.leftTarget) {
           this.slideCount--;
-          this.activeStat --;
+          if(this.activeStat === 1){
+            this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
+          }else{
+            this.activeStat --;
+          }
         }
         if (this.rightTarget) {
           this.slideCount++;
-          this.activeStat ++;
+          if(this.activeStat === this.roadmapData[this.activeYear].inner.length){
+            this.activeStat = 1
+          }else{
+            this.activeStat ++;
+          }
         }
         if (this.slideCount < 0) {
           this.slideCount = 3;
@@ -498,6 +499,26 @@
       }
     },
     mounted () {
+      console.log(this.$route.params.id);
+      let test;
+      if(this.$route.params.id >= 6 && this.$route.params.id < 11){
+        this.activeYear = 1;
+      }
+      if(this.$route.params.id >= 11){
+        this.activeYear = 2;
+      }
+      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 6 || this.$route.params.id == 7 || this.$route.params.id == 11 || this.$route.params.id == 12){
+        this.activeStat = 1
+      }
+      if(this.$route.params.id == 3 || this.$route.params.id == 8 || this.$route.params.id == 13){
+        this.activeStat = 2
+      }
+      if(this.$route.params.id == 4 || this.$route.params.id == 9 || this.$route.params.id == 14){
+        this.activeStat = 3
+      }
+      if(this.$route.params.id == 5 || this.$route.params.id == 10 || this.$route.params.id == 15){
+        this.activeStat = 4
+      }
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);
@@ -524,6 +545,29 @@
   }
 </script>
 <style>
+  .to_roadmap{
+    position: absolute;
+    bottom: 30px;
+    right: 80px;
+    z-index: 11;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .to_roadmap:after{
+    content: '';
+    height: 1px;
+    width: 100%;
+    bottom: 0px;
+    background: #fff;
+    left: 0px;
+    position: absolute;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+  }
+  .to_roadmap:hover{
+    color: rgba(255, 113, 82, 1);
+  }
+  .to_roadmap:hover::after{
+    transform: scaleX(0);
+  }
   .home-slider .hooper{
     z-index: 2;
   }

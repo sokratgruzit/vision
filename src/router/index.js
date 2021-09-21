@@ -20,13 +20,6 @@ const routes = [
     path: '/roadmap',
     name: 'Roadmap',
     component: Roadmap,
-    children: [
-      {
-        path: ":sectionName",
-        name: "wiki",
-        component: RoadmapSlider
-      }
-    ]
   },
   {
     path: '/statistic',
@@ -39,9 +32,16 @@ const routes = [
     component: GalaxyGarbage
   },
   {
-    path: '/roadmap-slider',
+    path: '/roadmap/slider',
     name: 'RoadmapSlider',
-    component: RoadmapSlider
+    component: RoadmapSlider,
+    children: [
+      {
+        path: ':id',
+        name: 'roadmapInner',
+        component: RoadmapSlider
+      }
+    ]
   },
   {
     path: '/about',

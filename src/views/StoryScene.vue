@@ -116,8 +116,8 @@
           mesh.position.set(xStep, yStep, -26);
           xStep = xStep + 20;
 
-          if (i === 10) {
-            yStep = yStep + 100;
+          if (i === 9) {
+            yStep = yStep + 25;
             xStep = -100;
           }
 
@@ -127,17 +127,17 @@
       },
       animateSpace: function () {
         for (let i = 0; i < this.tronBlocks.length; i++) {
-          let minTime = 2000;
+          let minTime = 10000;
           let maxTime = 15000;
+          let maxRange = 5
           let delay = 0;
 
           switch (true) {
-            case (i < 9):
+            case (i < 10):
               break;
-            case (i < 19):
-              minTime = 15000;
-              maxTime = 60000;
-              delay = 15000;
+            case (i < 20):
+              maxRange = 15;
+              delay = 5000;
               break;
             default:
               break;
@@ -145,7 +145,7 @@
 
           setTimeout(() => {
             new TWEEN.Tween(this.tronBlocks[i].position)
-            .to({ z: this.randomRange(-20, 24) }, this.randomRange(minTime, maxTime))
+            .to({ z: this.randomRange(-20, maxRange) }, this.randomRange(minTime, maxTime))
             .easing(TWEEN.Easing.Quintic.Out)
             .start();
           }, delay);

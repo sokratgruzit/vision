@@ -1008,11 +1008,16 @@ export default {
           .to({ x: 0, z: -1000 }, 30000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
+          if(i !== 0){
+            setTimeout(() => {
+              this.$router.push({ name: 'roadmapInner', params: { id: i }});
+            }, 1500);
+          }else{
+            setTimeout(() => {
+              this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
+            }, 1500);
+          }
 
-          // this.$store.commit('roadmapIndex', i);
-          setTimeout(() => {
-            this.$router.push({ path: 'roadmap-slider' });
-          }, 1500);
         }
       }
 
@@ -1459,6 +1464,10 @@ export default {
 }
 </script>
 <style>
+  .test{
+    position: relative;
+    z-index: 1000000000;
+  }
   .clearFilter span{
     height: 1px;
     width: 100%;

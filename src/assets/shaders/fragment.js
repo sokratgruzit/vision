@@ -560,3 +560,20 @@ void main() {
   if ( gl_FragColor.a < alphaTest ) discard;
 }
 `;
+
+export let globe_fragment = `
+uniform sampler2D tex;
+uniform vec4 resolution;
+varying vec2 vUv;
+varying vec3 vPosition;
+float PI = 3.141592653589793238;
+
+void main() {
+  vec4 tt = texture2D(tex, vUv);
+
+  vec4 finalTexture = tt;
+  gl_FragColor = vec4(vUv,0.,1.);
+  gl_FragColor = finalTexture;
+  if(gl_FragColor.r>0.5 || gl_FragColor.b>0.5 || gl_FragColor.g>0.5) discard;
+}
+`;

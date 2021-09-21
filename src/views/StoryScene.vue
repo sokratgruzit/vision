@@ -1,6 +1,8 @@
 <template>
   <div class="home-slider">
     <div id="story-container"></div>
+    <img id="map" :src="require('../assets/world_map.png')" />
+    <canvas width="4312" height="2128" id="canvas"></canvas>
   </div>
 </template>
 
@@ -12,10 +14,10 @@
   import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
   const TWEEN = require('@tweenjs/tween.js');
   import {
-    
+    globe_vertex
   } from '../assets/shaders/vertex.js';
   import {
-    
+    globe_fragment
   } from '../assets/shaders/fragment.js';
   export default {
     name: 'StoryScene',
@@ -48,14 +50,17 @@
         ],
         mouseDown: false,
         mesh: null,
-        tronBlocks: []
+        tronBlocks: [],
+        uniforms: null,
+        globe: null
       }
     },
     methods: {
       storyScene: function() {
         var container = document.getElementById('story-container');
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
-        this.camera.position.set(0, -100, 250);
+        //this.camera.position.set(0, -100, 250);
+        this.camera.position.z = 180;
 
         this.scene = new THREE.Scene();
 
@@ -96,10 +101,50 @@
         const geometry = new THREE.PlaneBufferGeometry(500, 500, 500, 500);
         this.mesh = new THREE.Mesh(geometry, material);
         this.mesh.rotation.x = -1;
-        this.scene.add(this.mesh);
+        //this.scene.add(this.mesh);
 
-        this.createSpace();
-        this.animateSpace();
+        //this.createSpace();
+        //this.animateSpace();
+
+        const g = new THREE.SphereBufferGeometry(
+          100,
+          200,
+          200
+        );
+
+        const loader = new THREE.TextureLoader();
+
+        let texture = loader.load(require("../assets/world_map.png"));
+
+        this.uniforms = {
+          tex: { type: "t", value: texture },
+          time: { type: "f", value: 0.0 },
+          distortion: { type: "f", value: 0.0 },
+          resolution: { type: "v4", value: new THREE.Vector4() }
+        };
+
+        let asp1, asp2;
+        if (window.innerHeight / window.innerWidth > this.imageAspect) {
+          asp1 = (window.innerWidth / window.innerHeight) * this.imageAspect;
+          asp2 = 1;
+        } else {
+          asp1 = 1;
+          asp2 = (window.innerHeight / window.innerWidth) / this.imageAspect;
+        }
+
+        this.uniforms.resolution.value.x = window.innerWidth;
+        this.uniforms.resolution.value.y = window.innerHeight;
+        this.uniforms.resolution.value.z = asp1;
+        this.uniforms.resolution.value.w = asp2;
+
+        const m = new THREE.ShaderMaterial({
+          uniforms: this.uniforms,
+          vertexShader: globe_vertex,
+          fragmentShader: globe_fragment
+        });
+        this.globe = new THREE.Points(g, m);
+        this.scene.add(this.globe);
+        this.globe.position.set(0, -100, 0);
       },
       createSpace: function () {
         let xStep = -100;
@@ -169,6 +214,8 @@
       },
       animate: function () {
         this.time += 0.05;
+        this.globe.rotation.x += 0.001;
+        this.globe.rotation.y += 0.001;
 
         requestAnimationFrame(this.animate);
 
@@ -214,14 +261,18 @@
     mounted () {
       this.storyScene();
       this.animate();
-      this.$store.commit('setHeader', true);
-      window.addEventListener('pointermove', this.onPointerMove);
+      this.$store.commit('setHeader', false);
+      //window.addEventListener('pointermove', this.onPointerMove);
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
     }
   }
 </script>
 <style>
+  #map {
+    width: 4312px;
+    height: 2128px;
+  }
   .nopointer{
     pointer-events: none!important;
   }

@@ -1,8 +1,6 @@
 <template>
   <div class="home-slider">
     <div id="story-container"></div>
-    <img id="map" :src="require('../assets/world_map.png')" />
-    <canvas width="4312" height="2128" id="canvas"></canvas>
   </div>
 </template>
 

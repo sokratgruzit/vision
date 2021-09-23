@@ -1,5 +1,5 @@
 <template>
-    <div class="home-slider">
+    <div class="roadmap-inner__slider">
       <router-link to="/roadmap" class="to_roadmap">Roadmap</router-link>
       <div id="slider-container"></div>
       <div class="roadmap-text__container">
@@ -177,12 +177,22 @@
         this.camera.lookAt(this.scene.position);
         this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
         this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
-        this.sliderGeo = new THREE.PlaneBufferGeometry(
-          this.windowHalfX * 0.5,
-          this.windowHalfX * 0.5,
-          this.windowHalfX * 0.5,
-          this.windowHalfX * 0.5
-        );
+        if(window.innerWidth >=768){
+          this.sliderGeo = new THREE.PlaneBufferGeometry(
+            this.windowHalfX * 0.5,
+            this.windowHalfX * 0.5,
+            this.windowHalfX * 0.5,
+            this.windowHalfX * 0.5
+          );
+        }else{
+          this.sliderGeo = new THREE.PlaneBufferGeometry(
+            this.windowHalfX * 1,
+            this.windowHalfX * 1,
+            this.windowHalfX * 1,
+            this.windowHalfX * 1
+          );
+        }
+
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -292,17 +302,56 @@
         this.scene.add(directionalLight);
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        this.sliderMesh.position.set(
-          -this.windowHalfX * 0.35,
-          -this.windowHalfY * 0.1,
-        0);
-        this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-        this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
+        if(window.innerWidth >= 1024){
+          this.sliderMesh.position.set(
+            -this.windowHalfX * 0.35,
+            -this.windowHalfY * 0.1,
+            0);
+          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+          this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
+
+          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
+          this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
+
+        }
+        if(window.innerWidth <= 1023 && window.innerWidth >= 768){
+          this.sliderMesh.position.set(
+            -this.windowHalfX * 0 ,
+            this.windowHalfY * 0.23,
+            0);
+          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+          this.leftMesh.position.set(-window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
+
+          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
+          this.rightMesh.position.set(window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
+        }
+        if(window.innerWidth <= 1023 && window.innerWidth >= 768){
+          this.sliderMesh.position.set(
+            -this.windowHalfX * 0 ,
+            this.windowHalfY * 0.23,
+            0);
+          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+          this.leftMesh.position.set(-window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
+
+          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
+          this.rightMesh.position.set(window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
+        }
+        if(window.innerWidth <= 767){
+          this.sliderMesh.position.set(
+            -this.windowHalfX * 0 ,
+            this.windowHalfY * 0.33,
+            0);
+          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+          this.leftMesh.position.set(-window.innerWidth * 1, window.innerHeight * 0.35, -450);
+
+          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
+          this.rightMesh.position.set(window.innerWidth * 1, window.innerHeight * 0.35, -450);
+        }
+
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
 
-        this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-        this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
+
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
 
@@ -643,6 +692,14 @@
     background: #0500ff;
     left: 0px;
   }
+  .roadmap-inner__slider{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 2;
+  }
   /*Ipad Pro*/
   @media (max-width: 1300px){
     .roadmap-text__ttl{
@@ -666,6 +723,14 @@
       width: calc(100% - 90px);
       height: 50%;
     }
+    .slider-container{
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      z-index: 2;
+    }
   }
   /*Mobile*/
   @media (max-width: 767px){
@@ -681,6 +746,10 @@
     }
     .roadmap-text__ttl{
       margin-bottom: 15px;
+    }
+    .roadmap-inner__slider{
+      overflow-y: auto ;
+      -webkit-overflow-scrolling: touch;
     }
   }
 </style>

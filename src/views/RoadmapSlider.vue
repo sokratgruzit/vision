@@ -1,6 +1,5 @@
 <template>
     <div class="roadmap-inner__slider">
-      <router-link to="/roadmap" class="to_roadmap">Roadmap</router-link>
       <div id="slider-container"></div>
       <div class="roadmap-text__container">
         <div class="roadmap-text__main-ttl">
@@ -15,6 +14,7 @@
           </div>
         </div>
       </div>
+      <router-link to="/roadmap" class="to_roadmap">Roadmap</router-link>
     </div>
 </template>
 
@@ -731,6 +731,9 @@
       bottom: 0px;
       z-index: 2;
     }
+    .to_roadmap{
+      right: 40px;
+    }
   }
   /*Mobile*/
   @media (max-width: 767px){
@@ -750,6 +753,15 @@
     .roadmap-inner__slider{
       overflow-y: auto ;
       -webkit-overflow-scrolling: touch;
+      display: flex;
+      flex-direction: column;
+    }
+    .to_roadmap{
+      position: relative;
+      right: 0px;
+      margin-top: 50px;
+      margin-left: 15px;
+      margin-right: auto;
     }
   }
 </style>

@@ -1,6 +1,19 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
     <router-link to="/statistic">stat</router-link>
+    <div class="start-timer">
+      <div class="level__container-outer">
+        <div class="level__container" :style="{
+          transform: `translateY(-${(1 - 1) * 60}px)`
+        }">
+          <div class="level__num">3</div>
+          <div class="level__num">2</div>
+          <div class="level__num">1</div>
+          <div class="level__num">0</div>
+        </div>
+      </div>
+
+    </div>
     <div class="statistic-container" :class="statistic ? 'active' : ''">
       <div class="statistic-container__inner">
         <div class="statistic-container__ttl">You Win. Now you can go to statistic bro</div>

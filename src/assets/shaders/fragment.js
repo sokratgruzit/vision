@@ -574,6 +574,6 @@ void main() {
   vec4 finalTexture = tt;
   gl_FragColor = vec4(vUv,0.,1.);
   gl_FragColor = finalTexture;
-  if(gl_FragColor.r>0.5 || gl_FragColor.b>0.5 || gl_FragColor.g>0.5) discard;
+  if(gl_FragColor.r<0.7 && gl_FragColor.b<0.7 && gl_FragColor.g<0.7) discard;
 }
 `;

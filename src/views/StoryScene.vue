@@ -26,8 +26,10 @@
         raycaster: new THREE.Raycaster(),
         mouse: new THREE.Vector2(),
         renderer: null,
-        mouseX: 0,
-        mouseY: 0,
+        direction: "",
+        directionX: "",
+        oldX: 0,
+        oldY: 0,
         windowHalfX: window.innerWidth / 2,
         windowHalfY: window.innerHeight / 2,
         time: 0,
@@ -58,7 +60,7 @@
         var container = document.getElementById('story-container');
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 10000);
         //this.camera.position.set(0, -100, 250);
-        this.camera.position.z = 180;
+        this.camera.position.z = 500;
 
         this.scene = new THREE.Scene();
 
@@ -105,7 +107,7 @@
         //this.animateSpace();
 
         const g = new THREE.SphereBufferGeometry(
-          100,
+          300,
           200,
           200
         );
@@ -143,6 +145,18 @@
         this.globe = new THREE.Points(g, m);
         this.scene.add(this.globe);
         this.globe.position.set(0, -100, 0);
+
+        const sg = new THREE.SphereBufferGeometry(
+          299,
+          150,
+          150
+        );
+        const sm = new THREE.MeshLambertMaterial({
+          wireframe: false,
+          color: 0x0000ff
+        });
+        const subMesh = new THREE.Mesh(sg, sm);
+        this.globe.add(subMesh);
       },
       createSpace: function () {
         let xStep = -100;
@@ -212,8 +226,8 @@
       },
       animate: function () {
         this.time += 0.05;
-        this.globe.rotation.x += 0.001;
-        this.globe.rotation.y += 0.001;
+        //this.globe.rotation.x += 0.0001;
+        //this.globe.rotation.y += 0.0001;
 
         requestAnimationFrame(this.animate);
 
@@ -243,10 +257,45 @@
 
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+
+        if (event.pageY < this.oldY) {
+          this.direction = "up";
+        } else if (event.pageY > this.oldY) {
+          this.direction = "down";
+        } else if (event.pageX < this.oldX) {
+          this.directionX = "left";
+        } else if (event.pageX > this.oldX) {
+          this.directionX = "right";
+        }
+
+        this.oldY = event.pageY;
+        this.oldX = event.pageX;
+
+        //let int = this.raycaster.intersectObjects([this.scene.children[2]]);
+        //int = int.length > 0 ? true : false;
+        if (this.mouseDown) {
+          if (true) {
+            if (this.directionX === 'right') {
+              this.globe.rotation.y -= this.globe.rotation.x + 0.01;
+            }
+
+            if (this.directionX === 'left') {
+              this.globe.rotation.y += this.globe.rotation.x + 0.01;
+            }
+
+            if (this.directionX === 'up') {
+              this.globe.rotation.z -= this.globe.rotation.z + 0.01;
+            }
+
+            if (this.directionX === 'down') {
+              this.globe.rotation.z += this.globe.rotation.z + 0.01;
+            }
+          }
+        }
       },
       onPointerDown: function () {
         this.mouseDown = true;
-        this.bloom(0.5);
+        this.bloom(0.3);
       },
       onPointerUp: function () {
         this.mouseDown = false;
@@ -260,7 +309,7 @@
       this.storyScene();
       this.animate();
       this.$store.commit('setHeader', false);
-      //window.addEventListener('pointermove', this.onPointerMove);
+      document.addEventListener('pointermove', this.onPointerMove);
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
     }

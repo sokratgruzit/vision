@@ -1366,7 +1366,7 @@ void main() {
   vec3 finalPosition = position + distortion1;
 
   vec4 mvPosition = modelViewMatrix * vec4(finalPosition, 1.);
-  gl_PointSize = 4.;
+  gl_PointSize = 5.;
   gl_Position = projectionMatrix * mvPosition;
 }
 `;

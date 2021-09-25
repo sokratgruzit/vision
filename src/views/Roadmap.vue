@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="main-roadmap">
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
@@ -1658,5 +1658,27 @@ export default {
   }
   .roadmap__socials a:hover{
     opacity: .5;
+  }
+  /*Ipad 768*/
+  @media (max-width: 1023px){
+    #filters-container{
+      right: 85px;
+    }
+  }
+  /*Mobile*/
+  @media (max-width: 767px){
+    #filters-container{
+      right: auto;
+      left: 50px;
+      top: 100px;
+    }
+    .main-roadmap{
+      position: fixed;
+      top: 0px;
+      left: 0px;
+      right: 0px;
+      bottom: 0px;
+      z-index: 2;
+    }
   }
 </style>

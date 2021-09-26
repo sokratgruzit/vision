@@ -2,9 +2,7 @@
   <div id="app">
     <Header/>
     <Navigation/>
-    <transition name="fade" mode="out-in">
        <router-view/>
-    </transition>
   </div>
 </template>
 <script>

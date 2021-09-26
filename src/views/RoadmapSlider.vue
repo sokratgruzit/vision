@@ -204,6 +204,14 @@
         let texture1 = loader.load(require("../assets/eth.jpg"));
         let texture2 = loader.load(require("../assets/lite.jpg"));
         let texture3 = loader.load(require("../assets/tron.jpg"));
+        let texture4 = loader.load(require("../assets/btc.jpg"));
+        let texture5 = loader.load(require("../assets/eth.jpg"));
+        let texture6 = loader.load(require("../assets/lite.jpg"));
+        let texture7 = loader.load(require("../assets/tron.jpg"));
+        let texture8 = loader.load(require("../assets/btc.jpg"));
+        let texture9 = loader.load(require("../assets/eth.jpg"));
+        let texture10 = loader.load(require("../assets/lite.jpg"));
+        let texture11 = loader.load(require("../assets/tron.jpg"));
 
         const leftTex = loader.load(require("../assets/wave_color.png"));
         const rightTex = loader.load(require("../assets/fire.jpg"));
@@ -213,6 +221,14 @@
           tex1: { type: "t", value: texture1 },
           tex2: { type: "t", value: texture2 },
           tex3: { type: "t", value: texture3 },
+          tex4: { type: "t", value: texture4 },
+          tex5: { type: "t", value: texture5 },
+          tex6: { type: "t", value: texture6 },
+          tex7: { type: "t", value: texture7 },
+          tex8: { type: "t", value: texture8 },
+          tex9: { type: "t", value: texture9 },
+          tex10: { type: "t", value: texture10 },
+          tex11: { type: "t", value: texture11 },
           time: { type: "f", value: 0.0 },
           progress: { type: "f", value: 0.0 },
           distortion: { type: "f", value: 0.0 },

@@ -27,11 +27,13 @@
   const TWEEN = require('@tweenjs/tween.js');
   import {
     slider_vertex,
-    arrow_vertex
+    arrow_vertex,
+    part_vertex
   } from '../assets/shaders/vertex.js';
   import {
     slider_fragment,
-    arrow_fragment
+    arrow_fragment,
+    part_fragment
   } from '../assets/shaders/fragment.js';
   export default {
     name: 'RoadmapSlide',
@@ -163,7 +165,8 @@
               }
             ]
           },
-        ]
+        ],
+        particles: null
       }
     },
     methods: {
@@ -192,6 +195,7 @@
 
         this.createSliderButtons();
         this.createSliderImage();
+        this.createBubleParticles();
 
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -208,6 +212,11 @@
 				this.composer = new EffectComposer(this.renderer);
 				this.composer.addPass(this.renderScene);
 				this.composer.addPass(this.bloomPass);
+
+        new TWEEN.Tween(this.particles.position)
+        .to({ z: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.In)
+        .start();
       },
       createSliderImage: function() {
         if (window.innerWidth >=768) {
@@ -267,6 +276,7 @@
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
         this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
+        this.sliderMesh.scale.set(0, 0, 0);
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
@@ -302,7 +312,7 @@
         });
 
         const subLeftGeo = new THREE.SphereBufferGeometry(100, 32, 32);
-        const subLeftMat = new THREE.MeshBasicMaterial({
+        const subLeftMat = new THREE.MeshLambertMaterial({
           color: 0x878FFF,
           transparent: true,
           opacity: 0.25
@@ -310,7 +320,7 @@
         const subLeftMesh = new THREE.Mesh(subLeftGeo, subLeftMat);
 
         const subRightGeo = new THREE.SphereBufferGeometry(100, 32, 32);
-        const subRightMat = new THREE.MeshBasicMaterial({
+        const subRightMat = new THREE.MeshLambertMaterial({
           color: 0xFFB36D,
           transparent: true,
           opacity: 0.25
@@ -320,14 +330,77 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
-        this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
+        this.leftMesh.position.set(-window.innerWidth * 1.2, 0, -450);
+        this.rightMesh.position.set(window.innerWidth * 1.2, 0, -450);
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
 
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
+      },
+      createBubleParticles: function () {
+        const partLoader = new THREE.TextureLoader();
+        const partTexture = partLoader.load(require("../assets/circle2.png"));
+
+        this.partUniforms = {
+          pointTexture: { type: "t", value: partTexture },
+          uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+        };
+
+        this.partMat = new THREE.ShaderMaterial({
+          uniforms:       this.partUniforms,
+          vertexShader:   part_vertex,
+          fragmentShader: part_fragment,
+          transparent:    true,
+          depthTest:      false,
+          blending:       THREE.AdditiveBlending
+        });
+
+        var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
+        var stars = 1000;
+
+        var vertices = new Float32Array((stars) * 3);
+        var colors = new Float32Array((stars) * 3);
+        var alphas = new Float32Array((stars) * 1);
+        var sizes = new Float32Array((stars) * 1);
+
+        for (let i = 0; i < stars; ++i) {
+          var f = (stars - i) / (stars);
+          var g = i / (stars);
+
+          var x = Math.random() * 4000.0 - 2000.0;
+          var y = Math.random() * 4000.0 - 2000.0;
+          var z = Math.random() * 4000.0 - 2000.0;
+          if (f < 0.2) {
+            var a = Math.random() * 3.14159 * 2.0;
+            var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 700;
+            var x = Math.cos(a) * r;
+            var y = Math.sin(a) * r;
+            var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
+          }
+
+          vertices[i * 3 + 0] = x;
+          vertices[i * 3 + 1] = y;
+          vertices[i * 3 + 2] = z;
+
+          colors[i * 3 + 0] = 1.0;
+          colors[i * 3 + 1] = 1.0;
+          colors[i * 3 + 2] = 1.0;
+
+          alphas[i] = 0.05 + Math.random() * 0.01;
+          sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
+        }
+
+        this.partGeo = new THREE.BufferGeometry();
+        this.partGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+        this.partGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        this.partGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+        this.partGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+        this.particles = new THREE.Points(this.partGeo, this.partMat);
+        this.particles.position.z = -7000;
+        this.scene.add(this.particles);
       },
       disposeImage: function (direction) {
         var cA = new TWEEN.Tween(this.uniforms.distortion)
@@ -361,7 +434,7 @@
         this.uniforms.time.value = this.time;
         this.leftUniforms.time.value = this.time;
         this.rightUniforms.time.value = this.time;
-        this.sliderMesh.rotation.y = Math.sin(this.time) / 8;
+        this.sliderMesh.rotation.y = Math.sin(this.time) / 50;
         this.leftMesh.rotateX(Math.sin(this.time / 2) / 30);
         this.leftMesh.rotateY(Math.sin(this.time / 2) / 30);
         this.leftMesh.rotateZ(Math.sin(this.time / 2) / 30);
@@ -557,6 +630,7 @@
     line-height: 70px;
     color: #FF7152;
     margin-top: 10px;
+    display: none;
   }
   .roadmap-text__block{
     position: absolute;
@@ -568,6 +642,7 @@
     transition: .6s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
     transform: translateY(10px);
+    display: none;
   }
   .roadmap-text__block.active{
     pointer-events: all;

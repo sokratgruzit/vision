@@ -973,7 +973,7 @@ export default {
     },
     render: function () {
       if (this.$store.state.stopRoadmap == false) {
-        // this.renderer.autoClear = false;
+        //this.renderer.autoClear = false;
         // this.renderer.clear();
         this.renderer.setScissorTest(true);
         this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);

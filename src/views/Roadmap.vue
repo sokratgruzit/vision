@@ -1041,7 +1041,7 @@ export default {
           var tooltipClass = iMesh.children[0].children[0];
 
           new TWEEN.Tween(this.camera.position)
-          .to({ y: -300, z: 250 }, 3000)
+          .to({ y: -300, z: 250 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
@@ -1349,19 +1349,33 @@ export default {
 
           if (i === 0 || i === 1 || i === 6 || i === 11) {
             tooltipClass = iMesh.children[0].children[0].element.id;
+            new TWEEN.Tween(iMesh.children[1].scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 } , 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
+            new TWEEN.Tween(iMesh.children[2].scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 } , 400)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
+            new TWEEN.Tween(iMesh.children[2].scale)
+              .to({ x: 1.2, y: 1.2, z: 1.2 } , 500)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start()
+            console.log(iMesh.children[1])
           } else {
             tooltipClass = iMesh.children[0].element.id;
+            if(int[0].object.scale.x !== 1.2){
+              new TWEEN.Tween(int[0].object.scale)
+                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+                .easing(TWEEN.Easing.Quadratic.Out)
+                .start()
+            }
           }
 
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.add('active');
 
-          if(int[0].object.scale.x !== 1.2){
-            new TWEEN.Tween(int[0].object.scale)
-              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start()
-          }
+
 
           this.showRoadmapPath(i, 'show');
         } else {

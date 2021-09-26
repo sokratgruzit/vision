@@ -217,6 +217,23 @@
         .to({ z: 0 }, 3000)
         .easing(TWEEN.Easing.Quintic.In)
         .start();
+
+        setTimeout(() => {
+          new TWEEN.Tween(this.leftMesh.scale)
+          .to({ x: 1, y: 1, z: 1 }, 2000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
+          new TWEEN.Tween(this.rightMesh.scale)
+          .to({ x: 1, y: 1, z: 1 }, 2000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
+          new TWEEN.Tween(this.sliderMesh.position)
+          .to({ x: -this.windowHalfX * 0.35, y: -this.windowHalfY * 0.1, z: 0 }, 5000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+        }, 1000);
       },
       createSliderImage: function() {
         if (window.innerWidth >=768) {
@@ -275,8 +292,8 @@
         });
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
-        this.sliderMesh.scale.set(0, 0, 0);
+        this.sliderMesh.position.y = -1000;
+        this.sliderMesh.position.z = -500;
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
@@ -330,8 +347,10 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(-window.innerWidth * 1.2, 0, -450);
-        this.rightMesh.position.set(window.innerWidth * 1.2, 0, -450);
+        this.leftMesh.position.set(-window.innerWidth * 0.9, 0, -450);
+        this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
+        this.leftMesh.scale.set(0, 0, 0);
+        this.rightMesh.scale.set(0, 0, 0);
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
@@ -431,6 +450,7 @@
       },
       animate: function () {
         this.time += 0.05;
+        const theTime = performance.now() * 0.001;
         this.uniforms.time.value = this.time;
         this.leftUniforms.time.value = this.time;
         this.rightUniforms.time.value = this.time;
@@ -443,6 +463,11 @@
         this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
         this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
 
+        let partZSin = Math.sin(theTime);
+        this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
+        this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
+        this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
+
         if (this.$store.state.stopRoadmapInner == false){
           requestAnimationFrame(this.animate);
         }
@@ -452,8 +477,8 @@
       },
       render: function () {
         if (this.$store.state.stopRoadmapInner == false) {
-          //this.renderer.render(this.scene, this.camera);
-          //this.renderer.setPixelRatio(window.devicePixelRatio);
+          this.renderer.render(this.scene, this.camera);
+          this.renderer.setPixelRatio(window.devicePixelRatio);
           this.raycaster.setFromCamera(this.mouse, this.camera);
           this.raycaster.firstHitOnly = true;
           this.composer.render();

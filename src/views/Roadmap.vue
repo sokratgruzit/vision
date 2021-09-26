@@ -1041,12 +1041,12 @@ export default {
           var tooltipClass = iMesh.children[0].children[0];
 
           new TWEEN.Tween(this.camera.position)
-          .to({ y: -170, z: 250 }, 5000)
+          .to({ y: -300, z: 250 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 2.7 }, 5000)
+          .to({ x: 2.8 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
@@ -1063,7 +1063,7 @@ export default {
       }
 
       new TWEEN.Tween(this.particles.position)
-      .to({ z: -1000 }, 5000)
+      .to({ z: -5000 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
     },

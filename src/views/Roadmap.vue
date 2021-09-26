@@ -216,25 +216,60 @@ export default {
     },
     roadmapScene: function() {
       var container = document.getElementById('roadmap-container');
+
       this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
       this.labelRenderer.domElement.style.position = 'absolute';
       this.labelRenderer.domElement.style.bottom = '0px';
       this.labelRenderer.domElement.style.pointerEvents = 'none';
+
       container.appendChild(this.labelRenderer.domElement);
+
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-      if(window.innerWidth < 1023){
+
+      if(window.innerWidth < 1023) {
         this.camera.position.z = 350;
-      }else{
+      } else {
         this.camera.position.z = 150;
       }
 
       this.scene = new THREE.Scene();
+
+      var sLight = new THREE.SpotLight(0xffffff);
+      this.scene.add(sLight);
+
+      var aLight = new THREE.AmbientLight(0xffffff);
+      this.scene.add(aLight);
+
+      var directionalLight = new THREE.DirectionalLight("#fff", 2);
+      directionalLight.position.set(0, 50, -20);
+      this.scene.add(directionalLight);
+
+      THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+      THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+      THREE.Mesh.prototype.raycast = acceleratedRaycast;
+
+      this.createRoadmapBody();
+      this.createBubleParticles();
+      this.createRoadmapTimePoints();
+      this.createRoadmapPaths();
+      this.createFilter();
+
+      this.renderer = new THREE.WebGLRenderer();
+      this.renderer.setSize(window.innerWidth, window.innerHeight);
+      this.renderer.setClearColor(0x878FFF, 0.2);
+      this.moveRoadmapToStart();
+
+      if(this.$store.state.stopRoadmap !== true) {
+        this.loadFilter();
+      }
+
+      container.appendChild(this.renderer.domElement);
+    },
+    createRoadmapBody: function() {
       this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
 
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
-
-      THREE.Mesh.prototype.raycast = acceleratedRaycast;
 
       this.uniforms = {
         tex: { type: "t", value: texture },
@@ -262,90 +297,14 @@ export default {
         fragmentShader: this.roadmapFragment
       });
 
-      var sLight = new THREE.SpotLight(0xffffff);
-      //sLight.position.set(-100, 100, 100);
-      this.scene.add(sLight);
-
-      var aLight = new THREE.AmbientLight(0xffffff);
-      this.scene.add(aLight);
-
-      var directionalLight = new THREE.DirectionalLight("#fff", 2);
-      directionalLight.position.set(0, 50, -20);
-      this.scene.add(directionalLight);
-
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
       this.roadmapMesh.receiveShadow = true;
       this.roadmapMesh.rotateX(90);
       this.roadmapMesh.position.z = 1000;
       this.roadmapMesh.position.y = -500;
       this.scene.add(this.roadmapMesh);
-
-      const partLoader = new THREE.TextureLoader();
-      const partTexture = partLoader.load(require("../assets/circle2.png"));
-
-      this.partUniforms = {
-        pointTexture: { type: "t", value: partTexture },
-        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
-      };
-
-      this.partMat = new THREE.ShaderMaterial({
-        uniforms:       this.partUniforms,
-        vertexShader:   this.partVertex,
-        fragmentShader: this.partFragment,
-        transparent:    true,
-        depthTest:      false,
-        blending:       THREE.AdditiveBlending
-      });
-
-      var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
-      var stars = 1000;
-
-      var vertices = new Float32Array((stars) * 3);
-      var colors = new Float32Array((stars) * 3);
-      var alphas = new Float32Array((stars) * 1);
-      var sizes = new Float32Array((stars) * 1);
-
-      for (let i = 0; i < stars; ++i) {
-        var f = (stars - i) / (stars);
-        var g = i / (stars);
-
-        var x = Math.random() * 4000.0 - 2000.0;
-        var y = Math.random() * 4000.0 - 2000.0;
-        var z = Math.random() * 4000.0 - 2000.0;
-        if (f < 0.2) {
-          var a = Math.random() * 3.14159 * 2.0;
-          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 700;
-          var x = Math.cos(a) * r;
-          var y = Math.sin(a) * r;
-          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
-        }
-
-        vertices[i * 3 + 0] = x;
-        vertices[i * 3 + 1] = y;
-        vertices[i * 3 + 2] = z;
-
-        colors[i * 3 + 0] = 1.0;
-        colors[i * 3 + 1] = 1.0;
-        colors[i * 3 + 2] = 1.0;
-
-        alphas[i] = 0.05 + Math.random() * 0.01;
-        sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
-      }
-
-      this.partGeo = new THREE.BufferGeometry();
-      this.partGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
-      this.partGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-      this.partGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
-      this.partGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
-
-      this.particles = new THREE.Points(this.partGeo, this.partMat);
-      this.scene.add(this.particles);
-
-      //Mesh particles
-      THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-      THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-      THREE.Mesh.prototype.raycast = acceleratedRaycast;
-
+    },
+    createRoadmapTimePoints: function () {
       var meshBubles = 16;
 
       for (let i = 0; i < meshBubles; ++i) {
@@ -400,8 +359,8 @@ export default {
           this.meshParticles.rotation.x = -0.4;
           this.meshParticles.add(tooltipLineMesh);
           let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
-          let ring2Geo = new THREE.RingGeometry(5, 4.8, 32);
-          let ring3Geo = new THREE.RingGeometry(1.7, 1.5, 32);
+          let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
+          let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);
           let coreGeo = new THREE.RingGeometry(0.8, 0, 32);
           let ringMat0 = new THREE.MeshBasicMaterial({
             color: 0x878FFF,
@@ -409,18 +368,31 @@ export default {
             transparent: true,
             depthTest: false,
             sizeAttenuation: true,
-            opacity: 1
+            opacity: 0.2
           });
-          let ringMat = new THREE.MeshBasicMaterial({
-            color: 0xffffff
+          let ringMat1 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true,
+            opacity: 0.5
+          });
+          let ringMat2 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true,
+            opacity: 0.8
+          });
+          let ringMat3 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
           });
           let ringMesh1 = new THREE.Mesh(ring1Geo, ringMat0);
-          let ringMesh2 = new THREE.Mesh(ring2Geo, ringMat);
-          let ringMesh3 = new THREE.Mesh(ring3Geo, ringMat);
-          let coreMesh = new THREE.Mesh(coreGeo, ringMat);
+          let ringMesh2 = new THREE.Mesh(ring2Geo, ringMat1);
+          let ringMesh3 = new THREE.Mesh(ring3Geo, ringMat2);
+          let coreMesh = new THREE.Mesh(coreGeo, ringMat3);
 
           ringMesh1.rotation.x = 1.3;
-          console.log(ringMat0);
           ringMesh2.rotation.x = 1.3;
           ringMesh3.rotation.x = 1.3;
           coreMesh.rotation.x = 1.3;
@@ -466,13 +438,58 @@ export default {
         this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
       }
-      //End Mesh particles
+    },
+    createFilter: function () {
+      const fContainer = document.getElementById('filters-container');
 
-      this.renderer = new THREE.WebGLRenderer();
-      this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setClearColor(0x878FFF, 0.2);
-      this.moveRoadmapToStart();
+      for (let i = 0; i < 5; i++) {
+        this.filterScene = new THREE.Scene();
+        const fEl = document.createElement('span');
+        fEl.id = 'list-itemf' + i;
+        fEl.className = 'filter-item';
+        fEl.style.setProperty('width', '200px');
+        fEl.style.setProperty('height', '60px');
 
+        let label = "Filter";
+        if (i === 1) {
+          label = "Inception";
+        } else if (i === 2) {
+          label = "Year 2021";
+        } else if (i === 3) {
+          label = "Year 2022";
+        } else if (i === 4) {
+          label = "Year 2023";
+        }
+
+        fEl.innerHTML = label;
+
+        this.filterScene.userData.element = fEl;
+        fContainer.appendChild(fEl);
+
+        this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
+        this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
+        this.filterCamera.position.z = 4;
+        this.filterScene.userData.camera = this.filterCamera;
+        this.filterMat = new THREE.MeshBasicMaterial({
+          color: i === 0 ? 0x878FFF : this.colors[i - 1],
+          transparent: true,
+          opacity: 0.5,
+          wireframe: true
+        });
+        this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
+        this.filterMesh.rotation.z = Math.PI / 2;
+        this.filterMesh.rotation.y = Math.PI / 2;
+        this.filterMesh.scale.set(0, 0, 0);
+        this.filterScene.add(this.filterMesh);
+        this.filterScene.add(new THREE.HemisphereLight(0xFFFFFF, 0x444444));
+        this.filterScene.name = "filter" + i;
+        const flight = new THREE.DirectionalLight(0xffffff, 0.5);
+        flight.position.set(1, 1, 1);
+        this.filterScene.add(flight);
+        this.filterScenes.push(this.filterScene);
+      }
+    },
+    createRoadmapPaths: function () {
       const lineMaterial = new THREE.LineBasicMaterial({
         transparent: true,
         opacity: 0,
@@ -612,63 +629,68 @@ export default {
       const lineMesh3 = new THREE.Line(this.lineGeometry3, lineMaterial3);
       lineMesh3.add(glowMesh3);
       this.roadmapMesh.add(lineMesh3);
-      //End Create Horizontal Lines
+    },
+    createBubleParticles: function () {
+      const partLoader = new THREE.TextureLoader();
+      const partTexture = partLoader.load(require("../assets/circle2.png"));
 
-      //Filter
-      const fContainer = document.getElementById('filters-container');
+      this.partUniforms = {
+        pointTexture: { type: "t", value: partTexture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+      };
 
-      for (let i = 0; i < 5; i++) {
-        this.filterScene = new THREE.Scene();
-        const fEl = document.createElement('span');
-        fEl.id = 'list-itemf' + i;
-        fEl.className = 'filter-item';
-        fEl.style.setProperty('width', '200px');
-        fEl.style.setProperty('height', '60px');
+      this.partMat = new THREE.ShaderMaterial({
+        uniforms:       this.partUniforms,
+        vertexShader:   this.partVertex,
+        fragmentShader: this.partFragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
 
-        let label = "Filter";
-        if (i === 1) {
-          label = "Inception";
-        } else if (i === 2) {
-          label = "Year 2021";
-        } else if (i === 3) {
-          label = "Year 2022";
-        } else if (i === 4) {
-          label = "Year 2023";
+      var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var stars = 1000;
+
+      var vertices = new Float32Array((stars) * 3);
+      var colors = new Float32Array((stars) * 3);
+      var alphas = new Float32Array((stars) * 1);
+      var sizes = new Float32Array((stars) * 1);
+
+      for (let i = 0; i < stars; ++i) {
+        var f = (stars - i) / (stars);
+        var g = i / (stars);
+
+        var x = Math.random() * 4000.0 - 2000.0;
+        var y = Math.random() * 4000.0 - 2000.0;
+        var z = Math.random() * 4000.0 - 2000.0;
+        if (f < 0.2) {
+          var a = Math.random() * 3.14159 * 2.0;
+          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 700;
+          var x = Math.cos(a) * r;
+          var y = Math.sin(a) * r;
+          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
         }
 
-        fEl.innerHTML = label;
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
 
-        this.filterScene.userData.element = fEl;
-        fContainer.appendChild(fEl);
+        colors[i * 3 + 0] = 1.0;
+        colors[i * 3 + 1] = 1.0;
+        colors[i * 3 + 2] = 1.0;
 
-        this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
-        this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
-        this.filterCamera.position.z = 4;
-        this.filterScene.userData.camera = this.filterCamera;
-        this.filterMat = new THREE.MeshBasicMaterial({
-          color: i === 0 ? 0x878FFF : this.colors[i - 1],
-          transparent: true,
-          opacity: 0.5,
-          wireframe: true
-        });
-        this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
-        this.filterMesh.rotation.z = Math.PI / 2;
-        this.filterMesh.rotation.y = Math.PI / 2;
-        this.filterMesh.scale.set(0, 0, 0);
-        this.filterScene.add(this.filterMesh);
-        this.filterScene.add(new THREE.HemisphereLight(0xFFFFFF, 0x444444));
-        this.filterScene.name = "filter" + i;
-        const flight = new THREE.DirectionalLight(0xffffff, 0.5);
-        flight.position.set(1, 1, 1);
-        this.filterScene.add(flight);
-        this.filterScenes.push(this.filterScene);
-      }
-      //End Filter
-      if(this.$store.state.stopRoadmap !== true) {
-        this.loadFilter();
+        alphas[i] = 0.05 + Math.random() * 0.01;
+        sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
       }
 
-      container.appendChild(this.renderer.domElement);
+      this.partGeo = new THREE.BufferGeometry();
+      this.partGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      this.partGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      this.partGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      this.partGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.particles = new THREE.Points(this.partGeo, this.partMat);
+      this.scene.add(this.particles);
     },
     loadFilter: function () {
       setTimeout(() => {

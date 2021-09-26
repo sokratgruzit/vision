@@ -58,7 +58,6 @@
         time: 0,
         renderScene: null,
         bloomPass: null,
-        leftBloom: null,
 				params: {
           exposure: 1,
           bloomStrength: 0,
@@ -170,21 +169,55 @@
     methods: {
       sliderScene: function() {
         var container = document.getElementById('slider-container');
+
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
         this.camera.position.z = 400;
 
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
-        this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
-        this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
-        if(window.innerWidth >=768){
+
+        THREE.Mesh.prototype.raycast = acceleratedRaycast;
+        THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
+        THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
+
+        var sLight = new THREE.SpotLight(0xffffff);
+        this.scene.add(sLight);
+
+        var aLight = new THREE.AmbientLight(0xffffff);
+        this.scene.add(aLight);
+
+        var directionalLight = new THREE.DirectionalLight("#fff", 2);
+        directionalLight.position.set(0, 50, -20);
+        this.scene.add(directionalLight);
+
+        this.createSliderButtons();
+        this.createSliderImage();
+
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setClearColor(0x878FFF, 0.2);
+        container.appendChild(this.renderer.domElement);
+
+        this.renderScene = new RenderPass(this.scene, this.camera);
+
+				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+				this.bloomPass.threshold = this.params.bloomThreshold;
+				this.bloomPass.strength = this.params.bloomStrength;
+				this.bloomPass.radius = this.params.bloomRadius;
+
+				this.composer = new EffectComposer(this.renderer);
+				this.composer.addPass(this.renderScene);
+				this.composer.addPass(this.bloomPass);
+      },
+      createSliderImage: function() {
+        if (window.innerWidth >=768) {
           this.sliderGeo = new THREE.PlaneBufferGeometry(
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5
           );
-        }else{
+        } else {
           this.sliderGeo = new THREE.PlaneBufferGeometry(
             this.windowHalfX * 1,
             this.windowHalfX * 1,
@@ -193,28 +226,20 @@
           );
         }
 
-
-        THREE.Mesh.prototype.raycast = acceleratedRaycast;
-        THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
-        THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
-
         const loader = new THREE.TextureLoader();
 
-        let texture = loader.load(require("../assets/btc.jpg"));
-        let texture1 = loader.load(require("../assets/eth.jpg"));
-        let texture2 = loader.load(require("../assets/lite.jpg"));
-        let texture3 = loader.load(require("../assets/tron.jpg"));
-        let texture4 = loader.load(require("../assets/btc.jpg"));
-        let texture5 = loader.load(require("../assets/eth.jpg"));
-        let texture6 = loader.load(require("../assets/lite.jpg"));
-        let texture7 = loader.load(require("../assets/tron.jpg"));
-        let texture8 = loader.load(require("../assets/btc.jpg"));
-        let texture9 = loader.load(require("../assets/eth.jpg"));
-        let texture10 = loader.load(require("../assets/lite.jpg"));
-        let texture11 = loader.load(require("../assets/tron.jpg"));
-
-        const leftTex = loader.load(require("../assets/wave_color.png"));
-        const rightTex = loader.load(require("../assets/fire.jpg"));
+        let texture = loader.load(require("../assets/2021_Q1.png"));
+        let texture1 = loader.load(require("../assets/2021_Q2.png"));
+        let texture2 = loader.load(require("../assets/2021_Q3.png"));
+        let texture3 = loader.load(require("../assets/2021_Q4.png"));
+        let texture4 = loader.load(require("../assets/2022_Q1.png"));
+        let texture5 = loader.load(require("../assets/2022_Q2.png"));
+        let texture6 = loader.load(require("../assets/2022_Q3.png"));
+        let texture7 = loader.load(require("../assets/2022_Q4.png"));
+        let texture8 = loader.load(require("../assets/2021_Q1.png"));
+        let texture9 = loader.load(require("../assets/2021_Q2.png"));
+        let texture10 = loader.load(require("../assets/2021_Q3.png"));
+        let texture11 = loader.load(require("../assets/2021_Q4.png"));
 
         this.uniforms = {
           tex: { type: "t", value: texture },
@@ -231,53 +256,38 @@
           tex11: { type: "t", value: texture11 },
           time: { type: "f", value: 0.0 },
           progress: { type: "f", value: 0.0 },
-          distortion: { type: "f", value: 0.0 },
-          resolution: { type: "v4", value: new THREE.Vector4() }
+          distortion: { type: "f", value: 0.0 }
         };
-
-        this.leftUniforms = {
-          tex: { type: "t", value: leftTex },
-          time: { type: "f", value: 0.0 },
-          distortion: { type: "f", value: 0.0 },
-          resolution: { type: "v4", value: new THREE.Vector4() }
-        };
-
-        this.rightUniforms = {
-          tex: { type: "t", value: rightTex },
-          time: { type: "f", value: 0.0 },
-          distortion: { type: "f", value: 0.0 },
-          resolution: { type: "v4", value: new THREE.Vector4() }
-        };
-
-        let asp1, asp2;
-        if (window.innerHeight / window.innerWidth > this.imageAspect) {
-          asp1 = (window.innerWidth / window.innerHeight) * this.imageAspect;
-          asp2 = 1;
-        } else {
-          asp1 = 1;
-          asp2 = (window.innerHeight / window.innerWidth) / this.imageAspect;
-        }
-
-        this.uniforms.resolution.value.x = window.innerWidth;
-        this.uniforms.resolution.value.y = window.innerHeight;
-        this.uniforms.resolution.value.z = asp1;
-        this.uniforms.resolution.value.w = asp2;
-
-        this.leftUniforms.resolution.value.x = window.innerWidth;
-        this.leftUniforms.resolution.value.y = window.innerHeight;
-        this.leftUniforms.resolution.value.z = asp1;
-        this.leftUniforms.resolution.value.w = asp2;
-
-        this.rightUniforms.resolution.value.x = window.innerWidth;
-        this.rightUniforms.resolution.value.y = window.innerHeight;
-        this.rightUniforms.resolution.value.z = asp1;
-        this.rightUniforms.resolution.value.w = asp2;
 
         this.sliderMat = new THREE.ShaderMaterial({
           uniforms: this.uniforms,
           vertexShader: this.roadmapVertex,
           fragmentShader: this.roadmapFragment
         });
+
+        this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
+        this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
+        this.scene.add(this.sliderMesh);
+      },
+      createSliderButtons: function () {
+        this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+        this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+
+        const loader = new THREE.TextureLoader();
+        const leftTex = loader.load(require("../assets/wave_color.png"));
+        const rightTex = loader.load(require("../assets/fire.jpg"));
+
+        this.leftUniforms = {
+          tex: { type: "t", value: leftTex },
+          time: { type: "f", value: 0.0 },
+          distortion: { type: "f", value: 0.0 },
+        };
+
+        this.rightUniforms = {
+          tex: { type: "t", value: rightTex },
+          time: { type: "f", value: 0.0 },
+          distortion: { type: "f", value: 0.0 },
+        };
 
         this.leftMat = new THREE.ShaderMaterial({
           uniforms: this.leftUniforms,
@@ -307,96 +317,17 @@
         });
         const subRightMesh = new THREE.Mesh(subRightGeo, subRightMat);
 
-        var sLight = new THREE.SpotLight(0xffffff);
-        this.scene.add(sLight);
+        this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+        this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        var aLight = new THREE.AmbientLight(0xffffff);
-        this.scene.add(aLight);
-
-        var directionalLight = new THREE.DirectionalLight("#fff", 2);
-        directionalLight.position.set(0, 50, -20);
-        this.scene.add(directionalLight);
-
-        this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        if(window.innerWidth >= 1024){
-          this.sliderMesh.position.set(
-            -this.windowHalfX * 0.35,
-            -this.windowHalfY * 0.1,
-            0);
-          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-          this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
-
-          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-          this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
-
-        }
-        if(window.innerWidth <= 1023 && window.innerWidth >= 768){
-          this.sliderMesh.position.set(
-            -this.windowHalfX * 0 ,
-            this.windowHalfY * 0.23,
-            0);
-          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-          this.leftMesh.position.set(-window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
-
-          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-          this.rightMesh.position.set(window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
-        }
-        if(window.innerWidth <= 1023 && window.innerWidth >= 768){
-          this.sliderMesh.position.set(
-            -this.windowHalfX * 0 ,
-            this.windowHalfY * 0.23,
-            0);
-          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-          this.leftMesh.position.set(-window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
-
-          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-          this.rightMesh.position.set(window.innerWidth * 0.65, window.innerHeight * 0.25, -450);
-        }
-        if(window.innerWidth <= 767){
-          this.sliderMesh.position.set(
-            -this.windowHalfX * 0 ,
-            this.windowHalfY * 0.33,
-            0);
-          this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-          this.leftMesh.position.set(-window.innerWidth * 1, window.innerHeight * 0.35, -450);
-
-          this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
-          this.rightMesh.position.set(window.innerWidth * 1, window.innerHeight * 0.35, -450);
-        }
+        this.leftMesh.position.set(-window.innerWidth * 0.95, 0, -450);
+        this.rightMesh.position.set(window.innerWidth * 0.93, 0, -450);
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
 
-
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
-
-        this.scene.add(this.sliderMesh);
-
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(this.renderer.domElement);
-
-        this.renderScene = new RenderPass(this.scene, this.camera);
-
-				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-				this.bloomPass.threshold = this.params.bloomThreshold;
-				this.bloomPass.strength = this.params.bloomStrength;
-				this.bloomPass.radius = this.params.bloomRadius;
-
-        this.leftBloom = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-				this.leftBloom.threshold = this.params.bloomThreshold;
-				this.leftBloom.strength = this.params.bloomStrength;
-				this.leftBloom.radius = this.params.bloomRadius;
-
-				this.composer = new EffectComposer(this.renderer);
-				this.composer.addPass(this.renderScene);
-				this.composer.addPass(this.bloomPass);
-        this.composer.addPass(this.leftBloom);
-
-        //Lighted curves
-
-        //End Lighted curves
       },
       disposeImage: function (direction) {
         var cA = new TWEEN.Tween(this.uniforms.distortion)
@@ -415,7 +346,7 @@
         }, 1500);
 
         var A = new TWEEN.Tween(this.bloomPass)
-        .to({ strength: 7 }, 2000)
+        .to({ strength: 0.7 }, 2000)
         .easing(TWEEN.Easing.Cubic.In);
 
         var B = new TWEEN.Tween(this.bloomPass)
@@ -483,21 +414,11 @@
           .to({ value: 0.5 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
           .start();
-
-          new TWEEN.Tween(this.leftBloom)
-          .to({ strength: 1 }, 500)
-          .easing(TWEEN.Easing.Cubic.In)
-          .start();
         } else {
           this.leftTarget = false;
           new TWEEN.Tween(this.leftUniforms.distortion)
           .to({ value: 0 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
-
-          new TWEEN.Tween(this.leftBloom)
-          .to({ strength: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.In)
           .start();
         }
 
@@ -507,21 +428,11 @@
           .to({ value: 0.5 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
           .start();
-
-          new TWEEN.Tween(this.bloomPass)
-          .to({ strength: 1 }, 500)
-          .easing(TWEEN.Easing.Cubic.In)
-          .start();
         } else {
           this.rightTarget = false;
           new TWEEN.Tween(this.rightUniforms.distortion)
           .to({ value: 0 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
-
-          new TWEEN.Tween(this.bloomPass)
-          .to({ strength: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.In)
           .start();
         }
       },
@@ -546,9 +457,9 @@
           }
         }
         if (this.slideCount < 0) {
-          this.slideCount = 3;
+          this.slideCount = 11;
         }
-        if (this.slideCount > 3) {
+        if (this.slideCount > 11) {
           this.slideCount = 0;
         }
         if (int.length > 0 || int2.length > 0) {

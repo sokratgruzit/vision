@@ -223,9 +223,9 @@ export default {
       this.labelRenderer.domElement.style.pointerEvents = 'none';
 
       container.appendChild(this.labelRenderer.domElement);
-      
+
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-      
+
       if(window.innerWidth < 1023) {
         this.camera.position.z = 350;
       } else {
@@ -233,7 +233,7 @@ export default {
       }
 
       this.scene = new THREE.Scene();
-      
+
       var sLight = new THREE.SpotLight(0xffffff);
       this.scene.add(sLight);
 
@@ -262,7 +262,7 @@ export default {
       if(this.$store.state.stopRoadmap !== true) {
         this.loadFilter();
       }
-      
+
       container.appendChild(this.renderer.domElement);
     },
     createRoadmapBody: function() {
@@ -344,7 +344,7 @@ export default {
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           tooltipPosition = -25;
 
-          this.meshPartGeo = new THREE.SphereBufferGeometry(10, 20, 20); 
+          this.meshPartGeo = new THREE.SphereBufferGeometry(10, 20, 20);
           this.meshPartMat = new THREE.MeshBasicMaterial({
             color: 0x878FFF,
             wireframe: false,
@@ -358,21 +358,39 @@ export default {
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.4;
           this.meshParticles.add(tooltipLineMesh);
-          let ring1Geo = new THREE.RingGeometry(8.8, 8.6, 32);
-          let ring2Geo = new THREE.RingGeometry(5, 4.8, 32);
-          let ring3Geo = new THREE.RingGeometry(1.7, 1.5, 32);
+          let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
+          let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
+          let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);
           let coreGeo = new THREE.RingGeometry(0.8, 0, 32);
           let ringMat0 = new THREE.MeshBasicMaterial({
             color: 0x878FFF,
-            wireframe: false
+            wireframe: false,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true,
+            opacity: 0.2
           });
-          let ringMat = new THREE.MeshBasicMaterial({
-            color: 0xffffff
+          let ringMat1 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true,
+            opacity: 0.5
+          });
+          let ringMat2 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            transparent: true,
+            depthTest: false,
+            sizeAttenuation: true,
+            opacity: 0.8
+          });
+          let ringMat3 = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
           });
           let ringMesh1 = new THREE.Mesh(ring1Geo, ringMat0);
-          let ringMesh2 = new THREE.Mesh(ring2Geo, ringMat);
-          let ringMesh3 = new THREE.Mesh(ring3Geo, ringMat);
-          let coreMesh = new THREE.Mesh(coreGeo, ringMat);
+          let ringMesh2 = new THREE.Mesh(ring2Geo, ringMat1);
+          let ringMesh3 = new THREE.Mesh(ring3Geo, ringMat2);
+          let coreMesh = new THREE.Mesh(coreGeo, ringMat3);
 
           ringMesh1.rotation.x = 1.3;
           ringMesh2.rotation.x = 1.3;
@@ -945,7 +963,7 @@ export default {
     animate: function () {
       const theTime = performance.now() * 0.001;
       const bubleTime = theTime / 4;
-      
+
       this.roadmapMesh.children[16].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 2));
@@ -1337,7 +1355,7 @@ export default {
 
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.add('active');
-          
+
           if(int[0].object.scale.x !== 1.2){
             new TWEEN.Tween(int[0].object.scale)
               .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)

@@ -174,7 +174,6 @@
         var container = document.getElementById('slider-container');
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-        //this.camera.position.z = 400;
 
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
@@ -220,24 +219,9 @@
 
         setTimeout(() => {
           new TWEEN.Tween(this.camera.position)
-          .to({ z: 400 }, 4000)
+          .to({ z: 400 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
-
-          /*new TWEEN.Tween(this.leftMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 4000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.rightMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 4000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.sliderMesh.position)
-          .to({ x: -this.windowHalfX * 0.35, y: -this.windowHalfY * 0.1, z: 0 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();*/
         }, 2000);
       },
       createSliderImage: function() {

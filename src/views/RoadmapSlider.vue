@@ -180,7 +180,6 @@
         var container = document.getElementById('slider-container');
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-        //this.camera.position.z = 400;
 
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
@@ -226,24 +225,9 @@
 
         setTimeout(() => {
           new TWEEN.Tween(this.camera.position)
-          .to({ z: 400 }, 4000)
+          .to({ z: 400 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
-
-          /*new TWEEN.Tween(this.leftMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 4000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.rightMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 4000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.sliderMesh.position)
-          .to({ x: -this.windowHalfX * 0.35, y: -this.windowHalfY * 0.1, z: 0 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();*/
         }, 2000);
       },
       createSliderImage: function() {
@@ -576,6 +560,21 @@
           this.disposeImage(this.slideCount);
         }
       },
+      wheelScroll: function(event) {
+        new TWEEN.Tween(this.particles.position)
+        .to({ z: -5000 }, 1500)
+        .easing(TWEEN.Easing.Quintic.In)
+        .start();
+
+        new TWEEN.Tween(this.camera.position)
+        .to({ z: 0 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+
+        setTimeout(() => {
+          this.$router.push({ name: 'Roadmap'});
+        }, 1500);
+      },
       handleScroll (event) {
 
       },
@@ -609,11 +608,13 @@
       this.animate();
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
+      document.addEventListener('wheel', this.wheelScroll, false);
       this.$store.commit('stopRoadmapInner', false);
     },
     beforeDestroy () {
       document.removeEventListener('click', this.updateUiData);
       window.removeEventListener('pointermove', this.onPointerMove);
+      document.removeEventListener('wheel', this.wheelScroll, false);
       this.raycaster = null;
       this.$store.commit('stopRoadmapInner', true)
       this.scene.remove(this.scene.children[0]);

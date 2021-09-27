@@ -257,7 +257,12 @@ export default {
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.setClearColor(0x878FFF, 0.2);
-      this.moveRoadmapToStart();
+
+      if (this.$store.state.roadmapInnerRoute) {
+        this.moveRoadmapFromSlider();
+      } else {
+        this.moveRoadmapToStart();
+      }
 
       if(this.$store.state.stopRoadmap !== true) {
         this.loadFilter();
@@ -816,6 +821,27 @@ export default {
           .start();
         }, 600);
       }
+    },
+    moveRoadmapFromSlider: function () {
+      this.roadmapMesh.position.set(0, 0, 0);
+      this.roadmapMesh.rotation.x = 2.8;
+      this.camera.position.set(0, -300, 250);
+      this.particles.position.z = -5000;
+
+      new TWEEN.Tween(this.camera.position)
+      .to({ y: 0, z: 150 }, 5000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
+
+      new TWEEN.Tween(this.roadmapMesh.rotation)
+      .to({ x: 2 }, 3000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
+
+      new TWEEN.Tween(this.particles.position)
+      .to({ z: 0 }, 3000)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .start();
     },
     moveRoadmapToStart: function () {
       this.camera.rotation.y = 1;
@@ -1572,7 +1598,6 @@ export default {
     }
   },
   mounted () {
-    console.log(this.$store.state.roadmapInnerRoute);
     this.helper();
     const promise = new Promise((resolve, reject) => {
       resolve (this.roadmapScene())

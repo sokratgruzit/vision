@@ -554,6 +554,21 @@
           this.disposeImage(this.slideCount);
         }
       },
+      wheelScroll: function(event) {
+        new TWEEN.Tween(this.particles.position)
+        .to({ z: -5000 }, 1500)
+        .easing(TWEEN.Easing.Quintic.In)
+        .start();
+
+        new TWEEN.Tween(this.camera.position)
+        .to({ z: 0 }, 1500)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+
+        setTimeout(() => {
+          this.$router.push({ name: 'Roadmap'});
+        }, 1500);
+      },
       handleScroll (event) {
 
       },
@@ -587,11 +602,13 @@
       this.animate();
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
+      document.addEventListener('wheel', this.wheelScroll, false);
       this.$store.commit('stopRoadmapInner', false);
     },
     beforeDestroy () {
       document.removeEventListener('click', this.updateUiData);
       window.removeEventListener('pointermove', this.onPointerMove);
+      document.removeEventListener('wheel', this.wheelScroll, false);
       this.raycaster = null;
       this.$store.commit('stopRoadmapInner', true)
       this.scene.remove(this.scene.children[0]);

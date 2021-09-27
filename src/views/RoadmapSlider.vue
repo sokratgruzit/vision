@@ -174,7 +174,7 @@
         var container = document.getElementById('slider-container');
 
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-        this.camera.position.z = 400;
+        //this.camera.position.z = 400;
 
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
@@ -219,21 +219,26 @@
         .start();
 
         setTimeout(() => {
-          new TWEEN.Tween(this.leftMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 2000)
+          new TWEEN.Tween(this.camera.position)
+          .to({ z: 400 }, 4000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
+          /*new TWEEN.Tween(this.leftMesh.scale)
+          .to({ x: 1, y: 1, z: 1 }, 4000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(this.rightMesh.scale)
-          .to({ x: 1, y: 1, z: 1 }, 2000)
+          .to({ x: 1, y: 1, z: 1 }, 4000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
           new TWEEN.Tween(this.sliderMesh.position)
           .to({ x: -this.windowHalfX * 0.35, y: -this.windowHalfY * 0.1, z: 0 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-        }, 1000);
+          .start();*/
+        }, 2000);
       },
       createSliderImage: function() {
         if (window.innerWidth >=768) {
@@ -292,8 +297,9 @@
         });
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        this.sliderMesh.position.y = -1000;
-        this.sliderMesh.position.z = -500;
+        //this.sliderMesh.position.y = -1000;
+        //this.sliderMesh.position.z = -500;
+        this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
@@ -349,8 +355,8 @@
 
         this.leftMesh.position.set(-window.innerWidth * 0.9, 0, -450);
         this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
-        this.leftMesh.scale.set(0, 0, 0);
-        this.rightMesh.scale.set(0, 0, 0);
+        //this.leftMesh.scale.set(0, 0, 0);
+        //this.rightMesh.scale.set(0, 0, 0);
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);

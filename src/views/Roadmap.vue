@@ -1047,6 +1047,11 @@ export default {
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
+          new TWEEN.Tween(this.particles.position)
+          .to({ z: -5000 }, 3000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
           if(i !== 0){
             setTimeout(() => {
               this.$router.push({ name: 'roadmapInner', params: { id: i }});
@@ -1058,11 +1063,6 @@ export default {
           }
         }
       }
-
-      new TWEEN.Tween(this.particles.position)
-      .to({ z: -5000 }, 3000)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .start();
     },
     deleteLines: function () {
       for(let i = 0; i < 4; i++){
@@ -1346,6 +1346,7 @@ export default {
 
           if (i === 0 || i === 1 || i === 6 || i === 11) {
             tooltipClass = iMesh.children[0].children[0].element.id;
+
             let hoverCol = new THREE.Color('#8785FF');
             if(iMesh.children[1].scale.x !== 1.2) {
               new TWEEN.Tween(iMesh.children[1].scale)

@@ -367,21 +367,18 @@ export default {
             wireframe: false,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.2
           });
           let ringMat1 = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.5
           });
           let ringMat2 = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.8
           });
           let ringMat3 = new THREE.MeshBasicMaterial({
@@ -1349,19 +1346,61 @@ export default {
 
           if (i === 0 || i === 1 || i === 6 || i === 11) {
             tooltipClass = iMesh.children[0].children[0].element.id;
-            new TWEEN.Tween(iMesh.children[1].scale)
-              .to({ x: 1.2, y: 1.2, z: 1.2 } , 300)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start()
-            new TWEEN.Tween(iMesh.children[2].scale)
-              .to({ x: 1.2, y: 1.2, z: 1.2 } , 400)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start()
-            new TWEEN.Tween(iMesh.children[2].scale)
-              .to({ x: 1.2, y: 1.2, z: 1.2 } , 500)
-              .easing(TWEEN.Easing.Quadratic.Out)
-              .start()
-            console.log(iMesh.children[1])
+            let hoverCol = new THREE.Color('#8785FF');
+            if(iMesh.children[1].scale.x !== 1.2) {
+              new TWEEN.Tween(iMesh.children[1].scale)
+                .to({
+                  x: 1.2,
+                  y: 1.2,
+                  z: 1.2
+                }, 300)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+              new TWEEN.Tween(iMesh.children[1].material.color)
+                .to({
+                  r: hoverCol.r,
+                  g: hoverCol.g,
+                  b: hoverCol.b,
+                }, 300)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+            }
+            if(iMesh.children[2].scale.x !== 1.2) {
+              new TWEEN.Tween(iMesh.children[2].scale)
+                .to({
+                  x: 1.2,
+                  y: 1.2,
+                  z: 1.2
+                }, 400)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+              new TWEEN.Tween(iMesh.children[2].material.color)
+                .to({
+                  r: hoverCol.r,
+                  g: hoverCol.g,
+                  b: hoverCol.b,
+                }, 400)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+            }
+            if(iMesh.children[3].scale.x !== 1.2) {
+              new TWEEN.Tween(iMesh.children[3].scale)
+                .to({
+                  x: 1.2,
+                  y: 1.2,
+                  z: 1.2
+                }, 500)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+              new TWEEN.Tween(iMesh.children[3].material.color)
+                .to({
+                  r: hoverCol.r,
+                  g: hoverCol.g,
+                  b: hoverCol.b,
+                }, 500)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start()
+            }
           } else {
             tooltipClass = iMesh.children[0].element.id;
             if(int[0].object.scale.x !== 1.2){
@@ -1375,8 +1414,6 @@ export default {
           var tooltip = document.getElementById(tooltipClass);
           tooltip.classList.add('active');
 
-
-
           this.showRoadmapPath(i, 'show');
         } else {
           if(this.filterLineIndex === i){
@@ -1387,18 +1424,65 @@ export default {
 
             if (i === 0 || i === 1 || i === 6 || i === 11) {
               tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
+              let hoverCol = new THREE.Color('#FFFFFF');
+              if(this.scene.children[3].children[i].children[3].scale.x !== 1) {
+                new TWEEN.Tween(this.scene.children[3].children[i].children[3].scale)
+                  .to({
+                    x: 1,
+                    y: 1,
+                    z: 1
+                  }, 300)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start()
+                new TWEEN.Tween(this.scene.children[3].children[i].children[3].material.color)
+                  .to({
+                    r: hoverCol.r,
+                    g: hoverCol.g,
+                    b: hoverCol.b,
+                  }, 300)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start()
+              }
+              if(this.scene.children[3].children[i].children[2].scale.x !== 1) {
+                new TWEEN.Tween(this.scene.children[3].children[i].children[2].scale)
+                  .to({
+                    x: 1,
+                    y: 1,
+                    z: 1
+                  }, 400)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start()
+                new TWEEN.Tween(this.scene.children[3].children[i].children[2].material.color)
+                  .to({
+                    r: hoverCol.r,
+                    g: hoverCol.g,
+                    b: hoverCol.b,
+                  }, 400)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start()
+              }
+              if(this.scene.children[3].children[i].children[1].scale.x !== 1) {
+                new TWEEN.Tween(this.scene.children[3].children[i].children[1].scale)
+                  .to({
+                    x: 1,
+                    y: 1,
+                    z: 1
+                  }, 500)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start()
+              }
             } else {
               tooltipClass = this.scene.children[3].children[i].children[0].element.id;
+              if(this.scene.children[3].children[i].scale !== 1){
+                new TWEEN.Tween(this.scene.children[3].children[i].scale)
+                  .to({ x: 1, y: 1, z: 1 }, 100)
+                  .easing(TWEEN.Easing.Quartic.InOut)
+                  .start();
+              }
             }
 
             var tooltip = document.getElementById(tooltipClass);
             tooltip.classList.remove('active');
-            if(this.scene.children[3].children[i].scale !== 1){
-              new TWEEN.Tween(this.scene.children[3].children[i].scale)
-                .to({ x: 1, y: 1, z: 1 }, 100)
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .start();
-            }
 
             this.showRoadmapPath(i, 'hide');
           }
@@ -1487,6 +1571,7 @@ export default {
     }
   },
   mounted () {
+    console.log(this.$store.state.roadmapInnerRoute);
     this.helper();
     const promise = new Promise((resolve, reject) => {
       resolve (this.roadmapScene())
@@ -1494,8 +1579,7 @@ export default {
     promise.then((value) => {
       this.animate()
     });
-
-    this.$store.commit('stopRoadmap', false)
+    this.$store.commit('stopRoadmap', false);
     document.addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
@@ -1515,7 +1599,8 @@ export default {
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('pointermove', this.onPointerMove);
     this.raycaster = null;
-    this.$store.commit('stopRoadmap', true)
+    this.$store.commit('stopRoadmap', true);
+    this.$store.commit('setRoadmapInnerRoute', false);
     this.scene.remove(this.scene.children[0]);
     this.renderer = null;
   },

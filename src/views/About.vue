@@ -289,11 +289,6 @@
           .to({ value: 0.5 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
           .start();
-
-          // new TWEEN.Tween(this.bloomPass)
-          // .to({ strength: 1 }, 500)
-          // .easing(TWEEN.Easing.Cubic.In)
-          // .start();
         } else {
           new TWEEN.Tween(this.uniforms.distortion)
           .to({ value: 0 }, 500)
@@ -320,7 +315,7 @@
       document.addEventListener('wheel', this.wheelScroll, false);
       setTimeout(() => {
         this.firstAnimation = true
-      },300)
+      },300);
     },
   }
 </script>

@@ -68,7 +68,7 @@
         var textMat3 = text3 === undefined ? false : text3.material;
         var text4 = this.scene.getObjectByName("Story");
         var textMat4 = text4 === undefined ? false : text4.material;
-        
+
         if (this.$store.state.currentSlide == 2) {
           this.moveGalaxyOnSlider();
           if (textMat1) {
@@ -229,7 +229,7 @@
 
         var aLight = new THREE.AmbientLight(0xffffff);
         this.scene.add(aLight);
-        
+
         var directionalLight = new THREE.DirectionalLight("#fff", 2);
         directionalLight.position.set(0, 50, -20);
         this.scene.add(directionalLight);
@@ -903,6 +903,12 @@
     beforeDestroy () {
       this.scene.remove(this.scene.children[0]);
       this.$store.commit('stopGalactic', true);
+      document.removeEventListener('mouseup', this.onPointerUp, false);
+      document.removeEventListener('mousedown', this.onPointerDown, false);
+      document.removeEventListener('mousedown', this.planetClick, false);
+      document.removeEventListener('pointermove', this.onPointerMove);
+      window.removeEventListener('resize', this.onWindowResize, false);
+      this.renderer = null;
     }
   }
 </script>

@@ -561,19 +561,21 @@
         }
       },
       wheelScroll: function(event) {
-        new TWEEN.Tween(this.particles.position)
-        .to({ z: -5000 }, 1500)
-        .easing(TWEEN.Easing.Quintic.In)
-        .start();
+          new TWEEN.Tween(this.particles.position)
+          .to({ z: -5000 }, 1500)
+          .easing(TWEEN.Easing.Quintic.In)
+          .start();
 
-        new TWEEN.Tween(this.camera.position)
-        .to({ z: 0 }, 1500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
+          new TWEEN.Tween(this.camera.position)
+          .to({ z: 0 }, 1500)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
 
-        setTimeout(() => {
-          this.$router.push({ name: 'Roadmap'});
-        }, 1500);
+          setTimeout(() => {
+            if(this.$router.history.current.name !== "Roadmap"){
+              this.$router.push({ name: 'Roadmap'});
+            }
+          }, 1500);
       },
       handleScroll (event) {
 

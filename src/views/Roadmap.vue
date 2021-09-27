@@ -367,21 +367,18 @@ export default {
             wireframe: false,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.2
           });
           let ringMat1 = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.5
           });
           let ringMat2 = new THREE.MeshBasicMaterial({
             color: 0xffffff,
             transparent: true,
             depthTest: false,
-            sizeAttenuation: true,
             opacity: 0.8
           });
           let ringMat3 = new THREE.MeshBasicMaterial({
@@ -1050,6 +1047,11 @@ export default {
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
+          new TWEEN.Tween(this.particles.position)
+          .to({ z: -5000 }, 3000)
+          .easing(TWEEN.Easing.Quintic.Out)
+          .start();
+
           if(i !== 0){
             setTimeout(() => {
               this.$router.push({ name: 'roadmapInner', params: { id: i }});
@@ -1061,11 +1063,6 @@ export default {
           }
         }
       }
-
-      new TWEEN.Tween(this.particles.position)
-      .to({ z: -5000 }, 3000)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .start();
     },
     deleteLines: function () {
       for(let i = 0; i < 4; i++){
@@ -1361,7 +1358,6 @@ export default {
               .to({ x: 1.2, y: 1.2, z: 1.2 } , 500)
               .easing(TWEEN.Easing.Quadratic.Out)
               .start()
-            console.log(iMesh.children[1])
           } else {
             tooltipClass = iMesh.children[0].element.id;
             if(int[0].object.scale.x !== 1.2){

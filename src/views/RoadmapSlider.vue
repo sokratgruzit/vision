@@ -563,7 +563,7 @@
       }
     },
     mounted () {
-      console.log(this.$route.params.id);
+      this.$store.commit('setRoadmapInnerRoute', true);
       let test;
       if(this.$route.params.id >= 6 && this.$route.params.id < 11){
         this.activeYear = 1;

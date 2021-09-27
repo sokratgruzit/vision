@@ -17,9 +17,13 @@ export default new Vuex.Store({
     slideChange: true,
     firstAnimation: false,
     roadmapIndex: null,
-    header: false
+    header: false,
+    roadmapInnerRoute: false
   },
   mutations: {
+    setRoadmapInnerRoute (state, data) {
+      state.roadmapInnerRoute = data
+    },
     setHeader (state, data) {
       state.header = data
     },

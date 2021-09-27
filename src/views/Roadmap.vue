@@ -110,7 +110,7 @@ export default {
         new THREE.Color(0xF3F657)
       ],
       yD: [0, 40, -10, 25, 5, -40, -10, -20, 30, 0, 10, 20, 50, 5, -10, -10],
-      xD: [-1400, -1200, -1100, -900, -750, -450, -250, -100, 100, 250, 450, 750, 950, 1100, 1200, 1400],
+      xD: [-700, -600, -500, -400, -300, -200, -100, -50, 50, 100, 200, 300, 400, 500, 600, 700],
       itemSize: 0,
       itemAlpha: 0,
       lineGeometry0: null,
@@ -271,7 +271,7 @@ export default {
       container.appendChild(this.renderer.domElement);
     },
     createRoadmapBody: function() {
-      this.roadmapGeo = new THREE.PlaneBufferGeometry(2000*1.5, 80*1.5, 2000, 80);
+      this.roadmapGeo = new THREE.PlaneBufferGeometry(1000*1.5, 80*1.5, 600, 80);
 
       const loader = new THREE.TextureLoader();
       const texture = loader.load(require("../assets/wave_color.png"));
@@ -850,7 +850,7 @@ export default {
       .easing(TWEEN.Easing.Quintic.Out);
 
       var B = new TWEEN.Tween(this.roadmapMesh.position)
-      .to({ x: 1100 }, 3000)
+      .to({ x: 600 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out);
 
       setTimeout(() => {
@@ -1176,19 +1176,19 @@ export default {
           }
           cA.start();
         }
-        if (this.roadmapMesh.position.x > 1300) {
+        if (this.roadmapMesh.position.x > 700) {
           setTimeout(() => {
             new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: 1200 }, 1000)
+              .to({ x: 600 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
           },1000)
         }
 
-        if (this.roadmapMesh.position.x < -1300) {
+        if (this.roadmapMesh.position.x < -700) {
           setTimeout(() => {
             new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: -1200 }, 1000)
+              .to({ x: -600 }, 1000)
               .easing(TWEEN.Easing.Quintic.Out)
               .start();
           }, 1000)
@@ -1253,16 +1253,16 @@ export default {
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
-      if (this.roadmapMesh.position.x > 1400 && !this.isPointerDown) {
+      if (this.roadmapMesh.position.x > 700 && !this.isPointerDown) {
         new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: 1300 }, 500)
+        .to({ x: 600 }, 500)
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
       }
 
-      if (this.roadmapMesh.position.x < -1400 && !this.isPointerDown) {
+      if (this.roadmapMesh.position.x < -700 && !this.isPointerDown) {
         new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: -1300 }, 500)
+        .to({ x: -600 }, 500)
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
       }
@@ -1288,9 +1288,7 @@ export default {
               if(this.camera.rotation.y === 0){
                 cB.chain(cC);
               }
-              cA.start()
-
-
+              cA.start();
             }
           }, 1);
         } else if (this.directionX === "right") {

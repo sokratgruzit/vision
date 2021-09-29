@@ -1,15 +1,15 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
-    <router-link to="/statistic">stat</router-link>
-    <div class="start-timer">
+    <div class="start-timer" :class="mainTaimer == null ? 'deactivated' : ''">
       <div class="level__container-outer">
         <div class="level__container" :style="{
-          transform: `translateY(-${(1 - 1) * 60}px)`
+          transform: `translateY(-${(mainTaimer - 1) * 60}px)`
         }">
           <div class="level__num">3</div>
           <div class="level__num">2</div>
           <div class="level__num">1</div>
-          <div class="level__num">0</div>
+          <div class="level__num">Start</div>
+          <div class="level__num"></div>
         </div>
       </div>
 
@@ -79,6 +79,19 @@
       </div>
     </div>
     <div id="webgl-container"></div>
+    <div class="roadmap-hepler__container" :class="help !== null ? 'active' : ''">
+      <div class="roadmap-hepler__outer">
+        <div class="roadmap-hepler" :key="1" :class="help == 1 ? 'active' : ''">
+          <div class="roadmap-hepler__drag">
+            <div class="roadmap-hepler__drag-line"></div>
+            <svg xmlns="http://www.w3.org/2000/svg" version="1.1" width="512" height="512" x="0" y="0" viewBox="0 0 128 128" style="enable-background:new 0 0 512 512" xml:space="preserve" class="roadmap-hepler__click-icon"><g><g xmlns="http://www.w3.org/2000/svg"><path d="M64,0a64,64,0,1,0,64,64A64.073,64.073,0,0,0,64,0Zm60.5,64C124.5,71,99.653,78.8,64,78.8c-5.018,0-9.812-.159-14.362-.444-.285-4.551-.445-9.345-.445-14.363C49.193,28.344,57,3.5,64,3.5A60.569,60.569,0,0,1,124.5,64ZM57.4,3.864c-5.818,7.29-9.561,24.028-11.015,42.5-3.681.286-7.279.659-10.7,1.12a1.75,1.75,0,0,0,.231,3.484,1.878,1.878,0,0,0,.235-.015c3.2-.431,6.555-.783,9.99-1.059-.291,4.666-.441,9.407-.441,14.1s.15,9.446.441,14.115C20.322,76.057,3.5,69.758,3.5,64A60.582,60.582,0,0,1,57.4,3.864ZM3.867,70.6c7.292,5.82,24.037,9.563,42.513,11.016,1.453,18.477,5.2,35.221,11.016,42.513A60.6,60.6,0,0,1,3.867,70.6ZM64,124.5c-5.761,0-12.059-16.822-14.114-42.634,4.669.292,9.413.441,14.114.441s9.438-.149,14.1-.44c-.289,3.585-.66,7.082-1.116,10.4a1.749,1.749,0,0,0,1.5,1.972,1.784,1.784,0,0,0,.241.016,1.748,1.748,0,0,0,1.731-1.511c.488-3.548.881-7.289,1.18-11.126,18.47-1.454,35.208-5.2,42.5-11.015A60.582,60.582,0,0,1,64,124.5Z" fill="#ffffff" data-original="#000000" style=""/><path d="M12.586,56.411a1.756,1.756,0,0,0,.635-.12A78.43,78.43,0,0,1,24.474,53a1.75,1.75,0,0,0-.76-3.417,82.072,82.072,0,0,0-11.763,3.448,1.751,1.751,0,0,0,.635,3.382Z" fill="#ffffff" data-original="#000000" style=""/><path d="M107.043,53.843a70.6,70.6,0,0,1,7.737,2.448,1.75,1.75,0,0,0,1.268-3.262,73.814,73.814,0,0,0-8.126-2.574,1.75,1.75,0,0,0-.879,3.388Z" fill="#ffffff" data-original="#000000" style=""/><path d="M58.089,47.507a1.75,1.75,0,0,0,1.749,1.72h.031c3.925-.068,7.977-.038,11.911.093h.06a1.75,1.75,0,0,0,.057-3.5c-3.992-.133-8.1-.163-12.088-.094A1.75,1.75,0,0,0,58.089,47.507Z" fill="#ffffff" data-original="#000000" style=""/><path d="M83.661,50.04c4.1.366,8.07.85,11.794,1.438a1.727,1.727,0,0,0,.275.022A1.75,1.75,0,0,0,96,48.021c-3.8-.6-7.85-1.094-12.03-1.467a1.75,1.75,0,1,0-.311,3.486Z" fill="#ffffff" data-original="#000000" style=""/><path d="M78.691,56.637c.077,2.412.116,4.888.116,7.36q0,2.3-.044,4.549a1.75,1.75,0,0,0,1.715,1.784h.036a1.751,1.751,0,0,0,1.749-1.716q.043-2.288.044-4.617c0-2.508-.039-5.022-.118-7.472a1.75,1.75,0,0,0-3.5.112Z" fill="#ffffff" data-original="#000000" style=""/><path d="M77,102.608a1.751,1.751,0,0,0-2.093,1.321,77.439,77.439,0,0,1-3.2,10.848,1.75,1.75,0,1,0,3.262,1.268A80.9,80.9,0,0,0,78.322,104.7,1.75,1.75,0,0,0,77,102.608Z" fill="#ffffff" data-original="#000000" style=""/><path d="M76.144,30.275c.486,2.791.914,5.756,1.272,8.811a1.749,1.749,0,0,0,1.736,1.546,1.792,1.792,0,0,0,.206-.012,1.751,1.751,0,0,0,1.535-1.942c-.367-3.119-.8-6.148-1.3-9a1.75,1.75,0,1,0-3.448.6Z" fill="#ffffff" data-original="#000000" style=""/><path d="M74.318,21.6a1.751,1.751,0,0,0,3.395-.855,75.356,75.356,0,0,0-2.745-8.794,1.75,1.75,0,0,0-3.262,1.269A71.646,71.646,0,0,1,74.318,21.6Z" fill="#ffffff" data-original="#000000" style=""/></g></g></svg>
+          </div>
+          <div class="roadmap-hepler__drag-ttl">
+            CLICK ON SPHERES <br>TO SHOOT
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -121,6 +134,8 @@ export default {
       level: 1,
       totalLevels: 4,
       score: 0,
+      help: null,
+      mainTaimer: 1,
       totalTargets: 3,
       speed: 0.01,
       complete: false,
@@ -179,6 +194,30 @@ export default {
     }
   },
   methods: {
+    mainTimerStart() {
+      setTimeout(() => {
+        this.mainTaimer = 2;
+      }, 1000);
+      setTimeout(() => {
+        this.mainTaimer = 3;
+      }, 2000);
+      setTimeout(() => {
+        this.mainTaimer = 4;
+      }, 3000);
+      setTimeout(() => {
+        this.mainTaimer = 5;
+        this.help = 1;
+      }, 4000);
+      setTimeout(() => {
+        this.mainTaimer = 6;
+      }, 6000);
+      setTimeout(() => {
+        this.mainTaimer = null;
+      }, 7000);
+      setTimeout(() => {
+        this.help = null;
+      }, 10000);
+    },
     pad (val) {
       var valString = val + "";
       if (valString.length < 2) {
@@ -722,6 +761,7 @@ export default {
     }
   },
   mounted() {
+    this.mainTimerStart();
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
@@ -787,6 +827,10 @@ export default {
     align-items: center;
     z-index: 10000;
   }
+  .start-timer.deactivated{
+    display: none;
+    pointer-events: none;
+  }
   .explore-button__text{
     text-transform: uppercase;
   }
@@ -843,7 +887,6 @@ export default {
     display: flex;
     flex-direction: column;
     transition: 1s cubic-bezier(.79,.01,.15,.99);
-    transition-delay: .6s;
   }
   .level__container-outer{
     height: 60px;

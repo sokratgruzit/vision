@@ -410,7 +410,7 @@ export default {
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.4;
           this.meshParticles.add(tooltipLineMesh);
-          
+
           let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
           let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
           let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);
@@ -498,6 +498,7 @@ export default {
         toolDiv2.style.cssText="z-index:1000";
 
         const bubleFrame = new CSS2DObject(toolDiv2);
+        // console.log(bubleFrame)
         this.meshParticles.add(bubleFrame);
       }
     },
@@ -1056,9 +1057,9 @@ export default {
         .start();
       }
 
-      if (action === 'hide' && (this.roadmapMesh.children[19].material.opacity == 1 || 
-        this.roadmapMesh.children[20].material.opacity == 1 || 
-        this.roadmapMesh.children[21].material.opacity == 1 || 
+      if (action === 'hide' && (this.roadmapMesh.children[19].material.opacity == 1 ||
+        this.roadmapMesh.children[20].material.opacity == 1 ||
+        this.roadmapMesh.children[21].material.opacity == 1 ||
         this.roadmapMesh.children[22].material.opacity == 1 ||
         this.roadmapMesh.children[23].material.opacity == 1
       )) {
@@ -1276,7 +1277,7 @@ export default {
       }
     },
     timePointHover: function (e) {
-      console.log('fuck')
+      console.log(e.target)
     },
     wheelScroll: function(event) {
       if (this.camera.position.z < 250) {
@@ -1476,7 +1477,7 @@ export default {
           .start();
         }
       }
-      
+
       for (let i = 0; i < 19; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0 && this.filterLineIndex !== i) {
@@ -1795,7 +1796,7 @@ export default {
     document.removeEventListener('mousedown', this.route,false);
     document.removeEventListener('mousedown', this.filterClick, false);
     window.removeEventListener('resize', this.onWindowResize, false);
-    window.removeEventListener('pointermove', this.onPointerMove);
+    window.removeEventListener('mousedown', this.onPointerMove);
     this.raycaster = null;
     this.$store.commit('stopRoadmap', true);
     this.$store.commit('setRoadmapInnerRoute', false);

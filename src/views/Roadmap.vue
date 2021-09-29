@@ -104,11 +104,11 @@ export default {
       meshParticles: null,
       meshBubles: 16,
       colors: [
-        new THREE.Color(0xFFB36D),
-        new THREE.Color(0xFF81E3),
-        new THREE.Color(0x5CFFC4),
-        new THREE.Color(0xF3F657),
-        new THREE.Color(0xFFFFFF)
+        new THREE.Color(0xFF7152),
+        new THREE.Color(0xF59337),
+        new THREE.Color(0xE10FEC),
+        new THREE.Color(0x5910C5),
+        new THREE.Color(0x3F057E)
       ],
       yD: [0, 40, -10, 25, 5, -40, -10, -20, 30, 0, 10, 20, 50, 5, -10, -10, 0, 40, -30],
       xD: [-700, -600, -500, -400, -300, -250, -200, -100, -50, 0, 50, 100, 200, 250, 300, 400, 500, 600, 700],
@@ -403,7 +403,6 @@ export default {
             transparent: true,
             opacity: 0
           });
-          console.log(this.meshPartMat)
 
           this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
 
@@ -411,7 +410,7 @@ export default {
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.4;
           this.meshParticles.add(tooltipLineMesh);
-          // console.log(this.meshParticles)
+          
           let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
           let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
           let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);
@@ -496,6 +495,7 @@ export default {
         const toolDiv2 = document.createElement('div');
         toolDiv2.id = 'buble-frame' + i;
         toolDiv2.className = 'buble-frame';
+        toolDiv2.style.cssText="z-index:1000";
 
         const bubleFrame = new CSS2DObject(toolDiv2);
         this.meshParticles.add(bubleFrame);
@@ -821,23 +821,23 @@ export default {
         this.filterScenes[0].children[0].material.color = new THREE.Color(0x878FFF);
       } else if (event.target.id === 'list-itemf1') {
         el.innerHTML = 'Inception';
-        el.style['color'] = '#FFB36D';
+        el.style['color'] = '#FF7152';
         this.filterScenes[0].children[0].material.color = this.colors[0];
       } else if (event.target.id === 'list-itemf2') {
         el.innerHTML = 'Year 2021';
-        el.style['color'] = '#FF81E3';
+        el.style['color'] = '#F59337';
         this.filterScenes[0].children[0].material.color = this.colors[1];
       } else if (event.target.id === 'list-itemf3') {
         el.innerHTML = 'Year 2022';
-        el.style['color'] = '#5CFFC4';
+        el.style['color'] = '#E10FEC';
         this.filterScenes[0].children[0].material.color = this.colors[2];
       } else if (event.target.id === 'list-itemf4') {
         el.innerHTML = 'Year 2023';
-        el.style['color'] = '#F3F657';
+        el.style['color'] = '#5910C5';
         this.filterScenes[0].children[0].material.color = this.colors[3];
       } else if (event.target.id === 'list-itemf5') {
         el.innerHTML = 'Year 2024';
-        el.style['color'] = '#FFFFFF';
+        el.style['color'] = '#3F057E';
         this.filterScenes[0].children[0].material.color = this.colors[4];
       }
 
@@ -1274,6 +1274,9 @@ export default {
         this.showRoadmapPath(16,'show');
         this.filterLineIndex = 16;
       }
+    },
+    timePointHover: function (e) {
+      console.log('fuck')
     },
     wheelScroll: function(event) {
       if (this.camera.position.z < 250) {
@@ -1755,12 +1758,31 @@ export default {
     promise.then((value) => {
       this.animate()
     });
+    const pu = new Promise((resolve, reject) => {
+      resolve (document.getElementById('buble-frame0'))
+    });
+    pu.then((value) => {
+      if (value === null) {
+        const pu = new Promise((resolve, reject) => {
+          resolve (document.getElementById('buble-frame0'))
+        });
+        pu.then((value) => {
+          if (value === null) {
+          } else {
+            console.log(value)
+            value.addEventListener('click', this.timePointHover, false);
+          }
+        });
+      } else {
+        value.addEventListener('click', this.timePointHover, false);
+      }
+    });
     this.$store.commit('stopRoadmap', false);
     document.addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
-    document.addEventListener('mousedown', this.route,false);
+    document.addEventListener('mousedown', this.route, false);
     document.addEventListener('mousedown', this.filterClick, false);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
@@ -2003,7 +2025,6 @@ export default {
   .buble-frame {
     width: 100px;
     height: 100px;
-    z-index: 10000;
     background-color: #ffffff;
     position: absolute;
   }

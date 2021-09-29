@@ -319,11 +319,46 @@ export default {
         });
 
         const linePoints = [];
-        linePoints.push(new THREE.Vector3(0, 0, -20));
         linePoints.push(new THREE.Vector3(0, 0, 0));
 
-        const tooltipLineGeo = new THREE.BufferGeometry().setFromPoints(linePoints);
-        const tooltipLineMesh = new THREE.Line(tooltipLineGeo, tooltipLineMat, THREE.LineSegments);
+        linePoints.push(new THREE.Vector3(0, 0, 200));
+
+        var lineGeom = new THREE.BufferGeometry().setFromPoints(linePoints);
+        // lineGeom.position.y = -50;
+        var tooltipLineMesh = new THREE.Line(lineGeom, new THREE.ShaderMaterial({
+          uniforms: {
+            color: {
+              value: new THREE.Color(0xffffff)
+            },
+            origin: {
+              value: new THREE.Vector3()
+            }
+          },
+          vertexShader: `
+            varying vec3 vPos;
+            void main()
+            {
+              vPos = position;
+              vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
+              gl_Position = projectionMatrix * modelViewPosition;
+            }
+          `,
+          fragmentShader: `
+              uniform vec3 origin;
+              uniform vec3 color;
+              varying vec3 vPos;
+              float limitDistance = 20.0;
+              void main() {
+                float distance = clamp(length(vPos - origin), 0., limitDistance);
+                float opacity = 1. - distance / limitDistance;
+                gl_FragColor = vec4(color, opacity);
+              }
+          `,
+          transparent: true
+        }));
+        // tooltipLineMesh.position.z = -15;
+        tooltipLineMesh.position.z = -20;
+        // console.log(tooltipLineMesh)
 
         const toolDiv = document.createElement('div');
         const toolTitle = document.createElement('div');
@@ -344,18 +379,18 @@ export default {
           color: 0xffffff
         });
         let toolCircleMesh = new THREE.Mesh(toolCircleGeo, toolCircleMat);
-        toolCircleMesh.position.z = -20;
+        toolCircleMesh.position.z = -0;
 
         if (i == 0 || i == 1 || i == 6 || i == 11) {
           tooltipPosition = -25;
 
-          this.meshPartGeo = new THREE.SphereBufferGeometry(10, 20, 20);
+          this.meshPartGeo = new THREE.SphereBufferGeometry(4, 20, 20);
           this.meshPartMat = new THREE.MeshBasicMaterial({
-            color: 0x878FFF,
             wireframe: false,
             transparent: true,
             opacity: 0
           });
+          console.log(this.meshPartMat)
 
           this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
 
@@ -363,6 +398,7 @@ export default {
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.4;
           this.meshParticles.add(tooltipLineMesh);
+          // console.log(this.meshParticles)
           let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
           let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
           let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);

@@ -456,6 +456,13 @@ export default {
         this.meshParticles.position.setY(this.yD[i]);
         this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
+
+        const toolDiv2 = document.createElement('div');
+        toolDiv2.id = 'buble-frame' + i;
+        toolDiv2.className = 'buble-frame';
+
+        const bubleFrame = new CSS2DObject(toolDiv2);
+        this.meshParticles.add(bubleFrame);
       }
     },
     createFilter: function () {
@@ -932,6 +939,11 @@ export default {
       }, 1000);
     },
     showRoadmapPath: function (index, action) {
+      for (let i = 0; i < 19; i++) {
+        if (index === i) {
+          //console.log(i)
+        }
+      }
       let object = this.roadmapMesh.children[19];
       if (index === 0 && action === 'show' && this.roadmapMesh.children[19].material.opacity == 0 ) {
         object = this.roadmapMesh.children[19];
@@ -1951,6 +1963,16 @@ export default {
   }
   .roadmap__socials a:hover{
     opacity: .5;
+  }
+  .buble-frame {
+    width: 100px;
+    height: 100px;
+    z-index: 10000;
+    background-color: #ffffff;
+    position: absolute;
+  }
+  .buble-frame:hover {
+    background-color: #000000;
   }
   /*Ipad 768*/
   @media (max-width: 1023px){

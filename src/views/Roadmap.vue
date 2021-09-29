@@ -461,7 +461,7 @@ export default {
     createFilter: function () {
       const fContainer = document.getElementById('filters-container');
 
-      for (let i = 0; i < 5; i++) {
+      for (let i = 0; i < 6; i++) {
         this.filterScene = new THREE.Scene();
         const fEl = document.createElement('span');
         fEl.id = 'list-itemf' + i;
@@ -478,6 +478,8 @@ export default {
           label = "Year 2022";
         } else if (i === 4) {
           label = "Year 2023";
+        } else if (i === 5) {
+          label = "Year 2024";
         }
 
         fEl.innerHTML = label;
@@ -790,13 +792,17 @@ export default {
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#F3F657';
         this.filterScenes[0].children[0].material.color = this.colors[3];
+      } else if (event.target.id === 'list-itemf5') {
+        el.innerHTML = 'Year 2024';
+        el.style['color'] = '#FFFFFF';
+        this.filterScenes[0].children[0].material.color = this.colors[4];
       }
 
       this.toggleFilter(this.filterVisible);
     },
     toggleFilter: function (status) {
       let value = 0;
-      let el1, el2, el3, el4, class1, class2, class3, class4;
+      let el1, el2, el3, el4, el5, class1, class2, class3, class4, class5;
 
       if (status) {
         value = 1;
@@ -804,32 +810,38 @@ export default {
         class2 = 'list-itemf2';
         class3 = 'list-itemf3';
         class4 = 'list-itemf4';
+        class5 = 'list-itemf5';
 
         document.getElementById(class1).style['display'] = 'flex';
         document.getElementById(class2).style['display'] = 'flex';
         document.getElementById(class3).style['display'] = 'flex';
         document.getElementById(class4).style['display'] = 'flex';
+        document.getElementById(class5).style['display'] = 'flex';
 
         el1 = this.filterScenes[1].children[0].scale;
         el2 = this.filterScenes[2].children[0].scale;
         el3 = this.filterScenes[3].children[0].scale;
         el4 = this.filterScenes[4].children[0].scale;
+        el5 = this.filterScenes[5].children[0].scale;
       } else {
         value = 0;
-        class1 = 'list-itemf4';
-        class2 = 'list-itemf3';
-        class3 = 'list-itemf2';
-        class4 = 'list-itemf1';
+        class1 = 'list-itemf5';
+        class2 = 'list-itemf4';
+        class3 = 'list-itemf3';
+        class4 = 'list-itemf2';
+        class5 = 'list-itemf1';
 
         document.getElementById(class1).style['display'] = 'none';
         document.getElementById(class2).style['display'] = 'none';
         document.getElementById(class3).style['display'] = 'none';
         document.getElementById(class4).style['display'] = 'none';
+        document.getElementById(class5).style['display'] = 'none';
 
-        el1 = this.filterScenes[4].children[0].scale;
-        el2 = this.filterScenes[3].children[0].scale;
-        el3 = this.filterScenes[2].children[0].scale;
-        el4 = this.filterScenes[1].children[0].scale;
+        el1 = this.filterScenes[5].children[0].scale;
+        el2 = this.filterScenes[4].children[0].scale;
+        el3 = this.filterScenes[3].children[0].scale;
+        el4 = this.filterScenes[2].children[0].scale;
+        el5 = this.filterScenes[1].children[0].scale;
       }
 
       if (this.filterScenes[0].children[0].scale.x === 1) {
@@ -867,6 +879,16 @@ export default {
           .easing(TWEEN.Easing.Quintic.In)
           .onComplete(function() {
             document.getElementById(class4).style['opacity'] = value;
+          })
+          .start();
+        }, 600);
+
+        setTimeout(() => {
+          new TWEEN.Tween(el5)
+          .to({ x: value, y: value, z: value }, 200)
+          .easing(TWEEN.Easing.Quintic.In)
+          .onComplete(function() {
+            document.getElementById(class5).style['opacity'] = value;
           })
           .start();
         }, 600);
@@ -1158,7 +1180,7 @@ export default {
       }
     },
     deleteLines: function () {
-      for(let i = 0; i < 5; i++){
+      for(let i = 0; i < 6; i++){
         this.showRoadmapPath(i,'hide');
       }
     },
@@ -1196,6 +1218,13 @@ export default {
         this.deleteLines();
         this.showRoadmapPath(11,'show');
         this.filterLineIndex = 11;
+      }
+      if(e.target.id == 'list-itemf5'){
+        this.closeFilter = true;
+        this.filterLine = true;
+        this.deleteLines();
+        this.showRoadmapPath(16,'show');
+        this.filterLineIndex = 16;
       }
     },
     wheelScroll: function(event) {
@@ -1396,7 +1425,7 @@ export default {
           .start();
         }
       }
-      console.log(this.scene.children)
+      
       for (let i = 0; i < 19; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0 && this.filterLineIndex !== i) {
@@ -1832,10 +1861,14 @@ export default {
   #list-itemf4:hover{
     color: #F3F657;
   }
+  #list-itemf5:hover{
+    color: #FFFFFF;
+  }
   #list-itemf1,
   #list-itemf2,
   #list-itemf3,
-  #list-itemf4 {
+  #list-itemf4,
+  #list-itemf5 {
     opacity: 0;
     display: none;
   }

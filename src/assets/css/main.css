@@ -136,6 +136,16 @@ button {
     animation-fill-mode: none;
     animation-play-state: running;
 }
+.roadmap-hepler__scrollup-icon{
+    animation-name: scrollin;
+    animation-duration: 1s;
+    animation-timing-function: cubic-bezier(0.645, 0.045, 0.355, 1);
+    animation-delay: 0s;
+    animation-direction: alternate;
+    animation-iteration-count: infinite;
+    animation-fill-mode: none;
+    animation-play-state: running;
+}
 @keyframes clickin{
     0%{transform: scale(1) }
     100%{transform: scale(.8) }
@@ -143,6 +153,10 @@ button {
 @keyframes swinging{
     0%{transform: translate3d(-15px, 0, 0) }
     100%{transform: translate3d(15px, 0, 0) }
+}
+@keyframes scrollin{
+    0%{transform: translate3d(0, -5px, 0) }
+    100%{transform: translate3d(0, 5px, 0) }
 }
 .roadmap-hepler__container{
     position: fixed;

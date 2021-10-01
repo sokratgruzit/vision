@@ -708,7 +708,6 @@
     line-height: 70px;
     color: #FF7152;
     margin-top: 10px;
-    display: none;
   }
   .roadmap-text__block{
     position: absolute;
@@ -720,7 +719,6 @@
     transition: .6s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
     transform: translateY(10px);
-    display: none;
   }
   .roadmap-text__block.active{
     pointer-events: all;

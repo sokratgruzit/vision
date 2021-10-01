@@ -1283,40 +1283,40 @@ export default {
     wheelScroll: function(event) {
       if (this.camera.position.z < 250) {
         if (event.deltaY < 0 && this.roadmapMesh.position.x > -700) {
-          /*new TWEEN.Tween(this.camera.rotation)
+          new TWEEN.Tween(this.camera.rotation)
           .to({ y: 0.2 }, 400)
           .easing(TWEEN.Easing.Linear.None)
-          .start();*/
+          .start();
 
           new TWEEN.Tween(this.roadmapMesh.position)
           .to({ x: this.roadmapMesh.position.x + 70 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
-          /*setTimeout(() => {
+          setTimeout(() => {
             new TWEEN.Tween(this.camera.rotation)
             .to({ y: 0 }, 1500)
             .easing(TWEEN.Easing.Linear.None)
             .start();
-          }, 400);*/
+          }, 400);
         }
         if (event.deltaY > 0 && this.roadmapMesh.position.x < 700) {
-          /*new TWEEN.Tween(this.camera.rotation)
+          new TWEEN.Tween(this.camera.rotation)
           .to({ y: -0.2 }, 400)
           .easing(TWEEN.Easing.Linear.None)
-          .start();*/
+          .start();
 
           new TWEEN.Tween(this.roadmapMesh.position)
           .to({ x: this.roadmapMesh.position.x - 70 }, 3000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
-          /*setTimeout(() => {
+          setTimeout(() => {
             new TWEEN.Tween(this.camera.rotation)
             .to({ y: 0 }, 1500)
             .easing(TWEEN.Easing.Linear.None)
             .start();
-          }, 400);*/
+          }, 400);
         }
 
         if (this.roadmapMesh.position.x > 600) {
@@ -1690,48 +1690,32 @@ export default {
     swipeHandler (direction, event) {
       if(window.innerWidth < 1023){
         if (direction == 'left' && this.roadmapMesh.position.x > -600) {
+          this.roadmapMesh.position.x = this.roadmapMesh.position.x - 7;
+          new TWEEN.Tween(this.camera.rotation)
+          .to({ y: -0.6 }, 400)
+          .easing(TWEEN.Easing.Linear.None)
+          .start();
+
           setTimeout(() => {
-            if (!this.isPointerDown) {
-              new TWEEN.Tween(this.camera.rotation)
-              .to({ y: -0.2 }, 400)
-              .easing(TWEEN.Easing.Linear.None)
-              .start();
-
-              new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x - this.windowHalfX / 2 }, 3000)
-              .easing(TWEEN.Easing.Quintic.Out)
-              .start();
-
-              setTimeout(() => {
-                new TWEEN.Tween(this.camera.rotation)
-                .to({ y: 0 }, 1500)
-                .easing(TWEEN.Easing.Linear.None)
-                .start();
-              }, 400);
-            }
-          }, 1);
+            new TWEEN.Tween(this.camera.rotation)
+            .to({ y: 0 }, 1500)
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
+          }, 400);
         }
         if (direction == 'right'  && this.roadmapMesh.position.x < 600) {
+          this.roadmapMesh.position.x = this.roadmapMesh.position.x + 7;
+          new TWEEN.Tween(this.camera.rotation)
+          .to({ y: -0.6 }, 400)
+          .easing(TWEEN.Easing.Linear.None)
+          .start();
+
           setTimeout(() => {
-            if (!this.isPointerDown) {
-              new TWEEN.Tween(this.camera.rotation)
-              .to({ y: 0.2 }, 400)
-              .easing(TWEEN.Easing.Linear.None)
-              .start();
-
-              new TWEEN.Tween(this.roadmapMesh.position)
-              .to({ x: this.roadmapMesh.position.x + this.windowHalfX / 2 }, 3000)
-              .easing(TWEEN.Easing.Quintic.Out)
-              .start();
-
-              setTimeout(() => {
-                new TWEEN.Tween(this.camera.rotation)
-                .to({ y: 0 }, 1500)
-                .easing(TWEEN.Easing.Linear.None)
-                .start();
-              }, 400);
-            }
-          }, 1);
+            new TWEEN.Tween(this.camera.rotation)
+            .to({ y: 0 }, 1500)
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
+          }, 400);
         }
         if (this.roadmapMesh.position.x > 1400) {
           setTimeout(() => {

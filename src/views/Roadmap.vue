@@ -520,8 +520,12 @@ export default {
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
+        if(window.innerWidht >=768){
+          this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
+        }else{
+          this.filterGeo = new THREE.SphereBufferGeometry(0.8, 8, 4);
+        }
 
-        this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
         this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
         this.filterCamera.position.z = 4;
         this.filterScene.userData.camera = this.filterCamera;

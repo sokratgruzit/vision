@@ -604,21 +604,24 @@
         }
       },
       wheelScroll: function(event) {
+        const goToRoadmap = () => {
+          if(this.$router.history.current.name !== "Roadmap"){
+            this.$router.push({ name: 'Roadmap'});
+          }
+        };
+
         new TWEEN.Tween(this.particles.position)
-        .to({ z: -5000 }, 1000)
+        .to({ z: -10000 }, 3000)
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
 
         new TWEEN.Tween(this.camera.position)
-        .to({ z: 0 }, 2000)
+        .to({ z: 0 }, 1500)
+        .onComplete(function() {
+          goToRoadmap();
+        })
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
-
-        setTimeout(() => {
-          if(this.$router.history.current.name !== "Roadmap"){
-            this.$router.push({ name: 'Roadmap'});
-          }
-        }, 2000);
       },
       handleScroll (event) {
 

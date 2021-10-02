@@ -1,5 +1,8 @@
 <template>
   <div class="main-roadmap">
+    <div class="roadmap-scroll">
+      <div class="roadmap-scroll__inner"></div>
+    </div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
@@ -521,8 +524,12 @@ export default {
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
+        if(window.innerWidht >=768){
+          this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
+        }else{
+          this.filterGeo = new THREE.SphereBufferGeometry(0.8, 8, 4);
+        }
 
-        this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
         this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
         this.filterCamera.position.z = 4;
         this.filterScene.userData.camera = this.filterCamera;
@@ -1798,8 +1805,21 @@ export default {
 }
 </script>
 <style>
-  .test{
+  .roadmap-scroll{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 100000;
+    overflow: auto;
+  }
+  .roadmap-scroll__inner{
     position: relative;
+    display: flex;
+    background: white;
+    width: 100%;
+    height: 3000px;
     z-index: 1000000000;
   }
   .clearFilter span{

@@ -113,8 +113,8 @@ export default {
         new THREE.Color(0x5910C5),
         new THREE.Color(0x3F057E)
       ],
-      yD: [0, 40, -10, 25, 5, -40, -10, -20, 30, 0, 10, 20, 50, 5, -10, -10, 0, 40, -30],
-      xD: [-700, -600, -500, -400, -300, -250, -200, -100, -50, 0, 50, 100, 200, 250, 300, 400, 500, 600, 700],
+      yD: [0, 40, -10, 25, 5, -40, -20, 30, 0, 10, 50, 5, -10, -10, 0, 40, -30],
+      xD: [-700, -600, -500, -400, -300, -200, -100, -50, 0, 50, 100, 200, 300, 400, 500, 600, 700],
       itemSize: 0,
       itemAlpha: 0,
       lineGeometry0: null,
@@ -139,14 +139,6 @@ export default {
         {
           title: '2021',
           category: false
-        },
-        {
-          title: 'Q1',
-          category: 'Category1'
-        },
-        {
-          title: 'Q2',
-          category: 'Category2'
         },
         {
           title: 'Q3',
@@ -327,7 +319,7 @@ export default {
       this.scene.add(this.roadmapMesh);
     },
     createRoadmapTimePoints: function () {
-      var meshBubles = 19;
+      var meshBubles = 17;
 
       for (let i = 0; i < meshBubles; ++i) {
         let tooltipPosition = -20;
@@ -337,7 +329,6 @@ export default {
 
         const linePoints = [];
         linePoints.push(new THREE.Vector3(0, 0, 0));
-
         linePoints.push(new THREE.Vector3(0, 0, 200));
 
         var lineGeom = new THREE.BufferGeometry().setFromPoints(linePoints);
@@ -380,7 +371,7 @@ export default {
         const toolTitle = document.createElement('div');
         toolDiv.id = 'buble-tooltip' + i;
         toolDiv.className = 'buble-tooltip';
-        if (i == 0 || i == 1 || i == 6 || i == 11 || i == 16){
+        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14){
           toolDiv.className = 'active';
         }
         toolDiv.appendChild(toolTitle)
@@ -398,9 +389,9 @@ export default {
           color: 0xffffff
         });
         let toolCircleMesh = new THREE.Mesh(toolCircleGeo, toolCircleMat);
-        toolCircleMesh.position.z = -0;
+        toolCircleMesh.position.z = 0;
 
-        if (i == 0 || i == 1 || i == 6 || i == 11 || i == 16) {
+        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14) {
           tooltipPosition = -8;
 
           this.meshPartGeo = new THREE.SphereBufferGeometry(13, 20, 20);
@@ -469,19 +460,19 @@ export default {
           });
           let bColor = this.colors[0];
 
-          if (i === 2 || i === 3 || i === 4 || i === 5) {
+          if (i === 2 || i === 3) {
             bColor = this.colors[1];
           }
 
-          if (i === 7 || i === 8 || i === 9 || i === 10) {
+          if (i === 5 || i === 6 || i === 7 || i === 8) {
             bColor = this.colors[2];
           }
 
-          if (i === 12 || i === 13 || i === 14 || i === 15) {
+          if (i === 10 || i === 11 || i === 12 || i === 13) {
             bColor = this.colors[3];
           }
 
-          if (i === 17 || i === 18) {
+          if (i === 15 || i === 16) {
             bColor = this.colors[4];
           }
 
@@ -608,8 +599,6 @@ export default {
         new THREE.Vector3(this.xD[14], this.yD[14], 0),
         new THREE.Vector3(this.xD[15], this.yD[15], 0),
         new THREE.Vector3(this.xD[16], this.yD[16], 0),
-        new THREE.Vector3(this.xD[17], this.yD[17], 0),
-        new THREE.Vector3(this.xD[18], this.yD[18], 0),
         new THREE.Vector3(2000, 0, 0),
       ]);
 
@@ -630,8 +619,6 @@ export default {
         new THREE.Vector3(this.xD[1], this.yD[1], 0),
         new THREE.Vector3(this.xD[2], this.yD[2], 0),
         new THREE.Vector3(this.xD[3], this.yD[3], 0),
-        new THREE.Vector3(this.xD[4], this.yD[4], 0),
-        new THREE.Vector3(this.xD[5], this.yD[5], 0),
         new THREE.Vector3(2000, 0, 0),
       ]);
 
@@ -648,11 +635,12 @@ export default {
 
       const spline2 = new THREE.CatmullRomCurve3([
         new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[0], this.yD[0], 0),
+        new THREE.Vector3(this.xD[4], this.yD[4], 0),
+        new THREE.Vector3(this.xD[5], this.yD[5], 0),
         new THREE.Vector3(this.xD[6], this.yD[6], 0),
         new THREE.Vector3(this.xD[7], this.yD[7], 0),
         new THREE.Vector3(this.xD[8], this.yD[8], 0),
-        new THREE.Vector3(this.xD[9], this.yD[9], 0),
-        new THREE.Vector3(this.xD[10], this.yD[10], 0),
         new THREE.Vector3(2000, 0, 0),
       ]);
 
@@ -669,11 +657,12 @@ export default {
 
       const spline3 = new THREE.CatmullRomCurve3([
         new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[0], this.yD[0], 0),
+        new THREE.Vector3(this.xD[9], this.yD[9], 0),
+        new THREE.Vector3(this.xD[10], this.yD[10], 0),
         new THREE.Vector3(this.xD[11], this.yD[11], 0),
         new THREE.Vector3(this.xD[12], this.yD[12], 0),
         new THREE.Vector3(this.xD[13], this.yD[13], 0),
-        new THREE.Vector3(this.xD[14], this.yD[14], 0),
-        new THREE.Vector3(this.xD[15], this.yD[15], 0),
         new THREE.Vector3(2000, 0, 0),
       ]);
 
@@ -690,9 +679,10 @@ export default {
 
       const spline4 = new THREE.CatmullRomCurve3([
         new THREE.Vector3(-2000, 0, 0),
+        new THREE.Vector3(this.xD[0], this.yD[0], 0),
+        new THREE.Vector3(this.xD[14], this.yD[14], 0),
+        new THREE.Vector3(this.xD[15], this.yD[15], 0),
         new THREE.Vector3(this.xD[16], this.yD[16], 0),
-        new THREE.Vector3(this.xD[17], this.yD[17], 0),
-        new THREE.Vector3(this.xD[18], this.yD[18], 0),
         new THREE.Vector3(2000, 0, 0),
       ]);
 
@@ -996,8 +986,38 @@ export default {
       }, 1000);
     },
     showRoadmapPath: function (index, action) {
-      let object = this.roadmapMesh.children[19];
-      if (index === 0 && action === 'show' && this.roadmapMesh.children[19].material.opacity == 0 ) {
+      let object = this.roadmapMesh.children[17];
+      if (index === 0 && action === 'show' && this.roadmapMesh.children[17].material.opacity == 0 ) {
+        object = this.roadmapMesh.children[17];
+        object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if ((index === 1 || index === 2 || index === 3) && action === 'show' && this.roadmapMesh.children[18].material.opacity == 0) {
+        object = this.roadmapMesh.children[18];
+        object.material.uniformsNeedUpdate = true;
+
+        new TWEEN.Tween(object.children[0].material)
+        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+
+        new TWEEN.Tween(object.material)
+        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+        .easing(TWEEN.Easing.Quadratic.Out)
+        .start();
+      }
+
+      if ((index === 4 || index === 5 || index === 6 || index === 7 || index === 8) && action === 'show'  && this.roadmapMesh.children[19].material.opacity == 0) {
         object = this.roadmapMesh.children[19];
         object.material.uniformsNeedUpdate = true;
 
@@ -1012,7 +1032,7 @@ export default {
         .start();
       }
 
-      if ((index === 1 || index === 2 || index === 3 || index === 4 || index === 5) && action === 'show' && this.roadmapMesh.children[20].material.opacity == 0) {
+      if ((index === 9 || index === 10 || index === 11 || index === 12 || index === 13) && action === 'show' && this.roadmapMesh.children[20].material.opacity == 0) {
         object = this.roadmapMesh.children[20];
         object.material.uniformsNeedUpdate = true;
 
@@ -1027,7 +1047,7 @@ export default {
         .start();
       }
 
-      if ((index === 6 || index === 7 || index === 8 || index === 9 || index === 10) && action === 'show'  && this.roadmapMesh.children[21].material.opacity == 0) {
+      if ((index === 14 || index === 15 || index === 16) && action === 'show' && this.roadmapMesh.children[21].material.opacity == 0) {
         object = this.roadmapMesh.children[21];
         object.material.uniformsNeedUpdate = true;
 
@@ -1042,54 +1062,46 @@ export default {
         .start();
       }
 
-      if ((index === 11 || index === 12 || index === 13 || index === 14 || index === 15) && action === 'show' && this.roadmapMesh.children[22].material.opacity == 0) {
-        object = this.roadmapMesh.children[22];
-        object.material.uniformsNeedUpdate = true;
-
-        new TWEEN.Tween(object.children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-
-        new TWEEN.Tween(object.material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }
-
-      if ((index === 16 || index === 17 || index === 18) && action === 'show' && this.roadmapMesh.children[23].material.opacity == 0) {
-        object = this.roadmapMesh.children[23];
-        object.material.uniformsNeedUpdate = true;
-
-        new TWEEN.Tween(object.children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-
-        new TWEEN.Tween(object.material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }
-
-      if (action === 'hide' && (this.roadmapMesh.children[19].material.opacity == 1 ||
+      if (action === 'hide' && (this.roadmapMesh.children[17].material.opacity == 1 ||
+        this.roadmapMesh.children[18].material.opacity == 1 ||
+        this.roadmapMesh.children[19].material.opacity == 1 ||
         this.roadmapMesh.children[20].material.opacity == 1 ||
-        this.roadmapMesh.children[21].material.opacity == 1 ||
-        this.roadmapMesh.children[22].material.opacity == 1 ||
-        this.roadmapMesh.children[23].material.opacity == 1
+        this.roadmapMesh.children[21].material.opacity == 1
       )) {
         if( this.filterLineIndex !== 0) {
-          new TWEEN.Tween(this.roadmapMesh.children[19].material)
+          new TWEEN.Tween(this.roadmapMesh.children[17].material)
           .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
 
-          new TWEEN.Tween(this.roadmapMesh.children[19].children[0].material)
+          new TWEEN.Tween(this.roadmapMesh.children[17].children[0].material)
           .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
           .easing(TWEEN.Easing.Quadratic.Out)
           .start();
         }
         if( this.filterLineIndex !== 1) {
+          new TWEEN.Tween(this.roadmapMesh.children[18].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+
+          new TWEEN.Tween(this.roadmapMesh.children[18].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
+        if( this.filterLineIndex !== 6) {
+          new TWEEN.Tween(this.roadmapMesh.children[19].material)
+            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+
+          new TWEEN.Tween(this.roadmapMesh.children[19].children[0].material)
+            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+        }
+        if( this.filterLineIndex !== 11) {
           new TWEEN.Tween(this.roadmapMesh.children[20].material)
             .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -1100,7 +1112,7 @@ export default {
             .easing(TWEEN.Easing.Quadratic.Out)
             .start();
         }
-        if( this.filterLineIndex !== 6) {
+        if( this.filterLineIndex !== 18) {
           new TWEEN.Tween(this.roadmapMesh.children[21].material)
             .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
             .easing(TWEEN.Easing.Quadratic.Out)
@@ -1111,43 +1123,21 @@ export default {
             .easing(TWEEN.Easing.Quadratic.Out)
             .start();
         }
-        if( this.filterLineIndex !== 11) {
-          new TWEEN.Tween(this.roadmapMesh.children[22].material)
-            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
-
-          new TWEEN.Tween(this.roadmapMesh.children[22].children[0].material)
-            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
-        }
-        if( this.filterLineIndex !== 18) {
-          new TWEEN.Tween(this.roadmapMesh.children[23].material)
-            .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
-
-          new TWEEN.Tween(this.roadmapMesh.children[23].children[0].material)
-            .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-            .easing(TWEEN.Easing.Quadratic.Out)
-            .start();
-        }
       }
     },
     animate: function () {
       const theTime = performance.now() * 0.001;
       const bubleTime = theTime / 4;
 
+      this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 2));
+      this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[20].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[21].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[22].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[23].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMat.uniforms.time.value = theTime / 10;
 
-      for (let i = 0; i < 19; i++) {
-        if (i === 0 || i === 1 || i === 6 || i === 11 || i === 16) {
+      for (let i = 0; i < 17; i++) {
+        if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
         } else {
           this.roadmapMesh.children[i].rotation.z = bubleTime;
         }
@@ -1210,7 +1200,7 @@ export default {
       }
     },
     route: function (id) {
-      for (let i = 0; i < 16; i++) {
+      for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
           var iMesh = int[0].object;
@@ -1295,8 +1285,6 @@ export default {
       console.log(e.target)
     },
     wheelScroll: function(event) {
-      console.log(this.scrollCount)
-
       if (this.camera.position.z < 250) {
         if (this.scrollCount > 0) {
           return false;
@@ -1479,7 +1467,7 @@ export default {
         }
       }
 
-      for (let i = 0; i < 19; i++) {
+      for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0 && this.filterLineIndex !== i) {
           var iMesh = int[0].object;
@@ -1489,107 +1477,105 @@ export default {
             iMesh.material.color = color;
           }
 
-          if (i === 1 || i === 2 || i === 3 || i === 4 || i === 5) {
+          if (i === 1 || i === 2 || i === 3) {
             color = this.colors[1];
             this.scene.children[3].children[1].material.color = color;
             this.scene.children[3].children[2].material.color = color;
             this.scene.children[3].children[3].material.color = color;
-            this.scene.children[3].children[4].material.color = color;
-            this.scene.children[3].children[5].material.color = color;
           }
 
-          if (i === 6 || i === 7 || i === 8 || i === 9 || i === 10) {
+          if (i === 4 || i === 5 || i === 6 || i === 7 || i === 8) {
             color = this.colors[2];
+            this.scene.children[3].children[4].material.color = color;
+            this.scene.children[3].children[5].material.color = color;
             this.scene.children[3].children[6].material.color = color;
             this.scene.children[3].children[7].material.color = color;
             this.scene.children[3].children[8].material.color = color;
-            this.scene.children[3].children[9].material.color = color;
-            this.scene.children[3].children[10].material.color = color;
           }
 
-          if (i === 11 || i === 12 || i === 13 || i === 14 || i === 15) {
+          if (i === 9 || i === 10 || i === 11 || i === 12 || i === 13) {
             color = this.colors[3];
+            this.scene.children[3].children[9].material.color = color;
+            this.scene.children[3].children[10].material.color = color;
             this.scene.children[3].children[11].material.color = color;
             this.scene.children[3].children[12].material.color = color;
             this.scene.children[3].children[13].material.color = color;
-            this.scene.children[3].children[14].material.color = color;
-            this.scene.children[3].children[15].material.color = color;
           }
 
-          if (i === 16 || i === 17 || i === 18) {
+          if (i === 14 || i === 15 || i === 16) {
             color = this.colors[4];
+            this.scene.children[3].children[14].material.color = color;
+            this.scene.children[3].children[15].material.color = color;
             this.scene.children[3].children[16].material.color = color;
-            this.scene.children[3].children[17].material.color = color;
-            this.scene.children[3].children[18].material.color = color;
           }
 
           var tooltipClass = "";
 
-          if (i === 0 || i === 1 || i === 6 || i === 11 || i === 16) {
+          if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
             tooltipClass = iMesh.children[0].children[0].element.id;
 
             let hoverCol = new THREE.Color('#8785FF');
             if(iMesh.children[1].scale.x !== 1.2) {
               new TWEEN.Tween(iMesh.children[1].scale)
-                .to({
-                  x: 1.2,
-                  y: 1.2,
-                  z: 1.2
-                }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                x: 1.2,
+                y: 1.2,
+                z: 1.2
+              }, 300)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
               new TWEEN.Tween(iMesh.children[1].material.color)
-                .to({
-                  r: hoverCol.r,
-                  g: hoverCol.g,
-                  b: hoverCol.b,
-                }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                r: hoverCol.r,
+                g: hoverCol.g,
+                b: hoverCol.b,
+              }, 300)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
             }
             if(iMesh.children[2].scale.x !== 1.2) {
               new TWEEN.Tween(iMesh.children[2].scale)
-                .to({
-                  x: 1.2,
-                  y: 1.2,
-                  z: 1.2
-                }, 400)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                x: 1.2,
+                y: 1.2,
+                z: 1.2
+              }, 400)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
               new TWEEN.Tween(iMesh.children[2].material.color)
-                .to({
-                  r: hoverCol.r,
-                  g: hoverCol.g,
-                  b: hoverCol.b,
-                }, 400)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                r: hoverCol.r,
+                g: hoverCol.g,
+                b: hoverCol.b,
+              }, 400)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
             }
             if(iMesh.children[3].scale.x !== 1.2) {
               new TWEEN.Tween(iMesh.children[3].scale)
-                .to({
-                  x: 1.2,
-                  y: 1.2,
-                  z: 1.2
-                }, 500)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                x: 1.2,
+                y: 1.2,
+                z: 1.2
+              }, 500)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
               new TWEEN.Tween(iMesh.children[3].material.color)
-                .to({
-                  r: hoverCol.r,
-                  g: hoverCol.g,
-                  b: hoverCol.b,
-                }, 500)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start()
+              .to({
+                r: hoverCol.r,
+                g: hoverCol.g,
+                b: hoverCol.b,
+              }, 500)
+              .easing(TWEEN.Easing.Quartic.InOut)
+              .start();
             }
           } else {
             tooltipClass = iMesh.children[0].element.id;
             if(int[0].object.scale.x !== 1.2){
               new TWEEN.Tween(int[0].object.scale)
-                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .start()
+              .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
+              .easing(TWEEN.Easing.Quadratic.Out)
+              .start();
             }
           }
 
@@ -1604,7 +1590,7 @@ export default {
             this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
             var tooltipClass = "";
 
-            if (i === 0 || i === 1 || i === 6 || i === 11 || i === 16) {
+            if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
               tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
               let hoverCol = new THREE.Color('#FFFFFF');
               if(this.scene.children[3].children[i].children[3].scale.x !== 1) {
@@ -1657,9 +1643,9 @@ export default {
               tooltipClass = this.scene.children[3].children[i].children[0].element.id;
               if(this.scene.children[3].children[i].scale !== 1){
                 new TWEEN.Tween(this.scene.children[3].children[i].scale)
-                  .to({ x: 1, y: 1, z: 1 }, 100)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
+                .to({ x: 1, y: 1, z: 1 }, 100)
+                .easing(TWEEN.Easing.Quartic.InOut)
+                .start();
               }
             }
 

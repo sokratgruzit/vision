@@ -330,7 +330,7 @@ export default {
       var meshBubles = 19;
 
       for (let i = 0; i < meshBubles; ++i) {
-        let tooltipPosition = -30;
+        let tooltipPosition = -20;
         const tooltipLineMat = new THREE.LineBasicMaterial({
           color: 0xffffff
         });
@@ -380,6 +380,9 @@ export default {
         const toolTitle = document.createElement('div');
         toolDiv.id = 'buble-tooltip' + i;
         toolDiv.className = 'buble-tooltip';
+        if (i == 0 || i == 1 || i == 6 || i == 11 || i == 16){
+          toolDiv.className = 'active';
+        }
         toolDiv.appendChild(toolTitle)
         toolTitle.textContent = this.bubleData[i].title;
         if(this.bubleData[i].category){
@@ -398,20 +401,23 @@ export default {
         toolCircleMesh.position.z = -0;
 
         if (i == 0 || i == 1 || i == 6 || i == 11 || i == 16) {
-          tooltipPosition = -25;
+          tooltipPosition = -8;
 
-          this.meshPartGeo = new THREE.SphereBufferGeometry(4, 20, 20);
+          this.meshPartGeo = new THREE.SphereBufferGeometry(13, 20, 20);
           this.meshPartMat = new THREE.MeshBasicMaterial({
             wireframe: false,
             transparent: true,
+            depthTest: false,
             opacity: 0
           });
 
           this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
+          console.log(this.meshParticles)
 
           tooltipLineMesh.add(bubleTooltip);
+          console.log(tooltipLineMesh)
           tooltipLineMesh.add(toolCircleMesh);
-          this.meshParticles.rotation.x = -0.4;
+          this.meshParticles.rotation.x = -0.2;
           this.meshParticles.add(tooltipLineMesh);
 
           let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
@@ -524,7 +530,7 @@ export default {
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
-        if(window.innerWidht >=768){
+        if(window.innerWidth > 767){
           this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
         }else{
           this.filterGeo = new THREE.SphereBufferGeometry(0.8, 8, 4);
@@ -537,7 +543,7 @@ export default {
           color: i === 0 ? 0x878FFF : this.colors[i - 1],
           transparent: true,
           opacity: 0.5,
-          wireframe: true
+          wireframe: true,
         });
         this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
         this.filterMesh.rotation.z = Math.PI / 2;
@@ -1587,8 +1593,8 @@ export default {
             }
           }
 
-          //var tooltip = document.getElementById(tooltipClass);
-          //tooltip.classList.add('active');
+          var tooltip = document.getElementById(tooltipClass);
+          tooltip.classList.add('active');
 
           this.showRoadmapPath(i, 'show');
         } else {
@@ -1911,20 +1917,25 @@ export default {
   #list-itemf0 {
     opacity: 0;
   }
+  /*new THREE.Color(0xFF7152),*/
+  /*new THREE.Color(0xF59337),*/
+  /*new THREE.Color(0xE10FEC),*/
+  /*new THREE.Color(0x5910C5),*/
+  /*new THREE.Color(0x3F057E)*/
   #list-itemf1:hover{
-    color: #FFB36D;
+    color: #FF7152;
   }
   #list-itemf2:hover{
-    color: #FF81E3;
+    color: #F59337;
   }
   #list-itemf3:hover{
-    color: #5CFFC4;
+    color: #E10FEC;
   }
   #list-itemf4:hover{
-    color: #F3F657;
+    color: #5910C5;
   }
   #list-itemf5:hover{
-    color: #FFFFFF;
+    color: #3F057E;
   }
   #list-itemf1,
   #list-itemf2,
@@ -2022,6 +2033,15 @@ export default {
   }
   /*Mobile*/
   @media (max-width: 767px){
+    .clearFilter {
+      right: 15px;
+      top: 10px;
+    }
+    .filter-item{
+      height: 35px!important;
+      padding-left: 50px;
+      font-size: 14px;
+    }
     #filters-container{
       right: auto;
       left: 50px;

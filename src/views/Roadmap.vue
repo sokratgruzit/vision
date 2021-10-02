@@ -962,10 +962,12 @@ export default {
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
 
-      new TWEEN.Tween(this.particles.position)
-      .to({ z: 0 }, 3000)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .start();
+      setTimeout(() => {
+        new TWEEN.Tween(this.particles.position)
+        .to({ z: 0 }, 3000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+      }, 500);
     },
     moveRoadmapToStart: function () {
       this.camera.rotateY(1);
@@ -1222,11 +1224,11 @@ export default {
           if(i !== 0){
             setTimeout(() => {
               this.$router.push({ name: 'roadmapInner', params: { id: i }});
-            }, 1500);
+            }, 1000);
           }else{
             setTimeout(() => {
               this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
-            }, 1500);
+            }, 1000);
           }
         }
       }
@@ -1464,7 +1466,9 @@ export default {
 
       for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-        if (int.length > 0 && this.filterLineIndex !== i) {
+        int = int.length > 0 ? int : false;
+
+        if (int && this.filterLineIndex !== i) {
           var iMesh = int[0].object;
           let color = new THREE.Color(0x878FFF);
           if (i === 0) {

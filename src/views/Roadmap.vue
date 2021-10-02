@@ -403,10 +403,8 @@ export default {
           });
 
           this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
-          console.log(this.meshParticles)
 
           tooltipLineMesh.add(bubleTooltip);
-          console.log(tooltipLineMesh)
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.2;
           this.meshParticles.add(tooltipLineMesh);
@@ -1281,9 +1279,6 @@ export default {
         this.filterLineIndex = 16;
       }
     },
-    timePointHover: function (e) {
-      console.log(e.target)
-    },
     wheelScroll: function(event) {
       if (this.camera.position.z < 250) {
         if (this.scrollCount > 0) {
@@ -1692,7 +1687,7 @@ export default {
           this.itemSize -= 0.05;
         }
         if (this.itemAlpha < 0.1) {
-          this.itemAlpha += 0.00005;
+          this.itemAlpha += 0.00001;
         }
       }
 

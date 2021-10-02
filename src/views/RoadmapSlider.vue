@@ -124,23 +124,13 @@
             inner:[
               {
                 id: 1,
-                title:'q1',
+                title:'q3',
                 list: ["Website Launch","CORE Paper","Request for Proposals (R1)","Seed Founders On-Boarding","CMCX Token Offering"]
               },
               {
                 id: 2,
-                title:'q2',
-                list: ["CORE Community Initiatives Program Launch (CCIP)","Technical Committee Formation","Research and Development Team Voting Event","Request for Proposals (R2)","Proof of Concept (PoC) Version 0.1","CMCX Token Exchange Offering (IEO)"]
-              },
-              {
-                id: 3,
-                title:'q3',
-                list: ["CORE Hackathon 2021","CORE MVP","Code Fully Open Source","White-paper update"]
-              },
-              {
-                id: 4,
                 title:'q4',
-                list: ["Private test-net launch","Native CORE Wallet","Origo Layer Testing","PivotChains Testing"]
+                list: ["CORE Community Initiatives Program Launch (CCIP)","Technical Committee Formation","Research and Development Team Voting Event","Request for Proposals (R2)","Proof of Concept (PoC) Version 0.1","CMCX Token Exchange Offering (IEO)"]
               }
             ]
           },
@@ -151,22 +141,22 @@
               {
                 id: 1,
                 title:'q1',
-                list: ["Public test-net launch","Catena Layer Testing","Consensus & Sharding Optimizations","CORE Universal Explorer","PolyChains Testing","Cross-Chain Communication Protocol","Aura Layer Testing","Staking launch"]
+                list: ["CORE Hackathon 2021","CORE MVP","CORE Gravity","White-paper update"]
               },
               {
                 id: 2,
                 title:'q2',
-                list: ["CORE Main-net Launch","Apeirogon Framework Release","Development Toolkit","CORE Hackathon 2022","CORE VM Beta Release","Smart Contracts"]
+                list: ["Private test-net launch","Native CORE Wallet","Origo Layer Testing","PivotChains Testing"]
               },
               {
                 id: 3,
                 title:'q3',
-                list: ["Trustless Bridge","Voting system","Storage Sharing Protocol","Fast State Sync and Re-sharding","Cryptography Engine","Consensus Engine"]
+                list: ["Public test-net launch","Catena Layer Testing","Consensus & Sharding Optimizations","CORE Universal Explorer","PolyChains Testing","Cross-Chain Communication Protocol","Aura Layer Testing","Staking launch"]
               },
               {
                 id: 4,
                 title:'q4',
-                list: ["On-Chain Governance","IPFS Integration","Web3.js Integration","Randomizer Engine"]
+                list: ["CORE Main-net Launch","Apeirogon Framework Release","Development Toolkit","CORE Hackathon 2022","CORE VM Beta Release","Smart Contracts"]
               }
             ]
           },
@@ -177,21 +167,37 @@
               {
                 id: 1,
                 title:'q1',
-                list: ["Universal blockchain Access API","Off-Chain Data Access (CORE Oracles)","CORE Global Bridge","State Engine"]
+                list: ["Trustless Bridge","Voting system","Storage Sharing Protocol","Fast State Sync and Re-sharding","Cryptography Engine","Consensus Engine"]
               },
               {
                 id: 2,
                 title:'q2',
-                list: ["CORE Name Service","DeFI Tools for Developers","CORE Hackathon 2023","Tokenizer Engine"]
+                list: ["On-Chain Governance","IPFS Integration","Web3.js Integration","Randomizer Engine"]
               },
               {
                 id: 3,
                 title:'q3',
-                list: ["CORE OS Beta","Synthetic Gate","Cross-Chain Smart Contracts"]
+                list: ["Universal blockchain Access API","Off-Chain Data Access (CORE Oracles)","CORE Global Bridge","State Engine"]
               },
               {
                 id: 4,
                 title:'q4',
+                list: ["CORE Name Service","DeFI Tools for Developers","CORE Hackathon 2023","Tokenizer Engine"]
+              },
+            ]
+          },
+          {
+            id: 4,
+            title: 2024,
+            inner:[
+              {
+                id: 1,
+                title:'q1',
+                list: ["CORE OS Beta","Synthetic Gate","Cross-Chain Smart Contracts"]
+              },
+              {
+                id: 2,
+                title:'q2',
                 list: ["Core Mesh testing","TPPL Public Access","State Sync Engine","Blockchain Distribution Network (BDN)"]
               }
             ]
@@ -380,7 +386,7 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(-window.innerWidth * 0.9, 0, -450);
+        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth), 0, -450);
         this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
         //this.leftMesh.scale.set(0, 0, 0);
         //this.rightMesh.scale.set(0, 0, 0);
@@ -626,22 +632,28 @@
       this.helper();
       this.$store.commit('setRoadmapInnerRoute', true);
       let test;
-      if(this.$route.params.id >= 6 && this.$route.params.id < 11){
+      if(this.$route.params.id < 4){
         this.activeYear = 1;
       }
-      if(this.$route.params.id >= 11){
+      if(this.$route.params.id >= 4 && this.$route.params.id < 9){
         this.activeYear = 2;
       }
-      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 6 || this.$route.params.id == 7 || this.$route.params.id == 11 || this.$route.params.id == 12){
+      if(this.$route.params.id >= 9 && this.$route.params.id < 13){
+        this.activeYear = 3;
+      }else{
+        this.activeYear = 4;
+      }
+      console.log(this.activeYear)
+      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 13){
         this.activeStat = 1
       }
-      if(this.$route.params.id == 3 || this.$route.params.id == 8 || this.$route.params.id == 13){
+      if(this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11){
         this.activeStat = 2
       }
-      if(this.$route.params.id == 4 || this.$route.params.id == 9 || this.$route.params.id == 14){
+      if(this.$route.params.id == 7 || this.$route.params.id == 12){
         this.activeStat = 3
       }
-      if(this.$route.params.id == 5 || this.$route.params.id == 10 || this.$route.params.id == 15){
+      if(this.$route.params.id == 8 || this.$route.params.id == 13){
         this.activeStat = 4
       }
       this.sliderScene();

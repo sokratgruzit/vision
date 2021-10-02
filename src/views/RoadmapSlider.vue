@@ -1,7 +1,7 @@
 <template>
     <div class="roadmap-inner__slider">
       <div id="slider-container"></div>
-      <div class="roadmap-text__container">
+      <div class="roadmap-text__container" :class="activeSlider ? 'active' : ''">
         <div class="roadmap-text__main-ttl">
           {{roadmapData[activeYear].title}}
         </div>
@@ -91,6 +91,7 @@
         time: 0,
         renderScene: null,
         bloomPass: null,
+        activeSlider:false,
 				params: {
           exposure: 1,
           bloomStrength: 0,
@@ -609,7 +610,7 @@
             this.$router.push({ name: 'Roadmap'});
           }
         };
-
+        this.activeSlider = false;
         new TWEEN.Tween(this.particles.position)
         .to({ z: -10000 }, 3000)
         .easing(TWEEN.Easing.Quintic.Out)
@@ -632,33 +633,35 @@
       }
     },
     mounted () {
+      setTimeout(() => {
+        this.activeSlider = true;
+      },2500)
       this.helper();
       this.$store.commit('setRoadmapInnerRoute', true);
       let test;
-      if(this.$route.params.id < 4){
+      if(this.$route.params.id >= 4 && this.$route.params.id < 9){
         this.activeYear = 1;
       }
-      if(this.$route.params.id >= 4 && this.$route.params.id < 9){
+      if(this.$route.params.id >= 9 && this.$route.params.id < 14){
         this.activeYear = 2;
       }
-      if(this.$route.params.id >= 9 && this.$route.params.id < 13){
+      if(this.$route.params.id >= 14){
         this.activeYear = 3;
-      }else{
-        this.activeYear = 4;
       }
-      console.log(this.activeYear)
-      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 13){
+
+      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15){
         this.activeStat = 1
       }
-      if(this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11){
+      if(this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11 || this.$route.params.id == 16){
         this.activeStat = 2
       }
-      if(this.$route.params.id == 7 || this.$route.params.id == 12){
+      if(this.$route.params.id == 7 || this.$route.params.id == 12 || this.$route.params.id == 17){
         this.activeStat = 3
       }
       if(this.$route.params.id == 8 || this.$route.params.id == 13){
         this.activeStat = 4
       }
+      console.log( this.activeStat)
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);
@@ -767,6 +770,14 @@
     height: calc(100% - 138px);
     z-index: 10;
     bottom: 0px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  .roadmap-text__container.active{
+    transform: translateY(0px);
+    opacity: 1;
+    transition-delay: .6s;
   }
   .roadmap-text__li{
     padding-left: 25px;

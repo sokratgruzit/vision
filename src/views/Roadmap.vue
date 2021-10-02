@@ -322,7 +322,7 @@ export default {
       var meshBubles = 17;
 
       for (let i = 0; i < meshBubles; ++i) {
-        let tooltipPosition = -20;
+        let tooltipPosition = -15;
         const tooltipLineMat = new THREE.LineBasicMaterial({
           color: 0xffffff
         });
@@ -403,10 +403,8 @@ export default {
           });
 
           this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
-          console.log(this.meshParticles)
 
           tooltipLineMesh.add(bubleTooltip);
-          console.log(tooltipLineMesh)
           tooltipLineMesh.add(toolCircleMesh);
           this.meshParticles.rotation.x = -0.2;
           this.meshParticles.add(tooltipLineMesh);

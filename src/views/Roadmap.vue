@@ -322,7 +322,7 @@ export default {
       var meshBubles = 17;
 
       for (let i = 0; i < meshBubles; ++i) {
-        let tooltipPosition = -20;
+        let tooltipPosition = -15;
         const tooltipLineMat = new THREE.LineBasicMaterial({
           color: 0xffffff
         });

@@ -1,5 +1,8 @@
 <template>
   <div class="main-roadmap">
+    <div class="roadmap-scroll">
+      <div class="roadmap-scroll__inner"></div>
+    </div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
@@ -1786,8 +1789,21 @@ export default {
 }
 </script>
 <style>
-  .test{
+  .roadmap-scroll{
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    right: 0px;
+    bottom: 0px;
+    z-index: 100000;
+    overflow: auto;
+  }
+  .roadmap-scroll__inner{
     position: relative;
+    display: flex;
+    background: white;
+    width: 100%;
+    height: 3000px;
     z-index: 1000000000;
   }
   .clearFilter span{

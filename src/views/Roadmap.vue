@@ -1,6 +1,6 @@
 <template>
   <div class="main-roadmap">
-    <div class="roadmap-scroll">
+    <div class="roadmap-scroll" v-if="false">
       <div class="roadmap-scroll__inner"></div>
     </div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>

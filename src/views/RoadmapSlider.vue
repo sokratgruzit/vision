@@ -580,17 +580,33 @@
 
         if (this.leftTarget) {
           this.slideCount--;
-          if(this.activeStat === 1){
+          if(this.activeStat === 1 && this.activeYear === 0){
+            this.activeYear = 3;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
-          }else{
+            console.log(this.roadmapData[this.activeYear].inner.length);
+          }
+          if(this.activeStat === 1 && this.activeYear !== 0){
+            this.activeYear--;
+            this.activeStat = this.roadmapData[this.activeYear].inner.length;
+
+            console.log(this.roadmapData[this.activeYear].inner.length);
+          }
+          else{
             this.activeStat --;
           }
         }
         if (this.rightTarget) {
           this.slideCount++;
-          if(this.activeStat === this.roadmapData[this.activeYear].inner.length){
+          if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear == 3){
             this.activeStat = 1
-          }else{
+            this.activeYear = 0;
+            return false;
+          }
+          if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear !== 3){
+            this.activeStat = 1
+            this.activeYear ++;
+          }
+          else{
             this.activeStat ++;
           }
         }

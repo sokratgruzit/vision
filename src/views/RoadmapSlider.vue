@@ -293,18 +293,18 @@
 
         const loader = new THREE.TextureLoader();
 
-        let texture = loader.load(require("../assets/2021_Q1.png"));
-        let texture1 = loader.load(require("../assets/2021_Q2.png"));
-        let texture2 = loader.load(require("../assets/2021_Q3.png"));
-        let texture3 = loader.load(require("../assets/2021_Q4.png"));
-        let texture4 = loader.load(require("../assets/2022_Q1.png"));
-        let texture5 = loader.load(require("../assets/2022_Q2.png"));
-        let texture6 = loader.load(require("../assets/2022_Q3.png"));
-        let texture7 = loader.load(require("../assets/2022_Q4.png"));
-        let texture8 = loader.load(require("../assets/2021_Q1.png"));
-        let texture9 = loader.load(require("../assets/2021_Q2.png"));
-        let texture10 = loader.load(require("../assets/2021_Q3.png"));
-        let texture11 = loader.load(require("../assets/2021_Q4.png"));
+        let texture = loader.load(require("../assets/2021_Q3.png"));
+        let texture1 = loader.load(require("../assets/2021_Q4.png"));
+        let texture2 = loader.load(require("../assets/2022_Q1.png"));
+        let texture3 = loader.load(require("../assets/2022_Q2.png"));
+        let texture4 = loader.load(require("../assets/2022_Q3.png"));
+        let texture5 = loader.load(require("../assets/2022_Q4.png"));
+        let texture6 = loader.load(require("../assets/2023_Q1.png"));
+        let texture7 = loader.load(require("../assets/2023_Q2.png"));
+        let texture8 = loader.load(require("../assets/2023_Q3.png"));
+        let texture9 = loader.load(require("../assets/2023_Q4.png"));
+        let texture10 = loader.load(require("../assets/2024_Q1.png"));
+        let texture11 = loader.load(require("../assets/2024_Q2.png"));
 
         this.uniforms = {
           tex: { type: "t", value: texture },

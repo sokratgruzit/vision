@@ -264,6 +264,7 @@ export default {
       this.createRoadmapTimePoints();
       this.createRoadmapPaths();
       this.createFilter();
+      this.loadFilter();
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -273,10 +274,6 @@ export default {
         this.moveRoadmapFromSlider();
       } else {
         this.moveRoadmapToStart();
-      }
-
-      if(this.$store.state.stopRoadmap !== true) {
-        this.loadFilter();
       }
 
       container.appendChild(this.renderer.domElement);
@@ -519,9 +516,9 @@ export default {
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
-        if(window.innerWidth > 767){
+        if (window.innerWidth > 767) {
           this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
-        }else{
+        } else {
           this.filterGeo = new THREE.SphereBufferGeometry(0.8, 8, 4);
         }
 
@@ -538,6 +535,7 @@ export default {
         this.filterMesh.rotation.z = Math.PI / 2;
         this.filterMesh.rotation.y = Math.PI / 2;
         this.filterMesh.scale.set(0, 0, 0);
+        this.filterMesh.position.x = 0.25;
         this.filterScene.add(this.filterMesh);
         this.filterScene.add(new THREE.HemisphereLight(0xFFFFFF, 0x444444));
         this.filterScene.name = "filter" + i;
@@ -1787,19 +1785,6 @@ export default {
     cursor: pointer;
     z-index: 10000;
     position: absolute;
-  }
-  #filter-control{
-    position: absolute;
-    top: 46px;
-    right: 125px;
-    width: 105px;
-    height: 40px;
-    cursor: pointer;
-    z-index: 10000;
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
-  }
-  #filters-container{
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
   }
   #filters-container.activeNav{
     opacity: 0;

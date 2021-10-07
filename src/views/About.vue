@@ -71,11 +71,7 @@
 
 <script>
   import * as THREE from 'three';
-  import * as BufferGeometryUtils from 'three/examples/jsm/utils/BufferGeometryUtils.js';
   import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
-  import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
-  import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-  import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
   import { CSS3DRenderer, CSS3DObject } from 'three/examples/jsm/renderers/CSS3DRenderer.js';
   const TWEEN = require('@tweenjs/tween.js');
   import {
@@ -102,17 +98,10 @@
         directionX: "",
         oldX: 0,
         oldY: 0,
-        renderScene: null,
-        bloomPass: null,
-				params: {
-          exposure: 1,
-          bloomStrength: 0,
-          bloomThreshold: 0,
-          bloomRadius: 0
-        },
-				composer: null,
         uniforms: null,
-        firstAnimation: false
+        firstAnimation: false,
+        width: 700,
+        height: 700
       }
     },
     methods: {
@@ -120,10 +109,10 @@
         var container = document.getElementById('about-container');
         this.scene = new THREE.Scene();
 
-        var width = window.innerWidth;
-        var height = window.innerHeight;
+        this.width = container === null ? this.width : container.offsetWidth;
+        this.height = container === null ? this.height : container.offsetWidth;
 
-        this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 5000);
+        this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 5000);
         this.camera.position.z = 1000;
         this.camera.position.y = -1000;
 
@@ -162,24 +151,9 @@
           tex: { type: "t", value: loader.load(require("../assets/circle2.png")) },
           time: { type: "f", value: 0.0 },
           distortion: { type: "f", value: 0.0 },
-          resolution: { type: "v4", value: new THREE.Vector4() },
           color: { value: new THREE.Color( 0xffffff ) },
 					alphaTest: { value: 0.9 }
         };
-
-        let asp1, asp2;
-        if (window.innerHeight / window.innerWidth > this.imageAspect) {
-          asp1 = (window.innerWidth / window.innerHeight) * this.imageAspect;
-          asp2 = 1;
-        } else {
-          asp1 = 1;
-          asp2 = (window.innerHeight / window.innerWidth) / this.imageAspect;
-        }
-
-        this.uniforms.resolution.value.x = window.innerWidth;
-        this.uniforms.resolution.value.y = window.innerHeight;
-        this.uniforms.resolution.value.z = asp1;
-        this.uniforms.resolution.value.w = asp2;
 
 				const material = new THREE.ShaderMaterial({
 					uniforms: this.uniforms,
@@ -199,11 +173,11 @@
         this.logo.rotation.x = 1;
         this.logo.rotation.y = 1.5;
         this.scene.add(this.logo);
-        if(window.innerWidth >= 1024){
+        /*if(window.innerWidth >= 1024){
           this.scene.scale.set(1.4,1.4,1.4)
         }else{
           this.scene.scale.set(0.7,0.7,0.7)
-        }
+        }*/
         console.log(this.scene);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
@@ -211,20 +185,8 @@
         THREE.BufferGeometry.prototype.disposeBoundsTree = disposeBoundsTree;
 
         this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        this.renderer.setSize(width, height);
+        this.renderer.setSize(this.width, this.height);
         container.appendChild(this.renderer.domElement);
-
-        this.renderScene = new RenderPass(this.scene, this.camera);
-
-				this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
-				this.bloomPass.threshold = this.params.bloomThreshold;
-				this.bloomPass.strength = this.params.bloomStrength;
-				this.bloomPass.radius = this.params.bloomRadius;
-
-
-				this.composer = new EffectComposer(this.renderer);
-				this.composer.addPass(this.renderScene);
-				this.composer.addPass(this.bloomPass);
 
         new TWEEN.Tween(this.camera.position)
         .to({ y: 0, z: 500 }, 7000)
@@ -250,12 +212,11 @@
         this.renderer.render(this.scene, this.camera);
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.physicallyCorrectLights = true;
-        this.composer.render();
       },
       onWindowResize: function() {
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = this.width / this.height;
         this.camera.updateProjectionMatrix();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.width, this.height);
         this.render();
       },
       onMouseDown: function() {
@@ -278,8 +239,8 @@
         this.oldY = event.pageY;
         this.oldX = event.pageX;
 
-        this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
-        this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
+        this.mouse.x = ( event.clientX / this.width ) * 2 - 1;
+        this.mouse.y = - ( event.clientY / this.height ) * 2 + 1;
 
         let int = this.raycaster.intersectObjects([this.scene.children[3]]);
         int = int.length > 0 ? int[0] : false;
@@ -293,11 +254,6 @@
           new TWEEN.Tween(this.uniforms.distortion)
           .to({ value: 0 }, 500)
           .easing(TWEEN.Easing.Cubic.InOut)
-          .start();
-
-          new TWEEN.Tween(this.bloomPass)
-          .to({ strength: 0 }, 500)
-          .easing(TWEEN.Easing.Cubic.In)
           .start();
         }
       },
@@ -334,8 +290,9 @@
   }
   #about-container{
     width: 40%;
+    height: 100%;
     position: relative;
-    z-index: 1;
+    z-index: 10000;
   }
   .about__content{
     width: 60%;
@@ -435,14 +392,14 @@
   .about__content-link:hover path{
     fill: #FF7152;
   }
-  #about-container canvas{
+  /*#about-container canvas{
     position: absolute;
     width: 100%;
     height: 100%;
     top: 130px;
     left: 0px;
     transform: translateX(-45%);
-  }
+  }*/
   /*Ipad Pro*/
   @media (max-width: 1300px){
     .about__content-ttl{
@@ -472,9 +429,9 @@
       left: 0px;
       width: 100%;
     }
-    #about-container canvas{
+    /*#about-container canvas{
       transform: translateX(0%) translateY(-50%);
-    }
+    }*/
     .about__content{
       width: 100%;
       padding-left: 40px;

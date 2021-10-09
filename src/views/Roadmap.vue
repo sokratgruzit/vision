@@ -496,8 +496,8 @@ export default {
         const fEl = document.createElement('span');
         fEl.id = 'list-itemf' + i;
         fEl.className = 'filter-item';
-        fEl.style.setProperty('width', '200px');
-        fEl.style.setProperty('height', '60px');
+        fEl.style.setProperty('width', '150px');
+        fEl.style.setProperty('height', '50px');
 
         let label = "Filter";
         if (i === 1) {
@@ -535,7 +535,6 @@ export default {
         this.filterMesh.rotation.z = Math.PI / 2;
         this.filterMesh.rotation.y = Math.PI / 2;
         this.filterMesh.scale.set(0, 0, 0);
-        this.filterMesh.position.x = 0.25;
         this.filterScene.add(this.filterMesh);
         this.filterScene.add(new THREE.HemisphereLight(0xFFFFFF, 0x444444));
         this.filterScene.name = "filter" + i;
@@ -544,6 +543,7 @@ export default {
         this.filterScene.add(flight);
         this.filterScenes.push(this.filterScene);
       }
+      console.log(this.filterScenes[0])
     },
     createRoadmapPaths: function () {
       const lineMaterial = new THREE.LineBasicMaterial({
@@ -1093,8 +1093,8 @@ export default {
             this.renderer.clearDepth();
 
             if (this.filterScenes.length > 0) {
-              this.renderer.setViewport(left , bottom, width / 4, height);
-              this.renderer.setScissor(left, bottom, width / 4, height);
+              this.renderer.setViewport(left, bottom, width / 3, height);
+              this.renderer.setScissor(left, bottom, width, height);
               this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
             }
           }
@@ -1376,19 +1376,6 @@ export default {
 
           if (int && this.filterLineIndex !== i) {
             var iMesh = int[0].object;
-            let color = new THREE.Color(0x878FFF);
-            if (i === 0) {
-              color = this.colors[0];
-            } else if (0 < i && i < 4) {
-              color = this.colors[1];
-            } else if (3 < i && i < 9) {
-              color = this.colors[2];
-            } else if (8 < i && i < 14) {
-              color = this.colors[3];
-            } else if (13 < i) {
-              color = this.colors[4];
-            }
-
             var tooltipClass = "";
 
             if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
@@ -1734,23 +1721,45 @@ export default {
   .roadmap__about:hover::after{
     transform: scaleX(0);
   }
-  .filter-item{
-    display: flex;
-    align-items: center;
-    padding-left: 55px;
+  .filter-item {
+    text-align: end;
+    width: 100%;
+    left: 0;
+    top: 0;
     transition: .15s cubic-bezier(.79,.01,.15,.99);
     cursor: pointer;
+    position: absolute;
+    padding-top: 10px;
   }
   #filters-container {
-    width: 125px;
-    /* height: 400px; */
+    width: 150px;
+    height: 302px;
     z-index: 30;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
     position: absolute;
     top: 38px;
     right: 120px;
+    //border: 1px solid rgba(255, 255, 255, 0.1);
+    //overflow: hidden;
+  }
+  #list-itemf0 {
+    top: 0;
+    text-align: end;
+  }
+  #list-itemf1 {
+    top: 50px;
+    text-align: end;
+  }
+  #list-itemf2 {
+    top: 100px;
+  }
+  #list-itemf3 {
+    top: 150px;
+  }
+  #list-itemf4 {
+    top: 200px;
+  }
+  #list-itemf5 {
+    top: 250px;
   }
   #list-itemf0 {
     opacity: 0;

@@ -1,7 +1,9 @@
 <template>
   <div class="main-roadmap">
-    <div class="roadmap-scroll" v-if="false">
-      <div class="roadmap-scroll__inner"></div>
+    <div class="roadmap-scroll" v-if="true">
+      <SmoothScrollContainer>
+        <div class="roadmap-scroll__inner"></div>
+      </SmoothScrollContainer>
     </div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
@@ -63,10 +65,11 @@ import {
   part_fragment,
   glow_fragment
 } from '../assets/shaders/fragment.js';
-
+import SmoothScrollContainer from '@/components/SmoothScrollContainer.vue';
 export default {
   name: 'Roadmap',
   components: {
+    SmoothScrollContainer
   },
   data () {
     return {
@@ -1399,24 +1402,24 @@ export default {
               }
 
               if(iMesh.children[2].scale.x !== 1.2) {
-                new TWEEN.Tween(iMesh.children[1].scale)
+                new TWEEN.Tween(iMesh.children[2].scale)
                 .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
 
-                new TWEEN.Tween(iMesh.children[1].material.color)
+                new TWEEN.Tween(iMesh.children[2].material.color)
                 .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
               }
 
               if(iMesh.children[3].scale.x !== 1.2) {
-                new TWEEN.Tween(iMesh.children[1].scale)
+                new TWEEN.Tween(iMesh.children[3].scale)
                 .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
 
-                new TWEEN.Tween(iMesh.children[1].material.color)
+                new TWEEN.Tween(iMesh.children[3].material.color)
                 .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
@@ -1599,7 +1602,7 @@ export default {
       this.animate();
     });
     this.$store.commit('stopRoadmap', false);
-    document.addEventListener('wheel', this.wheelScroll, false);
+    // document.addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
@@ -1635,6 +1638,12 @@ export default {
       if (this.$store.state.stopRoadmap == false) {
         this.animate();
       }
+    },
+    '$store.state.scrollOffset': function () {
+      console.log(this.$store.state.scrollOffset);
+      console.log(this.roadmapMesh.position.x);
+      console.log(this.roadmapMesh);
+      this.roadmapMesh.position.x = 600 - this.$store.state.scrollOffset
     }
   }
 }
@@ -1652,9 +1661,9 @@ export default {
   .roadmap-scroll__inner{
     position: relative;
     display: flex;
-    background: white;
+    /*background: white;*/
     width: 100%;
-    height: 3000px;
+    height: 140vw;
     z-index: 1000000000;
   }
   .clearFilter span{

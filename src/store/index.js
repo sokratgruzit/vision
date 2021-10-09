@@ -18,9 +18,13 @@ export default new Vuex.Store({
     firstAnimation: false,
     roadmapIndex: null,
     header: false,
-    roadmapInnerRoute: false
+    roadmapInnerRoute: false,
+    scrollOffset: 0
   },
   mutations: {
+    setScrollOffset (state, data) {
+      state.scrollOffset = data
+    },
     setRoadmapInnerRoute (state, data) {
       state.roadmapInnerRoute = data
     },

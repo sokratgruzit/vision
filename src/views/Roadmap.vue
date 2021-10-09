@@ -1657,6 +1657,7 @@ export default {
     bottom: 0px;
     z-index: 100000;
     overflow: auto;
+    pointer-events: none;
   }
   .roadmap-scroll__inner{
     position: relative;

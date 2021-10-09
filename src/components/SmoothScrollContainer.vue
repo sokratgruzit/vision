@@ -24,7 +24,7 @@
     },
     mounted() {
       if(window.innerWidth >= 768){
-        this.smoothScrollInstance = Scrollbar.init(this.$el,{ 'damping': 0.08, 'renderByPixels': true, 'continuousScrolling': true})
+        this.smoothScrollInstance = Scrollbar.init(this.$el,{ 'damping': 0.06, 'renderByPixels': true, 'continuousScrolling': true})
         this.smoothScrollInstance.addListener(this.onScroll);
         this.smoothScrollInstance.scrollTop = 0;
       }

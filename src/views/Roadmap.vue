@@ -1657,7 +1657,6 @@ export default {
     bottom: 0px;
     z-index: 100000;
     overflow: auto;
-    pointer-events: none;
   }
   .roadmap-scroll__inner{
     position: relative;
@@ -1666,6 +1665,7 @@ export default {
     width: 100%;
     height: 140vw;
     z-index: 1000000000;
+    pointer-events: none;
   }
   .clearFilter span{
     height: 1px;

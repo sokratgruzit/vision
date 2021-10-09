@@ -9,6 +9,12 @@
         <span></span>
         <span></span>
       </div>
+      <span id="list-itemf0" class="filter-item">Filter</span>
+      <span id="list-itemf1" class="filter-item">Inception</span>
+      <span id="list-itemf2" class="filter-item">Year 2021</span>
+      <span id="list-itemf3" class="filter-item">Year 2022</span>
+      <span id="list-itemf4" class="filter-item">Year 2023</span>
+      <span id="list-itemf5" class="filter-item">Year 2024</span>
     </div>
     <div data-v-1afa4326="" class="roadmap__socials">
       <a data-v-1afa4326="" href="https://twitter.com/COREMultichain" target="_blank"><svg data-v-1afa4326="" width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M20 2.79875C19.2563 3.125 18.4637 3.34125 17.6375 3.44625C18.4875 2.93875 19.1363 2.14125 19.4412 1.18C18.6488 1.6525 17.7738 1.98625 16.8412 2.1725C16.0887 1.37125 15.0162 0.875 13.8462 0.875C11.5763 0.875 9.74875 2.7175 9.74875 4.97625C9.74875 5.30125 9.77625 5.61375 9.84375 5.91125C6.435 5.745 3.41875 4.11125 1.3925 1.6225C1.03875 2.23625 0.83125 2.93875 0.83125 3.695C0.83125 5.115 1.5625 6.37375 2.6525 7.1025C1.99375 7.09 1.3475 6.89875 0.8 6.5975C0.8 6.61 0.8 6.62625 0.8 6.6425C0.8 8.635 2.22125 10.29 4.085 10.6712C3.75125 10.7625 3.3875 10.8062 3.01 10.8062C2.7475 10.8062 2.4825 10.7913 2.23375 10.7362C2.765 12.36 4.2725 13.5538 6.065 13.5925C4.67 14.6838 2.89875 15.3412 0.98125 15.3412C0.645 15.3412 0.3225 15.3263 0 15.285C1.81625 16.4563 3.96875 17.125 6.29 17.125C13.835 17.125 17.96 10.875 17.96 5.4575C17.96 5.27625 17.9538 5.10125 17.945 4.9275C18.7588 4.35 19.4425 3.62875 20 2.79875Z" fill="white"></path></svg></a>
@@ -489,7 +495,7 @@ export default {
       }
     },
     createFilter: function () {
-      const fContainer = document.getElementById('filters-container');
+      /*const fContainer = document.getElementById('filters-container');
 
       for (let i = 0; i < 6; i++) {
         this.filterScene = new THREE.Scene();
@@ -547,7 +553,7 @@ export default {
         this.filterScene.add(flight);
         this.filterScenes.push(this.filterScene);
       }
-      console.log(this.filterScenes[0])
+      console.log(this.filterScenes[0])*/
     },
     createRoadmapPaths: function () {
       const lineMaterial = new THREE.LineBasicMaterial({
@@ -785,7 +791,7 @@ export default {
       this.scene.add(this.particles);
     },
     loadFilter: function () {
-      setTimeout(() => {
+      /*setTimeout(() => {
         if(this.$store.state.stopRoadmap !== true) {
           let filter = this.filterScenes[0].children[0];
           new TWEEN.Tween(filter.scale)
@@ -800,7 +806,7 @@ export default {
           })
           .start();
         }
-      }, 10000);
+      }, 10000);*/
     },
     updateUiData: function (event) {
       if (event.target.id === 'list-itemf0') {
@@ -813,27 +819,21 @@ export default {
       if (event.target.id === 'clear-filter') {
         el.innerHTML = 'Filter';
         el.style['color'] = '#FFFFFF';
-        this.filterScenes[0].children[0].material.color = new THREE.Color(0x878FFF);
       } else if (event.target.id === 'list-itemf1') {
         el.innerHTML = 'Inception';
         el.style['color'] = '#FF7152';
-        this.filterScenes[0].children[0].material.color = this.colors[0];
       } else if (event.target.id === 'list-itemf2') {
         el.innerHTML = 'Year 2021';
         el.style['color'] = '#F59337';
-        this.filterScenes[0].children[0].material.color = this.colors[1];
       } else if (event.target.id === 'list-itemf3') {
         el.innerHTML = 'Year 2022';
         el.style['color'] = '#E10FEC';
-        this.filterScenes[0].children[0].material.color = this.colors[2];
       } else if (event.target.id === 'list-itemf4') {
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#5910C5';
-        this.filterScenes[0].children[0].material.color = this.colors[3];
       } else if (event.target.id === 'list-itemf5') {
         el.innerHTML = 'Year 2024';
         el.style['color'] = '#3F057E';
-        this.filterScenes[0].children[0].material.color = this.colors[4];
       }
 
       this.toggleFilter(this.filterVisible);
@@ -872,11 +872,11 @@ export default {
         document.getElementById(class4).style['display'] = 'flex';
         document.getElementById(class5).style['display'] = 'flex';
 
-        el1 = this.filterScenes[1].children[0].scale;
+        /*el1 = this.filterScenes[1].children[0].scale;
         el2 = this.filterScenes[2].children[0].scale;
         el3 = this.filterScenes[3].children[0].scale;
         el4 = this.filterScenes[4].children[0].scale;
-        el5 = this.filterScenes[5].children[0].scale;
+        el5 = this.filterScenes[5].children[0].scale;*/
       } else {
         value = 0;
         class1 = 'list-itemf5';
@@ -891,14 +891,14 @@ export default {
         document.getElementById(class4).style['display'] = 'none';
         document.getElementById(class5).style['display'] = 'none';
 
-        el1 = this.filterScenes[5].children[0].scale;
+        /*el1 = this.filterScenes[5].children[0].scale;
         el2 = this.filterScenes[4].children[0].scale;
         el3 = this.filterScenes[3].children[0].scale;
         el4 = this.filterScenes[2].children[0].scale;
-        el5 = this.filterScenes[1].children[0].scale;
+        el5 = this.filterScenes[1].children[0].scale;*/
       }
 
-      if (this.filterScenes[0].children[0].scale.x === 1) {
+      /*if (this.filterScenes[0].children[0].scale.x === 1) {
         new TWEEN.Tween(el1)
         .to({ x: value, y: value, z: value }, 200)
         .easing(TWEEN.Easing.Quintic.In)
@@ -946,7 +946,7 @@ export default {
           })
           .start();
         }, 600);
-      }
+      }*/
     },
     moveRoadmapFromSlider: function () {
       this.roadmapMesh.position.set(0, 0, 0);
@@ -1067,14 +1067,14 @@ export default {
       if (this.$store.state.stopRoadmap == false) {
         //this.renderer.autoClear = false;
         //this.renderer.clear();
-        this.renderer.setScissorTest(true);
-        this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+        //this.renderer.setScissorTest(true);
+        //this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
         this.raycaster.setFromCamera(this.mouse, this.camera);
         this.raycaster.firstHitOnly = true;
 
-        const fParent = document.getElementById('filters-container');
+        /*const fParent = document.getElementById('filters-container');
 
         for (let i = 0; i < this.filterScenes.length; i++) {
           const fCont = document.getElementById('list-itemf' + i);
@@ -1102,7 +1102,7 @@ export default {
               this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
             }
           }
-        }
+        }*/
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
       }
@@ -1153,6 +1153,7 @@ export default {
       this.filterLineIndex = null;
     },
     filterClick: function (e) {
+      console.log(e.target.id)
       if(e.target.id == 'list-itemf1'){
         this.closeFilter = true;
         this.filterLine = true;
@@ -1591,6 +1592,13 @@ export default {
     }
   },
   mounted () {
+    let filter0 = document.getElementById('list-itemf0');
+    let filter1 = document.getElementById('list-itemf1');
+    let filter2 = document.getElementById('list-itemf2');
+    let filter3 = document.getElementById('list-itemf3');
+    let filter4 = document.getElementById('list-itemf4');
+    let filter5 = document.getElementById('list-itemf5');
+
     this.helper();
     const promise = new Promise((resolve, reject) => {
       resolve (this.roadmapScene())
@@ -1600,21 +1608,28 @@ export default {
     });
     this.$store.commit('stopRoadmap', false);
     document.addEventListener('wheel', this.wheelScroll, false);
-    document.addEventListener('click', this.updateUiData);
+    //document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);
-    document.addEventListener('mousedown', this.filterClick, false);
+    filter0.addEventListener('click', this.filterClick, false);
+    filter1.addEventListener('click', this.filterClick, false);
+    filter2.addEventListener('click', this.filterClick, false);
+    filter3.addEventListener('click', this.filterClick, false);
+    filter4.addEventListener('click', this.filterClick, false);
+    filter5.addEventListener('click', this.filterClick, false);
     window.addEventListener('resize', this.onWindowResize, false);
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
+    let filtersContainer = document.getElementById('filters-container');
+
     document.removeEventListener('wheel', this.wheelScroll, false);
-    document.removeEventListener('click', this.updateUiData);
+    //document.removeEventListener('click', this.updateUiData);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
-    document.removeEventListener('mousedown', this.filterClick, false);
+    //filtersContainer.removeEventListener('click', this.filterClick, false);
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('mousedown', this.onPointerMove);
     //this.raycaster = null;
@@ -1732,11 +1747,6 @@ export default {
     left: 0;
     top: 0;
   }
-  .filter-item-sub {
-    position: absolute;
-    top: 10px;
-    left: 45px;
-  }
   #filters-container {
     width: 150px;
     height: 300px;
@@ -1744,6 +1754,8 @@ export default {
     position: absolute;
     top: 38px;
     right: 120px;
+    background-color: #1B1D33;
+    border: 1px solid rgba(255, 255, 255, 0.1);
   }
   #list-itemf0 {
     top: 0;
@@ -1764,7 +1776,7 @@ export default {
     top: 250px;
   }
   #list-itemf0 {
-    opacity: 0;
+    opacity: 1;
   }
   #list-itemf1:hover{
     color: #FF7152;

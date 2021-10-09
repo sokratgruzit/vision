@@ -1680,6 +1680,7 @@ export default {
     width: 100%;
     height: 140vw;
     z-index: 1000000000;
+    pointer-events: none;
   }
   .clearFilter span{
     height: 1px;

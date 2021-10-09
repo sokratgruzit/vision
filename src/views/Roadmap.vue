@@ -499,6 +499,9 @@ export default {
         fEl.style.setProperty('width', '150px');
         fEl.style.setProperty('height', '50px');
 
+        const fEl2 = document.createElement('span');
+        fEl2.className = 'filter-item-sub';
+
         let label = "Filter";
         if (i === 1) {
           label = "Inception";
@@ -512,7 +515,8 @@ export default {
           label = "Year 2024";
         }
 
-        fEl.innerHTML = label;
+        fEl2.innerHTML = label;
+        fEl.appendChild(fEl2);
 
         this.filterScene.userData.element = fEl;
         fContainer.appendChild(fEl);
@@ -1722,32 +1726,30 @@ export default {
     transform: scaleX(0);
   }
   .filter-item {
-    text-align: end;
-    width: 100%;
-    left: 0;
-    top: 0;
     transition: .15s cubic-bezier(.79,.01,.15,.99);
     cursor: pointer;
     position: absolute;
-    padding-top: 10px;
+    left: 0;
+    top: 0;
+  }
+  .filter-item-sub {
+    position: absolute;
+    top: 10px;
+    left: 45px;
   }
   #filters-container {
     width: 150px;
-    height: 302px;
-    z-index: 30;
+    height: 300px;
+    z-index: 300;
     position: absolute;
     top: 38px;
     right: 120px;
-    //border: 1px solid rgba(255, 255, 255, 0.1);
-    //overflow: hidden;
   }
   #list-itemf0 {
     top: 0;
-    text-align: end;
   }
   #list-itemf1 {
     top: 50px;
-    text-align: end;
   }
   #list-itemf2 {
     top: 100px;
@@ -1786,13 +1788,14 @@ export default {
   #list-itemf5 {
     opacity: 0;
     display: none;
+    z-index: 10000;
   }
   #year-2021,
   #year-2022,
   #year-2023,
   #year-2024 {
     cursor: pointer;
-    z-index: 10000;
+    z-index: 250;
     position: absolute;
   }
   #filters-container.activeNav{

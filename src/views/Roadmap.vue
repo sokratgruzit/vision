@@ -210,12 +210,6 @@ export default {
           category: 'Category2'
         }
       ],
-      filterScenes: [],
-      filterScene: null,
-      filterCamera: null,
-      filterGeo: null,
-      filterMat: null,
-      filterMesh: null,
       help: null,
       closeFilter: false,
       pathShown: false,
@@ -272,7 +266,6 @@ export default {
       this.createBubleParticles();
       this.createRoadmapTimePoints();
       this.createRoadmapPaths();
-      this.createFilter();
       this.loadFilter();
 
       this.renderer = new THREE.WebGLRenderer();
@@ -496,67 +489,6 @@ export default {
         this.meshParticles.position.setX(this.xD[i]);
         this.roadmapMesh.add(this.meshParticles);
       }
-    },
-    createFilter: function () {
-      /*const fContainer = document.getElementById('filters-container');
-
-      for (let i = 0; i < 6; i++) {
-        this.filterScene = new THREE.Scene();
-        const fEl = document.createElement('span');
-        fEl.id = 'list-itemf' + i;
-        fEl.className = 'filter-item';
-        fEl.style.setProperty('width', '150px');
-        fEl.style.setProperty('height', '50px');
-
-        const fEl2 = document.createElement('span');
-        fEl2.className = 'filter-item-sub';
-
-        let label = "Filter";
-        if (i === 1) {
-          label = "Inception";
-        } else if (i === 2) {
-          label = "Year 2021";
-        } else if (i === 3) {
-          label = "Year 2022";
-        } else if (i === 4) {
-          label = "Year 2023";
-        } else if (i === 5) {
-          label = "Year 2024";
-        }
-
-        fEl2.innerHTML = label;
-        fEl.appendChild(fEl2);
-
-        this.filterScene.userData.element = fEl;
-        fContainer.appendChild(fEl);
-        if (window.innerWidth > 767) {
-          this.filterGeo = new THREE.SphereBufferGeometry(1.25, 8, 4);
-        } else {
-          this.filterGeo = new THREE.SphereBufferGeometry(0.8, 8, 4);
-        }
-
-        this.filterCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
-        this.filterCamera.position.z = 4;
-        this.filterScene.userData.camera = this.filterCamera;
-        this.filterMat = new THREE.MeshBasicMaterial({
-          color: i === 0 ? 0x878FFF : this.colors[i - 1],
-          transparent: true,
-          opacity: 0.5,
-          wireframe: true,
-        });
-        this.filterMesh = new THREE.Mesh(this.filterGeo, this.filterMat);
-        this.filterMesh.rotation.z = Math.PI / 2;
-        this.filterMesh.rotation.y = Math.PI / 2;
-        this.filterMesh.scale.set(0, 0, 0);
-        this.filterScene.add(this.filterMesh);
-        this.filterScene.add(new THREE.HemisphereLight(0xFFFFFF, 0x444444));
-        this.filterScene.name = "filter" + i;
-        const flight = new THREE.DirectionalLight(0xffffff, 0.5);
-        flight.position.set(1, 1, 1);
-        this.filterScene.add(flight);
-        this.filterScenes.push(this.filterScene);
-      }
-      console.log(this.filterScenes[0])*/
     },
     createRoadmapPaths: function () {
       const lineMaterial = new THREE.LineBasicMaterial({
@@ -794,53 +726,11 @@ export default {
       this.scene.add(this.particles);
     },
     loadFilter: function () {
-      /*setTimeout(() => {
-        if(this.$store.state.stopRoadmap !== true) {
-          let filter = this.filterScenes[0].children[0];
-          new TWEEN.Tween(filter.scale)
-          .to({
-            x: 1,
-            y: 1,
-            z: 1
-          }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .onComplete(function () {
-            document.getElementById('list-itemf0').style['opacity'] = 1;
-          })
-          .start();
-        }
-      }, 10000);*/
+      setTimeout(() => {
+        document.getElementById('list-itemf0').style['opacity'] = 1;
+      }, 10000);
     },
     updateUiData: function (event) {
-      if (event.target.id === 'list-itemf0') {
-        this.filterVisible = !this.filterVisible;
-      } else {
-        this.filterVisible = false;
-      }
-
-      let el = document.getElementById('list-itemf0');
-      if (event.target.id === 'clear-filter') {
-        el.innerHTML = 'Filter';
-        el.style['color'] = '#FFFFFF';
-      } else if (event.target.id === 'list-itemf1') {
-        el.innerHTML = 'Inception';
-        el.style['color'] = '#FF7152';
-      } else if (event.target.id === 'list-itemf2') {
-        el.innerHTML = 'Year 2021';
-        el.style['color'] = '#F59337';
-      } else if (event.target.id === 'list-itemf3') {
-        el.innerHTML = 'Year 2022';
-        el.style['color'] = '#E10FEC';
-      } else if (event.target.id === 'list-itemf4') {
-        el.innerHTML = 'Year 2023';
-        el.style['color'] = '#5910C5';
-      } else if (event.target.id === 'list-itemf5') {
-        el.innerHTML = 'Year 2024';
-        el.style['color'] = '#3F057E';
-      }
-
-      this.toggleFilter(this.filterVisible);
-
       if (!this.isPointerDown) {
         let distance = 0;
 
@@ -859,7 +749,7 @@ export default {
     },
     toggleFilter: function (status) {
       let value = 0;
-      let el1, el2, el3, el4, el5, class1, class2, class3, class4, class5;
+      let class1, class2, class3, class4, class5;
 
       if (status) {
         value = 1;
@@ -874,12 +764,6 @@ export default {
         document.getElementById(class3).style['display'] = 'flex';
         document.getElementById(class4).style['display'] = 'flex';
         document.getElementById(class5).style['display'] = 'flex';
-
-        /*el1 = this.filterScenes[1].children[0].scale;
-        el2 = this.filterScenes[2].children[0].scale;
-        el3 = this.filterScenes[3].children[0].scale;
-        el4 = this.filterScenes[4].children[0].scale;
-        el5 = this.filterScenes[5].children[0].scale;*/
       } else {
         value = 0;
         class1 = 'list-itemf5';
@@ -893,63 +777,13 @@ export default {
         document.getElementById(class3).style['display'] = 'none';
         document.getElementById(class4).style['display'] = 'none';
         document.getElementById(class5).style['display'] = 'none';
-
-        /*el1 = this.filterScenes[5].children[0].scale;
-        el2 = this.filterScenes[4].children[0].scale;
-        el3 = this.filterScenes[3].children[0].scale;
-        el4 = this.filterScenes[2].children[0].scale;
-        el5 = this.filterScenes[1].children[0].scale;*/
       }
 
-      /*if (this.filterScenes[0].children[0].scale.x === 1) {
-        new TWEEN.Tween(el1)
-        .to({ x: value, y: value, z: value }, 200)
-        .easing(TWEEN.Easing.Quintic.In)
-        .onComplete(function() {
-          document.getElementById(class1).style['opacity'] = value;
-        })
-        .start();
-
-        setTimeout(() => {
-          new TWEEN.Tween(el2)
-          .to({ x: value, y: value, z: value }, 200)
-          .easing(TWEEN.Easing.Quintic.In)
-          .onComplete(function() {
-            document.getElementById(class2).style['opacity'] = value;
-          })
-          .start();
-        }, 200);
-
-        setTimeout(() => {
-          new TWEEN.Tween(el3)
-          .to({ x: value, y: value, z: value }, 200)
-          .easing(TWEEN.Easing.Quintic.In)
-          .onComplete(function() {
-            document.getElementById(class3).style['opacity'] = value;
-          })
-          .start();
-        }, 400);
-
-        setTimeout(() => {
-          new TWEEN.Tween(el4)
-          .to({ x: value, y: value, z: value }, 200)
-          .easing(TWEEN.Easing.Quintic.In)
-          .onComplete(function() {
-            document.getElementById(class4).style['opacity'] = value;
-          })
-          .start();
-        }, 600);
-
-        setTimeout(() => {
-          new TWEEN.Tween(el5)
-          .to({ x: value, y: value, z: value }, 200)
-          .easing(TWEEN.Easing.Quintic.In)
-          .onComplete(function() {
-            document.getElementById(class5).style['opacity'] = value;
-          })
-          .start();
-        }, 600);
-      }*/
+      document.getElementById(class1).style['opacity'] = value;
+      document.getElementById(class2).style['opacity'] = value;
+      document.getElementById(class3).style['opacity'] = value;
+      document.getElementById(class4).style['opacity'] = value;
+      document.getElementById(class5).style['opacity'] = value;
     },
     moveRoadmapFromSlider: function () {
       this.roadmapMesh.position.set(0, 0, 0);
@@ -1068,44 +902,10 @@ export default {
     },
     render: function () {
       if (this.$store.state.stopRoadmap == false) {
-        //this.renderer.autoClear = false;
-        //this.renderer.clear();
-        //this.renderer.setScissorTest(true);
-        //this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
         this.raycaster.setFromCamera(this.mouse, this.camera);
         this.raycaster.firstHitOnly = true;
-
-        /*const fParent = document.getElementById('filters-container');
-
-        for (let i = 0; i < this.filterScenes.length; i++) {
-          const fCont = document.getElementById('list-itemf' + i);
-          const rect = fCont.getBoundingClientRect() !== null ? fCont.getBoundingClientRect() : false;
-
-          if (rect !== false) {
-            const theTime = performance.now() * 0.001;
-            this.filterScenes[i].rotation.y = Math.sin(theTime) / 4;
-            this.filterScenes[i].rotation.x = Math.sin(theTime) / 2;
-            this.filterScenes[i].rotation.z = Math.sin(theTime) / 2;
-
-            if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-              rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-              return; // it's off screen
-            }
-            const width = rect.right - rect.left;
-            const height = rect.bottom - rect.top;
-            const left = rect.left;
-            const bottom = this.renderer.domElement.clientHeight - rect.bottom;
-            this.renderer.clearDepth();
-
-            if (this.filterScenes.length > 0) {
-              this.renderer.setViewport(left, bottom, width / 3, height);
-              this.renderer.setScissor(left, bottom, width, height);
-              this.renderer.render(this.filterScenes[i], this.filterScenes[i].userData.camera);
-            }
-          }
-        }*/
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
       }
@@ -1156,42 +956,52 @@ export default {
       this.filterLineIndex = null;
     },
     filterClick: function (e) {
-      console.log(e.target.id)
-      if(e.target.id == 'list-itemf1'){
-        this.closeFilter = true;
-        this.filterLine = true;
-        this.deleteLines();
-        this.showRoadmapPath(0,'show');
+      this.filterVisible = !this.filterVisible;
+      let el = document.getElementById('list-itemf0');
+      
+      if (event.target.id === 'clear-filter') {
+        el.innerHTML = 'Filter';
+        el.style['color'] = '#FFFFFF';
+      }
+      
+      if(e.target.id == 'list-itemf0') {
+        
+      } 
+
+      if (e.target.id == 'list-itemf1') {
         this.filterLineIndex = 0;
+        el.innerHTML = 'Inception';
+        el.style['color'] = '#FF7152';
       }
-      if(e.target.id == 'list-itemf2'){
-        this.closeFilter = true;
-        this.filterLine = true;
-        this.deleteLines();
-        this.showRoadmapPath(1,'show');
+
+      if (e.target.id == 'list-itemf2') {
         this.filterLineIndex = 1;
+        el.innerHTML = 'Year 2021';
+        el.style['color'] = '#F59337';
       }
-      if(e.target.id == 'list-itemf3'){
-        this.closeFilter = true;
-        this.filterLine = true;
-        this.deleteLines();
-        this.showRoadmapPath(6,'show');
+
+      if (e.target.id == 'list-itemf3') {
         this.filterLineIndex = 6;
+        el.innerHTML = 'Year 2022';
+        el.style['color'] = '#E10FEC';
       }
-      if(e.target.id == 'list-itemf4'){
-        this.closeFilter = true;
-        this.filterLine = true;
-        this.deleteLines();
-        this.showRoadmapPath(11,'show');
+      if (e.target.id == 'list-itemf4') {
         this.filterLineIndex = 11;
+        el.innerHTML = 'Year 2023';
+        el.style['color'] = '#5910C5';
       }
-      if(e.target.id == 'list-itemf5'){
-        this.closeFilter = true;
-        this.filterLine = true;
-        this.deleteLines();
-        this.showRoadmapPath(16,'show');
+
+      if (e.target.id == 'list-itemf5') {
         this.filterLineIndex = 16;
+        el.innerHTML = 'Year 2024';
+        el.style['color'] = '#3F057E';
       }
+
+      this.toggleFilter(this.filterVisible);
+      this.closeFilter = true;
+      this.filterLine = true;
+      this.deleteLines();
+      this.showRoadmapPath(this.filterLineIndex,'show');
     },
     wheelScroll: function(event) {
       if (this.camera.position.z < 250) {
@@ -1595,6 +1405,7 @@ export default {
     }
   },
   mounted () {
+    let clearFilter = document.getElementById('clear-filter');
     let filter0 = document.getElementById('list-itemf0');
     let filter1 = document.getElementById('list-itemf1');
     let filter2 = document.getElementById('list-itemf2');
@@ -1615,6 +1426,7 @@ export default {
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);
+    clearFilter.addEventListener('click', this.filterClick, false);
     filter0.addEventListener('click', this.filterClick, false);
     filter1.addEventListener('click', this.filterClick, false);
     filter2.addEventListener('click', this.filterClick, false);
@@ -1625,14 +1437,26 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-    let filtersContainer = document.getElementById('filters-container');
+    let clearFilter = document.getElementById('clear-filter');
+    let filter0 = document.getElementById('list-itemf0');
+    let filter1 = document.getElementById('list-itemf1');
+    let filter2 = document.getElementById('list-itemf2');
+    let filter3 = document.getElementById('list-itemf3');
+    let filter4 = document.getElementById('list-itemf4');
+    let filter5 = document.getElementById('list-itemf5');
 
     document.removeEventListener('wheel', this.wheelScroll, false);
     //document.removeEventListener('click', this.updateUiData);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
-    //filtersContainer.removeEventListener('click', this.filterClick, false);
+    clearFilter.removeEventListener('click', this.filterClick, false);
+    filter0.removeEventListener('click', this.filterClick, false);
+    filter1.removeEventListener('click', this.filterClick, false);
+    filter2.removeEventListener('click', this.filterClick, false);
+    filter3.removeEventListener('click', this.filterClick, false);
+    filter4.removeEventListener('click', this.filterClick, false);
+    filter5.removeEventListener('click', this.filterClick, false);
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('mousedown', this.onPointerMove);
     //this.raycaster = null;
@@ -1640,11 +1464,6 @@ export default {
     this.$store.commit('setRoadmapInnerRoute', false);
     while(this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
-    }
-    for (let i = 0; i < 5; i++) {
-      while(this.filterScenes[i].children.length > 0) {
-        this.filterScenes[i].remove(this.filterScenes[i].children[0]);
-      }
     }
     //this.renderer = null;
   },
@@ -1670,7 +1489,6 @@ export default {
     left: 0px;
     right: 0px;
     bottom: 0px;
-    z-index: 100000;
     overflow: auto;
   }
   .roadmap-scroll__inner{
@@ -1769,6 +1587,7 @@ export default {
   }
   #list-itemf0 {
     top: 0;
+    opacity: 0;
   }
   #list-itemf1 {
     top: 50px;
@@ -1784,9 +1603,6 @@ export default {
   }
   #list-itemf5 {
     top: 250px;
-  }
-  #list-itemf0 {
-    opacity: 1;
   }
   #list-itemf1:hover{
     color: #FF7152;

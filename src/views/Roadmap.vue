@@ -212,8 +212,10 @@ export default {
       ],
       help: null,
       closeFilter: false,
-      pathShown: false,
-      scrollCount: 0
+      rotateM: null,
+      rotateMBack: null,
+      scrollCount: 0,
+      routeClicked: false
     }
   },
   methods: {
@@ -914,6 +916,7 @@ export default {
       for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
+          this.routeClicked = true;
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
 
@@ -1079,9 +1082,6 @@ export default {
       }
     },
     onWindowResize: function () {
-      this.windowHalfX = window.innerWidth / 2;
-      this.windowHalfY = window.innerHeight / 2;
-
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
@@ -1140,35 +1140,34 @@ export default {
         .start();
       }
 
-      if (this.isPointerDown) {
+      if (this.isPointerDown && !this.routeClicked) {
         if (this.directionX === "left") {
           this.roadmapMesh.position.x = this.roadmapMesh.position.x - 7;
-          new TWEEN.Tween(this.camera.rotation)
-          .to({ y: -0.3 }, 400)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
 
-          setTimeout(() => {
-            new TWEEN.Tween(this.camera.rotation)
-            .to({ y: 0 }, 1500)
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-          }, 400);
+          this.rotateM = new TWEEN.Tween(this.camera.rotation)
+          .to({ y: -0.3 }, 400)
+          .easing(TWEEN.Easing.Linear.None);
+
+          this.rotateMBack = new TWEEN.Tween(this.camera.rotation)
+          .to({ y: 0 }, 1500)
+          .easing(TWEEN.Easing.Linear.None);
         } else if (this.directionX === "right") {
           this.roadmapMesh.position.x = this.roadmapMesh.position.x + 7;
 
-          new TWEEN.Tween(this.camera.rotation)
+          this.rotateM = new TWEEN.Tween(this.camera.rotation)
           .to({ y: 0.3 }, 400)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
+          .easing(TWEEN.Easing.Linear.None);
 
-          setTimeout(() => {
-            new TWEEN.Tween(this.camera.rotation)
-            .to({ y: 0 }, 1500)
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-          }, 400);
+          this.rotateMBack = new TWEEN.Tween(this.camera.rotation)
+          .to({ y: 0 }, 1500)
+          .easing(TWEEN.Easing.Linear.None);
         }
+
+        this.rotateM.start();
+
+        setTimeout(() => {
+          this.rotateMBack.start();
+        }, 400);
 
         if (this.direction === "up") {
           new TWEEN.Tween(this.roadmapMesh.rotation)

@@ -14,7 +14,6 @@
     "core-js": "^3.6.5",
     "hooper": "^0.3.4",
     "register-service-worker": "^1.7.1",
-    "smooth-scrollbar": "^8.6.3",
     "swiper": "^6.8.0",
     "three": "^0.130.0",
     "three-mesh-bvh": "^0.4.1",

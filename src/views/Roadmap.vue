@@ -1,10 +1,5 @@
 <template>
   <div class="main-roadmap">
-    <div class="roadmap-scroll" v-if="true">
-      <SmoothScrollContainer>
-        <div class="roadmap-scroll__inner"></div>
-      </SmoothScrollContainer>
-    </div>
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
     <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
@@ -71,12 +66,8 @@ import {
   part_fragment,
   glow_fragment
 } from '../assets/shaders/fragment.js';
-import SmoothScrollContainer from '@/components/SmoothScrollContainer.vue';
 export default {
   name: 'Roadmap',
-  components: {
-    SmoothScrollContainer
-  },
   data () {
     return {
       scene: null,
@@ -1420,8 +1411,8 @@ export default {
       this.animate();
     });
     this.$store.commit('stopRoadmap', false);
-    //document.addEventListener('wheel', this.wheelScroll, false);
-    //document.addEventListener('click', this.updateUiData);
+    document.addEventListener('wheel', this.wheelScroll, false);
+    document.addEventListener('click', this.updateUiData);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);

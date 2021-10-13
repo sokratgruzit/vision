@@ -1,17 +1,19 @@
 <template>
-  <div class="main-roadmap">
+  <div class="main-roadmap" :class="filterVisible ? 'filterActive' : ''">
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
-    <div id="filters-container" class="filters" :class="$store.state.navigation ? 'activeNav' : ''">
+    <div id="filters-container" class="filters" :class="[$store.state.navigation ? 'activeNav' : '']">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
         <span></span>
         <span></span>
       </div>
-      <span id="list-itemf0" class="filter-item">Filter</span>
-      <span id="list-itemf1" class="filter-item">Inception</span>
-      <span id="list-itemf2" class="filter-item">Year 2021</span>
-      <span id="list-itemf3" class="filter-item">Year 2022</span>
-      <span id="list-itemf4" class="filter-item">Year 2023</span>
-      <span id="list-itemf5" class="filter-item">Year 2024</span>
+      <div id="filterToogle">
+        <span id="list-itemf0" class="filter-item">Filter</span>
+        <span id="list-itemf1" class="filter-item">Inception</span>
+        <span id="list-itemf2" class="filter-item">Year 2021</span>
+        <span id="list-itemf3" class="filter-item">Year 2022</span>
+        <span id="list-itemf4" class="filter-item">Year 2023</span>
+        <span id="list-itemf5" class="filter-item">Year 2024</span>
+      </div>
     </div>
     <div data-v-1afa4326="" class="roadmap__socials">
       <a data-v-1afa4326="" href="https://twitter.com/COREMultichain" target="_blank"><svg data-v-1afa4326="" width="20" height="18" viewBox="0 0 20 18" fill="none" xmlns="http://www.w3.org/2000/svg"><path data-v-1afa4326="" d="M20 2.79875C19.2563 3.125 18.4637 3.34125 17.6375 3.44625C18.4875 2.93875 19.1363 2.14125 19.4412 1.18C18.6488 1.6525 17.7738 1.98625 16.8412 2.1725C16.0887 1.37125 15.0162 0.875 13.8462 0.875C11.5763 0.875 9.74875 2.7175 9.74875 4.97625C9.74875 5.30125 9.77625 5.61375 9.84375 5.91125C6.435 5.745 3.41875 4.11125 1.3925 1.6225C1.03875 2.23625 0.83125 2.93875 0.83125 3.695C0.83125 5.115 1.5625 6.37375 2.6525 7.1025C1.99375 7.09 1.3475 6.89875 0.8 6.5975C0.8 6.61 0.8 6.62625 0.8 6.6425C0.8 8.635 2.22125 10.29 4.085 10.6712C3.75125 10.7625 3.3875 10.8062 3.01 10.8062C2.7475 10.8062 2.4825 10.7913 2.23375 10.7362C2.765 12.36 4.2725 13.5538 6.065 13.5925C4.67 14.6838 2.89875 15.3412 0.98125 15.3412C0.645 15.3412 0.3225 15.3263 0 15.285C1.81625 16.4563 3.96875 17.125 6.29 17.125C13.835 17.125 17.96 10.875 17.96 5.4575C17.96 5.27625 17.9538 5.10125 17.945 4.9275C18.7588 4.35 19.4425 3.62875 20 2.79875Z" fill="white"></path></svg></a>
@@ -745,19 +747,7 @@ export default {
         class3 = 'list-itemf3';
         class4 = 'list-itemf2';
         class5 = 'list-itemf1';
-
-        document.getElementById(class1).style['display'] = 'none';
-        document.getElementById(class2).style['display'] = 'none';
-        document.getElementById(class3).style['display'] = 'none';
-        document.getElementById(class4).style['display'] = 'none';
-        document.getElementById(class5).style['display'] = 'none';
       }
-
-      document.getElementById(class1).style['opacity'] = value;
-      document.getElementById(class2).style['opacity'] = value;
-      document.getElementById(class3).style['opacity'] = value;
-      document.getElementById(class4).style['opacity'] = value;
-      document.getElementById(class5).style['opacity'] = value;
     },
     moveRoadmapFromSlider: function () {
       this.roadmapMesh.position.set(0, 0, 0);
@@ -933,47 +923,52 @@ export default {
     filterClick: function (e) {
       this.filterVisible = !this.filterVisible;
       let el = document.getElementById('list-itemf0');
-      
+
       if (event.target.id === 'clear-filter') {
         el.innerHTML = 'Filter';
         el.style['color'] = '#FFFFFF';
+        this.closeFilter = false;
       }
-      
+
       if(e.target.id == 'list-itemf0') {
-        
-      } 
+
+      }
 
       if (e.target.id == 'list-itemf1') {
         this.filterLineIndex = 0;
         el.innerHTML = 'Inception';
         el.style['color'] = '#FF7152';
+        this.closeFilter = true;
       }
 
       if (e.target.id == 'list-itemf2') {
         this.filterLineIndex = 1;
         el.innerHTML = 'Year 2021';
         el.style['color'] = '#F59337';
+        this.closeFilter = true;
       }
 
       if (e.target.id == 'list-itemf3') {
         this.filterLineIndex = 6;
         el.innerHTML = 'Year 2022';
         el.style['color'] = '#E10FEC';
+        this.closeFilter = true;
       }
       if (e.target.id == 'list-itemf4') {
         this.filterLineIndex = 11;
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#5910C5';
+        this.closeFilter = true;
       }
 
       if (e.target.id == 'list-itemf5') {
         this.filterLineIndex = 16;
         el.innerHTML = 'Year 2024';
         el.style['color'] = '#3F057E';
+        this.closeFilter = true;
       }
 
-      this.toggleFilter(this.filterVisible);
-      this.closeFilter = true;
+      // this.toggleFilter(this.filterVisible);
       this.filterLine = true;
       this.deleteLines();
       this.showRoadmapPath(this.filterLineIndex,'show');
@@ -1416,7 +1411,7 @@ export default {
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
-    
+
     clearFilter.removeEventListener('click', this.filterClick, false);
     filter0.removeEventListener('click', this.filterClick, false);
     filter1.removeEventListener('click', this.filterClick, false);
@@ -1495,11 +1490,11 @@ export default {
   }
   .clearFilter{
     position: absolute;
-    right: 0px;
+    right: 10px;
     width: 15px;
     height: 15px;
     z-index: 30;
-    top: 22px;
+    top: 14px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -1536,40 +1531,54 @@ export default {
     transform: scaleX(0);
   }
   .filter-item {
-    transition: .15s cubic-bezier(.79,.01,.15,.99);
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
     cursor: pointer;
-    position: absolute;
-    left: 0;
-    top: 0;
+    position: relative;
+    z-index: 10;
+    padding: 3px 0px;
+  }
+  .filter-item:not(#list-itemf0){
+    transform: translateY(10px);
+    opacity: 0;
+  }
+  .main-roadmap.filterActive .filter-item{
+    transform: translateY(0px)!important;
+    opacity: 1!important;
+    transition-delay: .6s;
+  }
+  #list-itemf0{
+    display: flex!important;
   }
   #filters-container {
     width: 150px;
-    height: 300px;
     z-index: 300;
     position: absolute;
-    top: 38px;
+    top: 45px;
     right: 120px;
-    background-color: #1B1D33;
     border: 1px solid rgba(255, 255, 255, 0.1);
+    padding: 5px 10px;
+  }
+  #filters-container:after{
+    content: '';
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    background-color: #1B1D33;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: scaleY(0);
+    transform-origin: top;
+    transition-delay: .6s;
+  }
+  .main-roadmap.filterActive #filters-container:after{
+    transform: scaleY(1);
+    transition-delay: 0s;
   }
   #list-itemf0 {
     top: 0;
     opacity: 0;
-  }
-  #list-itemf1 {
-    top: 50px;
-  }
-  #list-itemf2 {
-    top: 100px;
-  }
-  #list-itemf3 {
-    top: 150px;
-  }
-  #list-itemf4 {
-    top: 200px;
-  }
-  #list-itemf5 {
-    top: 250px;
   }
   #list-itemf1:hover{
     color: #FF7152;
@@ -1586,14 +1595,18 @@ export default {
   #list-itemf5:hover{
     color: #3F057E;
   }
-  #list-itemf1,
-  #list-itemf2,
-  #list-itemf3,
-  #list-itemf4,
-  #list-itemf5 {
-    opacity: 0;
-    display: none;
-    z-index: 10000;
+  #filterToogle{
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    max-height: 34px;
+    overflow: hidden;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition-delay: .6s;
+  }
+  .main-roadmap.filterActive #filterToogle{
+    max-height: 500px;
+    transition-delay: 0s;
   }
   #year-2021,
   #year-2022,
@@ -1670,18 +1683,13 @@ export default {
   }
   /*Mobile*/
   @media (max-width: 767px){
-    .clearFilter {
-      right: 15px;
-      top: 10px;
-    }
     .filter-item{
       height: 35px!important;
-      padding-left: 50px;
       font-size: 14px;
     }
     #filters-container{
       right: auto;
-      left: 50px;
+      left: 15px;
       top: 100px;
     }
     .main-roadmap{

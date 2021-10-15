@@ -987,9 +987,6 @@ export default {
       this.showRoadmapPath(this.filterLineIndex,'show');
     },
     scrollRoadmap: function (delta) {
-      console.log(this.scrolledSum, delta);
-      console.log('fuck')
-
       setTimeout(() => {
         this.callScrolling = true;
         this.scrolledSum = 0;

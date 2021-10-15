@@ -744,11 +744,11 @@
     font-size: 70px;
     line-height: 70px;
     color: #FF7152;
-    margin-top: 10px;
+    margin-top: 50px;
   }
   .roadmap-text__block{
     position: absolute;
-    height: calc(100% - 70px);
+    height: calc(100% - 115px);
     width: 100%;
     bottom: 0px;
     right: 0px;

@@ -270,7 +270,7 @@ export default {
       this.renderer.setSize(window.innerWidth, window.innerHeight);
       this.renderer.setClearColor(0x878FFF, 0.2);
       this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-      this.controls.enableZoom = false;
+      this.controls.enableZoom = true;
       this.controls.enableRotate = false;
       this.controls.mouseButtons.LEFT = THREE.MOUSE.PAN;
       this.controls.mouseButtons.RIGHT = THREE.MOUSE.DOLLY;
@@ -1048,7 +1048,7 @@ export default {
       }*/
     },
     wheelScroll: function(event) {
-      this.scrolledSum = this.scrolledSum + this.scrolled;
+      /*this.scrolledSum = this.scrolledSum + this.scrolled;
       this.oldScrolledSum = this.scrolledSum;
 
       setTimeout(() => {
@@ -1062,7 +1062,7 @@ export default {
           //console.log("The value has changed");
           this.oldScrolledSum = this.scrolledSum;
         }
-      }, 500);
+      }, 500);*/
     },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;

@@ -222,9 +222,7 @@
       },
       sliderScene: function() {
         var container = document.getElementById('slider-container');
-
-        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 5000);
-
+        this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / 600, 0.01, 5000);
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
 
@@ -528,8 +526,11 @@
         this.windowHalfX = window.innerWidth / 2;
         this.windowHalfY = window.innerHeight / 2;
 
-        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.aspect = window.innerWidth / 600;
         this.camera.updateProjectionMatrix();
+        console.log(this.camera.aspect)
+        console.log(window.innerWidth / 600)
+        this.renderer.setSize( window.innerWidth, window.innerHeight );
         //this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.composer.setSize(window.innerWidth, window.innerHeight);
 
@@ -683,9 +684,11 @@
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
       document.addEventListener('wheel', this.wheelScroll, false);
+      window.addEventListener('resize', this.onWindowResize, false);
       this.$store.commit('stopRoadmapInner', false);
     },
     beforeDestroy () {
+      window.removeEventListener('resize', this.onWindowResize, false);
       document.removeEventListener('click', this.updateUiData);
       window.removeEventListener('pointermove', this.onPointerMove);
       document.removeEventListener('wheel', this.wheelScroll, false);

@@ -209,7 +209,9 @@ export default {
       rotateMBack: null,
       routeClicked: false,
       scrolled: 0,
-      oldScroll: 0
+      scrolledSum: 0,
+      oldScrolledSum: 0,
+      callScrolling: true
     }
   },
   methods: {
@@ -760,13 +762,13 @@ export default {
       }
     },
     moveRoadmapFromSlider: function () {
-      this.roadmapMesh.position.set(0, 0, 0);
+      this.roadmapMesh.position.set(0, 500, -500);
       this.roadmapMesh.rotation.x = 2.8;
-      this.camera.position.set(0, -300, 250);
+      //this.camera.position.set(0, 300, 0);
       this.particles.position.z = -5000;
 
-      new TWEEN.Tween(this.camera.position)
-      .to({ y: 0, z: 150 }, 5000)
+      new TWEEN.Tween(this.roadmapMesh.position)
+      .to({ y: 0, z: 0 }, 5000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
 
@@ -783,7 +785,7 @@ export default {
       }, 500);
     },
     moveRoadmapToStart: function () {
-      this.camera.rotateY(1);
+      this.roadmapMesh.rotateZ(0.2);
       this.roadmapMesh.position.set(0, 0, 0);
 
       setTimeout(() => {
@@ -792,8 +794,8 @@ export default {
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
 
-        new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0 }, 4000)
+        new TWEEN.Tween(this.roadmapMesh.rotation)
+        .to({ z: 0 }, 4000)
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
       }, 1000);
@@ -893,8 +895,8 @@ export default {
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
 
-          new TWEEN.Tween(this.camera.position)
-          .to({ y: -300, z: 250 }, 5000)
+          new TWEEN.Tween(this.roadmapMesh.position)
+          .to({ y: 800, z: -500 }, 5000)
           .easing(TWEEN.Easing.Quintic.Out)
           .start();
 
@@ -985,128 +987,82 @@ export default {
       this.showRoadmapPath(this.filterLineIndex,'show');
     },
     scrollRoadmap: function (delta) {
-      if (this.camera.position.z < 250) {
-        if (delta < 0 && this.roadmapMesh.position.x > -600) {
-          new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0.2 }, 200)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
+      console.log(this.scrolledSum, delta);
+      console.log('fuck')
 
-          new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x - this.scrolled }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
+      setTimeout(() => {
+        this.callScrolling = true;
+        this.scrolledSum = 0;
+      }, 500);
 
-          setTimeout(() => {
-            new TWEEN.Tween(this.camera.rotation)
-            .to({ y: 0 }, 2800)
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-          }, 200);
-        }
+      if (delta < 0) {
+        /*new TWEEN.Tween(this.camera.rotation)
+        .to({ y: 0.2 }, 200)
+        .easing(TWEEN.Easing.Linear.None)
+        .start();*/
 
-        if (delta > 0 && this.roadmapMesh.position.x < 600) {
-          new TWEEN.Tween(this.camera.rotation)
-          .to({ y: -0.2 }, 200)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
-
-          new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: this.roadmapMesh.position.x - this.scrolled }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          setTimeout(() => {
-            new TWEEN.Tween(this.camera.rotation)
-            .to({ y: 0 }, 3000)
-            .easing(TWEEN.Easing.Linear.None)
-            .start();
-          }, 200);
-        }
-
-        if (this.roadmapMesh.position.x > 600) {
-          new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: 600 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-        }
-
-        if (this.roadmapMesh.position.x < -600) {
-          new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ x: -600 }, 1000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-        }
-      } else {
-        new TWEEN.Tween(this.camera.position)
-        .to({ y: 0, z: 150 }, 5000)
-        .easing(TWEEN.Easing.Quintic.Out)
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: this.roadmapMesh.position.x + 100 }, 500)
+        .easing(TWEEN.Easing.Linear.None)
         .start();
 
-        new TWEEN.Tween(this.roadmapMesh.rotation)
-        .to({ x: 2 }, 5000)
+        /*setTimeout(() => {
+          new TWEEN.Tween(this.camera.rotation)
+          .to({ y: 0 }, 2800)
+          .easing(TWEEN.Easing.Linear.None)
+          .start();
+        }, 200);*/
+      }
+
+      if (delta > 0) {
+        /*new TWEEN.Tween(this.camera.rotation)
+        .to({ y: -0.2 }, 200)
+        .easing(TWEEN.Easing.Linear.None)
+        .start();*/
+
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: this.roadmapMesh.position.x - 100 }, 500)
+        .easing(TWEEN.Easing.Linear.None)
+        .start();
+
+        /*setTimeout(() => {
+          new TWEEN.Tween(this.camera.rotation)
+          .to({ y: 0 }, 3000)
+          .easing(TWEEN.Easing.Linear.None)
+          .start();
+        }, 200);*/
+      }
+
+      /*if (this.roadmapMesh.position.x > 600) {
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: 600 }, 1000)
         .easing(TWEEN.Easing.Quintic.Out)
         .start();
       }
-      //this.scrolled = 0;
+
+      if (this.roadmapMesh.position.x < -600) {
+        new TWEEN.Tween(this.roadmapMesh.position)
+        .to({ x: -600 }, 1000)
+        .easing(TWEEN.Easing.Quintic.Out)
+        .start();
+      }*/
     },
     wheelScroll: function(event) {
-      if (Math.abs(event.deltaY) >= 40) {
-        this.scrolled = event.deltaY / 40;
-      } else {
-        this.scrolled = event.deltaY;
-      }
+      this.scrolledSum = this.scrolledSum + this.scrolled;
+      this.oldScrolledSum = this.scrolledSum;
 
-      //this.scrollRoadmap(event.deltaY);
-      console.log(this.scrolled);
-
-      //document.removeEventListener('wheel', this.wheelScroll, false);
-      //this.addLis();
-    },
-    dragRoadmap: function () {
-      if (this.roadmapMesh.position.x > 600 && !this.isPointerDown) {
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: 600 }, 500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      }
-
-      if (this.roadmapMesh.position.x < -600 && !this.isPointerDown) {
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: -600 }, 500)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      }
-
-      if (this.directionX === "left") {
-        this.roadmapMesh.position.x = this.roadmapMesh.position.x - 7;
-
-        this.rotateM = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: -0.3 }, 400)
-        .easing(TWEEN.Easing.Linear.None);
-
-        this.rotateMBack = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0 }, 1500)
-        .easing(TWEEN.Easing.Linear.None);
-      } else if (this.directionX === "right") {
-        this.roadmapMesh.position.x = this.roadmapMesh.position.x + 7;
-
-        this.rotateM = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0.3 }, 400)
-        .easing(TWEEN.Easing.Linear.None);
-
-        this.rotateMBack = new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0 }, 1500)
-        .easing(TWEEN.Easing.Linear.None);
-      }
-
-      if (this.rotateM !== null) {
-        this.rotateM.start();
-
-        setTimeout(() => {
-          this.rotateMBack.start();
-        }, 400);
-      }
+      setTimeout(() => {
+        if (this.oldScrolledSum == this.scrolledSum) {
+          if (this.callScrolling) {
+            //console.log("The value hasn't changed.");
+            this.scrollRoadmap(event.deltaY);
+            this.callScrolling = false;
+          }
+        } else {
+          //console.log("The value has changed");
+          this.oldScrolledSum = this.scrolledSum;
+        }
+      }, 500);
     },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -1147,24 +1103,6 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-      if (this.isPointerDown && !this.routeClicked) {
-        //this.dragRoadmap();
-
-        if (this.direction === "up") {
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 1.8 }, 300)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
-        }
-
-        if (this.direction === "down") {
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 2.3 }, 300)
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
-        }
-      }
 
       for (let i = 0; i < 17; i++) {
         if (this.scene.children[3] === undefined) {
@@ -1417,34 +1355,22 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-    let clearFilter = document.getElementById('clear-filter');
-    let filter0 = document.getElementById('list-itemf0');
-    let filter1 = document.getElementById('list-itemf1');
-    let filter2 = document.getElementById('list-itemf2');
-    let filter3 = document.getElementById('list-itemf3');
-    let filter4 = document.getElementById('list-itemf4');
-    let filter5 = document.getElementById('list-itemf5');
     document.removeEventListener('wheel', this.wheelScroll, false);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
-
-    clearFilter.removeEventListener('click', this.filterClick, false);
-    filter0.removeEventListener('click', this.filterClick, false);
-    filter1.removeEventListener('click', this.filterClick, false);
-    filter2.removeEventListener('click', this.filterClick, false);
-    filter3.removeEventListener('click', this.filterClick, false);
-    filter4.removeEventListener('click', this.filterClick, false);
-    filter5.removeEventListener('click', this.filterClick, false);
+    
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('mousedown', this.onPointerMove);
+    this.loadFilter = null;
     //this.raycaster = null;
+    //this.renderer = null;
     this.$store.commit('stopRoadmap', true);
     this.$store.commit('setRoadmapInnerRoute', false);
+
     while(this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-    //this.renderer = null;
   },
   watch: {
     '$store.state.stopRoadmap': function () {

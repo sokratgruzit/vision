@@ -990,7 +990,7 @@ export default {
       setTimeout(() => {
         this.callScrolling = true;
         this.scrolledSum = 0;
-      }, 500);
+      }, 150);
 
       if (delta < 0) {
         /*new TWEEN.Tween(this.camera.rotation)
@@ -999,7 +999,7 @@ export default {
         .start();*/
 
         new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x + 100 }, 500)
+        .to({ x: this.roadmapMesh.position.x + 70 }, 150)
         .easing(TWEEN.Easing.Linear.None)
         .start();
 
@@ -1018,7 +1018,7 @@ export default {
         .start();*/
 
         new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x - 100 }, 500)
+        .to({ x: this.roadmapMesh.position.x - 70 }, 150)
         .easing(TWEEN.Easing.Linear.None)
         .start();
 
@@ -1356,7 +1356,7 @@ export default {
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
-    
+
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('mousedown', this.onPointerMove);
     this.loadFilter = null;

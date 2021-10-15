@@ -407,6 +407,7 @@ export default {
             this.scene.children[2].position.z += 20;
           }
         requestAnimationFrame(this.animate);
+        TWEEN.update();
         this.render();
       }
     },
@@ -531,9 +532,20 @@ export default {
       part.position.z = point.z;
       this.scene.add(part);
 
+      let A = new TWEEN.Tween(part.scale)
+      .to({ x: 2, y: 2, z: 2 }, 5000)
+      .easing(TWEEN.Easing.Quintic.Out)
+
+      let B = new TWEEN.Tween(part.scale)
+      .to({ x: 0, y: 0, z: 0 }, 5000)
+      .easing(TWEEN.Easing.Quintic.Out)
+
+      A.chain(B);
+      A.start();
+
       setTimeout(() => {
         this.scene.remove(part);
-      }, 15000);
+      }, 10000);
       //End of Object Explosion
       //Waves
       var waveGeo = new THREE.IcosahedronGeometry(5, 40);
@@ -765,7 +777,7 @@ export default {
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
-    document.body.addEventListener('pointermove', this.onPointerMove);
+    document.addEventListener('pointermove', this.onPointerMove);
     this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
     const promise = new Promise((resolve, reject) => {
@@ -788,8 +800,8 @@ export default {
   },
   beforeDestroy () {
     this.$store.commit('stopGalaxyGarbage', true);
-    document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
-    document.body.removeEventListener('pointermove', this.onPointerMove);
+    //document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
+    //document.removeEventListener('pointermove', this.onPointerMove);
     while(this.scene.children.length > 0){
       this.scene.remove(this.scene.children[0]);
     }

@@ -908,7 +908,7 @@
       document.removeEventListener('mousedown', this.planetClick, false);
       document.removeEventListener('pointermove', this.onPointerMove);
       window.removeEventListener('resize', this.onWindowResize, false);
-      this.renderer = null;
+      //this.renderer = null;
     }
   }
 </script>

@@ -732,7 +732,11 @@ export default {
     },
     loadFilter: function () {
       setTimeout(() => {
-        document.getElementById('list-itemf0').style['opacity'] = 1;
+        let filterEl = document.getElementById('list-itemf0');
+        if (filterEl == null) {
+        } else {
+          filterEl.style['opacity'] = 1;
+        }
       }, 10000);
     },
     toggleFilter: function (status) {
@@ -1376,9 +1380,6 @@ export default {
       }
     },
     '$store.state.scrollOffset': function () {
-      console.log(this.$store.state.scrollOffset);
-      console.log(this.roadmapMesh.position.x);
-      console.log(this.roadmapMesh);
       this.roadmapMesh.position.x = 600 - this.$store.state.scrollOffset
     }
   }

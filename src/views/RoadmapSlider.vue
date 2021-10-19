@@ -528,8 +528,6 @@
 
         this.camera.aspect = window.innerWidth / 600;
         this.camera.updateProjectionMatrix();
-        console.log(this.camera.aspect)
-        console.log(window.innerWidth / 600)
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         //this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.composer.setSize(window.innerWidth, window.innerHeight);
@@ -581,18 +579,14 @@
 
         if (this.leftTarget) {
           this.slideCount--;
-          if(this.activeStat === 1 && this.activeYear === 0){
+          if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
-            console.log(this.roadmapData[this.activeYear].inner.length);
           }
-          if(this.activeStat === 1 && this.activeYear !== 0){
+          if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;
             this.activeStat = this.roadmapData[this.activeYear].inner.length;
-
-            console.log(this.roadmapData[this.activeYear].inner.length);
-          }
-          else{
+          } else{
             this.activeStat --;
           }
         }
@@ -678,7 +672,6 @@
       if(this.$route.params.id == 8 || this.$route.params.id == 13){
         this.activeStat = 4
       }
-      console.log( this.activeStat)
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);

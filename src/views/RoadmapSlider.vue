@@ -54,6 +54,7 @@
   import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
   import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
   import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+  import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
   import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
   const TWEEN = require('@tweenjs/tween.js');
   import {
@@ -118,6 +119,10 @@
         ],
         activeStat: 1,
         activeYear: 0,
+        prevYear: 0,
+        nextYear: 2,
+        prevLabelRenderer: new CSS2DRenderer(),
+        nextLabelRenderer: new CSS2DRenderer(),
         roadmapData: [
           {
             id: 1,
@@ -205,7 +210,9 @@
           },
         ],
         particles: null,
-        help: null
+        help: null,
+        prevBtnTitle: 'fuck',
+        nextBtnTitle: null
       }
     },
     methods: {
@@ -225,6 +232,21 @@
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / 600, 0.01, 5000);
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
+
+        this.prevLabelRenderer.setSize(window.innerWidth, 600);
+        this.prevLabelRenderer.domElement.style.position = 'absolute';
+        this.prevLabelRenderer.domElement.style.bottom = '0px';
+        this.prevLabelRenderer.domElement.style.zIndex = '10000';
+        this.prevLabelRenderer.domElement.style.pointerEvents = 'none';
+
+        container.appendChild(this.prevLabelRenderer.domElement);
+
+        this.nextLabelRenderer.setSize(window.innerWidth, 600);
+        this.nextLabelRenderer.domElement.style.position = 'absolute';
+        this.nextLabelRenderer.domElement.style.bottom = '0px';
+        this.nextLabelRenderer.domElement.style.pointerEvents = 'none';
+
+        container.appendChild(this.nextLabelRenderer.domElement);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -329,18 +351,16 @@
         });
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        //this.sliderMesh.position.y = -1000;
-        //this.sliderMesh.position.z = -500;
         this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
-        this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
-        this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+        this.leftGeo = new THREE.SphereBufferGeometry(100, 30, 30);
+        this.rightGeo = new THREE.SphereBufferGeometry(100, 30, 30);
 
         const loader = new THREE.TextureLoader();
         const leftTex = loader.load(require("../assets/wave_color.png"));
-        const rightTex = loader.load(require("../assets/fire.jpg"));
+        const rightTex = loader.load(require("../assets/right_button.png"));
 
         this.leftUniforms = {
           tex: { type: "t", value: leftTex },
@@ -366,7 +386,7 @@
           fragmentShader: this.arrowFragment
         });
 
-        const subLeftGeo = new THREE.SphereBufferGeometry(100, 32, 32);
+        const subLeftGeo = new THREE.SphereBufferGeometry(60, 32, 32);
         const subLeftMat = new THREE.MeshLambertMaterial({
           color: 0x878FFF,
           transparent: true,
@@ -374,7 +394,7 @@
         });
         const subLeftMesh = new THREE.Mesh(subLeftGeo, subLeftMat);
 
-        const subRightGeo = new THREE.SphereBufferGeometry(100, 32, 32);
+        const subRightGeo = new THREE.SphereBufferGeometry(60, 32, 32);
         const subRightMat = new THREE.MeshLambertMaterial({
           color: 0xFFB36D,
           transparent: true,
@@ -385,8 +405,8 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth), 0, -450);
-        this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
+        this.leftMesh.position.set(-window.innerWidth, 0, -450);
+        this.rightMesh.position.set(window.innerWidth, 0, -450);
         //this.leftMesh.scale.set(0, 0, 0);
         //this.rightMesh.scale.set(0, 0, 0);
 
@@ -395,6 +415,19 @@
 
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
+
+        const prevBtn = document.createElement('div');
+        this.prevBtnTitle = document.createElement('div');
+        this.prevBtnTitle.id = 'prevBtn';
+        prevBtn.appendChild(this.prevBtnTitle);
+
+        const nextBtn = document.createElement('div');
+        this.nextBtnTitle = document.createElement('div');
+        nextBtn.appendChild(this.nextBtnTitle);
+        const prevTool = new CSS2DObject(prevBtn);
+        const nextTool = new CSS2DObject(nextBtn);
+        this.leftMesh.add(prevTool);
+        this.rightMesh.add(nextTool);
       },
       createBubleParticles: function () {
         const partLoader = new THREE.TextureLoader();
@@ -516,6 +549,8 @@
       render: function () {
         if (this.$store.state.stopRoadmapInner == false) {
           this.renderer.render(this.scene, this.camera);
+          this.prevLabelRenderer.render(this.scene, this.camera);
+          this.nextLabelRenderer.render(this.scene, this.camera);
           this.renderer.setPixelRatio(window.devicePixelRatio);
           this.raycaster.setFromCamera(this.mouse, this.camera);
           this.raycaster.firstHitOnly = true;
@@ -582,6 +617,8 @@
           if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
+            //this.prevBtnTitle.textContent = this.roadmapData[this.activeYear].title;
+            //toolTitle.textContent = this.bubleData[i].title;
           }
           if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;

@@ -378,7 +378,7 @@ export default {
         if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14){
           toolDiv.className = 'active';
         }
-        toolDiv.appendChild(toolTitle)
+        toolDiv.appendChild(toolTitle);
         toolTitle.textContent = this.bubleData[i].title;
         if(this.bubleData[i].category){
           const toolSubTitle = document.createElement('span');

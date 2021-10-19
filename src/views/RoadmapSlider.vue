@@ -1,6 +1,14 @@
 <template>
     <div class="roadmap-inner__slider">
       <div id="slider-container"></div>
+      <div id="prev-slider-btn">
+        <span>{{roadmapData[prevBtnYear].title}}</span>
+        <span></span>
+      </div>
+      <div id="next-slider-btn">
+        
+        <span></span>
+      </div>
       <div class="roadmap-text__container" :class="activeSlider ? 'active' : ''">
         <div class="roadmap-text__main-ttl">
           {{roadmapData[activeYear].title}}
@@ -54,7 +62,6 @@
   import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
   import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
   import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
-  import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
   import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
   const TWEEN = require('@tweenjs/tween.js');
   import {
@@ -119,10 +126,6 @@
         ],
         activeStat: 1,
         activeYear: 0,
-        prevYear: 0,
-        nextYear: 2,
-        prevLabelRenderer: new CSS2DRenderer(),
-        nextLabelRenderer: new CSS2DRenderer(),
         roadmapData: [
           {
             id: 1,
@@ -211,8 +214,9 @@
         ],
         particles: null,
         help: null,
-        prevBtnTitle: 'fuck',
-        nextBtnTitle: null
+        prevBtnYear: 3,
+        prevBtnInner: 0,
+        nextBtnYear: 3
       }
     },
     methods: {
@@ -232,21 +236,6 @@
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / 600, 0.01, 5000);
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
-
-        this.prevLabelRenderer.setSize(window.innerWidth, 600);
-        this.prevLabelRenderer.domElement.style.position = 'absolute';
-        this.prevLabelRenderer.domElement.style.bottom = '0px';
-        this.prevLabelRenderer.domElement.style.zIndex = '10000';
-        this.prevLabelRenderer.domElement.style.pointerEvents = 'none';
-
-        container.appendChild(this.prevLabelRenderer.domElement);
-
-        this.nextLabelRenderer.setSize(window.innerWidth, 600);
-        this.nextLabelRenderer.domElement.style.position = 'absolute';
-        this.nextLabelRenderer.domElement.style.bottom = '0px';
-        this.nextLabelRenderer.domElement.style.pointerEvents = 'none';
-
-        container.appendChild(this.nextLabelRenderer.domElement);
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -415,19 +404,6 @@
 
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
-
-        const prevBtn = document.createElement('div');
-        this.prevBtnTitle = document.createElement('div');
-        this.prevBtnTitle.id = 'prevBtn';
-        prevBtn.appendChild(this.prevBtnTitle);
-
-        const nextBtn = document.createElement('div');
-        this.nextBtnTitle = document.createElement('div');
-        nextBtn.appendChild(this.nextBtnTitle);
-        const prevTool = new CSS2DObject(prevBtn);
-        const nextTool = new CSS2DObject(nextBtn);
-        this.leftMesh.add(prevTool);
-        this.rightMesh.add(nextTool);
       },
       createBubleParticles: function () {
         const partLoader = new THREE.TextureLoader();
@@ -549,8 +525,6 @@
       render: function () {
         if (this.$store.state.stopRoadmapInner == false) {
           this.renderer.render(this.scene, this.camera);
-          this.prevLabelRenderer.render(this.scene, this.camera);
-          this.nextLabelRenderer.render(this.scene, this.camera);
           this.renderer.setPixelRatio(window.devicePixelRatio);
           this.raycaster.setFromCamera(this.mouse, this.camera);
           this.raycaster.firstHitOnly = true;
@@ -616,15 +590,15 @@
           this.slideCount--;
           if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
+            this.prevBtnYear = this.activeYear - 1;
+            this.nextBtnYear = this.activeYear + 1;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
-            //this.prevBtnTitle.textContent = this.roadmapData[this.activeYear].title;
-            //toolTitle.textContent = this.bubleData[i].title;
           }
           if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;
             this.activeStat = this.roadmapData[this.activeYear].inner.length;
           } else{
-            this.activeStat --;
+            this.activeStat--;
           }
         }
         if (this.rightTarget) {
@@ -632,14 +606,18 @@
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear == 3){
             this.activeStat = 1
             this.activeYear = 0;
+            this.prevBtnYear = 3;
+            this.nextBtnYear = this.activeYear;
             return false;
           }
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear !== 3){
             this.activeStat = 1
-            this.activeYear ++;
+            this.activeYear++;
+            this.prevBtnYear = this.activeYear - 1;
+            this.nextBtnYear = this.activeYear + 1;
           }
           else{
-            this.activeStat ++;
+            this.activeStat++;
           }
         }
         if (this.slideCount < 0) {
@@ -689,12 +667,18 @@
       let test;
       if(this.$route.params.id >= 4 && this.$route.params.id < 9){
         this.activeYear = 1;
+        this.prevBtnYear = 3;
+        this.nextBtnYear = 3;
       }
       if(this.$route.params.id >= 9 && this.$route.params.id < 14){
         this.activeYear = 2;
+        this.prevBtnYear = 1;
+        this.nextBtnYear = 1;
       }
       if(this.$route.params.id >= 14){
         this.activeYear = 3;
+        this.prevBtnYear = 2;
+        this.nextBtnYear = 2;
       }
 
       if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15){
@@ -739,6 +723,16 @@
   }
 </script>
 <style>
+  #prev-slider-btn {
+    position: absolute;
+    top: 49%;
+    left: 14%;
+  }
+  #next-slider-btn {
+    position: absolute;
+    top: 49%;
+    right: 14%;
+  }
   .to_roadmap{
     position: absolute;
     bottom: 30px;

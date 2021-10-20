@@ -1,6 +1,14 @@
 <template>
     <div class="roadmap-inner__slider">
       <div id="slider-container"></div>
+      <div id="prev-slider-btn">
+        <span>{{roadmapData[prevBtnYear].title}}</span>
+        <span></span>
+      </div>
+      <div id="next-slider-btn">
+
+        <span></span>
+      </div>
       <div class="roadmap-text__container" :class="activeSlider ? 'active' : ''">
         <div class="roadmap-text__main-ttl">
           {{roadmapData[activeYear].title}}
@@ -206,7 +214,10 @@
           },
         ],
         particles: null,
-        help: null
+        help: null,
+        prevBtnYear: 3,
+        prevBtnInner: 0,
+        nextBtnYear: 3
       }
     },
     methods: {
@@ -330,18 +341,16 @@
         });
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        //this.sliderMesh.position.y = -1000;
-        //this.sliderMesh.position.z = -500;
         this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
-        this.leftGeo = new THREE.SphereBufferGeometry(150, 50, 50);
-        this.rightGeo = new THREE.SphereBufferGeometry(150, 50, 50);
+        this.leftGeo = new THREE.SphereBufferGeometry(100, 30, 30);
+        this.rightGeo = new THREE.SphereBufferGeometry(100, 30, 30);
 
         const loader = new THREE.TextureLoader();
         const leftTex = loader.load(require("../assets/wave_color.png"));
-        const rightTex = loader.load(require("../assets/fire.jpg"));
+        const rightTex = loader.load(require("../assets/right_button.png"));
 
         this.leftUniforms = {
           tex: { type: "t", value: leftTex },
@@ -367,7 +376,7 @@
           fragmentShader: this.arrowFragment
         });
 
-        const subLeftGeo = new THREE.SphereBufferGeometry(100, 32, 32);
+        const subLeftGeo = new THREE.SphereBufferGeometry(60, 32, 32);
         const subLeftMat = new THREE.MeshLambertMaterial({
           color: 0x878FFF,
           transparent: true,
@@ -375,7 +384,7 @@
         });
         const subLeftMesh = new THREE.Mesh(subLeftGeo, subLeftMat);
 
-        const subRightGeo = new THREE.SphereBufferGeometry(100, 32, 32);
+        const subRightGeo = new THREE.SphereBufferGeometry(60, 32, 32);
         const subRightMat = new THREE.MeshLambertMaterial({
           color: 0xFFB36D,
           transparent: true,
@@ -541,8 +550,6 @@
 
         this.camera.aspect = window.innerWidth / 600;
         this.camera.updateProjectionMatrix();
-        console.log(this.camera.aspect)
-        console.log(window.innerWidth / 600)
         this.renderer.setSize( window.innerWidth, window.innerHeight );
         //this.renderer.setSize(window.innerWidth, window.innerHeight);
         this.composer.setSize(window.innerWidth, window.innerHeight);
@@ -594,19 +601,17 @@
 
         if (this.leftTarget) {
           this.slideCount--;
-          if(this.activeStat === 1 && this.activeYear === 0){
+          if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
+            this.prevBtnYear = this.activeYear - 1;
+            this.nextBtnYear = this.activeYear + 1;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
-            console.log(this.roadmapData[this.activeYear].inner.length);
           }
-          if(this.activeStat === 1 && this.activeYear !== 0){
+          if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;
             this.activeStat = this.roadmapData[this.activeYear].inner.length;
-
-            console.log(this.roadmapData[this.activeYear].inner.length);
-          }
-          else{
-            this.activeStat --;
+          } else{
+            this.activeStat--;
           }
         }
         if (this.rightTarget) {
@@ -614,14 +619,18 @@
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear == 3){
             this.activeStat = 1
             this.activeYear = 0;
+            this.prevBtnYear = 3;
+            this.nextBtnYear = this.activeYear;
             return false;
           }
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear !== 3){
             this.activeStat = 1
-            this.activeYear ++;
+            this.activeYear++;
+            this.prevBtnYear = this.activeYear - 1;
+            this.nextBtnYear = this.activeYear + 1;
           }
           else{
-            this.activeStat ++;
+            this.activeStat++;
           }
         }
         if (this.slideCount < 0) {
@@ -671,12 +680,18 @@
       let test;
       if(this.$route.params.id >= 4 && this.$route.params.id < 9){
         this.activeYear = 1;
+        this.prevBtnYear = 3;
+        this.nextBtnYear = 3;
       }
       if(this.$route.params.id >= 9 && this.$route.params.id < 14){
         this.activeYear = 2;
+        this.prevBtnYear = 1;
+        this.nextBtnYear = 1;
       }
       if(this.$route.params.id >= 14){
         this.activeYear = 3;
+        this.prevBtnYear = 2;
+        this.nextBtnYear = 2;
       }
 
       if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15){
@@ -691,7 +706,6 @@
       if(this.$route.params.id == 8 || this.$route.params.id == 13){
         this.activeStat = 4
       }
-      console.log( this.activeStat)
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);
@@ -722,6 +736,16 @@
   }
 </script>
 <style>
+  #prev-slider-btn {
+    position: absolute;
+    top: 49%;
+    left: 14%;
+  }
+  #next-slider-btn {
+    position: absolute;
+    top: 49%;
+    right: 14%;
+  }
   .to_roadmap{
     position: absolute;
     bottom: 30px;

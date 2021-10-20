@@ -583,6 +583,7 @@ void main() {
   vNormal = normal;
   vColor = customColor;
   vec3 newPosition = position + normal * amplitude * displacement;
+  gl_PointSize = .01;
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPosition, 1.0);
 }
 `;

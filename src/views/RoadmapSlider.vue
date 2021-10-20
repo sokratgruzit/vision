@@ -3,11 +3,15 @@
       <div id="slider-container"></div>
       <div id="prev-slider-btn">
         <span>{{roadmapData[prevBtnYear].title}}</span>
-        <span></span>
+        <div>
+          <span>{{roadmapData[prevBtnYear].inner[prevBtnInner].title}}</span>
+        </div>
       </div>
       <div id="next-slider-btn">
-        
-        <span></span>
+        <span>{{roadmapData[nextBtnYear].title}}</span>
+        <div>
+          <span>{{roadmapData[nextBtnYear].inner[nextBtnInner].title}}</span>
+        </div>
       </div>
       <div class="roadmap-text__container" :class="activeSlider ? 'active' : ''">
         <div class="roadmap-text__main-ttl">
@@ -214,9 +218,10 @@
         ],
         particles: null,
         help: null,
-        prevBtnYear: 3,
+        prevBtnYear: 0,
         prevBtnInner: 0,
-        nextBtnYear: 3
+        nextBtnYear: 0,
+        nextBtnInner: 0
       }
     },
     methods: {
@@ -585,19 +590,17 @@
       updateUiData: function () {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[0]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[4].children[0]]);
-
+        
         if (this.leftTarget) {
           this.slideCount--;
           if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
-            this.prevBtnYear = this.activeYear - 1;
-            this.nextBtnYear = this.activeYear + 1;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
           }
           if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;
             this.activeStat = this.roadmapData[this.activeYear].inner.length;
-          } else{
+          } else {
             this.activeStat--;
           }
         }
@@ -606,17 +609,12 @@
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear == 3){
             this.activeStat = 1
             this.activeYear = 0;
-            this.prevBtnYear = 3;
-            this.nextBtnYear = this.activeYear;
             return false;
           }
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear !== 3){
             this.activeStat = 1
             this.activeYear++;
-            this.prevBtnYear = this.activeYear - 1;
-            this.nextBtnYear = this.activeYear + 1;
-          }
-          else{
+          } else {
             this.activeStat++;
           }
         }
@@ -629,6 +627,8 @@
         if (int.length > 0 || int2.length > 0) {
           this.disposeImage(this.slideCount);
         }
+
+        this.syncButtons();
       },
       wheelScroll: function(event) {
         const goToRoadmap = () => {
@@ -656,6 +656,83 @@
       updateCarousel (payload) {
         // this.$store.commit('changeSlide', payload.currentSlide);
         // this.$store.commit('setChangeSlide', true);
+      },
+      syncButtons: function () {
+        if (this.activeYear === 0) {
+          this.prevBtnYear = 0;
+          this.nextBtnYear = 0;
+          this.prevBtnInner = 0;
+          this.nextBtnInner = 1;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 3;
+            this.prevBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.nextBtnYear = 1;
+          }
+        }
+        if (this.activeYear === 1) {
+          this.prevBtnYear = 1;
+          this.nextBtnYear = 1;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 0;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.prevBtnInner = 1;
+            this.nextBtnInner = 2;
+          }
+          if (this.activeStat === 3) {
+            this.prevBtnInner = 2;
+            this.nextBtnInner = 3;
+          }
+          if (this.activeStat === 4) {
+            this.nextBtnYear = 2;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 2) {
+          this.prevBtnYear = 2;
+          this.nextBtnYear = 2;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 1;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.prevBtnInner = 1;
+            this.nextBtnInner = 2;
+          }
+          if (this.activeStat === 3) {
+            this.prevBtnInner = 2;
+            this.nextBtnInner = 3;
+          }
+          if (this.activeStat === 4) {
+            this.nextBtnYear = 3;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 3) {
+          this.prevBtnYear = 3;
+          this.nextBtnYear = 3;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 2;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
+          }
+          if (this.activeStat === 2) {
+            this.nextBtnYear = 0;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 1;
+          }
+        }
       }
     },
     mounted () {
@@ -665,34 +742,30 @@
       this.helper();
       this.$store.commit('setRoadmapInnerRoute', true);
       let test;
-      if(this.$route.params.id >= 4 && this.$route.params.id < 9){
+      if (this.$route.params.id >= 4 && this.$route.params.id < 9) {
         this.activeYear = 1;
-        this.prevBtnYear = 3;
-        this.nextBtnYear = 3;
       }
-      if(this.$route.params.id >= 9 && this.$route.params.id < 14){
+      if (this.$route.params.id >= 9 && this.$route.params.id < 14) {
         this.activeYear = 2;
-        this.prevBtnYear = 1;
-        this.nextBtnYear = 1;
       }
-      if(this.$route.params.id >= 14){
+      if (this.$route.params.id >= 14) {
         this.activeYear = 3;
-        this.prevBtnYear = 2;
-        this.nextBtnYear = 2;
       }
 
-      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15){
+      if (this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15) {
         this.activeStat = 1
       }
-      if(this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11 || this.$route.params.id == 16){
+      if (this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11 || this.$route.params.id == 16) {
         this.activeStat = 2
       }
-      if(this.$route.params.id == 7 || this.$route.params.id == 12 || this.$route.params.id == 17){
+      if (this.$route.params.id == 7 || this.$route.params.id == 12 || this.$route.params.id == 17) {
         this.activeStat = 3
       }
-      if(this.$route.params.id == 8 || this.$route.params.id == 13){
+      if (this.$route.params.id == 8 || this.$route.params.id == 13) {
         this.activeStat = 4
       }
+
+      this.syncButtons();
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);

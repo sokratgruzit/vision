@@ -109,12 +109,19 @@
         var container = document.getElementById('about-container');
         this.scene = new THREE.Scene();
 
-        this.width = container === null ? this.width : container.offsetWidth;
-        this.height = container === null ? this.height : container.offsetWidth;
+        this.width = 700;
+        this.height = 700;
 
         this.camera = new THREE.PerspectiveCamera(75, this.width / this.height, 0.1, 5000);
         this.camera.position.z = 1000;
         this.camera.position.y = -1000;
+        this.camera.rotation.x = 0.1;
+        if(window.innerWidth < 768){
+          this.camera.rotation.y = -0.5;
+        }else{
+          this.camera.rotation.y = -0.1;
+        }
+
 
         var sLight = new THREE.PointLight(0xff00ff);
         sLight.position.set(-100, 100, 100);
@@ -283,16 +290,19 @@
     height: 100%;
     width: 100%;
     object-fit: cover;
+    z-index: 1;
   }
   .about-main__container{
     display: flex;
     position: relative;
+    z-index: 1;
   }
   #about-container{
     width: 40%;
     height: 100%;
-    position: relative;
-    z-index: 10000;
+    position: fixed;
+    z-index: 2;
+    /*transform: translateX(-12%) translateY(12%);*/
   }
   .about__content{
     width: 60%;
@@ -300,6 +310,7 @@
     z-index: 10;
     padding-top: 210px;
     padding-right: 80px;
+    margin-left: auto;
   }
   .about__content-floor{
     width: 100%;
@@ -424,9 +435,6 @@
   /*Ipad 768*/
   @media (max-width: 1023px){
     #about-container{
-      position: absolute;
-      top: 0px;
-      left: 0px;
       width: 100%;
     }
     /*#about-container canvas{

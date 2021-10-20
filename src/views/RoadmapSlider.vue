@@ -66,6 +66,7 @@
     arrow_fragment,
     part_fragment
   } from '../assets/shaders/fragment.js';
+  import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer'
   export default {
     name: 'RoadmapSlide',
     data () {
@@ -382,10 +383,22 @@
         });
         const subRightMesh = new THREE.Mesh(subRightGeo, subRightMat);
 
+
+        let slideContainer = document.createElement('div');
+        slideContainer.textContent = "hi";
+        slideContainer.className = 'left-slider-arrow';
+
+
+        const sliderLeftTooltip = new CSS2DObject(slideContainer);
+
+
+
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
+        this.leftMesh.add(sliderLeftTooltip);
+        console.log( this.leftMesh)
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth), 0, -450);
+        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
         this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
         //this.leftMesh.scale.set(0, 0, 0);
         //this.rightMesh.scale.set(0, 0, 0);

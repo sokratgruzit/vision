@@ -732,8 +732,8 @@ export default {
     },
     loadFilter: function () {
       setTimeout(() => {
-        document.getElementById('list-itemf0').style['opacity'] = 1;
-      }, 10000);
+        document.getElementById('filters-container').classList.add('active');
+      }, 5000);
     },
     toggleFilter: function (status) {
       let value = 0;
@@ -1385,6 +1385,10 @@ export default {
 }
 </script>
 <style>
+  #roadmap-container{
+    position: relative;
+    z-index: 1;
+  }
   .roadmap-scroll{
     position: fixed;
     top: 0px;
@@ -1497,6 +1501,11 @@ export default {
     right: 120px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 5px 10px;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    opacity: 0;
+  }
+  #filters-container.active{
+    opacity: 1;
   }
   #filters-container:after{
     content: '';
@@ -1515,10 +1524,6 @@ export default {
   .main-roadmap.filterActive #filters-container:after{
     transform: scaleY(1);
     transition-delay: 0s;
-  }
-  #list-itemf0 {
-    top: 0;
-    opacity: 0;
   }
   #list-itemf1:hover{
     color: #FF7152;
@@ -1557,7 +1562,7 @@ export default {
     position: absolute;
   }
   #filters-container.activeNav{
-    opacity: 0;
+    opacity: 0!important;
     pointer-events: none;
   }
   .buble-tooltip{

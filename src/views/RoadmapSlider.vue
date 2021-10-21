@@ -1,5 +1,5 @@
 <template>
-    <div class="roadmap-inner__slider">
+    <div class="roadmap-inner__slider" :class="activeSlider ? 'active' : ''">
       <div id="slider-container"></div>
       <div id="prev-slider-btn">
         <span>{{roadmapData[prevBtnYear].title}}</span>
@@ -802,10 +802,21 @@
     top: 34%;
     left: 6%;
     display: flex;
+    overflow: hidden;
   }
   #prev-slider-btn > span,#next-slider-btn > span{
     margin-right: 5px;
     color: #FF7152;
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(120%);
+  }
+  #prev-slider-btn > div,#next-slider-btn > div{
+    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transform: translateY(120%);
+  }
+  .roadmap-inner__slider.active  #prev-slider-btn > span,.roadmap-inner__slider.active  #prev-slider-btn > div,.roadmap-inner__slider.active  #next-slider-btn > span,.roadmap-inner__slider.active  #next-slider-btn > div {
+    transform: translateY(0%);
+    transition-delay: 1s;
   }
   #prev-slider-btn div span, #next-slider-btn div span{
     text-transform: uppercase;
@@ -815,6 +826,7 @@
     top: 34%;
     right: 6%;
     display: flex;
+    overflow: hidden;
   }
   .to_roadmap{
     position: absolute;

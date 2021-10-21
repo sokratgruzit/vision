@@ -799,13 +799,22 @@
 <style>
   #prev-slider-btn {
     position: absolute;
-    top: 49%;
-    left: 14%;
+    top: 34%;
+    left: 6%;
+    display: flex;
+  }
+  #prev-slider-btn > span,#next-slider-btn > span{
+    margin-right: 5px;
+    color: #FF7152;
+  }
+  #prev-slider-btn div span, #next-slider-btn div span{
+    text-transform: uppercase;
   }
   #next-slider-btn {
     position: absolute;
-    top: 49%;
-    right: 14%;
+    top: 34%;
+    right: 6%;
+    display: flex;
   }
   .to_roadmap{
     position: absolute;

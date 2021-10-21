@@ -78,6 +78,7 @@
     arrow_fragment,
     part_fragment
   } from '../assets/shaders/fragment.js';
+  import { CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer'
   export default {
     name: 'RoadmapSlide',
     data () {
@@ -399,8 +400,8 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(-window.innerWidth, 0, -450);
-        this.rightMesh.position.set(window.innerWidth, 0, -450);
+        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
+        this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
         //this.leftMesh.scale.set(0, 0, 0);
         //this.rightMesh.scale.set(0, 0, 0);
 
@@ -595,14 +596,12 @@
           this.slideCount--;
           if (this.activeStat === 1 && this.activeYear === 0) {
             this.activeYear = 3;
-            this.prevBtnYear = this.activeYear - 1;
-            this.nextBtnYear = this.activeYear + 1;
             this.activeStat = this.roadmapData[this.activeYear].inner.length + 1;
           }
           if (this.activeStat === 1 && this.activeYear !== 0) {
             this.activeYear--;
             this.activeStat = this.roadmapData[this.activeYear].inner.length;
-          } else{
+          } else {
             this.activeStat--;
           }
         }
@@ -611,17 +610,12 @@
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear == 3){
             this.activeStat = 1
             this.activeYear = 0;
-            this.prevBtnYear = 3;
-            this.nextBtnYear = this.activeYear;
             return false;
           }
           if(this.activeStat === this.roadmapData[this.activeYear].inner.length && this.activeYear !== 3){
             this.activeStat = 1
             this.activeYear++;
-            this.prevBtnYear = this.activeYear - 1;
-            this.nextBtnYear = this.activeYear + 1;
-          }
-          else{
+          } else {
             this.activeStat++;
           }
         }
@@ -668,17 +662,15 @@
         if (this.activeYear === 0) {
           this.prevBtnYear = 0;
           this.nextBtnYear = 0;
+          this.prevBtnInner = 0;
           this.nextBtnInner = 1;
 
           if (this.activeStat === 1) {
             this.prevBtnYear = 3;
             this.prevBtnInner = 1;
-            this.nextBtnInner = 1;
           }
           if (this.activeStat === 2) {
             this.nextBtnYear = 1;
-            this.prevBtnInner = 0;
-            this.nextBtnInner = 0;
           }
         }
         if (this.activeYear === 1) {
@@ -733,13 +725,13 @@
 
           if (this.activeStat === 1) {
             this.prevBtnYear = 2;
-            this.prevBtnInner = 4;
-            this.nextBtnInner = 1;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
           }
           if (this.activeStat === 2) {
             this.nextBtnYear = 0;
             this.prevBtnInner = 0;
-            this.nextBtnInner = 0;
+            this.nextBtnInner = 1;
           }
         }
       }
@@ -751,35 +743,28 @@
       this.helper();
       this.$store.commit('setRoadmapInnerRoute', true);
       let test;
-      if(this.$route.params.id >= 4 && this.$route.params.id < 9){
+      if (this.$route.params.id >= 4 && this.$route.params.id < 9) {
         this.activeYear = 1;
-        this.prevBtnYear = 3;
-        this.nextBtnYear = 3;
       }
-      if(this.$route.params.id >= 9 && this.$route.params.id < 14){
+      if (this.$route.params.id >= 9 && this.$route.params.id < 14) {
         this.activeYear = 2;
-        this.prevBtnYear = 1;
-        this.nextBtnYear = 1;
       }
-      if(this.$route.params.id >= 14){
+      if (this.$route.params.id >= 14) {
         this.activeYear = 3;
-        this.prevBtnYear = 2;
-        this.nextBtnYear = 2;
       }
 
-      if(this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15){
+      if (this.$route.params.id == 1 || this.$route.params.id == 2 || this.$route.params.id == 4 || this.$route.params.id == 5 || this.$route.params.id == 9 || this.$route.params.id == 10 || this.$route.params.id == 14 || this.$route.params.id == 15) {
         this.activeStat = 1
       }
-      if(this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11 || this.$route.params.id == 16){
+      if (this.$route.params.id == 3 || this.$route.params.id == 6 || this.$route.params.id == 11 || this.$route.params.id == 16) {
         this.activeStat = 2
       }
-      if(this.$route.params.id == 7 || this.$route.params.id == 12 || this.$route.params.id == 17){
+      if (this.$route.params.id == 7 || this.$route.params.id == 12 || this.$route.params.id == 17) {
         this.activeStat = 3
       }
-      if(this.$route.params.id == 8 || this.$route.params.id == 13){
+      if (this.$route.params.id == 8 || this.$route.params.id == 13) {
         this.activeStat = 4
       }
-      
       this.syncButtons();
       this.sliderScene();
       this.animate();
@@ -813,13 +798,22 @@
 <style>
   #prev-slider-btn {
     position: absolute;
-    top: 49%;
-    left: 14%;
+    top: 34%;
+    left: 6%;
+    display: flex;
+  }
+  #prev-slider-btn > span,#next-slider-btn > span{
+    margin-right: 5px;
+    color: #FF7152;
+  }
+  #prev-slider-btn div span, #next-slider-btn div span{
+    text-transform: uppercase;
   }
   #next-slider-btn {
     position: absolute;
-    top: 49%;
-    right: 14%;
+    top: 34%;
+    right: 6%;
+    display: flex;
   }
   .to_roadmap{
     position: absolute;

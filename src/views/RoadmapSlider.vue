@@ -397,19 +397,7 @@
         });
         const subRightMesh = new THREE.Mesh(subRightGeo, subRightMat);
 
-
-        let slideContainer = document.createElement('div');
-        slideContainer.textContent = "hi";
-        slideContainer.className = 'left-slider-arrow';
-
-
-        const sliderLeftTooltip = new CSS2DObject(slideContainer);
-
-
-
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
-        this.leftMesh.add(sliderLeftTooltip);
-        console.log( this.leftMesh)
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
         this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
@@ -603,7 +591,7 @@
       updateUiData: function () {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[0]]);
         let int2 = this.raycaster.intersectObjects([this.scene.children[4].children[0]]);
-        
+
         if (this.leftTarget) {
           this.slideCount--;
           if (this.activeStat === 1 && this.activeYear === 0) {

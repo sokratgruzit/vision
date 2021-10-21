@@ -3,11 +3,15 @@
       <div id="slider-container"></div>
       <div id="prev-slider-btn">
         <span>{{roadmapData[prevBtnYear].title}}</span>
-        <span></span>
+        <div>
+          <span>{{roadmapData[prevBtnYear].inner[prevBtnInner].title}}</span>
+        </div>
       </div>
       <div id="next-slider-btn">
-        
-        <span></span>
+        <span>{{roadmapData[nextBtnYear].title}}</span>
+        <div>
+          <span>{{roadmapData[nextBtnYear].inner[nextBtnInner].title}}</span>
+        </div>
       </div>
       <div class="roadmap-text__container" :class="activeSlider ? 'active' : ''">
         <div class="roadmap-text__main-ttl">
@@ -214,9 +218,10 @@
         ],
         particles: null,
         help: null,
-        prevBtnYear: 3,
+        prevBtnYear: 0,
         prevBtnInner: 0,
-        nextBtnYear: 3
+        nextBtnYear: 0,
+        nextBtnInner: 0
       }
     },
     methods: {
@@ -629,6 +634,8 @@
         if (int.length > 0 || int2.length > 0) {
           this.disposeImage(this.slideCount);
         }
+
+        this.syncButtons();
       },
       wheelScroll: function(event) {
         const goToRoadmap = () => {
@@ -656,6 +663,85 @@
       updateCarousel (payload) {
         // this.$store.commit('changeSlide', payload.currentSlide);
         // this.$store.commit('setChangeSlide', true);
+      },
+      syncButtons: function () {
+        if (this.activeYear === 0) {
+          this.prevBtnYear = 0;
+          this.nextBtnYear = 0;
+          this.nextBtnInner = 1;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 3;
+            this.prevBtnInner = 1;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.nextBtnYear = 1;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 1) {
+          this.prevBtnYear = 1;
+          this.nextBtnYear = 1;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 0;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.prevBtnInner = 1;
+            this.nextBtnInner = 2;
+          }
+          if (this.activeStat === 3) {
+            this.prevBtnInner = 2;
+            this.nextBtnInner = 3;
+          }
+          if (this.activeStat === 4) {
+            this.nextBtnYear = 2;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 2) {
+          this.prevBtnYear = 2;
+          this.nextBtnYear = 2;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 1;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.prevBtnInner = 1;
+            this.nextBtnInner = 2;
+          }
+          if (this.activeStat === 3) {
+            this.prevBtnInner = 2;
+            this.nextBtnInner = 3;
+          }
+          if (this.activeStat === 4) {
+            this.nextBtnYear = 3;
+            this.prevBtnInner = 3;
+            this.nextBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 3) {
+          this.prevBtnYear = 3;
+          this.nextBtnYear = 3;
+
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 2;
+            this.prevBtnInner = 4;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.nextBtnYear = 0;
+            this.prevBtnInner = 0;
+            this.nextBtnInner = 0;
+          }
+        }
       }
     },
     mounted () {
@@ -693,6 +779,8 @@
       if(this.$route.params.id == 8 || this.$route.params.id == 13){
         this.activeStat = 4
       }
+      
+      this.syncButtons();
       this.sliderScene();
       this.animate();
       document.addEventListener('click', this.updateUiData);

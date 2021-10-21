@@ -660,78 +660,83 @@
       },
       syncButtons: function () {
         if (this.activeYear === 0) {
-          this.prevBtnYear = 0;
-          this.nextBtnYear = 0;
-          this.prevBtnInner = 0;
-          this.nextBtnInner = 1;
-
           if (this.activeStat === 1) {
             this.prevBtnYear = 3;
             this.prevBtnInner = 1;
-          }
-          if (this.activeStat === 2) {
-            this.nextBtnYear = 1;
-          }
-        }
-        if (this.activeYear === 1) {
-          this.prevBtnYear = 1;
-          this.nextBtnYear = 1;
-
-          if (this.activeStat === 1) {
-            this.prevBtnYear = 0;
-            this.prevBtnInner = 0;
+            this.nextBtnYear = 0;
             this.nextBtnInner = 1;
           }
           if (this.activeStat === 2) {
+            this.nextBtnYear = 1;
+            this.nextBtnInner = 0;
+            this.prevBtnYear = 0;
+            this.prevBtnInner = 0;
+          }
+        }
+        if (this.activeYear === 1) {
+          if (this.activeStat === 1) {
+            this.prevBtnYear = 0;
             this.prevBtnInner = 1;
+            this.nextBtnYear = 1;
+            this.nextBtnInner = 1;
+          }
+          if (this.activeStat === 2) {
+            this.prevBtnYear = 1;
+            this.prevBtnInner = 0;
+            this.nextBtnYear = 1;
             this.nextBtnInner = 2;
           }
           if (this.activeStat === 3) {
-            this.prevBtnInner = 2;
-            this.nextBtnInner = 3;
+            this.prevBtnYear = 1;
+            this.prevBtnInner = 1;
+            this.nextBtnYear = 1;
+            this.nextBtnInner = 2;
           }
           if (this.activeStat === 4) {
+            this.prevBtnYear = 1;
+            this.prevBtnInner = 2;
             this.nextBtnYear = 2;
-            this.prevBtnInner = 3;
             this.nextBtnInner = 0;
           }
         }
         if (this.activeYear === 2) {
-          this.prevBtnYear = 2;
-          this.nextBtnYear = 2;
-
           if (this.activeStat === 1) {
             this.prevBtnYear = 1;
-            this.prevBtnInner = 0;
+            this.prevBtnInner = 3;
+            this.nextBtnYear = 2;
             this.nextBtnInner = 1;
           }
           if (this.activeStat === 2) {
-            this.prevBtnInner = 1;
+            this.prevBtnYear = 2;
+            this.prevBtnInner = 0;
+            this.nextBtnYear = 2;
             this.nextBtnInner = 2;
           }
           if (this.activeStat === 3) {
-            this.prevBtnInner = 2;
+            this.prevBtnYear = 2;
+            this.prevBtnInner = 1;
+            this.nextBtnYear = 2;
             this.nextBtnInner = 3;
           }
           if (this.activeStat === 4) {
+            this.nextBtnYear = 2;
+            this.prevBtnInner = 2;
             this.nextBtnYear = 3;
-            this.prevBtnInner = 3;
             this.nextBtnInner = 0;
           }
         }
         if (this.activeYear === 3) {
-          this.prevBtnYear = 3;
-          this.nextBtnYear = 3;
-
           if (this.activeStat === 1) {
             this.prevBtnYear = 2;
             this.prevBtnInner = 3;
-            this.nextBtnInner = 0;
+            this.nextBtnYear = 3;
+            this.nextBtnInner = 1;
           }
           if (this.activeStat === 2) {
-            this.nextBtnYear = 0;
+            this.prevBtnYear = 3;
             this.prevBtnInner = 0;
-            this.nextBtnInner = 1;
+            this.nextBtnYear = 0;
+            this.nextBtnInner = 0;
           }
         }
       }

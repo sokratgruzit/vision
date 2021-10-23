@@ -10,17 +10,33 @@ void main() {
 `;
 
 export let roadmap_fragment = `
-uniform sampler2D tex;
-uniform vec4 resolution;
 varying vec2 vUv;
 varying vec3 vPosition;
 varying float noise;
+uniform vec3 curveColor;
+uniform vec3 uColor;
+uniform float time;
+varying float vAlpha;
+varying float x;
+varying float y;
+varying float z;
 
 void main() {
-  vec3 color = vec3( vUv * ( 1. - 2. * noise ), 0.0 );
-  vec4 tt = texture2D(tex, vUv);
-  gl_FragColor = vec4(vUv,0.,1.);
-  gl_FragColor = tt;
+  float disc = 1. - smoothstep(-0.2, 0.5, length(gl_PointCoord - vec2(0.5)));
+  disc *= 0.5;
+
+  gl_FragColor = vec4(uColor, disc);
+
+  //gl_FragColor = vec4(finalColor, 1.);
+  if (x > -690. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -650. && x < -640. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -650. && x < -540. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -550. && x < -540. && y > 0.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -550. && x < -445. && y > 0. && y < 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -450. && x < -440. && y > 0. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -445. && x < -390. && y > 35. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -395. && x < -385. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -400. && x < -300. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
 }
 `;
 
@@ -85,15 +101,46 @@ void main() {
 
 export let buble_fragment = `
 uniform float time;
-uniform vec2 resolution;
 
-varying vec3 color;
+uniform float fogDensity;
+uniform vec3 fogColor;
 
-#define PI 3.14159265359
-#define T (time/2.)
+uniform sampler2D texture1;
+uniform sampler2D texture2;
+
+varying vec2 vUv;
 
 void main( void ) {
-  gl_FragColor = vec4( color, 0.5 );
+
+  vec2 position = - 1.0 + 2.0 * vUv;
+
+  vec4 noise = texture2D( texture1, vUv );
+  vec2 T1 = vUv + vec2( 1.5, - 1.5 ) * time * 0.02;
+  vec2 T2 = vUv + vec2( - 0.5, 2.0 ) * time * 0.01;
+
+  T1.x += noise.x * 2.0;
+  T1.y += noise.y * 2.0;
+  T2.x -= noise.y * 0.2;
+  T2.y += noise.z * 0.2;
+
+  float p = texture2D( texture1, T1 * 2.0 ).a;
+
+  vec4 color = texture2D( texture2, T2 * 2.0 );
+  vec4 temp = color * ( vec4( p, p, p, p ) * 2.0 ) + ( color * color - 0.1 );
+
+  if( temp.r > 1.0 ) { temp.bg += clamp( temp.r - 2.0, 0.0, 100.0 ); }
+  if( temp.g > 1.0 ) { temp.rb += temp.g - 1.0; }
+  if( temp.b > 1.0 ) { temp.rg += temp.b - 1.0; }
+
+  gl_FragColor = temp;
+
+  float depth = gl_FragCoord.z / gl_FragCoord.w;
+  const float LOG2 = 1.442695;
+  float fogFactor = exp2( - fogDensity * fogDensity * depth * depth * LOG2 );
+  fogFactor = 1.0 - clamp( fogFactor, 0.0, 1.0 );
+
+  gl_FragColor = mix( gl_FragColor, vec4( fogColor, gl_FragColor.w ), fogFactor );
+
 }
 `;
 

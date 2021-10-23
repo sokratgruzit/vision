@@ -33,9 +33,13 @@ void main() {
 export let roadmap_vertex = `
 varying vec2 vUv;
 varying vec3 vPosition;
-uniform sampler2D tex;
 varying float noise;
 uniform float time;
+attribute float alpha;
+varying float vAlpha;
+varying float x;
+varying float y;
+varying float z;
 
 vec3 mod289(vec3 x)
 {
@@ -143,13 +147,30 @@ float turbulence( vec3 p ) {
 
 void main() {
   vUv = uv;
+  vAlpha = alpha;
 
   noise = 10.0 *  -.10 * turbulence( .5 * normal + time );
   float b = 5.0 * pnoise( 0.05 * position + vec3( 2.0 * time ), vec3( 100.0 ) );
   float displacement = - noise + b * 2.2;
   vec3 newPosition = position + normal * displacement;
   vec4 mvPosition = modelViewMatrix * vec4(newPosition, 1.);
-  gl_PointSize = 2.;
+  float size = 5.;
+  x = newPosition.x; 
+  y = newPosition.y;
+  z = newPosition.z;
+
+  //if (position.x < 750. && position.y == 60.) size = 10.;
+  if (x > -690. && x < -640. && y < 20. && y > 15.) size = 10.;
+  if (x > -650. && x < -640. && y > 20.) size = 10.;
+  if (x > -650. && x < -540. && y > 56.) size = 10.;
+  if (x > -550. && x < -540. && y > 0.) size = 10.;
+  if (x > -550. && x < -445. && y > 0. && y < 5.) size = 10.;
+  if (x > -450. && x < -440. && y > 0. && y < 40.) size = 10.;
+  if (x > -445. && x < -390. && y > 35. && y < 40.) size = 10.;
+  if (x > -395. && x < -385. && y > 35. && y < 55.) size = 10.;
+  
+  gl_PointSize = size;
+  
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
@@ -545,18 +566,16 @@ void main() {
 `;
 
 export let buble_vertex = `
-uniform float uTime;
-uniform vec3 uColor;
+uniform vec2 uvScale;
+varying vec2 vUv;
 
-varying vec3 color;
+void main()
+{
 
-#define PI 3.14159265359
-#define T (uTime*25.)
+  vUv = uvScale * uv;
+  vec4 mvPosition = modelViewMatrix * vec4( position, 1.0 );
+  gl_Position = projectionMatrix * mvPosition;
 
-void main() {
-  float disp = max( max(0., 1.-pow(3.*abs(uv.y-fract(T)+0.5),0.25)), 1.-pow(3.*abs(uv.y-fract(T)-0.5),0.25) );
-  color = mix(mix(vec3(1.),uColor,0.25),uColor,disp);
-  gl_Position = projectionMatrix*modelViewMatrix*vec4(position+normal*25.*disp,1.);
 }
 `;
 

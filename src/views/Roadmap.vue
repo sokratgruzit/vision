@@ -57,16 +57,21 @@ import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-
 import { CSS2DRenderer, CSS2DObject } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
 import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 const TWEEN = require('@tweenjs/tween.js');
 import {
   roadmap_vertex,
   part_vertex,
-  glow_vertex
+  glow_vertex,
+  buble_vertex
 } from '../assets/shaders/vertex.js';
 import {
   roadmap_fragment,
   part_fragment,
-  glow_fragment
+  glow_fragment,
+  buble_fragment
 } from '../assets/shaders/fragment.js';
 export default {
   name: 'Roadmap',
@@ -208,10 +213,8 @@ export default {
       rotateM: null,
       rotateMBack: null,
       routeClicked: false,
-      scrolled: 0,
-      scrolledSum: 0,
-      oldScrolledSum: 0,
-      callScrolling: true
+      clock: new THREE.Clock(),
+      alphas: null
     }
   },
   methods: {
@@ -268,7 +271,7 @@ export default {
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setClearColor(0x878FFF, 0.2);
+      this.renderer.setClearColor(0x878FFF, 0.1);
       this.controls = new OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enableZoom = true;
       this.controls.enableRotate = false;
@@ -288,33 +291,31 @@ export default {
     createRoadmapBody: function() {
       this.roadmapGeo = new THREE.PlaneBufferGeometry(1000*1.5, 80*1.5, 600, 80);
 
-      const loader = new THREE.TextureLoader();
-      const texture = loader.load(require("../assets/wave_color.png"));
+      let numVertices = this.roadmapGeo.attributes.position.count;
+      this.alphas = new Float32Array(numVertices * 1); // 1 values per vertex
+      this.randoms = new Float32Array(numVertices * 1); // 1 values per vertex
+      this.colorRandoms = new Float32Array(numVertices * 1); // 1 values per vertex
+
+      for(var i = 0; i < numVertices; i++) {
+        this.alphas[i] = Math.random() * (1 - 0.5) + 0.5;
+      }
+     
+      this.roadmapGeo.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
 
       this.uniforms = {
-        tex: { type: "t", value: texture },
         time: { type: "f", value: 0.0 },
-        resolution: { type: "v4", value: new THREE.Vector4() }
+        uColor: { value: new THREE.Color(0x878FFF) },
+        curveColor: { value: this.colors[0] }
       };
-
-      let asp1, asp2;
-      if (window.innerHeight / window.innerWidth > this.imageAspect) {
-        asp1 = (window.innerWidth / window.innerHeight) * this.imageAspect;
-        asp2 = 1;
-      } else {
-        asp1 = 1;
-        asp2 = (window.innerHeight / window.innerWidth) / this.imageAspect;
-      }
-
-      this.uniforms.resolution.value.x = window.innerWidth;
-      this.uniforms.resolution.value.y = window.innerHeight;
-      this.uniforms.resolution.value.z = asp1;
-      this.uniforms.resolution.value.w = asp2;
 
       this.roadmapMat = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
         vertexShader: this.roadmapVertex,
-        fragmentShader: this.roadmapFragment
+        fragmentShader: this.roadmapFragment,
+        transparent: true,
+        depthTest: false,
+        depthWrite: false,
+        //blending: THREE.AdditiveBlending
       });
 
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
@@ -455,11 +456,6 @@ export default {
           this.meshParticles.add(coreMesh);
         } else {
           this.meshPartGeo = new THREE.SphereBufferGeometry(6, 32, 32);
-          this.meshPartMat = new THREE.MeshBasicMaterial({
-            color: 0x878FFF,
-            transparent: true,
-            opacity: 0.2
-          });
           let bColor = this.colors[0];
 
           if (i === 2 || i === 3) {
@@ -477,6 +473,12 @@ export default {
           if (i === 15 || i === 16) {
             bColor = this.colors[4];
           }
+
+          this.meshPartMat = new THREE.MeshBasicMaterial({
+            color: bColor,
+            transparent: true,
+            opacity: 0.5
+          });
 
           let bGeo = new THREE.SphereBufferGeometry(4, 32, 32);
           let bMat = new THREE.MeshLambertMaterial({
@@ -850,6 +852,8 @@ export default {
       const theTime = performance.now() * 0.001;
       const bubleTime = theTime / 4;
 
+      const delta = 5 * this.clock.getDelta();
+
       this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 2));
       this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 2));
@@ -883,6 +887,18 @@ export default {
         this.labelRenderer.render(this.scene, this.camera);
         this.raycaster.setFromCamera(this.mouse, this.camera);
         this.raycaster.firstHitOnly = true;
+
+        this.alphas = this.roadmapGeo.attributes.alpha;
+        var count = this.alphas.count;
+        for( var i = 0; i < count; i ++ ) {
+          // dynamically change alphas
+          this.alphas.array[ i ] *= 0.95;
+          if ( this.alphas.array[ i ] < 0.2 ) { 
+            this.alphas.array[ i ] = 1.0;
+          }
+        }
+
+        this.alphas.needsUpdate = true; // important!
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
       }
@@ -986,81 +1002,6 @@ export default {
       this.deleteLines();
       this.showRoadmapPath(this.filterLineIndex,'show');
     },
-    scrollRoadmap: function (delta) {
-      setTimeout(() => {
-        this.callScrolling = true;
-        this.scrolledSum = 0;
-      }, 150);
-
-      if (delta < 0) {
-        /*new TWEEN.Tween(this.camera.rotation)
-        .to({ y: 0.2 }, 200)
-        .easing(TWEEN.Easing.Linear.None)
-        .start();*/
-
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x + 70 }, 150)
-        .easing(TWEEN.Easing.Linear.None)
-        .start();
-
-        /*setTimeout(() => {
-          new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 2800)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
-        }, 200);*/
-      }
-
-      if (delta > 0) {
-        /*new TWEEN.Tween(this.camera.rotation)
-        .to({ y: -0.2 }, 200)
-        .easing(TWEEN.Easing.Linear.None)
-        .start();*/
-
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: this.roadmapMesh.position.x - 70 }, 150)
-        .easing(TWEEN.Easing.Linear.None)
-        .start();
-
-        /*setTimeout(() => {
-          new TWEEN.Tween(this.camera.rotation)
-          .to({ y: 0 }, 3000)
-          .easing(TWEEN.Easing.Linear.None)
-          .start();
-        }, 200);*/
-      }
-
-      /*if (this.roadmapMesh.position.x > 600) {
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: 600 }, 1000)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      }
-
-      if (this.roadmapMesh.position.x < -600) {
-        new TWEEN.Tween(this.roadmapMesh.position)
-        .to({ x: -600 }, 1000)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      }*/
-    },
-    wheelScroll: function(event) {
-      /*this.scrolledSum = this.scrolledSum + this.scrolled;
-      this.oldScrolledSum = this.scrolledSum;
-
-      setTimeout(() => {
-        if (this.oldScrolledSum == this.scrolledSum) {
-          if (this.callScrolling) {
-            //console.log("The value hasn't changed.");
-            this.scrollRoadmap(event.deltaY);
-            this.callScrolling = false;
-          }
-        } else {
-          //console.log("The value has changed");
-          this.oldScrolledSum = this.scrolledSum;
-        }
-      }, 500);*/
-    },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;
       this.camera.updateProjectionMatrix();
@@ -1122,10 +1063,10 @@ export default {
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
 
-                new TWEEN.Tween(iMesh.children[1].material.color)
+                /*new TWEEN.Tween(iMesh.children[1].material.color)
                 .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
+                .start();*/
               }
 
               if(iMesh.children[2].scale.x !== 1.2) {
@@ -1134,10 +1075,10 @@ export default {
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
 
-                new TWEEN.Tween(iMesh.children[2].material.color)
+                /*new TWEEN.Tween(iMesh.children[2].material.color)
                 .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
+                .start();*/
               }
 
               if(iMesh.children[3].scale.x !== 1.2) {
@@ -1146,10 +1087,10 @@ export default {
                 .easing(TWEEN.Easing.Quartic.InOut)
                 .start();
 
-                new TWEEN.Tween(iMesh.children[3].material.color)
+                /*new TWEEN.Tween(iMesh.children[3].material.color)
                 .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                 .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
+                .start();*/
               }
             } else {
               tooltipClass = iMesh.children[0].element.id;
@@ -1169,7 +1110,7 @@ export default {
             if(this.filterLineIndex === i){
               this.showRoadmapPath(i, 'show');
             } else {
-              this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
+              //this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
               var tooltipClass = "";
 
               if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
@@ -1182,10 +1123,10 @@ export default {
                   .easing(TWEEN.Easing.Quartic.InOut)
                   .start();
 
-                  new TWEEN.Tween(this.scene.children[3].children[i].children[3].material.color)
+                  /*new TWEEN.Tween(this.scene.children[3].children[i].children[3].material.color)
                   .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
                   .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
+                  .start();*/
                 }
 
                 if(this.scene.children[3].children[i].children[2].scale.x !== 1) {
@@ -1194,10 +1135,10 @@ export default {
                   .easing(TWEEN.Easing.Quartic.InOut)
                   .start();
 
-                  new TWEEN.Tween(this.scene.children[3].children[i].children[2].material.color)
+                  /*new TWEEN.Tween(this.scene.children[3].children[i].children[2].material.color)
                   .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b }, 400)
                   .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
+                  .start();*/
                 }
 
                 if(this.scene.children[3].children[i].children[1].scale.x !== 1) {
@@ -1337,7 +1278,6 @@ export default {
       this.animate();
     });
     this.$store.commit('stopRoadmap', false);
-    document.addEventListener('wheel', this.wheelScroll, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);
@@ -1352,7 +1292,6 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-    document.removeEventListener('wheel', this.wheelScroll, false);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);

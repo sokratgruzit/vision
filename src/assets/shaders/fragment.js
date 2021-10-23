@@ -27,8 +27,7 @@ void main() {
 
   gl_FragColor = vec4(uColor, disc);
 
-  //gl_FragColor = vec4(finalColor, 1.);
-  if (x > -690. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -695. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
   if (x > -650. && x < -640. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
   if (x > -650. && x < -540. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
   if (x > -550. && x < -540. && y > 0.) gl_FragColor = vec4(curveColor, disc * vAlpha);
@@ -36,7 +35,24 @@ void main() {
   if (x > -450. && x < -440. && y > 0. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
   if (x > -445. && x < -390. && y > 35. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
   if (x > -395. && x < -385. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -400. && x < -300. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -390. && x < -300. && y > 50. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -305. && x < -295. && y > 20. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -300. && x < -200. && y > 20. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -205. && x < -195. && y > -10. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -200. && x < -95. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -100. && x < -90. && y > -5. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -95. && x < -45. && y > 45. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -55. && x < -45. && y > -10. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -50. && x < 5. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > -5. && x < 5. && y > -10. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 0. && x < 105. && y > 25. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 95. && x < 105. && y > 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 100. && x < 200. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 195. && x < 205. && y > 15.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 200. && x < 605. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 595. && x < 605. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 600. && x < 700. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (x > 695. && x < 705. && y > 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
 }
 `;
 

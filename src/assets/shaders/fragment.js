@@ -14,8 +14,14 @@ varying vec2 vUv;
 varying vec3 vPosition;
 varying float noise;
 uniform vec3 curveColor;
+uniform vec3 pointColor1;
+uniform vec3 pointColor2;
+uniform vec3 pointColor3;
+uniform vec3 pointColor4;
+uniform vec3 pointColor5;
 uniform vec3 uColor;
 uniform float time;
+uniform bool displayCurve;
 varying float vAlpha;
 varying float x;
 varying float y;
@@ -27,32 +33,52 @@ void main() {
 
   gl_FragColor = vec4(uColor, disc);
 
-  if (x > -695. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -650. && x < -640. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -650. && x < -540. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -550. && x < -540. && y > 0.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -550. && x < -445. && y > 0. && y < 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -450. && x < -440. && y > 0. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -445. && x < -390. && y > 35. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -395. && x < -385. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -390. && x < -300. && y > 50. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -305. && x < -295. && y > 20. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -300. && x < -200. && y > 20. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -205. && x < -195. && y > -10. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -200. && x < -95. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -100. && x < -90. && y > -5. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -95. && x < -45. && y > 45. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -55. && x < -45. && y > -10. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -50. && x < 5. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > -5. && x < 5. && y > -10. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 0. && x < 105. && y > 25. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 95. && x < 105. && y > 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 100. && x < 200. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 195. && x < 205. && y > 15.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 200. && x < 605. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 595. && x < 605. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 600. && x < 700. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
-  if (x > 695. && x < 705. && y > 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  if (displayCurve) {
+    if (x > -695. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -650. && x < -640. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -650. && x < -540. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -550. && x < -540. && y > 0.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -550. && x < -445. && y > 0. && y < 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -450. && x < -440. && y > 0. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -445. && x < -390. && y > 35. && y < 40.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -395. && x < -385. && y > 35. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -390. && x < -300. && y > 50. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -305. && x < -295. && y > 20. && y < 55.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -300. && x < -200. && y > 20. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -205. && x < -195. && y > -10. && y < 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -200. && x < -95. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -100. && x < -90. && y > -5. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -95. && x < -45. && y > 45. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -55. && x < -45. && y > -10. && y < 50.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -50. && x < 5. && y > -10. && y < -5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > -5. && x < 5. && y > -10. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 0. && x < 105. && y > 25. && y < 30.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 95. && x < 105. && y > 25.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 100. && x < 200. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 195. && x < 205. && y > 15.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 200. && x < 605. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 595. && x < 605. && y > 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 600. && x < 700. && y > 56.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+    if (x > 695. && x < 705. && y > 5.) gl_FragColor = vec4(curveColor, disc * vAlpha);
+  }
+  
+  if (x > -695. && x < -690. && y < 20. && y > 15.) gl_FragColor = vec4(pointColor1, disc * vAlpha);
+  if (x > -605. && x < -600. && y > 56.) gl_FragColor = vec4(pointColor2, disc * vAlpha);
+  if (x > -500. && x < -495. && y > 0. && y < 5.) gl_FragColor = vec4(pointColor2, disc * vAlpha);
+  if (x > -410. && x < -405. && y > 35. && y < 40.) gl_FragColor = vec4(pointColor2, disc * vAlpha);
+  if (x > -300. && x < -295. && y > 20. && y < 25.) gl_FragColor = vec4(pointColor3, disc * vAlpha);
+  if (x > -200. && x < -195. && y > -10. && y < -5.) gl_FragColor = vec4(pointColor3, disc * vAlpha);
+  if (x > -100. && x < -95. && y > -10. && y < -5.) gl_FragColor = vec4(pointColor3, disc * vAlpha);
+  if (x > -60. && x < -55. && y > 45. && y < 50.) gl_FragColor = vec4(pointColor3, disc * vAlpha);
+  if (x > -5. && x < 5. && y > 0. && y < 5.) gl_FragColor = vec4(pointColor3, disc * vAlpha);
+  if (x > 50. && x < 55. && y > 25. && y < 30.) gl_FragColor = vec4(pointColor4, disc * vAlpha);
+  if (x > 100. && x < 105. && y > 56.) gl_FragColor = vec4(pointColor4, disc * vAlpha);
+  if (x > 200. && x < 205. && y > 15. && y < 20.) gl_FragColor = vec4(pointColor4, disc * vAlpha);
+  if (x > 300. && x < 305. && y > 15. && y < 20.) gl_FragColor = vec4(pointColor4, disc * vAlpha);
+  if (x > 400. && x < 405. && y > 15. && y < 20.) gl_FragColor = vec4(pointColor4, disc * vAlpha);
+  if (x > 500. && x < 505. && y > 15. && y < 20.) gl_FragColor = vec4(pointColor5, disc * vAlpha);
+  if (x > 600. && x < 605. && y > 56.) gl_FragColor = vec4(pointColor5, disc * vAlpha);
+  if (x > 695. && x < 705. && y > 5. && y < 10.) vec4(pointColor5, disc * vAlpha);
 }
 `;
 
@@ -180,10 +206,10 @@ varying vec3 vColor;
 uniform sampler2D targetTex;
 varying vec2 vUv;
 vec4 mod289(vec4 x) {
-return x - floor(x * (1.0 / 289.0)) * 289.0;
+return x - floor(x * (1.089.0)) * 289.0;
 }
 float mod289(float x) {
-return x - floor(x * (1.0 / 289.0)) * 289.0;
+return x - floor(x * (1.089.0)) * 289.0;
 }
 vec4 permute(vec4 x) {
 return mod289(((x*34.0)+1.0)*x);
@@ -213,7 +239,7 @@ return p;
 #define F4 0.309016994374947451
 float snoise(vec4 v) {
   const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4
-  0.276393202250021,  // 2 * G4
+  0.276393202250021,   * G4
   0.414589803375032,  // 3 * G4
   -0.447213595499958); // -1 + 4 * G4
   // First corner
@@ -290,10 +316,10 @@ varying vec2 vUv;
 varying float noise;
 uniform sampler2D tExplosion;
 vec3 mod289(vec3 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+  return x - floor(x * (1.089.0)) * 289.0;
 }
 vec4 mod289(vec4 x) {
-  return x - floor(x * (1.0 / 289.0)) * 289.0;
+  return x - floor(x * (1.089.0)) * 289.0;
 }
 vec4 permute(vec4 x) {
   return mod289(((x*34.0)+10.0)*x);
@@ -519,8 +545,8 @@ uniform vec2 u_resolution;
   const vec3 cloudcolour = vec3(.07,0.0,.24);
   const vec3 lightcolour = vec3(.25,0.6,1.);
   
-  float mod289(float x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
-  vec4 mod289(vec4 x){return x - floor(x * (1.0 / 289.0)) * 289.0;}
+  float mod289(float x){return x - floor(x * (1.089.0)) * 289.0;}
+  vec4 mod289(vec4 x){return x - floor(x * (1.089.0)) * 289.0;}
   vec4 perm(vec4 x){return mod289(((x * 34.0) + 1.0) * x);}
 
   float noise(vec3 p){

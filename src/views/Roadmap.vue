@@ -83,17 +83,14 @@ export default {
       roadmapGeo: null,
       roadmapMat: null,
       roadmapMesh: null,
-      roadmapHover: false,
+      roadmapUniforms: null,
       raycaster: new THREE.Raycaster(),
-      filterLine: false,
-      filterLineIndex: false,
       mouse: new THREE.Vector2(),
       renderer: null,
       mouseX: 0,
       mouseY: 0,
       windowHalfX: window.innerWidth / 2,
       windowHalfY: window.innerHeight / 2,
-      positions: null,
       uniforms: null,
       isPointerDown: false,
       direction: "",
@@ -108,11 +105,9 @@ export default {
       partVertex: part_vertex,
       partFragment: part_fragment,
       labelRenderer: new CSS2DRenderer(),
-      meshPartMat: null,
-      meshPartGeo: null,
       yearMesh: null,
-      meshParticles: null,
-      meshBubles: 16,
+      bubleMesh: null,
+      meshBubles: 17,
       colors: [
         new THREE.Color(0xFF7152),
         new THREE.Color(0xF59337),
@@ -120,23 +115,10 @@ export default {
         new THREE.Color(0x5910C5),
         new THREE.Color(0x3F057E)
       ],
-      yD: [0, 40, -10, 25, 5, -40, -20, 30, 0, 10, 50, 5, -10, -10, 0, 40, -30],
-      xD: [-700, -600, -500, -400, -300, -200, -100, -50, 0, 50, 100, 200, 300, 400, 500, 600, 700],
+      yD: [17, 57, 2, 37, 22, -7, -7, 47, 2, 27, 55, 17, 17, 17, 17, 55, 7],
+      xD: [-693, -602, -500, -407, -297, -197, -97, -57, 0, 52, 102, 202, 302, 402, 502, 602, 703],
       itemSize: 0,
       itemAlpha: 0,
-      lineGeometry0: null,
-      lineGeometry1: null,
-      lineGeometry2: null,
-      lineGeometry3: null,
-      lineGeometry4: null,
-      glowM0: null,
-      glowM1: null,
-      glowM2: null,
-      glowM3: null,
-      glowM4: null,
-      ringMesh: null,
-      ringMesh1: null,
-      ringMesh2: null,
       filterVisible: false,
       bubleData: [
         {
@@ -210,11 +192,11 @@ export default {
       ],
       help: null,
       closeFilter: false,
-      rotateM: null,
-      rotateMBack: null,
       routeClicked: false,
       clock: new THREE.Clock(),
-      alphas: null
+      alphas: null,
+      INTERSECTED: null,
+      holdRoadmapPath: false,
     }
   },
   methods: {
@@ -266,7 +248,6 @@ export default {
       this.createRoadmapBody();
       this.createBubleParticles();
       this.createRoadmapTimePoints();
-      this.createRoadmapPaths();
       this.loadFilter();
 
       this.renderer = new THREE.WebGLRenderer();
@@ -302,20 +283,25 @@ export default {
      
       this.roadmapGeo.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
 
-      this.uniforms = {
+      this.roadmapUniforms = {
         time: { type: "f", value: 0.0 },
         uColor: { value: new THREE.Color(0x878FFF) },
-        curveColor: { value: this.colors[0] }
+        curveColor: { value: this.colors[0] },
+        pointColor1: { value: this.colors[0] },
+        pointColor2: { value: this.colors[1] },
+        pointColor3: { value: this.colors[2] },
+        pointColor4: { value: this.colors[3] },
+        pointColor5: { value: this.colors[4] },
+        displayCurve: { value: false }
       };
 
       this.roadmapMat = new THREE.ShaderMaterial({
-        uniforms: this.uniforms,
+        uniforms: this.roadmapUniforms,
         vertexShader: this.roadmapVertex,
         fragmentShader: this.roadmapFragment,
         transparent: true,
         depthTest: false,
-        depthWrite: false,
-        //blending: THREE.AdditiveBlending
+        depthWrite: false
       });
 
       this.roadmapMesh = new THREE.Points(this.roadmapGeo, this.roadmapMat);
@@ -324,61 +310,16 @@ export default {
       this.scene.add(this.roadmapMesh);
     },
     createRoadmapTimePoints: function () {
-      var meshBubles = 17;
-
-      for (let i = 0; i < meshBubles; ++i) {
-        let tooltipPosition = -15;
-        const tooltipLineMat = new THREE.LineBasicMaterial({
-          color: 0xffffff
-        });
-
-        const linePoints = [];
-        linePoints.push(new THREE.Vector3(0, 0, 0));
-        linePoints.push(new THREE.Vector3(0, 0, 200));
-
-        var lineGeom = new THREE.BufferGeometry().setFromPoints(linePoints);
-        // lineGeom.position.y = -50;
-        var tooltipLineMesh = new THREE.Line(lineGeom, new THREE.ShaderMaterial({
-          uniforms: {
-            color: {
-              value: new THREE.Color(0xffffff)
-            },
-            origin: {
-              value: new THREE.Vector3()
-            }
-          },
-          vertexShader: `
-            varying vec3 vPos;
-            void main()
-            {
-              vPos = position;
-              vec4 modelViewPosition = modelViewMatrix * vec4(position, 1.0);
-              gl_Position = projectionMatrix * modelViewPosition;
-            }
-          `,
-          fragmentShader: `
-              uniform vec3 origin;
-              uniform vec3 color;
-              varying vec3 vPos;
-              float limitDistance = 20.0;
-              void main() {
-                float distance = clamp(length(vPos - origin), 0., limitDistance);
-                float opacity = 1. - distance / limitDistance;
-                gl_FragColor = vec4(color, opacity);
-              }
-          `,
-          transparent: true
-        }));
-        // tooltipLineMesh.position.z = -15;
-        tooltipLineMesh.position.z = -20;
-
+      for (let i = 0; i < this.meshBubles; ++i) {
         const toolDiv = document.createElement('div');
         const toolTitle = document.createElement('div');
         toolDiv.id = 'buble-tooltip' + i;
         toolDiv.className = 'buble-tooltip';
-        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14){
+
+        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14) {
           toolDiv.className = 'active';
         }
+
         toolDiv.appendChild(toolTitle);
         toolTitle.textContent = this.bubleData[i].title;
         if(this.bubleData[i].category){
@@ -388,287 +329,19 @@ export default {
         }
 
         const bubleTooltip = new CSS2DObject(toolDiv);
-
-        let toolCircleGeo = new THREE.SphereBufferGeometry(0.8, 32, 32);
-        let toolCircleMat = new THREE.MeshBasicMaterial({
-          color: 0xffffff
+        let lGeo = new THREE.SphereBufferGeometry(10, 30, 30);
+        let lMat = new THREE.MeshBasicMaterial({
+          color: this.colors[0],
+          transparent: true,
+          opacity: 0
         });
-        let toolCircleMesh = new THREE.Mesh(toolCircleGeo, toolCircleMat);
-        toolCircleMesh.position.z = 0;
+        this.bubleMesh = new THREE.Mesh(lGeo, lMat);
+        this.bubleMesh.add(bubleTooltip);
 
-        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14) {
-          tooltipPosition = -8;
-
-          this.meshPartGeo = new THREE.SphereBufferGeometry(13, 20, 20);
-          this.meshPartMat = new THREE.MeshBasicMaterial({
-            wireframe: false,
-            transparent: true,
-            depthTest: false,
-            opacity: 0
-          });
-
-          this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
-
-          tooltipLineMesh.add(bubleTooltip);
-          tooltipLineMesh.add(toolCircleMesh);
-          this.meshParticles.rotation.x = -0.2;
-          this.meshParticles.add(tooltipLineMesh);
-
-          let ring1Geo = new THREE.RingGeometry(12.8, 12.2, 32);
-          let ring2Geo = new THREE.RingGeometry(7.4, 6.8, 32);
-          let ring3Geo = new THREE.RingGeometry(3.1, 2.5, 32);
-          let coreGeo = new THREE.RingGeometry(0.8, 0, 32);
-          let ringMat0 = new THREE.MeshBasicMaterial({
-            color: 0x878FFF,
-            wireframe: false,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.2
-          });
-          let ringMat1 = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.5
-          });
-          let ringMat2 = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            transparent: true,
-            depthTest: false,
-            opacity: 0.8
-          });
-          let ringMat3 = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-          });
-          let ringMesh1 = new THREE.Mesh(ring1Geo, ringMat0);
-          let ringMesh2 = new THREE.Mesh(ring2Geo, ringMat1);
-          let ringMesh3 = new THREE.Mesh(ring3Geo, ringMat2);
-          let coreMesh = new THREE.Mesh(coreGeo, ringMat3);
-
-          ringMesh1.rotation.x = 1.3;
-          ringMesh2.rotation.x = 1.3;
-          ringMesh3.rotation.x = 1.3;
-          coreMesh.rotation.x = 1.3;
-
-          this.meshParticles.add(ringMesh1);
-          this.meshParticles.add(ringMesh2);
-          this.meshParticles.add(ringMesh3);
-          this.meshParticles.add(coreMesh);
-        } else {
-          this.meshPartGeo = new THREE.SphereBufferGeometry(6, 32, 32);
-          let bColor = this.colors[0];
-
-          if (i === 2 || i === 3) {
-            bColor = this.colors[1];
-          }
-
-          if (i === 5 || i === 6 || i === 7 || i === 8) {
-            bColor = this.colors[2];
-          }
-
-          if (i === 10 || i === 11 || i === 12 || i === 13) {
-            bColor = this.colors[3];
-          }
-
-          if (i === 15 || i === 16) {
-            bColor = this.colors[4];
-          }
-
-          this.meshPartMat = new THREE.MeshBasicMaterial({
-            color: bColor,
-            transparent: true,
-            opacity: 0.5
-          });
-
-          let bGeo = new THREE.SphereBufferGeometry(4, 32, 32);
-          let bMat = new THREE.MeshLambertMaterial({
-            color: bColor
-          });
-          let bMesh = new THREE.Mesh(bGeo, bMat);
-          this.meshParticles = new THREE.Mesh(this.meshPartGeo, this.meshPartMat);
-          this.meshParticles.add(bubleTooltip);
-          this.meshParticles.add(bMesh);
-        }
-
-        bubleTooltip.position.set(0, 0, tooltipPosition);
-        this.meshPartGeo.computeBoundsTree();
-        this.meshParticles.position.setY(this.yD[i]);
-        this.meshParticles.position.setX(this.xD[i]);
-        this.roadmapMesh.add(this.meshParticles);
+        this.bubleMesh.position.setY(this.yD[i]);
+        this.bubleMesh.position.setX(this.xD[i]);
+        this.roadmapMesh.add(this.bubleMesh);
       }
-    },
-    createRoadmapPaths: function () {
-      const lineMaterial = new THREE.LineBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        color: this.colors[0]
-      });
-
-      const lineMaterial1 = new THREE.LineBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        color: this.colors[1]
-      });
-
-      const lineMaterial2 = new THREE.LineBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        color: this.colors[2]
-      });
-
-      const lineMaterial3 = new THREE.LineBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        color: this.colors[3]
-      });
-
-      const lineMaterial4 = new THREE.LineBasicMaterial({
-        transparent: true,
-        opacity: 0,
-        color: this.colors[4]
-      });
-
-      const spline0 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-2000, 0, 0),
-        new THREE.Vector3(this.xD[0], this.yD[0], 0),
-        new THREE.Vector3(this.xD[1], this.yD[1], 0),
-        new THREE.Vector3(this.xD[2], this.yD[2], 0),
-        new THREE.Vector3(this.xD[3], this.yD[3], 0),
-        new THREE.Vector3(this.xD[4], this.yD[4], 0),
-        new THREE.Vector3(this.xD[5], this.yD[5], 0),
-        new THREE.Vector3(this.xD[6], this.yD[6], 0),
-        new THREE.Vector3(this.xD[7], this.yD[7], 0),
-        new THREE.Vector3(this.xD[8], this.yD[8], 0),
-        new THREE.Vector3(this.xD[9], this.yD[9], 0),
-        new THREE.Vector3(this.xD[10], this.yD[10], 0),
-        new THREE.Vector3(this.xD[11], this.yD[11], 0),
-        new THREE.Vector3(this.xD[12], this.yD[12], 0),
-        new THREE.Vector3(this.xD[13], this.yD[13], 0),
-        new THREE.Vector3(this.xD[14], this.yD[14], 0),
-        new THREE.Vector3(this.xD[15], this.yD[15], 0),
-        new THREE.Vector3(this.xD[16], this.yD[16], 0),
-        new THREE.Vector3(2000, 0, 0),
-      ]);
-
-      var splinePoints0 = spline0.getPoints(4000);
-
-      const glowG0 = new THREE.TubeGeometry(spline0, 4000, 1.3, 8, false);
-      this.glowM0 = new THREE.MeshBasicMaterial({
-        color: this.colors[0],
-        opacity: 0,
-        transparent: true,
-        depthTest: false
-      });
-      const glowMesh0 = new THREE.Mesh(glowG0, this.glowM0);
-
-      const spline1 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-2000, 0, 0),
-        new THREE.Vector3(this.xD[0], this.yD[0], 0),
-        new THREE.Vector3(this.xD[1], this.yD[1], 0),
-        new THREE.Vector3(this.xD[2], this.yD[2], 0),
-        new THREE.Vector3(this.xD[3], this.yD[3], 0),
-        new THREE.Vector3(2000, 0, 0),
-      ]);
-
-      var splinePoints1 = spline1.getPoints(4000);
-
-      const glowG1 = new THREE.TubeGeometry(spline1, 4000, 1.3, 8, false);
-      this.glowM1 = new THREE.MeshBasicMaterial({
-        color: this.colors[1],
-        opacity: 0,
-        transparent: true,
-        depthTest: false
-      });
-      const glowMesh1 = new THREE.Mesh(glowG1, this.glowM1);
-
-      const spline2 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-2000, 0, 0),
-        new THREE.Vector3(this.xD[0], this.yD[0], 0),
-        new THREE.Vector3(this.xD[4], this.yD[4], 0),
-        new THREE.Vector3(this.xD[5], this.yD[5], 0),
-        new THREE.Vector3(this.xD[6], this.yD[6], 0),
-        new THREE.Vector3(this.xD[7], this.yD[7], 0),
-        new THREE.Vector3(this.xD[8], this.yD[8], 0),
-        new THREE.Vector3(2000, 0, 0),
-      ]);
-
-      var splinePoints2 = spline2.getPoints(4000);
-
-      const glowG2 = new THREE.TubeGeometry(spline2, 4000, 1.3, 8, false);
-      this.glowM2 = new THREE.MeshBasicMaterial({
-        color: this.colors[2],
-        opacity: 0,
-        transparent: true,
-        depthTest: false
-      });
-      const glowMesh2 = new THREE.Mesh(glowG2, this.glowM2);
-
-      const spline3 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-2000, 0, 0),
-        new THREE.Vector3(this.xD[0], this.yD[0], 0),
-        new THREE.Vector3(this.xD[9], this.yD[9], 0),
-        new THREE.Vector3(this.xD[10], this.yD[10], 0),
-        new THREE.Vector3(this.xD[11], this.yD[11], 0),
-        new THREE.Vector3(this.xD[12], this.yD[12], 0),
-        new THREE.Vector3(this.xD[13], this.yD[13], 0),
-        new THREE.Vector3(2000, 0, 0),
-      ]);
-
-      var splinePoints3 = spline3.getPoints(4000);
-
-      const glowG3 = new THREE.TubeGeometry(spline3, 4000, 1.3, 8, false);
-      this.glowM3 = new THREE.MeshBasicMaterial({
-        color: this.colors[3],
-        opacity: 0,
-        transparent: true,
-        depthTest: false
-      });
-      const glowMesh3 = new THREE.Mesh(glowG3, this.glowM3);
-
-      const spline4 = new THREE.CatmullRomCurve3([
-        new THREE.Vector3(-2000, 0, 0),
-        new THREE.Vector3(this.xD[0], this.yD[0], 0),
-        new THREE.Vector3(this.xD[14], this.yD[14], 0),
-        new THREE.Vector3(this.xD[15], this.yD[15], 0),
-        new THREE.Vector3(this.xD[16], this.yD[16], 0),
-        new THREE.Vector3(2000, 0, 0),
-      ]);
-
-      var splinePoints4 = spline4.getPoints(4000);
-
-      const glowG4 = new THREE.TubeGeometry(spline4, 4000, 1.3, 8, false);
-      this.glowM4 = new THREE.MeshBasicMaterial({
-        color: this.colors[4],
-        opacity: 0,
-        transparent: true,
-        depthTest: false
-      });
-      const glowMesh4 = new THREE.Mesh(glowG4, this.glowM4);
-
-      this.lineGeometry0 = new THREE.BufferGeometry().setFromPoints(splinePoints0);
-      const lineMesh0 = new THREE.Line(this.lineGeometry0, lineMaterial);
-      lineMesh0.add(glowMesh0);
-      this.roadmapMesh.add(lineMesh0);
-
-      this.lineGeometry1 = new THREE.BufferGeometry().setFromPoints(splinePoints1);
-      const lineMesh1 = new THREE.Line(this.lineGeometry1, lineMaterial1);
-      lineMesh1.add(glowMesh1);
-      this.roadmapMesh.add(lineMesh1);
-
-      this.lineGeometry2 = new THREE.BufferGeometry().setFromPoints(splinePoints2);
-      const lineMesh2 = new THREE.Line(this.lineGeometry2, lineMaterial2);
-      lineMesh2.add(glowMesh2);
-      this.roadmapMesh.add(lineMesh2);
-
-      this.lineGeometry3 = new THREE.BufferGeometry().setFromPoints(splinePoints3);
-      const lineMesh3 = new THREE.Line(this.lineGeometry3, lineMaterial3);
-      lineMesh3.add(glowMesh3);
-      this.roadmapMesh.add(lineMesh3);
-
-      this.lineGeometry4 = new THREE.BufferGeometry().setFromPoints(splinePoints4);
-      const lineMesh4 = new THREE.Line(this.lineGeometry4, lineMaterial4);
-      lineMesh4.add(glowMesh4);
-      this.roadmapMesh.add(lineMesh4);
     },
     createBubleParticles: function () {
       const partLoader = new THREE.TextureLoader();
@@ -737,32 +410,6 @@ export default {
         document.getElementById('filters-container').classList.add('active');
       }, 5000);
     },
-    toggleFilter: function (status) {
-      let value = 0;
-      let class1, class2, class3, class4, class5;
-
-      if (status) {
-        value = 1;
-        class1 = 'list-itemf1';
-        class2 = 'list-itemf2';
-        class3 = 'list-itemf3';
-        class4 = 'list-itemf4';
-        class5 = 'list-itemf5';
-
-        document.getElementById(class1).style['display'] = 'flex';
-        document.getElementById(class2).style['display'] = 'flex';
-        document.getElementById(class3).style['display'] = 'flex';
-        document.getElementById(class4).style['display'] = 'flex';
-        document.getElementById(class5).style['display'] = 'flex';
-      } else {
-        value = 0;
-        class1 = 'list-itemf5';
-        class2 = 'list-itemf4';
-        class3 = 'list-itemf3';
-        class4 = 'list-itemf2';
-        class5 = 'list-itemf1';
-      }
-    },
     moveRoadmapFromSlider: function () {
       this.roadmapMesh.position.set(0, 500, -500);
       this.roadmapMesh.rotation.x = 2.8;
@@ -802,77 +449,16 @@ export default {
         .start();
       }, 1000);
     },
-    showRoadmapPath: function (index, action) {
-      let object = this.roadmapMesh.children[17];
-
-      if (index === 0) {
-        object = this.roadmapMesh.children[17];
-      } else if (0 < index && index < 4) {
-        object = this.roadmapMesh.children[18];
-      } else if (3 < index && index < 9) {
-        object = this.roadmapMesh.children[19];
-      } else if (8 < index && index < 14) {
-        object = this.roadmapMesh.children[20];
-      } else if (13 < index) {
-        object = this.roadmapMesh.children[21];
-      }
-
-      if (action === 'show' && object.material.opacity == 0) {
-        object.material.uniformsNeedUpdate = true;
-
-        new TWEEN.Tween(object.children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-
-        new TWEEN.Tween(object.material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }
-
-      if (action === 'hide' && (this.roadmapMesh.children[17].material.opacity == 1 ||
-        this.roadmapMesh.children[18].material.opacity == 1 ||
-        this.roadmapMesh.children[19].material.opacity == 1 ||
-        this.roadmapMesh.children[20].material.opacity == 1 ||
-        this.roadmapMesh.children[21].material.opacity == 1
-      )) {
-        new TWEEN.Tween(object.material)
-        .to({ opacity: action === 'show' ? 1 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-
-        new TWEEN.Tween(object.children[0].material)
-        .to({ opacity: action === 'show' ? 0.25 : 0 }, action === 'show' ? 500 : 200)
-        .easing(TWEEN.Easing.Quadratic.Out)
-        .start();
-      }
-    },
     animate: function () {
       const theTime = performance.now() * 0.001;
-      const bubleTime = theTime / 4;
-
       const delta = 5 * this.clock.getDelta();
 
-      this.roadmapMesh.children[17].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[18].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[19].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[20].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMesh.children[21].children[0].scale.setZ(Math.sin(theTime * 2));
-      this.roadmapMat.uniforms.time.value = theTime / 10;
-
-      for (let i = 0; i < 17; i++) {
-        if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
-        } else {
-          this.roadmapMesh.children[i].rotation.z = bubleTime;
-        }
-      }
+      this.roadmapMat.uniforms.time.value = theTime / 15;
 
       let partZSin = Math.sin(theTime);
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
       this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
       this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
-      this.meshParticles.position.y = this.meshParticles.position.y / 1.1 + partZSin / 2;
 
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);
@@ -886,15 +472,14 @@ export default {
         this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
         this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.raycaster.firstHitOnly = true;
 
         this.alphas = this.roadmapGeo.attributes.alpha;
         var count = this.alphas.count;
-        for( var i = 0; i < count; i ++ ) {
+        for(var i = 0; i < count; i++) {
           // dynamically change alphas
-          this.alphas.array[ i ] *= 0.95;
-          if ( this.alphas.array[ i ] < 0.2 ) { 
-            this.alphas.array[ i ] = 1.0;
+          this.alphas.array[i] *= 0.95;
+          if (this.alphas.array[i] < 0.2) { 
+            this.alphas.array[i] = 1.0;
           }
         }
 
@@ -904,7 +489,7 @@ export default {
       }
     },
     route: function (id) {
-      for (let i = 0; i < 17; i++) {
+      /*for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
           this.routeClicked = true;
@@ -936,18 +521,11 @@ export default {
             }, 1000);
           }
         }
-      }
-    },
-    deleteLines: function () {
-      for(let i = 0; i < 6; i++){
-        this.showRoadmapPath(i,'hide');
-      }
+      }*/
     },
     closeFilters() {
       this.closeFilter = false;
       this.filterLine = false;
-      this.deleteLines();
-      this.filterLineIndex = null;
     },
     filterClick: function (e) {
       this.filterVisible = !this.filterVisible;
@@ -957,50 +535,53 @@ export default {
         el.innerHTML = 'Filter';
         el.style['color'] = '#FFFFFF';
         this.closeFilter = false;
-      }
-
-      if(e.target.id == 'list-itemf0') {
-
+        this.holdRoadmapPath = false;
       }
 
       if (e.target.id == 'list-itemf1') {
-        this.filterLineIndex = 0;
         el.innerHTML = 'Inception';
         el.style['color'] = '#FF7152';
         this.closeFilter = true;
+        this.roadmapMat.uniforms.displayCurve.value = true;
+        this.holdRoadmapPath = true;
+        this.roadmapUniforms.curveColor.value = this.colors[0];
       }
 
       if (e.target.id == 'list-itemf2') {
-        this.filterLineIndex = 1;
         el.innerHTML = 'Year 2021';
         el.style['color'] = '#F59337';
         this.closeFilter = true;
+        this.roadmapMat.uniforms.displayCurve.value = true;
+        this.holdRoadmapPath = true;
+        this.roadmapUniforms.curveColor.value = this.colors[1];
       }
 
       if (e.target.id == 'list-itemf3') {
-        this.filterLineIndex = 6;
         el.innerHTML = 'Year 2022';
         el.style['color'] = '#E10FEC';
         this.closeFilter = true;
+        this.roadmapMat.uniforms.displayCurve.value = true;
+        this.holdRoadmapPath = true;
+        this.roadmapUniforms.curveColor.value = this.colors[2];
       }
+
       if (e.target.id == 'list-itemf4') {
-        this.filterLineIndex = 11;
         el.innerHTML = 'Year 2023';
         el.style['color'] = '#5910C5';
         this.closeFilter = true;
+        this.roadmapMat.uniforms.displayCurve.value = true;
+        this.holdRoadmapPath = true;
+        this.roadmapUniforms.curveColor.value = this.colors[3];
       }
 
       if (e.target.id == 'list-itemf5') {
-        this.filterLineIndex = 16;
         el.innerHTML = 'Year 2024';
         el.style['color'] = '#3F057E';
         this.closeFilter = true;
+        this.roadmapMat.uniforms.displayCurve.value = true;
+        this.holdRoadmapPath = true;
+        this.roadmapUniforms.curveColor.value = this.colors[4];
       }
-
-      // this.toggleFilter(this.filterVisible);
-      this.filterLine = true;
-      this.deleteLines();
-      this.showRoadmapPath(this.filterLineIndex,'show');
     },
     onWindowResize: function () {
       this.camera.aspect = window.innerWidth / window.innerHeight;
@@ -1041,130 +622,6 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-      for (let i = 0; i < 17; i++) {
-        if (this.scene.children[3] === undefined) {
-          return false;
-        } else {
-          let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
-          int = int.length > 0 ? int : false;
-
-          if (int && this.filterLineIndex !== i) {
-            var iMesh = int[0].object;
-            var tooltipClass = "";
-
-            if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
-              tooltipClass = iMesh.children[0].children[0].element.id;
-              let hoverCol = new THREE.Color('#8785FF');
-
-              if(iMesh.children[1].scale.x !== 1.2) {
-                new TWEEN.Tween(iMesh.children[1].scale)
-                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
-
-                /*new TWEEN.Tween(iMesh.children[1].material.color)
-                .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();*/
-              }
-
-              if(iMesh.children[2].scale.x !== 1.2) {
-                new TWEEN.Tween(iMesh.children[2].scale)
-                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
-
-                /*new TWEEN.Tween(iMesh.children[2].material.color)
-                .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();*/
-              }
-
-              if(iMesh.children[3].scale.x !== 1.2) {
-                new TWEEN.Tween(iMesh.children[3].scale)
-                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();
-
-                /*new TWEEN.Tween(iMesh.children[3].material.color)
-                .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
-                .easing(TWEEN.Easing.Quartic.InOut)
-                .start();*/
-              }
-            } else {
-              tooltipClass = iMesh.children[0].element.id;
-              if(int[0].object.scale.x !== 1.2){
-                new TWEEN.Tween(int[0].object.scale)
-                .to({ x: 1.2, y: 1.2, z: 1.2 }, 300)
-                .easing(TWEEN.Easing.Quadratic.Out)
-                .start();
-              }
-            }
-
-            var tooltip = document.getElementById(tooltipClass);
-            tooltip.classList.add('active');
-
-            this.showRoadmapPath(i, 'show');
-          } else {
-            if(this.filterLineIndex === i){
-              this.showRoadmapPath(i, 'show');
-            } else {
-              //this.scene.children[3].children[i].material.color = new THREE.Color(0x878FFF);
-              var tooltipClass = "";
-
-              if (i === 0 || i === 1 || i === 4 || i === 9 || i === 14) {
-                tooltipClass = this.scene.children[3].children[i].children[0].children[0].element.id;
-                let hoverCol = new THREE.Color('#FFFFFF');
-
-                if(this.scene.children[3].children[i].children[3].scale.x !== 1) {
-                  new TWEEN.Tween(this.scene.children[3].children[i].children[3].scale)
-                  .to({ x: 1, y: 1, z: 1 }, 300)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
-
-                  /*new TWEEN.Tween(this.scene.children[3].children[i].children[3].material.color)
-                  .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b, }, 300)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();*/
-                }
-
-                if(this.scene.children[3].children[i].children[2].scale.x !== 1) {
-                  new TWEEN.Tween(this.scene.children[3].children[i].children[2].scale)
-                  .to({ x: 1, y: 1, z: 1 }, 400)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
-
-                  /*new TWEEN.Tween(this.scene.children[3].children[i].children[2].material.color)
-                  .to({ r: hoverCol.r, g: hoverCol.g, b: hoverCol.b }, 400)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();*/
-                }
-
-                if(this.scene.children[3].children[i].children[1].scale.x !== 1) {
-                  new TWEEN.Tween(this.scene.children[3].children[i].children[1].scale)
-                  .to({ x: 1, y: 1, z: 1 }, 500)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
-                }
-              } else {
-                tooltipClass = this.scene.children[3].children[i].children[0].element.id;
-                if(this.scene.children[3].children[i].scale !== 1){
-                  new TWEEN.Tween(this.scene.children[3].children[i].scale)
-                  .to({ x: 1, y: 1, z: 1 }, 100)
-                  .easing(TWEEN.Easing.Quartic.InOut)
-                  .start();
-                }
-              }
-
-              var tooltip = document.getElementById(tooltipClass);
-              tooltip.classList.remove('active');
-
-              this.showRoadmapPath(i, 'hide');
-            }
-          }
-        }
-      }
 
       var pointSizes = this.particles.geometry.attributes.size;
       var pointAlphas = this.particles.geometry.attributes.alpha;
@@ -1210,6 +667,37 @@ export default {
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
+
+      if (this.scene.children[3] === undefined) {
+        return false;
+      } else {
+        let int = this.raycaster.intersectObjects(this.scene.children[3].children);
+        if (int.length > 0) {
+          if (this.INTERSECTED != int[0].object) {
+            this.roadmapMat.uniforms.displayCurve.value = true;
+
+            if (int[0].object.id === 21) {
+              this.roadmapUniforms.curveColor.value = this.colors[0];
+            } 
+            if (int[0].object.id === 23 || int[0].object.id === 25 || int[0].object.id === 27) {
+              this.roadmapUniforms.curveColor.value = this.colors[1];
+            } 
+            if (int[0].object.id === 29 || int[0].object.id === 31 || int[0].object.id === 33 || int[0].object.id === 35 || int[0].object.id === 37 ) {
+              this.roadmapUniforms.curveColor.value = this.colors[2];
+            } 
+            if (int[0].object.id === 39 || int[0].object.id === 41 || int[0].object.id === 43 || int[0].object.id === 45) {
+              this.roadmapUniforms.curveColor.value = this.colors[3];
+            } 
+            if (int[0].object.id === 47 || int[0].object.id === 49) {
+              this.roadmapUniforms.curveColor.value = this.colors[4];
+            }
+          }
+        } else {
+          if (!this.holdRoadmapPath) {
+            this.roadmapMat.uniforms.displayCurve.value = false;
+          }
+        }
+      }
     },
     swipeHandler (direction, event) {
       if(window.innerWidth < 1023){

@@ -196,6 +196,7 @@ export default {
       alphas: null,
       INTERSECTED: null,
       holdRoadmapPath: false,
+      anim: false
     }
   },
   methods: {
@@ -284,7 +285,8 @@ export default {
         pointColor3: { value: this.colors[2] },
         pointColor4: { value: this.colors[3] },
         pointColor5: { value: this.colors[4] },
-        displayCurve: { value: false }
+        displayCurve: { value: false },
+        fadeOut: { value: false }
       };
 
       this.roadmapMat = new THREE.ShaderMaterial({
@@ -408,15 +410,15 @@ export default {
     },
     moveRoadmapFromSlider: function () {
       this.particles.position.z = -5000;
-      this.camera.position.z = -1000;
+      this.camera.position.z = 0;
 
       new TWEEN.Tween(this.camera.position)
-      .to({ z: 100 }, 3000)
+      .to({ z: 100 }, 2000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
 
       new TWEEN.Tween(this.particles.position)
-      .to({ z: 0 }, 3000)
+      .to({ z: 0 }, 2000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
     },
@@ -466,7 +468,11 @@ export default {
           // dynamically change alphas
           this.alphas.array[i] *= 0.95;
           if (this.alphas.array[i] < 0.2) { 
-            this.alphas.array[i] = 1.0;
+            if (this.anim) {
+              this.alphas.array[i] = 0;
+            } else {
+              this.alphas.array[i] = 1.0;
+            }
           }
         }
 
@@ -481,6 +487,8 @@ export default {
         if (int.length > 0) {
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
+          this.anim = true;
+          this.roadmapUniforms.fadeOut.value = true;
 
           new TWEEN.Tween(this.camera.position)
           .to({ z: 0 }, 500)

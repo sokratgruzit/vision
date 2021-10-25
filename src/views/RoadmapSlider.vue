@@ -287,7 +287,7 @@
         .start();
 
         new TWEEN.Tween(this.camera.position)
-        .to({ z: 400 }, 5000)
+        .to({ z: 400 }, 2000)
         .easing(TWEEN.Easing.Linear.None)
         .start();
       },
@@ -640,7 +640,7 @@
           .start();
 
           new TWEEN.Tween(this.camera.position)
-          .to({ z: 5000 }, 500)
+          .to({ z: 5000 }, 300)
           .easing(TWEEN.Easing.Linear.None)
           .onComplete(() => {
             if (this.$router.history.current.name !== "Roadmap") {

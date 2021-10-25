@@ -23,6 +23,7 @@ uniform vec3 uColor;
 uniform float time;
 uniform bool displayCurve;
 varying float vAlpha;
+uniform bool fadeOut;
 varying float x;
 varying float y;
 varying float z;
@@ -31,7 +32,11 @@ void main() {
   float disc = 1. - smoothstep(-0.2, 0.5, length(gl_PointCoord - vec2(0.5)));
   disc *= 0.5;
 
-  gl_FragColor = vec4(uColor, disc);
+  if (fadeOut) {
+    gl_FragColor = vec4(uColor, disc * vAlpha);
+  } else {
+    gl_FragColor = vec4(uColor, disc);
+  }
 
   if (displayCurve) {
     if (x > -695. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);

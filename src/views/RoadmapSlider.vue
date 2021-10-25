@@ -222,7 +222,8 @@
         prevBtnYear: 0,
         prevBtnInner: 0,
         nextBtnYear: 0,
-        nextBtnInner: 0
+        nextBtnInner: 0,
+        anim: true
       }
     },
     methods: {
@@ -240,8 +241,10 @@
       sliderScene: function() {
         var container = document.getElementById('slider-container');
         this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / 600, 0.01, 5000);
+        this.camera.position.z = 5000;
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
+        
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -263,7 +266,7 @@
 
         this.renderer = new THREE.WebGLRenderer();
         this.renderer.setSize(window.innerWidth, window.innerHeight);
-        this.renderer.setClearColor(0x878FFF, 0.2);
+        this.renderer.setClearColor(0x878FFF, 0.1);
         container.appendChild(this.renderer.domElement);
 
         this.renderScene = new RenderPass(this.scene, this.camera);
@@ -276,18 +279,17 @@
 				this.composer = new EffectComposer(this.renderer);
 				this.composer.addPass(this.renderScene);
 				this.composer.addPass(this.bloomPass);
-
+      },
+      loadSlider: function () {
         new TWEEN.Tween(this.particles.position)
-        .to({ z: 0 }, 3000)
-        .easing(TWEEN.Easing.Quintic.In)
+        .to({ z: 0 }, 5000)
+        .easing(TWEEN.Easing.Linear.None)
         .start();
 
-        setTimeout(() => {
-          new TWEEN.Tween(this.camera.position)
-          .to({ z: 400 }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-        }, 2000);
+        new TWEEN.Tween(this.camera.position)
+        .to({ z: 400 }, 5000)
+        .easing(TWEEN.Easing.Linear.None)
+        .start();
       },
       createSliderImage: function() {
         if (window.innerWidth >=768) {
@@ -402,8 +404,6 @@
 
         this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
         this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
-        //this.leftMesh.scale.set(0, 0, 0);
-        //this.rightMesh.scale.set(0, 0, 0);
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
@@ -632,31 +632,24 @@
         this.syncButtons();
       },
       wheelScroll: function(event) {
-        const goToRoadmap = () => {
-          if(this.$router.history.current.name !== "Roadmap"){
-            this.$router.push({ name: 'Roadmap'});
-          }
-        };
-        this.activeSlider = false;
-        new TWEEN.Tween(this.particles.position)
-        .to({ z: -10000 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
+        if (this.anim) {
+          this.activeSlider = false;
+          new TWEEN.Tween(this.particles.position)
+          .to({ z: -7000 }, 500)
+          .easing(TWEEN.Easing.Linear.None)
+          .start();
 
-        new TWEEN.Tween(this.camera.position)
-        .to({ z: 0 }, 1500)
-        .onComplete(function() {
-          goToRoadmap();
-        })
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      },
-      handleScroll (event) {
-
-      },
-      updateCarousel (payload) {
-        // this.$store.commit('changeSlide', payload.currentSlide);
-        // this.$store.commit('setChangeSlide', true);
+          new TWEEN.Tween(this.camera.position)
+          .to({ z: 5000 }, 500)
+          .easing(TWEEN.Easing.Linear.None)
+          .onComplete(() => {
+            if (this.$router.history.current.name !== "Roadmap") {
+              this.$router.push({ name: 'Roadmap'});
+            }
+          })
+          .start();
+          this.anim = false;
+        }
       },
       syncButtons: function () {
         if (this.activeYear === 0) {
@@ -773,6 +766,7 @@
       this.syncButtons();
       this.sliderScene();
       this.animate();
+      this.loadSlider();
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
       document.addEventListener('wheel', this.wheelScroll, false);
@@ -787,14 +781,12 @@
       this.raycaster = null;
       this.$store.commit('stopRoadmapInner', true)
       this.scene.remove(this.scene.children[0]);
-      this.renderer = null;
+      //this.renderer = null;
     },
     watch: {
       '$store.state.stopRoadmapInner': function () {
         if (this.$store.state.stopRoadmapInner == false) {
           this.animate();
-        }else{
-          this.renderer = null;
         }
       }
     }

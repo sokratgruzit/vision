@@ -206,10 +206,10 @@ varying vec3 vColor;
 uniform sampler2D targetTex;
 varying vec2 vUv;
 vec4 mod289(vec4 x) {
-return x - floor(x * (1.089.0)) * 289.0;
+return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 float mod289(float x) {
-return x - floor(x * (1.089.0)) * 289.0;
+return x - floor(x * (1.0 / 289.0)) * 289.0;
 }
 vec4 permute(vec4 x) {
 return mod289(((x*34.0)+1.0)*x);
@@ -239,7 +239,7 @@ return p;
 #define F4 0.309016994374947451
 float snoise(vec4 v) {
   const vec4  C = vec4( 0.138196601125011,  // (5 - sqrt(5))/20  G4
-  0.276393202250021,   * G4
+  0.276393202250021,  // 2 * G4
   0.414589803375032,  // 3 * G4
   -0.447213595499958); // -1 + 4 * G4
   // First corner

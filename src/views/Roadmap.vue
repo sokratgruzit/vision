@@ -192,7 +192,6 @@ export default {
       ],
       help: null,
       closeFilter: false,
-      routeClicked: false,
       clock: new THREE.Clock(),
       alphas: null,
       INTERSECTED: null,
@@ -222,12 +221,7 @@ export default {
       container.appendChild(this.labelRenderer.domElement);
 
       this.camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.01, 1500);
-
-      if(window.innerWidth < 1023) {
-        this.camera.position.z = 350;
-      } else {
-        this.camera.position.z = 150;
-      }
+      this.camera.position.z = 100;
 
       this.scene = new THREE.Scene();
 
@@ -274,8 +268,6 @@ export default {
 
       let numVertices = this.roadmapGeo.attributes.position.count;
       this.alphas = new Float32Array(numVertices * 1); // 1 values per vertex
-      this.randoms = new Float32Array(numVertices * 1); // 1 values per vertex
-      this.colorRandoms = new Float32Array(numVertices * 1); // 1 values per vertex
 
       for(var i = 0; i < numVertices; i++) {
         this.alphas[i] = Math.random() * (1 - 0.5) + 0.5;
@@ -407,31 +399,26 @@ export default {
     },
     loadFilter: function () {
       setTimeout(() => {
-        document.getElementById('filters-container').classList.add('active');
+        let filter = document.getElementById('filters-container');
+
+        if (filter !== null) {
+          filter.classList.add('active');
+        }
       }, 5000);
     },
     moveRoadmapFromSlider: function () {
-      this.roadmapMesh.position.set(0, 500, -500);
-      this.roadmapMesh.rotation.x = 2.8;
-      //this.camera.position.set(0, 300, 0);
       this.particles.position.z = -5000;
+      this.camera.position.z = -1000;
 
-      new TWEEN.Tween(this.roadmapMesh.position)
-      .to({ y: 0, z: 0 }, 5000)
+      new TWEEN.Tween(this.camera.position)
+      .to({ z: 100 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
 
-      new TWEEN.Tween(this.roadmapMesh.rotation)
-      .to({ x: 2 }, 3000)
+      new TWEEN.Tween(this.particles.position)
+      .to({ z: 0 }, 3000)
       .easing(TWEEN.Easing.Quintic.Out)
       .start();
-
-      setTimeout(() => {
-        new TWEEN.Tween(this.particles.position)
-        .to({ z: 0 }, 3000)
-        .easing(TWEEN.Easing.Quintic.Out)
-        .start();
-      }, 500);
     },
     moveRoadmapToStart: function () {
       this.roadmapMesh.rotateZ(0.2);
@@ -489,39 +476,30 @@ export default {
       }
     },
     route: function (id) {
-      /*for (let i = 0; i < 17; i++) {
+      for (let i = 0; i < 17; i++) {
         let int = this.raycaster.intersectObjects([this.scene.children[3].children[i]]);
         if (int.length > 0) {
-          this.routeClicked = true;
           var iMesh = int[0].object;
           var tooltipClass = iMesh.children[0].children[0];
 
-          new TWEEN.Tween(this.roadmapMesh.position)
-          .to({ y: 800, z: -500 }, 5000)
-          .easing(TWEEN.Easing.Quintic.Out)
-          .start();
-
-          new TWEEN.Tween(this.roadmapMesh.rotation)
-          .to({ x: 2.8 }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
+          new TWEEN.Tween(this.camera.position)
+          .to({ z: 0 }, 500)
+          .easing(TWEEN.Easing.Linear.None)
+          .onComplete(() => {
+            if (i !== 0) {
+              this.$router.push({ name: 'roadmapInner', params: { id: i }});
+            } else {
+              this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
+            }
+          })
           .start();
 
           new TWEEN.Tween(this.particles.position)
-          .to({ z: -5000 }, 3000)
-          .easing(TWEEN.Easing.Quintic.Out)
+          .to({ z: -5000 }, 500)
+          .easing(TWEEN.Easing.Linear.None)
           .start();
-
-          if(i !== 0){
-            setTimeout(() => {
-              this.$router.push({ name: 'roadmapInner', params: { id: i }});
-            }, 1000);
-          }else{
-            setTimeout(() => {
-              this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
-            }, 1000);
-          }
         }
-      }*/
+      }
     },
     closeFilters() {
       this.closeFilter = false;
@@ -675,21 +653,24 @@ export default {
         if (int.length > 0) {
           if (this.INTERSECTED != int[0].object) {
             this.roadmapMat.uniforms.displayCurve.value = true;
+            let intId = int[0].object.children[0].element.id;
 
-            if (int[0].object.id === 21) {
-              this.roadmapUniforms.curveColor.value = this.colors[0];
-            } 
-            if (int[0].object.id === 23 || int[0].object.id === 25 || int[0].object.id === 27) {
-              this.roadmapUniforms.curveColor.value = this.colors[1];
-            } 
-            if (int[0].object.id === 29 || int[0].object.id === 31 || int[0].object.id === 33 || int[0].object.id === 35 || int[0].object.id === 37 ) {
-              this.roadmapUniforms.curveColor.value = this.colors[2];
-            } 
-            if (int[0].object.id === 39 || int[0].object.id === 41 || int[0].object.id === 43 || int[0].object.id === 45) {
-              this.roadmapUniforms.curveColor.value = this.colors[3];
-            } 
-            if (int[0].object.id === 47 || int[0].object.id === 49) {
-              this.roadmapUniforms.curveColor.value = this.colors[4];
+            if (!this.holdRoadmapPath) {
+              if (intId === 'buble-tooltip0') {
+                this.roadmapUniforms.curveColor.value = this.colors[0];
+              } 
+              if (intId === 'buble-tooltip1' || intId === 'buble-tooltip2' || intId === 'buble-tooltip3') {
+                this.roadmapUniforms.curveColor.value = this.colors[1];
+              } 
+              if (intId === 'buble-tooltip4' || intId === 'buble-tooltip5' || intId === 'buble-tooltip6' || intId === 'buble-tooltip7' || intId === 'buble-tooltip8' ) {
+                this.roadmapUniforms.curveColor.value = this.colors[2];
+              } 
+              if (intId === 'buble-tooltip9' || intId === 'buble-tooltip10' || intId === 'buble-tooltip11' || intId === 'buble-tooltip12' || intId === 'buble-tooltip13') {
+                this.roadmapUniforms.curveColor.value = this.colors[3];
+              } 
+              if (intId === 'buble-tooltip14' || intId === 'buble-tooltip15' || intId === 'buble-tooltip16') {
+                this.roadmapUniforms.curveColor.value = this.colors[4];
+              }
             }
           }
         } else {

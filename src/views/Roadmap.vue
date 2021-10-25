@@ -508,7 +508,7 @@ export default {
           this.roadmapUniforms.fadeOut.value = true;
 
           new TWEEN.Tween(this.camera.position)
-          .to({ z: 0 }, 500)
+          .to({ z: 15 }, 500)
           .easing(TWEEN.Easing.Linear.None)
           .onComplete(() => {
             if (i !== 0) {
@@ -675,6 +675,7 @@ export default {
         return false;
       } else {
         let int = this.raycaster.intersectObjects(this.scene.children[3].children);
+        
         if (int.length > 0) {
           if (this.INTERSECTED != int[0].object) {
             this.roadmapMat.uniforms.displayCurve.value = true;
@@ -698,9 +699,23 @@ export default {
               }
             }
           }
+
+          if (this.roadmapMesh.position.z == 0) {
+            new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ z: 15 }, 200)
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
+          }
         } else {
           if (!this.holdRoadmapPath) {
             this.roadmapMat.uniforms.displayCurve.value = false;
+          }
+          
+          if (this.roadmapMesh.position.z == 15) {
+            new TWEEN.Tween(this.roadmapMesh.position)
+            .to({ z: 0 }, 1000)
+            .easing(TWEEN.Easing.Linear.None)
+            .start();
           }
         }
       }

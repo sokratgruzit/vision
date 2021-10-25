@@ -160,6 +160,14 @@ void main() {
   y = newPosition.y;
   z = newPosition.z;
 
+  if (!displayCurve) {
+    if (x > -755. && x < 755. && y > -65. && y < -59.) size = 5. * vAlpha;
+    if (x > -755. && x < 755. && y > -32. && y < -30.) size = 5. * vAlpha;
+    if (x > -755. && x < 755. && y > 0. && y < 2.) size = 5. * vAlpha;
+    if (x > -755. && x < 755. && y > 30. && y < 32.) size = 5. * vAlpha;
+    if (x > -750. && x < 750. && y > 59. && y < 65.) size = 5. * vAlpha;
+  }
+
   if (displayCurve) {
     if (x > -695. && x < -640. && y < 20. && y > 15.) size = 10.;
     if (x > -650. && x < -640. && y > 20.) size = 10.;

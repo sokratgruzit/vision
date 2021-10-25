@@ -113,7 +113,8 @@ export default {
         new THREE.Color(0xF59337),
         new THREE.Color(0xE10FEC),
         new THREE.Color(0x5910C5),
-        new THREE.Color(0x3F057E)
+        new THREE.Color(0x3F057E),
+        new THREE.Color(0xffffff)
       ],
       yD: [17, 57, 2, 37, 22, -7, -7, 47, 2, 27, 55, 17, 17, 17, 17, 55, 7],
       xD: [-693, -602, -500, -407, -297, -197, -97, -57, 0, 52, 102, 202, 302, 402, 502, 602, 703],
@@ -280,6 +281,7 @@ export default {
         time: { type: "f", value: 0.0 },
         uColor: { value: new THREE.Color(0x878FFF) },
         curveColor: { value: this.colors[0] },
+        lines: { value: new THREE.Color(0x878FFF) },
         pointColor1: { value: this.colors[0] },
         pointColor2: { value: this.colors[1] },
         pointColor3: { value: this.colors[2] },
@@ -466,7 +468,7 @@ export default {
         var count = this.alphas.count;
         for(var i = 0; i < count; i++) {
           // dynamically change alphas
-          this.alphas.array[i] *= 0.95;
+          this.alphas.array[i] *= 0.99;
           if (this.alphas.array[i] < 0.2) { 
             if (this.anim) {
               this.alphas.array[i] = 0;

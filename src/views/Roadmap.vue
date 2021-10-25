@@ -195,9 +195,11 @@ export default {
       closeFilter: false,
       clock: new THREE.Clock(),
       alphas: null,
+      lineAlphas: null,
       INTERSECTED: null,
       holdRoadmapPath: false,
-      anim: false
+      anim: false,
+      lineDelta: 0
     }
   },
   methods: {
@@ -270,12 +272,15 @@ export default {
 
       let numVertices = this.roadmapGeo.attributes.position.count;
       this.alphas = new Float32Array(numVertices * 1); // 1 values per vertex
+      this.lineAlphas = new Float32Array(numVertices * 1); // 1 values per vertex
 
       for(var i = 0; i < numVertices; i++) {
         this.alphas[i] = Math.random() * (1 - 0.5) + 0.5;
+        this.lineAlphas[i] = 1;
       }
      
       this.roadmapGeo.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
+      this.roadmapGeo.setAttribute('alpha2', new THREE.BufferAttribute(this.lineAlphas, 1));
 
       this.roadmapUniforms = {
         time: { type: "f", value: 0.0 },
@@ -465,10 +470,19 @@ export default {
         this.raycaster.setFromCamera(this.mouse, this.camera);
 
         this.alphas = this.roadmapGeo.attributes.alpha;
+        this.lineAlphas = this.roadmapGeo.attributes.alpha2;
         var count = this.alphas.count;
         for(var i = 0; i < count; i++) {
           // dynamically change alphas
-          this.alphas.array[i] *= 0.99;
+          this.alphas.array[i] *= 0.95;
+          
+          if (this.lineAlphas.array[i] == 1 || this.lineAlphas.array[i] > 1) { 
+            this.lineDelta = -0.03;
+          }
+          if (this.lineAlphas.array[i] < 0) { 
+            this.lineDelta = 0.03;
+          }
+          this.lineAlphas.array[i] = this.lineAlphas.array[i] + this.lineDelta;
           if (this.alphas.array[i] < 0.2) { 
             if (this.anim) {
               this.alphas.array[i] = 0;
@@ -479,6 +493,7 @@ export default {
         }
 
         this.alphas.needsUpdate = true; // important!
+        this.lineAlphas.needsUpdate = true; // important!
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
       }

@@ -24,6 +24,7 @@ uniform vec3 lines;
 uniform float time;
 uniform bool displayCurve;
 varying float vAlpha;
+varying float vAlpha2;
 uniform bool fadeOut;
 varying float x;
 varying float y;
@@ -39,11 +40,13 @@ void main() {
     gl_FragColor = vec4(uColor, disc);
   }
 
-  if (x > -755. && x < 755. && y > -65. && y < -59.) gl_FragColor = vec4(lines, disc * (vAlpha * 2000.));
-  if (x > -755. && x < 755. && y > -32. && y < -30.) gl_FragColor = vec4(lines, disc * (vAlpha * 2000.));
-  if (x > -755. && x < 755. && y > 0. && y < 2.) gl_FragColor = vec4(lines, disc * (vAlpha * 2000.));
-  if (x > -755. && x < 755. && y > 30. && y < 32.) gl_FragColor = vec4(lines, disc * (vAlpha * 2000.));
-  if (x > -755. && x < 755. && y > 59. && y < 65.) gl_FragColor = vec4(lines, disc * (vAlpha * 2000.));
+  if (!displayCurve) {
+    if (x > -755. && x < 755. && y > -65. && y < -59.) gl_FragColor = vec4(lines, disc * (vAlpha2 * 2000.));
+    if (x > -755. && x < 755. && y > -32. && y < -30.) gl_FragColor = vec4(lines, disc * (vAlpha2 * 2000.));
+    if (x > -755. && x < 755. && y > 0. && y < 2.) gl_FragColor = vec4(lines, disc * (vAlpha2 * 2000.));
+    if (x > -755. && x < 755. && y > 30. && y < 32.) gl_FragColor = vec4(lines, disc * (vAlpha2 * 2000.));
+    if (x > -755. && x < 755. && y > 59. && y < 65.) gl_FragColor = vec4(lines, disc * (vAlpha2 * 2000.));
+  }
 
   if (displayCurve) {
     if (x > -695. && x < -640. && y > 15. && y < 20.) gl_FragColor = vec4(curveColor, disc * vAlpha);

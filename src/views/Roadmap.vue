@@ -459,8 +459,8 @@ export default {
         colors[i * 3 + 1] = 1.0;
         colors[i * 3 + 2] = 1.0;
 
-        alphas[i] = 0.05 + Math.random() * 0.01;
-        sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
+        alphas[i] = 1;
+        sizes[i] = (Math.random() * Math.random() * 10.0);
       }
 
       this.partGeo = new THREE.BufferGeometry();
@@ -521,6 +521,8 @@ export default {
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
       this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
       this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
+      this.particles.rotation.y += 0.001;
+      this.particles.rotation.z += 0.001;
 
       if (this.$store.state.stopRoadmap == false){
         requestAnimationFrame(this.animate);
@@ -540,9 +542,8 @@ export default {
         var count = this.alphas.count;
 
         for(var i = 0; i < count; i++) {
-          // dynamically change alphas
           this.alphas.array[i] *= 0.95;
-          this.lineAlphas.array[i] *=0.98;
+          this.lineAlphas.array[i] *=0.985;
           
           /*if (
             this.lineAlphas.array[i] == 1 || 
@@ -709,15 +710,15 @@ export default {
 
       if (this.direction === "up") {
         for (let i = 0; i < pointSizes.count; i++) {
-          if (this.itemSize < 2) {
+          if (this.itemSize < 0.5) {
             pointSizes.array[i] += this.itemSize;
           }
         }
         for (let i = 0; i < pointAlphas.count / 2; i++) {
           pointAlphas.array[i] = 0.1;
         }
-        if (this.itemSize < 2) {
-          this.itemSize += 0.05;
+        if (this.itemSize < 0.5) {
+          this.itemSize += 0.005;
         }
         if (this.itemAlpha > 0) {
           this.itemAlpha -= 0.00005;
@@ -736,7 +737,7 @@ export default {
           }
         }
         if (this.itemSize > -0.2) {
-          this.itemSize -= 0.05;
+          this.itemSize -= 0.005;
         }
         if (this.itemAlpha < 0.1) {
           this.itemAlpha += 0.00001;

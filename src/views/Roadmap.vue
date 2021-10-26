@@ -199,7 +199,16 @@ export default {
       INTERSECTED: null,
       holdRoadmapPath: false,
       anim: false,
-      lineDelta: 0
+      lineDelta: 0,
+      bloomPass: null,
+      composer: null,
+      renderScene: null,
+      params: {
+        exposure: 0,
+        bloomStrength: 0.6,
+        bloomThreshold: 0,
+        bloomRadius: 0
+      },
     }
   },
   methods: {
@@ -258,6 +267,18 @@ export default {
       this.controls.mouseButtons.RIGHT = THREE.MOUSE.DOLLY;
       this.controls.screenSpacePanning = false;
       this.controls.enableDamping = true;
+
+      this.renderScene = new RenderPass(this.scene, this.camera);
+
+      this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+      this.bloomPass.threshold = this.params.bloomThreshold;
+      this.bloomPass.strength = this.params.bloomStrength;
+      this.bloomPass.radius = this.params.bloomRadius;
+      this.bloomPass.exposure = this.params.exposure;
+
+      this.composer = new EffectComposer(this.renderer);
+      this.composer.addPass(this.renderScene);
+      this.composer.addPass(this.bloomPass);
 
       if (this.$store.state.roadmapInnerRoute) {
         this.moveRoadmapFromSlider();
@@ -470,9 +491,10 @@ export default {
     },
     render: function () {
       if (this.$store.state.stopRoadmap == false) {
-        this.renderer.render(this.scene, this.camera);
+        //this.renderer.render(this.scene, this.camera);
         this.labelRenderer.render(this.scene, this.camera);
         this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.composer.render();
 
         this.alphas = this.roadmapGeo.attributes.alpha;
         this.lineAlphas = this.roadmapGeo.attributes.alpha2;

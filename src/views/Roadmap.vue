@@ -353,11 +353,11 @@ export default {
         uColor: { value: new THREE.Color(0x878FFF) },
         curveColor: { value: this.colors[0] },
         lines: { value: new THREE.Color(0x878FFF) },
-        pointColor1: { value: this.colors[0] },
-        pointColor2: { value: this.colors[1] },
-        pointColor3: { value: this.colors[2] },
-        pointColor4: { value: this.colors[3] },
-        pointColor5: { value: this.colors[4] },
+        pointColor1: { value: new THREE.Color(0x878FFF) },
+        pointColor2: { value: new THREE.Color(0x878FFF) },
+        pointColor3: { value: new THREE.Color(0x878FFF) },
+        pointColor4: { value: new THREE.Color(0x878FFF) },
+        pointColor5: { value: new THREE.Color(0x878FFF) },
         displayCurve: { value: false },
         fadeOut: { value: false }
       };

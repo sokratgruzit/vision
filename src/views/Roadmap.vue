@@ -429,7 +429,7 @@ export default {
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
-      var stars = 1000;
+      var stars = 1300;
 
       var vertices = new Float32Array((stars) * 3);
       var colors = new Float32Array((stars) * 3);
@@ -781,7 +781,7 @@ export default {
 
           if (this.roadmapMesh.position.z == 0) {
             new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ z: 8 }, 80)
+            .to({ z: 8 }, 200)
             .easing(TWEEN.Easing.Linear.None)
             .start();
           }

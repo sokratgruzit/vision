@@ -273,10 +273,76 @@ export default {
       let numVertices = this.roadmapGeo.attributes.position.count;
       this.alphas = new Float32Array(numVertices * 1); // 1 values per vertex
       this.lineAlphas = new Float32Array(numVertices * 1); // 1 values per vertex
+      let step1 = 0;
+      let step2 = 1;
+      let step3 = 2;
+      let step4 = 3;
+      let step5 = 4;
+      let step6 = 5;
+      let step7 = 6;
+      let step8 = 7;
+      let step9 = 8;
+      let step10 = 9;
+      let step11 = 10;
+      let step12 = 11;
+      let step13 = 12;
+      let step14 = 13;
+      let step15 = 14;
+      let step16 = 15;
+      let step17 = 16;
+      let step18 = 17;
+      let step19 = 18;
+      let step20 = 19;
+      let step21 = 20;
+      let her = 1;
+      console.log(numVertices)
 
       for(var i = 0; i < numVertices; i++) {
         this.alphas[i] = Math.random() * (1 - 0.5) + 0.5;
-        this.lineAlphas[i] = 1;
+
+        this.lineAlphas[i] = her;
+        /*this.lineAlphas[i + step2] = 0.95;
+        this.lineAlphas[i + step3] = 0.9;
+        this.lineAlphas[i + step4] = 0.85;
+        this.lineAlphas[i + step5] = 0.8;
+        this.lineAlphas[i + step6] = 0.75;
+        this.lineAlphas[i + step7] = 0.7;
+        this.lineAlphas[i + step8] = 0.65;
+        this.lineAlphas[i + step9] = 0.6;
+        this.lineAlphas[i + step10] = 0.55;
+        this.lineAlphas[i + step11] = 0.5;
+        this.lineAlphas[i + step12] = 0.45;
+        this.lineAlphas[i + step13] = 0.4;
+        this.lineAlphas[i + step14] = 0.35;
+        this.lineAlphas[i + step15] = 0.3;
+        this.lineAlphas[i + step16] = 0.25;
+        this.lineAlphas[i + step17] = 0.2;
+        this.lineAlphas[i + step18] = 0.15;
+        this.lineAlphas[i + step19] = 0.1;
+        this.lineAlphas[i + step20] = 0.05;
+        this.lineAlphas[i + step21] = 0;*/
+        her = her - her / numVertices;
+        step1 = step1 + 11;
+        step2 = step2 + 11;
+        step3 = step3 + 11;
+        step4 = step4 + 11;
+        step5 = step5 + 11;
+        step6 = step6 + 11;
+        step7 = step7 + 11;
+        step8 = step8 + 11;
+        step9 = step9 + 11;
+        step10 = step10 + 11;
+        step11 = step11 + 11;
+        step12 = step12 + 11;
+        step13 = step13 + 11;
+        step14 = step14 + 11;
+        step15 = step15 + 11;
+        step16 = step16 + 11;
+        step17 = step17 + 11;
+        step18 = step18 + 11;
+        step19 = step19 + 11;
+        step20 = step20 + 11;
+        step21 = step21 + 11;
       }
      
       this.roadmapGeo.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
@@ -472,17 +538,29 @@ export default {
         this.alphas = this.roadmapGeo.attributes.alpha;
         this.lineAlphas = this.roadmapGeo.attributes.alpha2;
         var count = this.alphas.count;
+
         for(var i = 0; i < count; i++) {
           // dynamically change alphas
           this.alphas.array[i] *= 0.95;
+          this.lineAlphas.array[i] *=0.98;
           
-          if (this.lineAlphas.array[i] == 1 || this.lineAlphas.array[i] > 1) { 
-            this.lineDelta = -0.03;
+          /*if (
+            this.lineAlphas.array[i] == 1 || 
+            this.lineAlphas.array[i] == 0.75 ||
+            this.lineAlphas.array[i] == 0.5 ||
+            this.lineAlphas.array[i] == 0.25 ||
+            this.lineAlphas.array[i] == 0 ||
+            this.lineAlphas.array[i] > 1) 
+          { 
+            this.lineDelta = -0.003;
           }
           if (this.lineAlphas.array[i] < 0) { 
-            this.lineDelta = 0.03;
+            this.lineDelta = 0.003;
+          }*/
+          if (this.lineAlphas.array[i] < 0.05) {
+            this.lineAlphas.array[i] = 1;
           }
-          this.lineAlphas.array[i] = this.lineAlphas.array[i] + this.lineDelta;
+          //this.lineAlphas.array[i] = this.lineAlphas.array[i] + this.lineDelta;
           if (this.alphas.array[i] < 0.2) { 
             if (this.anim) {
               this.alphas.array[i] = 0;
@@ -508,7 +586,7 @@ export default {
           this.roadmapUniforms.fadeOut.value = true;
 
           new TWEEN.Tween(this.camera.position)
-          .to({ z: 15 }, 500)
+          .to({ z: 5 }, 500)
           .easing(TWEEN.Easing.Linear.None)
           .onComplete(() => {
             if (i !== 0) {
@@ -702,7 +780,7 @@ export default {
 
           if (this.roadmapMesh.position.z == 0) {
             new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ z: 15 }, 200)
+            .to({ z: 8 }, 80)
             .easing(TWEEN.Easing.Linear.None)
             .start();
           }
@@ -711,9 +789,9 @@ export default {
             this.roadmapMat.uniforms.displayCurve.value = false;
           }
           
-          if (this.roadmapMesh.position.z == 15) {
+          if (this.roadmapMesh.position.z == 8) {
             new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ z: 0 }, 1000)
+            .to({ z: 0 }, 700)
             .easing(TWEEN.Easing.Linear.None)
             .start();
           }

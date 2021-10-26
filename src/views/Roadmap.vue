@@ -205,7 +205,7 @@ export default {
       renderScene: null,
       params: {
         exposure: 0,
-        bloomStrength: 0.6,
+        bloomStrength: 0.3,
         bloomThreshold: 0,
         bloomRadius: 0
       },
@@ -311,11 +311,11 @@ export default {
         uColor: { value: new THREE.Color(0x5E68FF) },
         curveColor: { value: this.colors[0] },
         lines: { value: new THREE.Color(0x5E68FF) },
-        pointColor1: { value: new THREE.Color(0x051BE2) },
-        pointColor2: { value: new THREE.Color(0x051BE2) },
-        pointColor3: { value: new THREE.Color(0x051BE2) },
-        pointColor4: { value: new THREE.Color(0x051BE2) },
-        pointColor5: { value: new THREE.Color(0x051BE2) },
+        pointColor1: { value: new THREE.Color(0x5159FF) },
+        pointColor2: { value: new THREE.Color(0x5159FF) },
+        pointColor3: { value: new THREE.Color(0x444EFF) },
+        pointColor4: { value: new THREE.Color(0x444EFF) },
+        pointColor5: { value: new THREE.Color(0x444EFF) },
         displayCurve: { value: false },
         fadeOut: { value: false }
       };

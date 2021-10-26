@@ -709,11 +709,11 @@ export default {
       var pointAlphas = this.particles.geometry.attributes.alpha;
 
       if (this.direction === "up") {
-        for (let i = 0; i < pointSizes.count; i++) {
+        /*for (let i = 0; i < pointSizes.count; i++) {
           if (this.itemSize < 0.5) {
             pointSizes.array[i] += this.itemSize;
           }
-        }
+        }*/
         for (let i = 0; i < pointAlphas.count / 2; i++) {
           pointAlphas.array[i] = 0.1;
         }
@@ -726,11 +726,11 @@ export default {
       }
 
       if (this.direction === "down") {
-        for (let i = 0; i < pointSizes.count; i++) {
+        /*for (let i = 0; i < pointSizes.count; i++) {
           if (this.itemSize > -0.2) {
             pointSizes.array[i] -= this.itemSize;
           }
-        }
+        }*/
         for (let i = 0; i < pointAlphas.count / 2; i++) {
           if (this.itemAlpha < 0.5) {
             pointAlphas.array[i] += this.itemAlpha;
@@ -781,7 +781,7 @@ export default {
 
           if (this.roadmapMesh.position.z == 0) {
             new TWEEN.Tween(this.roadmapMesh.position)
-            .to({ z: 8 }, 200)
+            .to({ z: 8 }, 400)
             .easing(TWEEN.Easing.Linear.None)
             .start();
           }

@@ -250,7 +250,7 @@ export default {
 
       this.renderer = new THREE.WebGLRenderer();
       this.renderer.setSize(window.innerWidth, window.innerHeight);
-      this.renderer.setClearColor(0x010619, 0.1);
+      this.renderer.setClearColor(0x000113, 1);
       this.controls = new OrbitControls(this.camera, this.renderer.domElement);
       this.controls.enableZoom = true;
       this.controls.enableRotate = false;

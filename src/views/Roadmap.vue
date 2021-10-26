@@ -287,9 +287,9 @@ export default {
 
       this.roadmapUniforms = {
         time: { type: "f", value: 0.0 },
-        uColor: { value: new THREE.Color(0x051BE2) },
+        uColor: { value: new THREE.Color(0x5E68FF) },
         curveColor: { value: this.colors[0] },
-        lines: { value: new THREE.Color(0x051BE2) },
+        lines: { value: new THREE.Color(0x5E68FF) },
         pointColor1: { value: new THREE.Color(0x051BE2) },
         pointColor2: { value: new THREE.Color(0x051BE2) },
         pointColor3: { value: new THREE.Color(0x051BE2) },

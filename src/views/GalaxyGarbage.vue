@@ -104,8 +104,8 @@
 
 <script>
 import * as THREE from 'three';
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
@@ -380,7 +380,7 @@ export default {
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         
         const starsMaterial = new THREE.PointsMaterial({
-          size: 3,
+          size: 1,
           blending: THREE.AdditiveBlending,
           depthTest: false,
           transparent: true,
@@ -412,8 +412,8 @@ export default {
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
 
-          const h = (360 * (1.0 + time * 8) % 360) / 360;
-				  this.particles.material.color.setHSL(h, 0.5, 0.5);
+          //const h = (360 * (1.0 + time * 8) % 360) / 360;
+				  //this.particles.material.color.setHSL(h, 0.5, 0.5);
 
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;

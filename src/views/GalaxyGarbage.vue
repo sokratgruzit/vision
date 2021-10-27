@@ -130,7 +130,7 @@ export default {
       clock: null,
       holder: null,
       intersects: null,
-      particles: [],
+      particles: null,
       level: 1,
       totalLevels: 4,
       score: 0,
@@ -190,7 +190,8 @@ export default {
       badgeAnimation:false,
       intro: true,
       vectors: [],
-      gameStart: false
+      gameStart: false,
+      stars: null
     }
   },
   methods: {
@@ -278,9 +279,9 @@ export default {
           size: 5,
           map: sprite
         });
-        const stars = new THREE.Points(starsGeometry, starMaterial);
-        stars.position.z = -2000;
-        this.scene.add(stars);
+        this.stars = new THREE.Points(starsGeometry, starMaterial);
+        this.stars.position.z = -2000;
+        this.scene.add(this.stars);
       }
       //End Intro Strars Field
       //End David code
@@ -341,69 +342,47 @@ export default {
         }
         this.scene.add(this.holder);
         //David code
-        const loader = new THREE.TextureLoader();
-        const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
-        const txtStar = loader.load(require("../assets/txtStar.png"));
-        const texture1 = loader.load(require( "../assets/star1.png" ));
-        const texture2 = loader.load(require("../assets/star2.png"));
-        const texture4 = loader.load(require("../assets/star3.png"));
         /* Sphere  Background */
-        textureSphereBg.anisotropy = 16;
-        let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
+        let geometrySphereBg = new THREE.SphereBufferGeometry(1500, 40, 40);
         let materialSphereBg = new THREE.MeshBasicMaterial({
-          side: THREE.BackSide,
-          map: textureSphereBg,
+          blending: THREE.AdditiveBlending
         });
         this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
         this.scene.add(this.sphereBg);
         /* Moving Stars */
+        const partLoader = new THREE.TextureLoader();
+        const partTexture = partLoader.load(require("../assets/circle2.png"));
+
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
         const materials = [];
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < 40000; i++) {
           const x = Math.random() * 2000 - 1000;
           const y = Math.random() * 2000 - 1000;
           const z = Math.random() * 2000 - 1000;
           vertices.push( x, y, z );
         }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
-        const parameters = [
-          [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
-          [[ 0.95, 0.1, 0.5 ], texture2, 15 ],
-          [[ 0.90, 0.05, 0.5 ], texture4, 10 ],
-          [[ 0.85, 0, 0.5 ], txtStar, 8 ],
-          [[ 0.80, 0, 0.5 ], texture1, 5 ]
-        ];
-        for ( let i = 0; i < parameters.length; i ++ ) {
-          const color = parameters[i][0];
-          const sprite = parameters[i][1];
-          const size = parameters[i][2];
-          materials[i] = new THREE.PointsMaterial({
-            size: size,
-            map: sprite,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true
-          });
-          materials[i].color.setHSL(color[0], color[1], color[2]);
-          const particles = new THREE.Points(starsGeometry, materials[i]);
-          //particles.rotation.x = Math.random() * 6;
-          //particles.rotation.y = Math.random() * 6;
-          //particles.rotation.z = Math.random() * 6;
-          this.scene.add(particles);
-        }
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        
+        const starsMaterial = new THREE.PointsMaterial({
+          size: 5,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          transparent: true,
+          map: partTexture,
+          alphaTest: 0.5,
+          sizeAttenuation: true
+        });
+
+        starsMaterial.color.setHSL(1.0, 0.3, 0.7);
+        this.particles = new THREE.Points(starsGeometry, starsMaterial);
+        this.scene.add(this.particles);
         //End David code
       }
     },
     animate: function() {
       if (this.$store.state.stopGalaxyGarbage == false && this.scene.children.length !== 0) {
-          if (!this.intro) {
-            //Sphere Beckground Animation
-            this.sphereBg.rotation.x += 0.003;
-            this.sphereBg.rotation.y += 0.001;
-            this.sphereBg.rotation.z += 0.001;
-          } else {
-            //this.camera.rotation.x = Math.PI/2;
+          if (this.intro) {
             this.scene.children[2].position.z += 20;
           }
         requestAnimationFrame(this.animate);
@@ -416,6 +395,10 @@ export default {
         if (!this.intro) {
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
+
+          const h = ( 360 * ( 1.0 + time * 20 ) % 360 ) / 360;
+				  this.particles.material.color.setHSL( h, 0.5, 0.5 );
+
           this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
@@ -434,7 +417,7 @@ export default {
           //this.pointer.rotation.x += 0.01;
           //this.pointer.rotation.y += 0.01;
           var delta = this.clock.getDelta();
-          this.waveUniforms.time.value += delta;
+          /*this.waveUniforms.time.value += delta;
           if (this.waveMesh !== null && this.waveScaleUp) {
             this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
             this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
@@ -452,7 +435,7 @@ export default {
               this.waveMesh = null;
               this.waveScaleUp = true;
             }
-          }
+          }*/
           this.renderer.autoClear = false;
           this.renderer.clear();
           this.renderer.setScissorTest(true);
@@ -548,7 +531,7 @@ export default {
       }, 10000);
       //End of Object Explosion
       //Waves
-      var waveGeo = new THREE.IcosahedronGeometry(5, 40);
+      /*var waveGeo = new THREE.IcosahedronGeometry(5, 40);
       var waveMat = new THREE.ShaderMaterial({
         uniforms: this.waveUniforms,
         vertexShader: this.waveVertex,
@@ -561,7 +544,7 @@ export default {
       this.waveMesh.scale.x = 0;
       this.waveMesh.scale.y = 0;
       this.waveMesh.scale.z = 0;
-      this.waveMesh.name = "wave0";
+      this.waveMesh.name = "wave0";*/
       //End of Waves
     },
     onDocumentMouseDown: function(event) {
@@ -731,7 +714,7 @@ export default {
       }
       this.badgeAnimation = false;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
-      this.animateText = true
+      this.animateText = true;
       setTimeout(() => {
         this.commentNow = this.comments[this.level-1];
         this.playerStatusNow = this.playerStatuses[this.level-1];
@@ -745,6 +728,7 @@ export default {
       if (this. level == 1) {
         this.badgeScenes = [];
       }
+      this.scene.remove(this.particles);
       this.addHolder();
     },
     onWindowResize: function() {

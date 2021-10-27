@@ -1,5 +1,12 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
+    <div id="target_capture">
+      <div id="target_capture_wrap">
+        <div class="t_cap_line1"></div>
+        <div class="t_cap_line2"></div>
+        <div class="t_cap_line3"></div>
+      </div>
+    </div>
     <div class="start-timer" :class="mainTaimer == null ? 'deactivated' : ''">
       <div class="level__container-outer">
         <div class="level__container" :style="{
@@ -191,6 +198,10 @@ export default {
         bloomThreshold: 0,
         bloomRadius: 0
       },
+      direction: "",
+      directionX: "",
+      oldX: 0,
+      oldY: 0,
     }
   },
   methods: {
@@ -241,7 +252,7 @@ export default {
       var light = new THREE.AmbientLight(0xffffff);
       var width = window.innerWidth;
       var height = window.innerHeight;
-      this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 10000);
       if (this.intro) {
         this.camera.position.z = 1;
       } else {
@@ -253,7 +264,7 @@ export default {
 
       this.renderScene = new RenderPass(this.scene, this.camera);
 
-      this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+      this.bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 1.5, 0.4, 0.85);
       this.bloomPass.threshold = this.params.bloomThreshold;
       this.bloomPass.strength = this.params.bloomStrength;
       this.bloomPass.radius = this.params.bloomRadius;
@@ -353,31 +364,23 @@ export default {
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        //David code
-        /* Sphere  Background */
-        let geometrySphereBg = new THREE.SphereBufferGeometry(1500, 40, 40);
-        let materialSphereBg = new THREE.MeshBasicMaterial({
-          blending: THREE.AdditiveBlending
-        });
-        this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
-        this.scene.add(this.sphereBg);
-        /* Moving Stars */
+        
         const partLoader = new THREE.TextureLoader();
         const partTexture = partLoader.load(require("../assets/circle2.png"));
 
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
         const materials = [];
-        for (let i = 0; i < 40000; i++) {
-          const x = Math.random() * 2000 - 1000;
-          const y = Math.random() * 2000 - 1000;
-          const z = Math.random() * 2000 - 1000;
-          vertices.push( x, y, z );
+        for (let i = 0; i < 10000; i++) {
+          const x = Math.random() * 1000 - 500;
+          const y = Math.random() * 1000 - 500;
+          const z = Math.random() * 1000 - 500;
+          vertices.push(x, y, z);
         }
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         
         const starsMaterial = new THREE.PointsMaterial({
-          size: 5,
+          size: 3,
           blending: THREE.AdditiveBlending,
           depthTest: false,
           transparent: true,
@@ -389,14 +392,15 @@ export default {
         starsMaterial.color.setHSL(1.0, 0.3, 0.7);
         this.particles = new THREE.Points(starsGeometry, starsMaterial);
         this.scene.add(this.particles);
-        //End David code
+        this.addTargetCapture();
       }
     },
     animate: function() {
       if (this.$store.state.stopGalaxyGarbage == false && this.scene.children.length !== 0) {
-          if (this.intro) {
-            this.scene.children[2].position.z += 20;
-          }
+        if (this.intro) {
+          this.scene.children[2].position.z += 20;
+        }
+
         requestAnimationFrame(this.animate);
         TWEEN.update();
         this.render();
@@ -408,10 +412,9 @@ export default {
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
 
-          const h = ( 360 * ( 1.0 + time * 20 ) % 360 ) / 360;
-				  this.particles.material.color.setHSL( h, 0.5, 0.5 );
+          const h = (360 * (1.0 + time * 8) % 360) / 360;
+				  this.particles.material.color.setHSL(h, 0.5, 0.5);
 
-          //this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
           this.camera.lookAt(this.scene.position);
@@ -637,6 +640,9 @@ export default {
         }
       }
     },
+    addTargetCapture: function () {
+      
+    },
     drawCurve: function (vectors) {
       if (vectors.length > 3) {
         const curve = new THREE.CatmullRomCurve3(vectors);
@@ -713,6 +719,25 @@ export default {
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
 
+      let targetAnim = document.getElementById('target_capture_wrap');
+
+      if (event.pageY < this.oldY) {
+        this.direction = "up";
+        targetAnim.style['transform'] = 'rotateX(55deg)';
+      } else if (event.pageY > this.oldY) {
+        this.direction = "down";
+        targetAnim.style['transform'] = 'rotateX(-35deg)';
+      } else if (event.pageX < this.oldX) {
+        this.directionX = "left";
+        targetAnim.style['transform'] = 'rotateY(-50deg)';
+      } else if (event.pageX > this.oldX) {
+        this.directionX = "right";
+        targetAnim.style['transform'] = 'rotateY(50deg)';
+      }
+
+      this.oldY = event.pageY;
+      this.oldX = event.pageX;
+
       if (!this.intro) {
         this.pointerMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointerMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -723,9 +748,18 @@ export default {
         let dir = vector.sub(this.camera.position).normalize();
         let distance = -this.camera.position.z / dir.z;
         let pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-        //this.pointer.position.copy(pos);
         this.vectors.push(pos);
         this.drawCurve(this.vectors);
+        
+        let x = event.clientX;
+        let y = event.clientY;
+        let targetCapture = document.getElementById('target_capture');
+
+        let newposX = x - 60;
+        let newposY = y - 60; 
+        
+        targetCapture.style['transform'] = 'translate3d(' + newposX + 'px,' + newposY + 'px,0px)';
+        console.log(this.direction)
       }
     }
   },
@@ -787,6 +821,42 @@ export default {
 </script>
 
 <style scoped>
+  #target_capture_wrap{
+    transition: 0.5s;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+  }
+  #target_capture{
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate3d(-50%,-50%,0);
+    pointer-events: none;
+  }
+  .t_cap_line1,
+  .t_cap_line2,
+  .t_cap_line3{
+    width: 65px;
+    height: 2px;
+    background: #ffffff;
+    position: absolute;
+  }
+  .t_cap_line1{
+    transform: rotate(60deg);
+    right: 5%;
+    bottom: 57%;
+  }
+  .t_cap_line2{
+    transform: rotate(-60deg);
+    left: 5%;
+    bottom: 57%;
+  }
+  .t_cap_line3{
+    left: calc(50% - 32.5px);
+    bottom: 26%;
+  }
   .start-timer{
     position: absolute;
     width: 100%;

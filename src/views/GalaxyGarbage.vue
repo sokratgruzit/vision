@@ -98,8 +98,10 @@
 <script>
 import * as THREE from 'three';
 import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {
   target_vertex,
   wave_vertex
@@ -158,18 +160,6 @@ export default {
       geometry: null,
       vertex: target_vertex,
       fragment: target_fragment,
-      waveVertex: wave_vertex,
-      waveFragment: wave_fragment,
-      waveUniforms: {
-        tExplosion: {
-          type: "t",
-          value: new THREE.TextureLoader().load(require("../assets/fire.jpg"))
-        },
-        time: {
-          type: "f",
-          value: 0.0
-        }
-      },
       waveStart: Date.now(),
       waveMesh: null,
       badgeCanvas: null,
@@ -191,7 +181,16 @@ export default {
       intro: true,
       vectors: [],
       gameStart: false,
-      stars: null
+      stars: null,
+      bloomPass: null,
+      composer: null,
+      renderScene: null,
+      params: {
+        exposure: 0,
+        bloomStrength: 0.5,
+        bloomThreshold: 0,
+        bloomRadius: 0
+      },
     }
   },
   methods: {
@@ -251,6 +250,19 @@ export default {
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize( width, height );
+
+      this.renderScene = new RenderPass(this.scene, this.camera);
+
+      this.bloomPass = new UnrealBloomPass( new THREE.Vector2( window.innerWidth, window.innerHeight ), 1.5, 0.4, 0.85 );
+      this.bloomPass.threshold = this.params.bloomThreshold;
+      this.bloomPass.strength = this.params.bloomStrength;
+      this.bloomPass.radius = this.params.bloomRadius;
+      this.bloomPass.exposure = this.params.exposure;
+
+      this.composer = new EffectComposer(this.renderer);
+      this.composer.addPass(this.renderScene);
+      this.composer.addPass(this.bloomPass);
+
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
       var sLight = new THREE.SpotLight(0xffffff);
@@ -399,7 +411,7 @@ export default {
           const h = ( 360 * ( 1.0 + time * 20 ) % 360 ) / 360;
 				  this.particles.material.color.setHSL( h, 0.5, 0.5 );
 
-          this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
+          //this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
           this.camera.lookAt(this.scene.position);
@@ -417,30 +429,13 @@ export default {
           //this.pointer.rotation.x += 0.01;
           //this.pointer.rotation.y += 0.01;
           var delta = this.clock.getDelta();
-          /*this.waveUniforms.time.value += delta;
-          if (this.waveMesh !== null && this.waveScaleUp) {
-            this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
-            this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
-            this.waveMesh.scale.z = this.waveMesh.scale.z + 0.1;
-            if(this.waveMesh.scale.x > 2) {
-              this.waveScaleUp = false
-            }
-          }
-          if (this.waveMesh !== null && !this.waveScaleUp) {
-            this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
-            this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
-            this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
-            if (this.waveMesh.scale.x < 0) {
-              this.scene.remove(this.waveMesh);
-              this.waveMesh = null;
-              this.waveScaleUp = true;
-            }
-          }*/
+        
           this.renderer.autoClear = false;
           this.renderer.clear();
           this.renderer.setScissorTest(true);
           this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
           this.renderer.render(this.scene, this.camera);
+          this.composer.render();
           let badgesParent = document.getElementById('badges-container');
           badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
@@ -480,72 +475,50 @@ export default {
     },
     addExplosion: function (point) {
       //Object Explosion
-      var geometry = new THREE.IcosahedronGeometry(1.5, 16);
-      const numFaces = geometry.attributes.position.count / 3;
+      var geometry = new THREE.IcosahedronGeometry(1.5, 60);
       var timeNow = this.clock.getElapsedTime();
-      const tessellateModifier = new TessellateModifier(8, 6);
-      geometry = tessellateModifier.modify(geometry);
-      const displacement = new Float32Array(numFaces * 3 * 3);
+      
       var targetTexLoader = new THREE.TextureLoader();
       var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
-      for (let f = 0; f < numFaces; f++) {
-        const index = 9 * f;
-        const d = 100 * (0.5 - Math.random());
-        for (let j = 0; j < 3; j++) {
-          displacement[index + (3 * j)] = d;
-          displacement[index + (3 * j) + 1] = d;
-          displacement[index + (3 * j) + 2] = d;
-        }
-      }
-      geometry.setAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
+      
       this.uniforms = {
         targetTex: { type: "t", value: targetTexture },
-        amplitude: { value: 0.0 }
+        time: { type: "f", value: 0.0 },
+        distortion: { type: "f", value: 0.0 }
       };
+
       const material = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
-        vertexShader: this.vertex,
-        fragmentShader: this.fragment,
-        opacity: 0.7,
-        transparent: true
+        vertexShader: wave_vertex,
+        fragmentShader: wave_fragment
       });
-      var part = new THREE.Mesh(geometry, material);
+
+      var part = new THREE.Points(geometry, material);
       part.position.x = point.x;
       part.position.y = point.y;
       part.position.z = point.z;
       this.scene.add(part);
 
-      let A = new TWEEN.Tween(part.scale)
-      .to({ x: 2, y: 2, z: 2 }, 5000)
-      .easing(TWEEN.Easing.Quintic.Out)
+      new TWEEN.Tween(this.uniforms.distortion)
+      .to({ value: 1000 }, 1200)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
 
-      let B = new TWEEN.Tween(part.scale)
-      .to({ x: 0, y: 0, z: 0 }, 5000)
-      .easing(TWEEN.Easing.Quintic.Out)
+      let bloomA = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 30 }, 100)
+      .easing(TWEEN.Easing.Quintic.Out);
 
-      A.chain(B);
-      A.start();
+      let bloomB = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 0.5 }, 100)
+      .easing(TWEEN.Easing.Quintic.Out);
+
+      bloomA.chain(bloomB);
+      bloomA.start();
 
       setTimeout(() => {
         this.scene.remove(part);
-      }, 10000);
+      }, 1500);
       //End of Object Explosion
-      //Waves
-      /*var waveGeo = new THREE.IcosahedronGeometry(5, 40);
-      var waveMat = new THREE.ShaderMaterial({
-        uniforms: this.waveUniforms,
-        vertexShader: this.waveVertex,
-        fragmentShader: this.waveFragment,
-        side: THREE.DoubleSide
-      });
-      this.waveUniforms.time.value = .00025 * (Date.now() - this.waveStart);
-      this.waveMesh = new THREE.Mesh(waveGeo, waveMat);
-      this.scene.add(this.waveMesh);
-      this.waveMesh.scale.x = 0;
-      this.waveMesh.scale.y = 0;
-      this.waveMesh.scale.z = 0;
-      this.waveMesh.name = "wave0";*/
-      //End of Waves
     },
     onDocumentMouseDown: function(event) {
       event.preventDefault();

@@ -544,7 +544,6 @@ export default {
         let catchTarget = document.getElementById('target_capture_inner_circle');
         let catchTargetLogo = document.getElementById('target_capture_logo');
 
-        catchTarget.style['border-color'] = '#FFFFFF';
         catchTarget.style['transform'] = 'scale(1)';
         catchTargetLogo.style['transform'] = 'scale(1)';
       }
@@ -556,7 +555,6 @@ export default {
         let catchTarget = document.getElementById('target_capture_inner_circle');
         let catchTargetLogo = document.getElementById('target_capture_logo');
 
-        catchTarget.style['border-color'] = '#FF7152';
         catchTarget.style['transform'] = 'scale(0.2)';
         catchTargetLogo.style['transform'] = 'scale(0.2)';
 
@@ -991,7 +989,7 @@ export default {
     height: 75%;
     border-style: solid;
     border-width: 2px;
-    border-color: #FFFFFF;
+    border-color: #FF7152;
     border-radius: 50%;
     position: absolute;
     top: 10px;

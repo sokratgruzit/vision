@@ -1,11 +1,9 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
     <div id="target_capture">
-      <div id="target_capture_wrap">
-        <div class="t_cap_line1"></div>
-        <div class="t_cap_line2"></div>
-        <div class="t_cap_line3"></div>
-      </div>
+      <div id="target_capture_outer_circle"></div>
+      <div id="target_capture_inner_circle"></div>
+      <img id="target_capture_logo" src="../assets/capture_logo.png" alt="logo" />
     </div>
     <div class="start-timer" :class="mainTaimer == null ? 'deactivated' : ''">
       <div class="level__container-outer">
@@ -539,9 +537,29 @@ export default {
       }, 1200);
       //End of Object Explosion
     },
+    onDocumentMouseUp: function(event) {
+      event.preventDefault();
+
+      if (!this.intro) {
+        let catchTarget = document.getElementById('target_capture_inner_circle');
+        let catchTargetLogo = document.getElementById('target_capture_logo');
+
+        catchTarget.style['border-color'] = '#FFFFFF';
+        catchTarget.style['transform'] = 'scale(1)';
+        catchTargetLogo.style['transform'] = 'scale(1)';
+      }
+    },
     onDocumentMouseDown: function(event) {
       event.preventDefault();
+
       if (!this.intro) {
+        let catchTarget = document.getElementById('target_capture_inner_circle');
+        let catchTargetLogo = document.getElementById('target_capture_logo');
+
+        catchTarget.style['border-color'] = '#FF7152';
+        catchTarget.style['transform'] = 'scale(0.2)';
+        catchTargetLogo.style['transform'] = 'scale(0.2)';
+
         if (this.complete) {
           this.complete = false;
           this.score = 0;
@@ -572,6 +590,7 @@ export default {
           let bIndex = 0;
           this.holder.children.forEach(function (elem, index, array) {
             let intersects = raycaster.intersectObjects(elem.children);
+          
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
               addExplosion(intersects[0].point);
@@ -733,14 +752,14 @@ export default {
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
 
-      let targetAnim = document.getElementById('target_capture_wrap');
+      let targetAnim = document.getElementById('target_capture_outer_circle');
 
       if (event.pageY < this.oldY) {
         this.direction = "up";
         targetAnim.style['transform'] = 'rotateX(55deg)';
       } else if (event.pageY > this.oldY) {
         this.direction = "down";
-        targetAnim.style['transform'] = 'rotateX(-35deg)';
+        targetAnim.style['transform'] = 'rotateX(0deg)';
       } else if (event.pageX < this.oldX) {
         this.directionX = "left";
         targetAnim.style['transform'] = 'rotateY(-50deg)';
@@ -769,8 +788,8 @@ export default {
         let y = event.clientY;
         let targetCapture = document.getElementById('target_capture');
 
-        let newposX = x - 60;
-        let newposY = y - 60; 
+        let newposX = x - 40;
+        let newposY = y - 40; 
         
         targetCapture.style['transform'] = 'translate3d(' + newposX + 'px,' + newposY + 'px,0px)';
       }
@@ -895,6 +914,7 @@ export default {
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.getElementById("webgl-container").addEventListener('mouseup', this.onDocumentMouseUp, false);
     document.addEventListener('pointermove', this.onPointerMove);
     this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
@@ -948,41 +968,44 @@ export default {
 </script>
 
 <style scoped>
-  #target_capture_wrap{
-    transition: 0.5s;
-    position: absolute;
-    width: 100%;
-    height: 100%;
-  }
   #target_capture{
-    width: 120px;
-    height: 120px;
+    width: 80px;
+    height: 80px;
     border-radius: 50%;
     position: absolute;
     transform: translate3d(-50%,-50%,0);
     pointer-events: none;
   }
-  .t_cap_line1,
-  .t_cap_line2,
-  .t_cap_line3{
-    width: 65px;
-    height: 2px;
-    background: #ffffff;
+  #target_capture_outer_circle{
+    width: 100%;
+    height: 100%;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
     position: absolute;
+    top: 0px;
+    left: 0px;
+    transition: 0.5s;
   }
-  .t_cap_line1{
-    transform: rotate(60deg);
-    right: 5%;
-    bottom: 57%;
+  #target_capture_inner_circle{
+    width: 75%;
+    height: 75%;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #FFFFFF;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    transition: 0.2s;
   }
-  .t_cap_line2{
-    transform: rotate(-60deg);
-    left: 5%;
-    bottom: 57%;
-  }
-  .t_cap_line3{
-    left: calc(50% - 32.5px);
-    bottom: 26%;
+  #target_capture_logo{
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    transition: 0.2s;
   }
   .start-timer{
     position: absolute;

@@ -333,7 +333,7 @@ varying vec3 vPosition;
 float PI = 3.141592653589793238;
 
 void main() {
-  gl_FragColor = vec4(1.0, 0., 0., alpha);
+  gl_FragColor = vec4(0.11, 1., 0.66, alpha);
 }
 `;
 

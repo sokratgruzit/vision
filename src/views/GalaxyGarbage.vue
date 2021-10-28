@@ -370,7 +370,7 @@ export default {
         this.scene.add(this.holder);
         
         const partLoader = new THREE.TextureLoader();
-        const partTexture = partLoader.load(require("../assets/circle2.png"));
+        const partTexture = partLoader.load(require("../assets/circle3.png"));
 
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
@@ -535,7 +535,7 @@ export default {
 
       setTimeout(() => {
         this.scene.remove(part);
-      }, 3000);
+      }, 1200);
       //End of Object Explosion
     },
     onDocumentMouseDown: function(event) {

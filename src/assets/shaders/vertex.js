@@ -658,8 +658,8 @@ void main() {
 export let wave_vertex = `
 varying vec2 vUv;
 varying vec3 vPosition;
-uniform sampler2D tex;
 uniform float time;
+uniform float alpha;
 uniform float distortion;
 float PI = 3.141592653589793238;
 

@@ -327,18 +327,13 @@ void main() {
 `;
 
 export let wave_fragment = `
-uniform sampler2D tex;
-uniform vec4 resolution;
+uniform float alpha;
 varying vec2 vUv;
 varying vec3 vPosition;
 float PI = 3.141592653589793238;
 
 void main() {
-  vec4 tt = texture2D(tex, vUv);
-
-  gl_FragColor = vec4(vUv,0.,1.);
-  gl_FragColor = tt;
-  if(gl_FragColor.r<0.1 && gl_FragColor.b<0.1 && gl_FragColor.g<0.1) discard;
+  gl_FragColor = vec4(1.0, 0., 0., alpha);
 }
 `;
 

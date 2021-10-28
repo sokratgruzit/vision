@@ -494,13 +494,16 @@ export default {
       this.uniforms = {
         targetTex: { type: "t", value: targetTexture },
         time: { type: "f", value: 0.0 },
-        distortion: { type: "f", value: 0.0 }
+        distortion: { type: "f", value: 0.0 },
+        alpha: { type: "f", value: 1.0 }
       };
 
       const material = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
         vertexShader: wave_vertex,
-        fragmentShader: wave_fragment
+        fragmentShader: wave_fragment,
+        transparent: true,
+        opacity: 0
       });
 
       var part = new THREE.Points(geometry, material);
@@ -510,16 +513,21 @@ export default {
       this.scene.add(part);
 
       new TWEEN.Tween(this.uniforms.distortion)
-      .to({ value: 1000 }, 1200)
+      .to({ value: 60 }, 1000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
+
+      new TWEEN.Tween(this.uniforms.alpha)
+      .to({ value: 0 }, 800)
       .easing(TWEEN.Easing.Cubic.InOut)
       .start();
 
       let bloomA = new TWEEN.Tween(this.bloomPass)
-      .to({ strength: 30 }, 100)
+      .to({ strength: 30 }, 300)
       .easing(TWEEN.Easing.Quintic.Out);
 
       let bloomB = new TWEEN.Tween(this.bloomPass)
-      .to({ strength: 0.5 }, 100)
+      .to({ strength: 0.5 }, 300)
       .easing(TWEEN.Easing.Quintic.Out);
 
       bloomA.chain(bloomB);
@@ -527,7 +535,7 @@ export default {
 
       setTimeout(() => {
         this.scene.remove(part);
-      }, 1500);
+      }, 3000);
       //End of Object Explosion
     },
     onDocumentMouseDown: function(event) {

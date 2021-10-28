@@ -205,7 +205,8 @@ export default {
       oldX: 0,
       oldY: 0,
       galMesh: null,
-      galUniforms: null
+      galUniforms: null,
+      gSMesh: null
     }
   },
   methods: {
@@ -370,7 +371,7 @@ export default {
         this.scene.add(this.holder);
         
         const partLoader = new THREE.TextureLoader();
-        const partTexture = partLoader.load(require("../assets/circle3.png"));
+        const partTexture = partLoader.load(require("../assets/circle2.png"));
 
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
@@ -720,6 +721,7 @@ export default {
         this.badgeScenes = [];
       }
       this.scene.remove(this.particles);
+      this.scene.remove(this.gSMesh);
       this.addHolder();
     },
     onWindowResize: function() {
@@ -881,11 +883,11 @@ export default {
         blending: THREE.AdditiveBlending,
         depthTest: false
       });
-      let gSMesh = new THREE.Mesh(gSGeo, gSMat);
-      gSMesh.position.x = -300;
-      gSMesh.add(this.galMesh);
+      this.gSMesh = new THREE.Mesh(gSGeo, gSMat);
+      this.gSMesh.position.x = -300;
+      this.gSMesh.add(this.galMesh);
 
-      this.scene.add(gSMesh);
+      this.scene.add(this.gSMesh);
     }
   },
   mounted() {

@@ -111,11 +111,13 @@ import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {
   target_vertex,
-  wave_vertex
+  wave_vertex,
+  galaxy_vertex
 } from '../assets/shaders/vertex.js';
 import {
   target_fragment,
-  wave_fragment
+  wave_fragment,
+  galaxy_fragment
 } from '../assets/shaders/fragment.js';
 const TWEEN = require('@tweenjs/tween.js');
 export default {
@@ -202,6 +204,8 @@ export default {
       directionX: "",
       oldX: 0,
       oldY: 0,
+      galMesh: null,
+      galUniforms: null
     }
   },
   methods: {
@@ -371,7 +375,7 @@ export default {
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
         const materials = [];
-        for (let i = 0; i < 10000; i++) {
+        for (let i = 0; i < 50000; i++) {
           const x = Math.random() * 1000 - 500;
           const y = Math.random() * 1000 - 500;
           const z = Math.random() * 1000 - 500;
@@ -380,7 +384,7 @@ export default {
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
         
         const starsMaterial = new THREE.PointsMaterial({
-          size: 1,
+          size: 0.7,
           blending: THREE.AdditiveBlending,
           depthTest: false,
           transparent: true,
@@ -392,7 +396,7 @@ export default {
         starsMaterial.color.setHSL(1.0, 0.3, 0.7);
         this.particles = new THREE.Points(starsGeometry, starsMaterial);
         this.scene.add(this.particles);
-        this.addTargetCapture();
+        this.galaxy();
       }
     },
     animate: function() {
@@ -411,9 +415,11 @@ export default {
         if (!this.intro) {
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
+          this.galMesh.rotation.z += -0.01;
+          this.galMesh.position.x = Math.sin(time);
 
-          //const h = (360 * (1.0 + time * 8) % 360) / 360;
-				  //this.particles.material.color.setHSL(h, 0.5, 0.5);
+          const h = (360 * (1.0 + time * 2) % 360) / 360;
+				  this.particles.material.color.setHSL(h, 0.5, 0.5);
 
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
@@ -470,6 +476,7 @@ export default {
           }
         } else {
           this.renderer.render(this.scene, this.camera);
+          this.composer.render();
         }
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -640,9 +647,6 @@ export default {
         }
       }
     },
-    addTargetCapture: function () {
-      
-    },
     drawCurve: function (vectors) {
       if (vectors.length > 3) {
         const curve = new THREE.CatmullRomCurve3(vectors);
@@ -759,8 +763,121 @@ export default {
         let newposY = y - 60; 
         
         targetCapture.style['transform'] = 'translate3d(' + newposX + 'px,' + newposY + 'px,0px)';
-        console.log(this.direction)
       }
+    },
+    galaxy: function () {
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load(require("../assets/galaxySphere.png"));
+
+      this.galUniforms = {
+        pointTexture: { type: "t", value: texture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+      };
+
+      const galaxyMat = new THREE.ShaderMaterial({
+        uniforms:       this.galUniforms,
+        vertexShader:   galaxy_vertex,
+        fragmentShader: galaxy_fragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
+
+      var variance = 5.0 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var arms = 7;
+      var twist = 0.6 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random() + Math.random());
+      var pinch = 0.7 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random()) / 4.0;
+
+      var clouds = 50 * arms;
+      var stars = 1000;
+
+      var vertices = new Float32Array((clouds + stars) * 3);
+      var colors = new Float32Array((clouds + stars) * 3);
+      var alphas = new Float32Array((clouds + stars) * 1);
+      var sizes = new Float32Array((clouds + stars) * 1);
+
+      var r1 = 1.0;
+      var g1 = 1.0;
+      var b1 = 0.8;
+
+      var r2 = 0.65;
+      var g2 = 0.85;
+      var b2 = 1.0;
+
+      var r3 = 0;
+      var g3 = 0;
+      var b3 = 0;
+
+      for (let i = 0; i < clouds; ++i) {
+        var f = (clouds - i) / clouds;
+        var g = i / clouds;
+        var a = (i % arms) / arms * 2.0 * 3.19149 + g * twist + variance * ((Math.random() + Math.random() + Math.random()) * 0.4 / 3.0 - 0.2);
+        var r = Math.pow(g, pinch) * 500;
+        var x = Math.cos(a) * r;
+        var y = Math.sin(a) * r;
+        var z = 0.0;
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = c * r1 + (1.0 - c) * r2;
+        colors[i * 3 + 1] = c * g1 + (1.0 - c) * g2;
+        colors[i * 3 + 2] = c * b1 + (1.0 - c) * b2;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.5));
+        alphas[i] = Math.random() * (400.0 - s) / 5000.0 * Math.pow(g, 0.3);
+        sizes[i] = s;
+      }
+
+      for (let i = clouds; i < clouds + stars; ++i) {
+        var f = (clouds + stars - i) / (clouds + stars);
+        var g = i / (clouds + stars);
+        var x = Math.random() * 4000.0 - 2000.0;
+        var y = Math.random() * 4000.0 - 2000.0;
+        var z = Math.random() * 4000.0 - 2000.0;
+        if (f < 0.2) {
+          var a = Math.random() * 3.14159 * 2.0;
+          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 900;
+          var x = Math.cos(a) * r;
+          var y = Math.sin(a) * r;
+          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
+        }
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = 1.0;
+        colors[i * 3 + 1] = 1.0;
+        colors[i * 3 + 2] = 1.0;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
+        alphas[i] = 0.02 + Math.random() * 0.1;
+        sizes[i] = Math.random() * Math.random() * 1.0;
+      }
+
+      const galaxyGeo = new THREE.BufferGeometry();
+      galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      galaxyGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.galMesh = new THREE.Points(galaxyGeo, galaxyMat);
+      this.galMesh.rotateX(30);
+      let gSGeo = new THREE.SphereBufferGeometry(20, 30, 30);
+      let gSMat = new THREE.MeshBasicMaterial({
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthTest: false
+      });
+      let gSMesh = new THREE.Mesh(gSGeo, gSMat);
+      gSMesh.position.x = -300;
+      gSMesh.add(this.galMesh);
+
+      this.scene.add(gSMesh);
     }
   },
   mounted() {

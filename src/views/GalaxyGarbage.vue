@@ -103,6 +103,7 @@
 <script>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -344,6 +345,11 @@ export default {
       if (!this.intro) {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
+        let loaders = [];
+        let loader = new GLTFLoader();
+        for (var i = 0; i < this.totalTargets; i++) {
+          loaders.push(loader);
+        }
         for (var i = 0; i < this.totalTargets; i++) {
           this.geometry = new THREE.IcosahedronGeometry(1.5, 16);
           var targetTexLoader = new THREE.TextureLoader();
@@ -355,11 +361,21 @@ export default {
           const material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: this.vertex,
-            fragmentShader: this.fragment
+            fragmentShader: this.fragment,
+            transparent: true,
+            depthTest: false,
+            depthWrite: false
           });
           var cube = new THREE.Mesh(this.geometry, material);
           cube.position.x = i * 1.2 + 5;
           cube.name = "cubeName" + i;
+          let objInst = cube;
+          loaders[i].load('./three_models/scene.gltf', function(gltf){
+            let car = gltf.scene.children[0];
+            car.scale.set(1, 1, 1);
+            objInst.add(gltf.scene);
+          });
+          cube = objInst;
           var spinner = new THREE.Object3D();
           spinner.rotation.x = i * 2.5 * Math.PI;
           spinner.name = "spinnerName" + i;
@@ -374,7 +390,7 @@ export default {
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
         const materials = [];
-        for (let i = 0; i < 50000; i++) {
+        for (let i = 0; i < 20000; i++) {
           const x = Math.random() * 1000 - 500;
           const y = Math.random() * 1000 - 500;
           const z = Math.random() * 1000 - 500;

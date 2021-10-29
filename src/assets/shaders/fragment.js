@@ -323,6 +323,7 @@ void main() {
   float directional = max(dot(vNormal, light), 0.0);
   vec2 tPos = vec2(0, 1.3);
   gl_FragColor = texture2D(targetTex, vUv);
+  gl_FragColor = vec4(1.0, 0.0, 0.0, 0.);
 }
 `;
 

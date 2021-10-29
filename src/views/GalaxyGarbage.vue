@@ -1,5 +1,11 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
+    <div id="music-sound">Sound</div>
+    <div id="target_capture">
+      <div id="target_capture_outer_circle"></div>
+      <div id="target_capture_inner_circle"></div>
+      <img id="target_capture_logo" src="../assets/capture_logo.png" alt="logo" />
+    </div>
     <div class="start-timer" :class="mainTaimer == null ? 'deactivated' : ''">
       <div class="level__container-outer">
         <div class="level__container" :style="{
@@ -97,16 +103,22 @@
 
 <script>
 import * as THREE from 'three';
-import { GUI } from 'three/examples/jsm/libs/dat.gui.module.js';
-import { TessellateModifier } from 'three/examples/jsm/modifiers/TessellateModifier.js';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+//import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
+import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
 import {
   target_vertex,
-  wave_vertex
+  wave_vertex,
+  galaxy_vertex
 } from '../assets/shaders/vertex.js';
 import {
   target_fragment,
-  wave_fragment
+  wave_fragment,
+  galaxy_fragment
 } from '../assets/shaders/fragment.js';
 const TWEEN = require('@tweenjs/tween.js');
 export default {
@@ -130,7 +142,7 @@ export default {
       clock: null,
       holder: null,
       intersects: null,
-      particles: [],
+      particles: null,
       level: 1,
       totalLevels: 4,
       score: 0,
@@ -158,18 +170,6 @@ export default {
       geometry: null,
       vertex: target_vertex,
       fragment: target_fragment,
-      waveVertex: wave_vertex,
-      waveFragment: wave_fragment,
-      waveUniforms: {
-        tExplosion: {
-          type: "t",
-          value: new THREE.TextureLoader().load(require("../assets/fire.jpg"))
-        },
-        time: {
-          type: "f",
-          value: 0.0
-        }
-      },
       waveStart: Date.now(),
       waveMesh: null,
       badgeCanvas: null,
@@ -190,7 +190,27 @@ export default {
       badgeAnimation:false,
       intro: true,
       vectors: [],
-      gameStart: false
+      gameStart: false,
+      stars: null,
+      bloomPass: null,
+      composer: null,
+      renderScene: null,
+      params: {
+        exposure: 0,
+        bloomStrength: 0.5,
+        bloomThreshold: 0,
+        bloomRadius: 0
+      },
+      direction: "",
+      directionX: "",
+      oldX: 0,
+      oldY: 0,
+      galMesh: null,
+      galUniforms: null,
+      gSMesh: null,
+      audio: null,
+      mainTrack: false,
+      audioExplosion: null
     }
   },
   methods: {
@@ -236,20 +256,89 @@ export default {
       vm.buttonTxt = 'Resend';
       vac.attrs.disabled = false;
     },
+    playMainTrack: function () {
+      this.mainTrack = !this.mainTrack;
+
+      if (this.mainTrack) {
+        this.audio.play();
+      } else {
+        this.audio.stop();
+      }
+    },
     myScene: function () {
       this.scene = new THREE.Scene();
       var light = new THREE.AmbientLight(0xffffff);
       var width = window.innerWidth;
       var height = window.innerHeight;
-      this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 1000);
+      this.camera = new THREE.PerspectiveCamera(75, width/height, 0.1, 10000);
       if (this.intro) {
         this.camera.position.z = 1;
       } else {
         this.camera.position.z = 18;
       }
 
+      var listener = new THREE.AudioListener();
+      var listener2 = new THREE.AudioListener();
+      this.camera.add(listener);
+      this.camera.add(listener2);
+      
+      var audioLoader = new THREE.AudioLoader();
+      var audioLoader2 = new THREE.AudioLoader();
+      let lAudio = new THREE.Audio(listener);
+      let explosion = new THREE.Audio(listener2);
+
+      audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
+        lAudio.setBuffer(buffer);
+        lAudio.setLoop(true);
+        lAudio.setVolume(1);
+        lAudio.play();
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+
+      audioLoader2.load( './three_sounds/explosion.mp3', function(buffer) {
+        explosion.setBuffer(buffer);
+        explosion.setLoop(true);
+        explosion.setVolume(1);
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+
+      this.audio = lAudio;
+      this.audioExplosion = explosion;
+      console.log(this.audioExplosion)
+
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize( width, height );
+
+      this.renderScene = new RenderPass(this.scene, this.camera);
+
+      this.bloomPass = new UnrealBloomPass(new THREE.Vector2(width, height), 1.5, 0.4, 0.85);
+      this.bloomPass.threshold = this.params.bloomThreshold;
+      this.bloomPass.strength = this.params.bloomStrength;
+      this.bloomPass.radius = this.params.bloomRadius;
+      this.bloomPass.exposure = this.params.exposure;
+
+      this.composer = new EffectComposer(this.renderer);
+      this.composer.addPass(this.renderScene);
+      this.composer.addPass(this.bloomPass);
+
       document.getElementById("webgl-container").appendChild(this.renderer.domElement);
       this.clock = new THREE.Clock();
       var sLight = new THREE.SpotLight(0xffffff);
@@ -278,9 +367,9 @@ export default {
           size: 5,
           map: sprite
         });
-        const stars = new THREE.Points(starsGeometry, starMaterial);
-        stars.position.z = -2000;
-        this.scene.add(stars);
+        this.stars = new THREE.Points(starsGeometry, starMaterial);
+        this.stars.position.z = -2000;
+        this.scene.add(this.stars);
       }
       //End Intro Strars Field
       //End David code
@@ -317,6 +406,8 @@ export default {
       if (!this.intro) {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
+        let loader = new OBJLoader();
+        
         for (var i = 0; i < this.totalTargets; i++) {
           this.geometry = new THREE.IcosahedronGeometry(1.5, 16);
           var targetTexLoader = new THREE.TextureLoader();
@@ -328,11 +419,21 @@ export default {
           const material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: this.vertex,
-            fragmentShader: this.fragment
+            fragmentShader: this.fragment,
+            transparent: true,
+            depthTest: false,
+            depthWrite: false
           });
           var cube = new THREE.Mesh(this.geometry, material);
           cube.position.x = i * 1.2 + 5;
           cube.name = "cubeName" + i;
+          let objInst = cube;
+          loader.load('./three_models/man.obj', function(obj){
+            console.log(obj);
+            obj.scale.set(0.5, 0.5, 0.5);
+            objInst.add(obj);
+          });
+          cube = objInst;
           var spinner = new THREE.Object3D();
           spinner.rotation.x = i * 2.5 * Math.PI;
           spinner.name = "spinnerName" + i;
@@ -340,72 +441,43 @@ export default {
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        //David code
-        const loader = new THREE.TextureLoader();
-        const textureSphereBg = loader.load(require("../assets/sphere.jpg"));
-        const txtStar = loader.load(require("../assets/txtStar.png"));
-        const texture1 = loader.load(require( "../assets/star1.png" ));
-        const texture2 = loader.load(require("../assets/star2.png"));
-        const texture4 = loader.load(require("../assets/star3.png"));
-        /* Sphere  Background */
-        textureSphereBg.anisotropy = 16;
-        let geometrySphereBg = new THREE.SphereBufferGeometry(150, 40, 40);
-        let materialSphereBg = new THREE.MeshBasicMaterial({
-          side: THREE.BackSide,
-          map: textureSphereBg,
-        });
-        this.sphereBg = new THREE.Mesh(geometrySphereBg, materialSphereBg);
-        this.scene.add(this.sphereBg);
-        /* Moving Stars */
+        
+        const partLoader = new THREE.TextureLoader();
+        const partTexture = partLoader.load(require("../assets/circle2.png"));
+
         let starsGeometry = new THREE.BufferGeometry();
         const vertices = [];
         const materials = [];
-        for (let i = 0; i < 100; i++) {
-          const x = Math.random() * 2000 - 1000;
-          const y = Math.random() * 2000 - 1000;
-          const z = Math.random() * 2000 - 1000;
-          vertices.push( x, y, z );
+        for (let i = 0; i < 20000; i++) {
+          const x = Math.random() * 1000 - 500;
+          const y = Math.random() * 1000 - 500;
+          const z = Math.random() * 1000 - 500;
+          vertices.push(x, y, z);
         }
-        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
-        const parameters = [
-          [[ 1.0, 0.2, 0.5 ], texture1, 20 ],
-          [[ 0.95, 0.1, 0.5 ], texture2, 15 ],
-          [[ 0.90, 0.05, 0.5 ], texture4, 10 ],
-          [[ 0.85, 0, 0.5 ], txtStar, 8 ],
-          [[ 0.80, 0, 0.5 ], texture1, 5 ]
-        ];
-        for ( let i = 0; i < parameters.length; i ++ ) {
-          const color = parameters[i][0];
-          const sprite = parameters[i][1];
-          const size = parameters[i][2];
-          materials[i] = new THREE.PointsMaterial({
-            size: size,
-            map: sprite,
-            blending: THREE.AdditiveBlending,
-            depthTest: false,
-            transparent: true
-          });
-          materials[i].color.setHSL(color[0], color[1], color[2]);
-          const particles = new THREE.Points(starsGeometry, materials[i]);
-          //particles.rotation.x = Math.random() * 6;
-          //particles.rotation.y = Math.random() * 6;
-          //particles.rotation.z = Math.random() * 6;
-          this.scene.add(particles);
-        }
-        //End David code
+        starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+        
+        const starsMaterial = new THREE.PointsMaterial({
+          size: 0.7,
+          blending: THREE.AdditiveBlending,
+          depthTest: false,
+          transparent: true,
+          map: partTexture,
+          alphaTest: 0.5,
+          sizeAttenuation: true
+        });
+
+        starsMaterial.color.setHSL(1.0, 0.3, 0.7);
+        this.particles = new THREE.Points(starsGeometry, starsMaterial);
+        this.scene.add(this.particles);
+        this.galaxy();
       }
     },
     animate: function() {
       if (this.$store.state.stopGalaxyGarbage == false && this.scene.children.length !== 0) {
-          if (!this.intro) {
-            //Sphere Beckground Animation
-            this.sphereBg.rotation.x += 0.003;
-            this.sphereBg.rotation.y += 0.001;
-            this.sphereBg.rotation.z += 0.001;
-          } else {
-            //this.camera.rotation.x = Math.PI/2;
-            this.scene.children[2].position.z += 20;
-          }
+        if (this.intro) {
+          this.scene.children[2].position.z += 20;
+        }
+
         requestAnimationFrame(this.animate);
         TWEEN.update();
         this.render();
@@ -416,7 +488,12 @@ export default {
         if (!this.intro) {
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
-          this.uniforms.amplitude.value = 1.0 + Math.sin( dTime * 0.5 );
+          this.galMesh.rotation.z += -0.01;
+          this.galMesh.position.x = Math.sin(time);
+
+          const h = (360 * (1.0 + time * 2) % 360) / 360;
+				  this.particles.material.color.setHSL(h, 0.5, 0.5);
+
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
           this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
           this.camera.lookAt(this.scene.position);
@@ -434,30 +511,13 @@ export default {
           //this.pointer.rotation.x += 0.01;
           //this.pointer.rotation.y += 0.01;
           var delta = this.clock.getDelta();
-          this.waveUniforms.time.value += delta;
-          if (this.waveMesh !== null && this.waveScaleUp) {
-            this.waveMesh.scale.x = this.waveMesh.scale.x + 0.1;
-            this.waveMesh.scale.y = this.waveMesh.scale.y + 0.1;
-            this.waveMesh.scale.z = this.waveMesh.scale.z + 0.1;
-            if(this.waveMesh.scale.x > 2) {
-              this.waveScaleUp = false
-            }
-          }
-          if (this.waveMesh !== null && !this.waveScaleUp) {
-            this.waveMesh.scale.x = this.waveMesh.scale.x - 0.1;
-            this.waveMesh.scale.y = this.waveMesh.scale.y - 0.1;
-            this.waveMesh.scale.z = this.waveMesh.scale.z - 0.1;
-            if (this.waveMesh.scale.x < 0) {
-              this.scene.remove(this.waveMesh);
-              this.waveMesh = null;
-              this.waveScaleUp = true;
-            }
-          }
+        
           this.renderer.autoClear = false;
           this.renderer.clear();
           this.renderer.setScissorTest(true);
           this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
           this.renderer.render(this.scene, this.camera);
+          this.composer.render();
           let badgesParent = document.getElementById('badges-container');
           badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
@@ -489,6 +549,7 @@ export default {
           }
         } else {
           this.renderer.render(this.scene, this.camera);
+          this.composer.render();
         }
 
         this.renderer.setPixelRatio(window.devicePixelRatio);
@@ -497,76 +558,87 @@ export default {
     },
     addExplosion: function (point) {
       //Object Explosion
-      var geometry = new THREE.IcosahedronGeometry(1.5, 16);
-      const numFaces = geometry.attributes.position.count / 3;
+      var geometry = new THREE.IcosahedronGeometry(1.5, 60);
       var timeNow = this.clock.getElapsedTime();
-      const tessellateModifier = new TessellateModifier(8, 6);
-      geometry = tessellateModifier.modify(geometry);
-      const displacement = new Float32Array(numFaces * 3 * 3);
+      
       var targetTexLoader = new THREE.TextureLoader();
       var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
-      for (let f = 0; f < numFaces; f++) {
-        const index = 9 * f;
-        const d = 100 * (0.5 - Math.random());
-        for (let j = 0; j < 3; j++) {
-          displacement[index + (3 * j)] = d;
-          displacement[index + (3 * j) + 1] = d;
-          displacement[index + (3 * j) + 2] = d;
-        }
-      }
-      geometry.setAttribute('displacement', new THREE.BufferAttribute(displacement, 3));
+      
       this.uniforms = {
         targetTex: { type: "t", value: targetTexture },
-        amplitude: { value: 0.0 }
+        time: { type: "f", value: 0.0 },
+        distortion: { type: "f", value: 0.0 },
+        alpha: { type: "f", value: 1.0 }
       };
+
       const material = new THREE.ShaderMaterial({
         uniforms: this.uniforms,
-        vertexShader: this.vertex,
-        fragmentShader: this.fragment,
-        opacity: 0.7,
-        transparent: true
+        vertexShader: wave_vertex,
+        fragmentShader: wave_fragment,
+        transparent: true,
+        opacity: 0
       });
-      var part = new THREE.Mesh(geometry, material);
+
+      var part = new THREE.Points(geometry, material);
       part.position.x = point.x;
       part.position.y = point.y;
       part.position.z = point.z;
       this.scene.add(part);
 
-      let A = new TWEEN.Tween(part.scale)
-      .to({ x: 2, y: 2, z: 2 }, 5000)
-      .easing(TWEEN.Easing.Quintic.Out)
+      new TWEEN.Tween(this.uniforms.distortion)
+      .to({ value: 60 }, 1000)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
 
-      let B = new TWEEN.Tween(part.scale)
-      .to({ x: 0, y: 0, z: 0 }, 5000)
-      .easing(TWEEN.Easing.Quintic.Out)
+      new TWEEN.Tween(this.uniforms.alpha)
+      .to({ value: 0 }, 800)
+      .easing(TWEEN.Easing.Cubic.InOut)
+      .start();
 
-      A.chain(B);
-      A.start();
+      let bloomA = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 30 }, 300)
+      .easing(TWEEN.Easing.Quintic.Out);
+
+      let bloomB = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 0.5 }, 300)
+      .easing(TWEEN.Easing.Quintic.Out);
+
+      bloomA.chain(bloomB);
+      bloomA.start();
 
       setTimeout(() => {
         this.scene.remove(part);
-      }, 10000);
+      }, 1200);
+
+      this.audioExplosion.play();
+
+      setTimeout(() => {
+        this.audioExplosion.stop();
+      }, 3000);
+      
       //End of Object Explosion
-      //Waves
-      var waveGeo = new THREE.IcosahedronGeometry(5, 40);
-      var waveMat = new THREE.ShaderMaterial({
-        uniforms: this.waveUniforms,
-        vertexShader: this.waveVertex,
-        fragmentShader: this.waveFragment,
-        side: THREE.DoubleSide
-      });
-      this.waveUniforms.time.value = .00025 * (Date.now() - this.waveStart);
-      this.waveMesh = new THREE.Mesh(waveGeo, waveMat);
-      this.scene.add(this.waveMesh);
-      this.waveMesh.scale.x = 0;
-      this.waveMesh.scale.y = 0;
-      this.waveMesh.scale.z = 0;
-      this.waveMesh.name = "wave0";
-      //End of Waves
+    },
+    onDocumentMouseUp: function(event) {
+      event.preventDefault();
+
+      if (!this.intro) {
+        let catchTarget = document.getElementById('target_capture_inner_circle');
+        let catchTargetLogo = document.getElementById('target_capture_logo');
+
+        catchTarget.style['transform'] = 'scale(1)';
+        catchTargetLogo.style['transform'] = 'scale(1)';
+      }
     },
     onDocumentMouseDown: function(event) {
       event.preventDefault();
+
       if (!this.intro) {
+        let catchTarget = document.getElementById('target_capture_inner_circle');
+        let catchTargetLogo = document.getElementById('target_capture_logo');
+
+        catchTarget.style['transform'] = 'scale(0.2)';
+        catchTargetLogo.style['transform'] = 'scale(0.2)';
+
         if (this.complete) {
           this.complete = false;
           this.score = 0;
@@ -597,6 +669,7 @@ export default {
           let bIndex = 0;
           this.holder.children.forEach(function (elem, index, array) {
             let intersects = raycaster.intersectObjects(elem.children);
+          
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
               addExplosion(intersects[0].point);
@@ -731,7 +804,7 @@ export default {
       }
       this.badgeAnimation = false;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
-      this.animateText = true
+      this.animateText = true;
       setTimeout(() => {
         this.commentNow = this.comments[this.level-1];
         this.playerStatusNow = this.playerStatuses[this.level-1];
@@ -745,6 +818,8 @@ export default {
       if (this. level == 1) {
         this.badgeScenes = [];
       }
+      this.scene.remove(this.particles);
+      this.scene.remove(this.gSMesh);
       this.addHolder();
     },
     onWindowResize: function() {
@@ -756,6 +831,25 @@ export default {
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
 
+      let targetAnim = document.getElementById('target_capture_outer_circle');
+
+      if (event.pageY < this.oldY) {
+        this.direction = "up";
+        targetAnim.style['transform'] = 'rotateX(55deg)';
+      } else if (event.pageY > this.oldY) {
+        this.direction = "down";
+        targetAnim.style['transform'] = 'rotateX(0deg)';
+      } else if (event.pageX < this.oldX) {
+        this.directionX = "left";
+        targetAnim.style['transform'] = 'rotateY(-50deg)';
+      } else if (event.pageX > this.oldX) {
+        this.directionX = "right";
+        targetAnim.style['transform'] = 'rotateY(50deg)';
+      }
+
+      this.oldY = event.pageY;
+      this.oldX = event.pageX;
+
       if (!this.intro) {
         this.pointerMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointerMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
@@ -766,10 +860,132 @@ export default {
         let dir = vector.sub(this.camera.position).normalize();
         let distance = -this.camera.position.z / dir.z;
         let pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
-        //this.pointer.position.copy(pos);
         this.vectors.push(pos);
         this.drawCurve(this.vectors);
+        
+        let x = event.clientX;
+        let y = event.clientY;
+        let targetCapture = document.getElementById('target_capture');
+
+        let newposX = x - 40;
+        let newposY = y - 40; 
+        
+        targetCapture.style['transform'] = 'translate3d(' + newposX + 'px,' + newposY + 'px,0px)';
       }
+    },
+    galaxy: function () {
+      const loader = new THREE.TextureLoader();
+      const texture = loader.load(require("../assets/galaxySphere.png"));
+
+      this.galUniforms = {
+        pointTexture: { type: "t", value: texture },
+        uCameraPos: { type: "3f", value: new THREE.Vector3(0, 0, 1000) },
+      };
+
+      const galaxyMat = new THREE.ShaderMaterial({
+        uniforms:       this.galUniforms,
+        vertexShader:   galaxy_vertex,
+        fragmentShader: galaxy_fragment,
+        transparent:    true,
+        depthTest:      false,
+        blending:       THREE.AdditiveBlending
+      });
+
+      var variance = 5.0 * (Math.random() + Math.random() + Math.random()) / 3.0;
+      var arms = 7;
+      var twist = 0.6 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random() + Math.random());
+      var pinch = 0.7 + 1.5 * (Math.random() + Math.random() + Math.random() + Math.random()) / 4.0;
+
+      var clouds = 50 * arms;
+      var stars = 1000;
+
+      var vertices = new Float32Array((clouds + stars) * 3);
+      var colors = new Float32Array((clouds + stars) * 3);
+      var alphas = new Float32Array((clouds + stars) * 1);
+      var sizes = new Float32Array((clouds + stars) * 1);
+
+      var r1 = 1.0;
+      var g1 = 1.0;
+      var b1 = 0.8;
+
+      var r2 = 0.65;
+      var g2 = 0.85;
+      var b2 = 1.0;
+
+      var r3 = 0;
+      var g3 = 0;
+      var b3 = 0;
+
+      for (let i = 0; i < clouds; ++i) {
+        var f = (clouds - i) / clouds;
+        var g = i / clouds;
+        var a = (i % arms) / arms * 2.0 * 3.19149 + g * twist + variance * ((Math.random() + Math.random() + Math.random()) * 0.4 / 3.0 - 0.2);
+        var r = Math.pow(g, pinch) * 500;
+        var x = Math.cos(a) * r;
+        var y = Math.sin(a) * r;
+        var z = 0.0;
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = c * r1 + (1.0 - c) * r2;
+        colors[i * 3 + 1] = c * g1 + (1.0 - c) * g2;
+        colors[i * 3 + 2] = c * b1 + (1.0 - c) * b2;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.5));
+        alphas[i] = Math.random() * (400.0 - s) / 5000.0 * Math.pow(g, 0.3);
+        sizes[i] = s;
+      }
+
+      for (let i = clouds; i < clouds + stars; ++i) {
+        var f = (clouds + stars - i) / (clouds + stars);
+        var g = i / (clouds + stars);
+        var x = Math.random() * 4000.0 - 2000.0;
+        var y = Math.random() * 4000.0 - 2000.0;
+        var z = Math.random() * 4000.0 - 2000.0;
+        if (f < 0.2) {
+          var a = Math.random() * 3.14159 * 2.0;
+          var r = 5.0 + Math.pow(f, 1.5) / Math.pow(0.2, 1.5) * 900;
+          var x = Math.cos(a) * r;
+          var y = Math.sin(a) * r;
+          var z = Math.random() * g * g * Math.sqrt(r) - 0.5 * Math.sqrt(r);
+        }
+
+        vertices[i * 3 + 0] = x;
+        vertices[i * 3 + 1] = y;
+        vertices[i * 3 + 2] = z;
+
+        var c = Math.pow(f, 0.8);
+        colors[i * 3 + 0] = 1.0;
+        colors[i * 3 + 1] = 1.0;
+        colors[i * 3 + 2] = 1.0;
+
+        var s = Math.pow(512.0, Math.pow(f * Math.random(), 0.3));
+        alphas[i] = 0.02 + Math.random() * 0.1;
+        sizes[i] = Math.random() * Math.random() * 1.0;
+      }
+
+      const galaxyGeo = new THREE.BufferGeometry();
+      galaxyGeo.setAttribute('position', new THREE.BufferAttribute(vertices, 3));
+      galaxyGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+      galaxyGeo.setAttribute('alpha', new THREE.BufferAttribute(alphas, 1));
+      galaxyGeo.setAttribute('size', new THREE.BufferAttribute(sizes, 1));
+
+      this.galMesh = new THREE.Points(galaxyGeo, galaxyMat);
+      this.galMesh.rotateX(30);
+      let gSGeo = new THREE.SphereBufferGeometry(20, 30, 30);
+      let gSMat = new THREE.MeshBasicMaterial({
+        transparent: true,
+        blending: THREE.AdditiveBlending,
+        depthTest: false
+      });
+      this.gSMesh = new THREE.Mesh(gSGeo, gSMat);
+      this.gSMesh.position.x = -300;
+      this.gSMesh.add(this.galMesh);
+
+      this.scene.add(this.gSMesh);
     }
   },
   mounted() {
@@ -777,6 +993,8 @@ export default {
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
+    document.getElementById("webgl-container").addEventListener('mouseup', this.onDocumentMouseUp, false);
     document.addEventListener('pointermove', this.onPointerMove);
     this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
@@ -830,6 +1048,54 @@ export default {
 </script>
 
 <style scoped>
+  #music-sound{
+    width: 100px;
+    height: 30px;
+    border: 1px solid #FFFFFF;
+    position: absolute;
+    right: 90%;
+    top: 10%;
+    cursor: pointer;
+  }
+  #target_capture{
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate3d(-50%,-50%,0);
+    pointer-events: none;
+  }
+  #target_capture_outer_circle{
+    width: 100%;
+    height: 100%;
+    border: 2px solid #ffffff;
+    border-radius: 50%;
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    transition: 0.5s;
+  }
+  #target_capture_inner_circle{
+    width: 75%;
+    height: 75%;
+    border-style: solid;
+    border-width: 2px;
+    border-color: #FF7152;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    transition: 0.2s;
+  }
+  #target_capture_logo{
+    width: 40%;
+    height: 40%;
+    border-radius: 50%;
+    position: absolute;
+    top: 25px;
+    left: 25px;
+    transition: 0.2s;
+  }
   .start-timer{
     position: absolute;
     width: 100%;

@@ -205,7 +205,7 @@ export default {
       renderScene: null,
       params: {
         exposure: 0,
-        bloomStrength: 0.6,
+        bloomStrength: 0.3,
         bloomThreshold: 0,
         bloomRadius: 0
       },
@@ -311,11 +311,11 @@ export default {
         uColor: { value: new THREE.Color(0x5E68FF) },
         curveColor: { value: this.colors[0] },
         lines: { value: new THREE.Color(0x5E68FF) },
-        pointColor1: { value: new THREE.Color(0x051BE2) },
-        pointColor2: { value: new THREE.Color(0x051BE2) },
-        pointColor3: { value: new THREE.Color(0x051BE2) },
-        pointColor4: { value: new THREE.Color(0x051BE2) },
-        pointColor5: { value: new THREE.Color(0x051BE2) },
+        pointColor1: { value: new THREE.Color(0x5159FF) },
+        pointColor2: { value: new THREE.Color(0x5159FF) },
+        pointColor3: { value: new THREE.Color(0x444EFF) },
+        pointColor4: { value: new THREE.Color(0x444EFF) },
+        pointColor5: { value: new THREE.Color(0x444EFF) },
         displayCurve: { value: false },
         fadeOut: { value: false }
       };
@@ -387,7 +387,7 @@ export default {
       });
 
       var variance = 2.5 * (Math.random() + Math.random() + Math.random()) / 3.0;
-      var stars = 1300;
+      var stars = 5000;
 
       var vertices = new Float32Array((stars) * 3);
       var colors = new Float32Array((stars) * 3);
@@ -418,7 +418,7 @@ export default {
         colors[i * 3 + 2] = 1.0;
 
         alphas[i] = 1;
-        sizes[i] = (Math.random() * Math.random() * 10.0);
+        sizes[i] = (Math.random() * Math.random() * 5.0);
       }
 
       this.partGeo = new THREE.BufferGeometry();
@@ -479,7 +479,7 @@ export default {
       this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
       this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
       this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
-      this.particles.rotation.y += 0.001;
+      this.particles.rotation.y += 0.003;
       this.particles.rotation.z += 0.001;
 
       if (this.$store.state.stopRoadmap == false){

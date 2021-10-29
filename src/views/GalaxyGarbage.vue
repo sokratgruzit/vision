@@ -103,7 +103,8 @@
 <script>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+//import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
@@ -345,11 +346,8 @@ export default {
       if (!this.intro) {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
-        let loaders = [];
-        let loader = new GLTFLoader();
-        for (var i = 0; i < this.totalTargets; i++) {
-          loaders.push(loader);
-        }
+        let loader = new OBJLoader();
+        
         for (var i = 0; i < this.totalTargets; i++) {
           this.geometry = new THREE.IcosahedronGeometry(1.5, 16);
           var targetTexLoader = new THREE.TextureLoader();
@@ -370,10 +368,10 @@ export default {
           cube.position.x = i * 1.2 + 5;
           cube.name = "cubeName" + i;
           let objInst = cube;
-          loaders[i].load('./three_models/scene.gltf', function(gltf){
-            let car = gltf.scene.children[0];
-            car.scale.set(1, 1, 1);
-            objInst.add(gltf.scene);
+          loader.load('./three_models/bugatti.obj', function(obj){
+            //let car = obj.scene.children[0];
+            //car.scale.set(1, 1, 1);
+            objInst.add(obj);
           });
           cube = objInst;
           var spinner = new THREE.Object3D();

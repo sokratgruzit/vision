@@ -1,5 +1,6 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
+    <div id="music-sound">Sound</div>
     <div id="target_capture">
       <div id="target_capture_outer_circle"></div>
       <div id="target_capture_inner_circle"></div>
@@ -206,7 +207,10 @@ export default {
       oldY: 0,
       galMesh: null,
       galUniforms: null,
-      gSMesh: null
+      gSMesh: null,
+      audio: null,
+      mainTrack: false,
+      audioExplosion: null
     }
   },
   methods: {
@@ -252,6 +256,15 @@ export default {
       vm.buttonTxt = 'Resend';
       vac.attrs.disabled = false;
     },
+    playMainTrack: function () {
+      this.mainTrack = !this.mainTrack;
+
+      if (this.mainTrack) {
+        this.audio.play();
+      } else {
+        this.audio.stop();
+      }
+    },
     myScene: function () {
       this.scene = new THREE.Scene();
       var light = new THREE.AmbientLight(0xffffff);
@@ -263,6 +276,53 @@ export default {
       } else {
         this.camera.position.z = 18;
       }
+
+      var listener = new THREE.AudioListener();
+      var listener2 = new THREE.AudioListener();
+      this.camera.add(listener);
+      this.camera.add(listener2);
+      
+      var audioLoader = new THREE.AudioLoader();
+      var audioLoader2 = new THREE.AudioLoader();
+      let lAudio = new THREE.Audio(listener);
+      let explosion = new THREE.Audio(listener2);
+
+      audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
+        lAudio.setBuffer(buffer);
+        lAudio.setLoop(true);
+        lAudio.setVolume(1);
+        lAudio.play();
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+
+      audioLoader2.load( './three_sounds/explosion.mp3', function(buffer) {
+        explosion.setBuffer(buffer);
+        explosion.setLoop(true);
+        explosion.setVolume(1);
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+
+      this.audio = lAudio;
+      this.audioExplosion = explosion;
+      console.log(this.audioExplosion)
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize( width, height );
@@ -368,9 +428,9 @@ export default {
           cube.position.x = i * 1.2 + 5;
           cube.name = "cubeName" + i;
           let objInst = cube;
-          loader.load('./three_models/bugatti.obj', function(obj){
-            //let car = obj.scene.children[0];
-            //car.scale.set(1, 1, 1);
+          loader.load('./three_models/man.obj', function(obj){
+            console.log(obj);
+            obj.scale.set(0.5, 0.5, 0.5);
             objInst.add(obj);
           });
           cube = objInst;
@@ -549,6 +609,13 @@ export default {
       setTimeout(() => {
         this.scene.remove(part);
       }, 1200);
+
+      this.audioExplosion.play();
+
+      setTimeout(() => {
+        this.audioExplosion.stop();
+      }, 3000);
+      
       //End of Object Explosion
     },
     onDocumentMouseUp: function(event) {
@@ -926,6 +993,7 @@ export default {
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.getElementById("webgl-container").addEventListener('mouseup', this.onDocumentMouseUp, false);
     document.addEventListener('pointermove', this.onPointerMove);
     this.$store.commit('setHeader', false);
@@ -980,6 +1048,15 @@ export default {
 </script>
 
 <style scoped>
+  #music-sound{
+    width: 100px;
+    height: 30px;
+    border: 1px solid #FFFFFF;
+    position: absolute;
+    right: 90%;
+    top: 10%;
+    cursor: pointer;
+  }
   #target_capture{
     width: 80px;
     height: 80px;

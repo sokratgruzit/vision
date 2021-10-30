@@ -210,7 +210,9 @@ export default {
       gSMesh: null,
       audio: null,
       mainTrack: false,
-      audioExplosion: null
+      audioExplosion: null,
+      spinnerDelta: 0,
+      controls: null
     }
   },
   methods: {
@@ -322,10 +324,12 @@ export default {
 
       this.audio = lAudio;
       this.audioExplosion = explosion;
-      console.log(this.audioExplosion)
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-      this.renderer.setSize( width, height );
+      this.renderer.setSize(width, height);
+      this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+      this.controls.enableZoom = true;
+      this.controls.screenSpacePanning = false;
 
       this.renderScene = new RenderPass(this.scene, this.camera);
 
@@ -374,18 +378,6 @@ export default {
       //End Intro Strars Field
       //End David code
     },
-    spinner: function () {
-      if (!this.intro) {
-        var geometry = new THREE.BoxGeometry(1,1,1);
-        var material = new THREE.MeshPhongMaterial( {color: "hotpink" } );
-        var cube = new THREE.Mesh(geometry, material);
-        cube.position.x = 10;
-        var spinner = new THREE.Object3D();
-        spinner.rotation.x = 6;
-        spinner.add(cube);
-        this.scene.add(spinner);
-      }
-    },
     randomPointSphere: function (radius) {
       if (!this.intro) {
         let theta = 2 * Math.PI * Math.random();
@@ -409,7 +401,7 @@ export default {
         let loader = new OBJLoader();
         
         for (var i = 0; i < this.totalTargets; i++) {
-          this.geometry = new THREE.IcosahedronGeometry(1.5, 16);
+          this.geometry = new THREE.IcosahedronGeometry(15, 16);
           var targetTexLoader = new THREE.TextureLoader();
           var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
           this.uniforms = {
@@ -422,18 +414,20 @@ export default {
             fragmentShader: this.fragment,
             transparent: true,
             depthTest: false,
-            depthWrite: false
+            depthWrite: false,
+            wireframe: true
           });
           var cube = new THREE.Mesh(this.geometry, material);
-          cube.position.x = i * 1.2 + 5;
+          cube.position.x = i === 0 ? 100 : i * Math.random() * 50;
+          cube.position.y = i === 0 ? 100 : i * Math.random() * 50;
           cube.name = "cubeName" + i;
           let objInst = cube;
           loader.load('./three_models/man.obj', function(obj){
-            console.log(obj);
-            obj.scale.set(0.5, 0.5, 0.5);
+            obj.position.y = -5;
             objInst.add(obj);
           });
           cube = objInst;
+
           var spinner = new THREE.Object3D();
           spinner.rotation.x = i * 2.5 * Math.PI;
           spinner.name = "spinnerName" + i;
@@ -478,6 +472,7 @@ export default {
           this.scene.children[2].position.z += 20;
         }
 
+        this.controls.update();
         requestAnimationFrame(this.animate);
         TWEEN.update();
         this.render();
@@ -495,21 +490,60 @@ export default {
 				  this.particles.material.color.setHSL(h, 0.5, 0.5);
 
           this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-          this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
-          this.camera.lookAt(this.scene.position);
+          //this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+          //this.camera.lookAt(this.scene.position);
           for (let i = 0; i < this.scene.children.length; i++) {
             const object = this.scene.children[i];
             if (object instanceof THREE.Points) {
               object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
             }
           }
+
           this.holder.children.forEach(function (elem, index, array) {
-            elem.rotation.y += (0.01 * (6 - index));
+            let x = 0;
+            let y = 0;
+
+            if (index === 0) {
+              x = 100;
+              y = 100;
+            } else {
+              x = index * 50;
+              y = index * 50;
+            }
+
+            if (elem.position.x === 0 || elem.position.x === -x) {
+              new TWEEN.Tween(elem.position)
+              .to({ x: x }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+
+            if (elem.position.x === x) {
+              new TWEEN.Tween(elem.position)
+              .to({ x: -x }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+
+            if (elem.position.y === 0 || elem.position.y === -y) {
+              new TWEEN.Tween(elem.position)
+              .to({ y: y}, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+
+            if (elem.position.y === y) {
+              new TWEEN.Tween(elem.position)
+              .to({ y: -y }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+
+            elem.rotation.y += (0.001 * (6 - index));
             elem.children[0].rotation.x += 0.01;
             elem.children[0].rotation.y += 0.01;
           });
-          //this.pointer.rotation.x += 0.01;
-          //this.pointer.rotation.y += 0.01;
+          
           var delta = this.clock.getDelta();
         
           this.renderer.autoClear = false;
@@ -707,18 +741,10 @@ export default {
                   bContainer.appendChild(bEl);
 
                   bGeo = new THREE.CylinderGeometry(1, 1, 0.15, 25);
-                  //bCamera = new THREE.PerspectiveCamera(50, window.innerWidth/window.innerHeight, 1, 100);
                   bCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
-                  //bCamera.position.set(0,0,5);
-                  //bCamera.lookAt(bScene.position);
                   bCamera.position.z = 4;
                   bScene.userData.camera = bCamera;
-                  const controls = new OrbitControls(bScene.userData.camera, bScene.userData.element);
-                  controls.minDistance = 2;
-                  controls.maxDistance = 5;
-                  controls.enablePan = false;
-                  controls.enableZoom = true;
-                  bScene.userData.controls = controls;
+                  
                   const badgeLoader = new THREE.TextureLoader();
                   const badgeTex = badgeLoader.load(badgeTextures[i]);
                   bMat = new THREE.MeshBasicMaterial({

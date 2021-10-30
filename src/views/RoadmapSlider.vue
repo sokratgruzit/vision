@@ -244,7 +244,7 @@
         this.camera.position.z = 5000;
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
-        
+
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -773,7 +773,7 @@
       window.addEventListener('resize', this.onWindowResize, false);
       this.$store.commit('stopRoadmapInner', false);
     },
-    beforeDestroy () {
+    destroyed () {
       window.removeEventListener('resize', this.onWindowResize, false);
       document.removeEventListener('click', this.updateUiData);
       window.removeEventListener('pointermove', this.onPointerMove);

@@ -302,7 +302,7 @@ export default {
         this.lineAlphas[i] = step;
         step = step - step / numVertices;
       }
-     
+
       this.roadmapGeo.setAttribute('alpha', new THREE.BufferAttribute(this.alphas, 1));
       this.roadmapGeo.setAttribute('alpha2', new THREE.BufferAttribute(this.lineAlphas, 1));
 
@@ -503,12 +503,12 @@ export default {
         for(var i = 0; i < count; i++) {
           this.alphas.array[i] *= 0.95;
           this.lineAlphas.array[i] *=0.985;
-          
+
           if (this.lineAlphas.array[i] < 0.05) {
             this.lineAlphas.array[i] = 1;
           }
 
-          if (this.alphas.array[i] < 0.2) { 
+          if (this.alphas.array[i] < 0.2) {
             if (this.anim) {
               this.alphas.array[i] = 0;
             } else {
@@ -536,11 +536,10 @@ export default {
           .to({ z: 5 }, 500)
           .easing(TWEEN.Easing.Linear.None)
           .onComplete(() => {
-            if (i !== 0) {
-              this.$router.push({ name: 'roadmapInner', params: { id: i }});
-            } else {
-              this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
-            }
+            setTimeout(() => {
+                this.$router.push({ name: 'roadmapInner', params: { id: i }});
+                this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
+            },500)
           })
           .start();
 
@@ -651,6 +650,32 @@ export default {
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
+      var pointAlphas = this.particles.geometry.attributes.alpha;
+
+      if (this.direction === "up") {
+        for (let i = 0; i < pointAlphas.count / 2; i++) {
+          pointAlphas.array[i] = 0.1;
+        }
+
+        if (this.itemAlpha > 0) {
+          this.itemAlpha -= 0.00005;
+        }
+      }
+
+      if (this.direction === "down") {
+        for (let i = 0; i < pointAlphas.count / 2; i++) {
+          if (this.itemAlpha < 0.5) {
+            pointAlphas.array[i] += this.itemAlpha;
+          }
+        }
+
+        if (this.itemAlpha < 0.1) {
+          this.itemAlpha += 0.00001;
+        }
+      }
+
+      pointAlphas.needsUpdate = true;
+
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;
 
@@ -658,7 +683,7 @@ export default {
         return false;
       } else {
         let int = this.raycaster.intersectObjects(this.scene.children[3].children);
-        
+
         if (int.length > 0) {
           if (this.INTERSECTED != int[0].object) {
             this.roadmapMat.uniforms.displayCurve.value = true;
@@ -667,16 +692,16 @@ export default {
             if (!this.holdRoadmapPath) {
               if (intId === 'buble-tooltip0') {
                 this.roadmapUniforms.curveColor.value = this.colors[0];
-              } 
+              }
               if (intId === 'buble-tooltip1' || intId === 'buble-tooltip2' || intId === 'buble-tooltip3') {
                 this.roadmapUniforms.curveColor.value = this.colors[1];
-              } 
+              }
               if (intId === 'buble-tooltip4' || intId === 'buble-tooltip5' || intId === 'buble-tooltip6' || intId === 'buble-tooltip7' || intId === 'buble-tooltip8' ) {
                 this.roadmapUniforms.curveColor.value = this.colors[2];
-              } 
+              }
               if (intId === 'buble-tooltip9' || intId === 'buble-tooltip10' || intId === 'buble-tooltip11' || intId === 'buble-tooltip12' || intId === 'buble-tooltip13') {
                 this.roadmapUniforms.curveColor.value = this.colors[3];
-              } 
+              }
               if (intId === 'buble-tooltip14' || intId === 'buble-tooltip15' || intId === 'buble-tooltip16') {
                 this.roadmapUniforms.curveColor.value = this.colors[4];
               }
@@ -693,7 +718,7 @@ export default {
           if (!this.holdRoadmapPath) {
             this.roadmapMat.uniforms.displayCurve.value = false;
           }
-          
+
           if (this.roadmapMesh.position.z == 8) {
             new TWEEN.Tween(this.roadmapMesh.position)
             .to({ z: 0 }, 700)
@@ -784,21 +809,22 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-    document.removeEventListener('mouseup', this.onPointerUp, false);
-    document.removeEventListener('mousedown', this.onPointerDown, false);
-    document.removeEventListener('mousedown', this.route,false);
+      document.removeEventListener('mouseup', this.onPointerUp, false);
+      document.removeEventListener('mousedown', this.onPointerDown, false);
+      document.removeEventListener('mousedown', this.route,false);
 
-    window.removeEventListener('resize', this.onWindowResize, false);
-    window.removeEventListener('mousedown', this.onPointerMove);
-    this.loadFilter = null;
-    //this.raycaster = null;
-    //this.renderer = null;
-    this.$store.commit('stopRoadmap', true);
-    this.$store.commit('setRoadmapInnerRoute', false);
+      window.removeEventListener('resize', this.onWindowResize, false);
+      window.removeEventListener('mousedown', this.onPointerMove);
+      this.loadFilter = null;
+      //this.raycaster = null;
+      //this.renderer = null;
+      this.$store.commit('stopRoadmap', true);
+      this.$store.commit('setRoadmapInnerRoute', false);
 
-    while(this.scene.children.length > 0) {
-      this.scene.remove(this.scene.children[0]);
-    }
+      while(this.scene.children.length > 0) {
+        this.scene.remove(this.scene.children[0]);
+      }
+
   },
   watch: {
     '$store.state.stopRoadmap': function () {

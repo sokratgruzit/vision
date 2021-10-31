@@ -197,7 +197,7 @@ export default {
       renderScene: null,
       params: {
         exposure: 0,
-        bloomStrength: 0.5,
+        bloomStrength: 5,
         bloomThreshold: 0,
         bloomRadius: 0
       },
@@ -212,7 +212,15 @@ export default {
       mainTrack: false,
       audioExplosion: null,
       spinnerDelta: 0,
-      controls: null
+      controls: null,
+      colors: [
+        new THREE.Color(0xFF7152),
+        new THREE.Color(0xF59337),
+        new THREE.Color(0xE10FEC),
+        new THREE.Color(0x5910C5),
+        new THREE.Color(0x3F057E)
+      ],
+      tunnelAnim: false
     }
   },
   methods: {
@@ -350,7 +358,7 @@ export default {
       this.scene.add(sLight);
       var aLight = new THREE.AmbientLight( 0xffffff );
       this.scene.add(aLight);
-      //David code
+      
       var directionalLight = new THREE.DirectionalLight("#fff", 2);
       directionalLight.position.set(0, 50, -20);
       //Intro Strars Field
@@ -365,21 +373,94 @@ export default {
           vertices.push( x, y, z );
         }
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
-        let sprite = new THREE.TextureLoader().load(require("../assets/txtStar.png"));
+        let sprite = new THREE.TextureLoader().load(require("../assets/circle2.png"));
         let starMaterial = new THREE.PointsMaterial({
           color: 0xaaaaaa,
-          size: 5,
+          size: 3,
           map: sprite
         });
         this.stars = new THREE.Points(starsGeometry, starMaterial);
         this.stars.position.z = -2000;
         this.scene.add(this.stars);
       }
-      //End Intro Strars Field
-      //End David code
+    },
+    secondLevelTunnel: function () {
+      let starsGeometry = new THREE.BufferGeometry();
+      const vertices = [];
+      const materials = [];
+      for (let i = 0; i < 20000; i++) {
+        const x = Math.random() * 2000 - 1000;
+        const y = Math.random() * 2000 - 1000;
+        const z = Math.random() * 2000 - 1000;
+        vertices.push( x, y, z );
+      }
+      starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 4));
+      let sprite = new THREE.TextureLoader().load(require("../assets/circle2.png"));
+      let starMaterial = new THREE.PointsMaterial({
+        color: 0xaaaaaa,
+        size: 3,
+        map: sprite
+      });
+      this.stars = new THREE.Points(starsGeometry, starMaterial);
+      this.stars.position.z = -1000;
+      this.scene.add(this.stars);
+
+      const spaceLoader = new THREE.TextureLoader();
+      const space = spaceLoader.load(require("../assets/space.jpg"));
+      
+      const tunnelGeo = new THREE.CylinderGeometry(100, 100, 2000, 32, 1, true);
+      const tunnelMat = new THREE.MeshBasicMaterial({
+        color: 0xffff00,
+        transparent: true,
+        //map: space,
+        //side: THREE.DoubleSide
+      });
+      const tunnel = new THREE.Mesh(tunnelGeo, tunnelMat);
+      tunnel.rotation.x = 1.57;
+      tunnel.position.z = -5000;
+      this.scene.add(tunnel);
+
+      let step = 2200;
+      let colorStep = 0;
+      for (let i = 0; i < 20; i++) {
+        let pGeo = new THREE.RingGeometry(98, 100, 10);
+        let pMat = new THREE.MeshBasicMaterial({
+          color: this.colors[colorStep]
+        });
+        let portalRing = new THREE.Mesh(pGeo, pMat);
+        portalRing.rotation.x = 275;
+        portalRing.position.y = step;
+        tunnel.add(portalRing);
+        step = step - 100;
+        colorStep++;
+        if (colorStep > 5) {
+          colorStep = 0;
+        }
+      }
+
+      new TWEEN.Tween(this.stars.position)
+      .to({ z: 2000 }, 10000)
+      .easing(TWEEN.Easing.Linear.None)
+      .start();
+
+      new TWEEN.Tween(tunnel.position)
+      .to({ z: 500 }, 8000)
+      .easing(TWEEN.Easing.Linear.None)
+      .start();
+
+      let A = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 4 }, 3000)
+      .easing(TWEEN.Easing.Linear.None);
+
+      let B = new TWEEN.Tween(this.bloomPass)
+      .to({ strength: 0.5 }, 4000)
+      .easing(TWEEN.Easing.Linear.None);
+
+      A.chain(B);
+      A.start();
     },
     randomPointSphere: function (radius) {
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         let theta = 2 * Math.PI * Math.random();
         let phi = Math.acos(2 * Math.random() - 1);
         let dx = 0 + (radius * Math.sin(phi) * Math.cos(theta));
@@ -389,13 +470,13 @@ export default {
       }
     },
     mathRandom: function (num = 1) {
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         var setNumber = - Math.random() * num + Math.random() * num;
         return setNumber;
       }
     },
     addHolder: function () {
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
         let loader = new OBJLoader();
@@ -489,60 +570,68 @@ export default {
           const h = (360 * (1.0 + time * 2) % 360) / 360;
 				  this.particles.material.color.setHSL(h, 0.5, 0.5);
 
-          this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-          //this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
-          //this.camera.lookAt(this.scene.position);
-          for (let i = 0; i < this.scene.children.length; i++) {
+          if (!this.tunnelAnim) {
+            this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
+            this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+            this.camera.lookAt(this.scene.position);
+
+            for (let i = 0; i < this.scene.children.length; i++) {
             const object = this.scene.children[i];
-            if (object instanceof THREE.Points) {
-              object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+              if (object instanceof THREE.Points) {
+                object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
+              }
             }
+
+            this.holder.children.forEach(function (elem, index, array) {
+              let x = 0;
+              let y = 0;
+
+              if (index === 0) {
+                x = 100;
+                y = 100;
+              } else {
+                x = index * 50;
+                y = index * 50;
+              }
+
+              if (elem.position.x === 0 || elem.position.x === -x) {
+                new TWEEN.Tween(elem.position)
+                .to({ x: x }, 5000)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .start();
+              }
+
+              if (elem.position.x === x) {
+                new TWEEN.Tween(elem.position)
+                .to({ x: -x }, 5000)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .start();
+              }
+
+              if (elem.position.y === 0 || elem.position.y === -y) {
+                new TWEEN.Tween(elem.position)
+                .to({ y: y}, 5000)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .start();
+              }
+
+              if (elem.position.y === y) {
+                new TWEEN.Tween(elem.position)
+                .to({ y: -y }, 5000)
+                .easing(TWEEN.Easing.Cubic.InOut)
+                .start();
+              }
+
+              elem.rotation.y += (0.001 * (6 - index));
+              elem.children[0].rotation.x += 0.01;
+              elem.children[0].rotation.y += 0.01;
+            });
+          } else {
+            this.camera.position.x = 0;
+            this.camera.position.y = 0;
+            this.camera.position.z = 500;
+            console.log(this.scene.children)
           }
-
-          this.holder.children.forEach(function (elem, index, array) {
-            let x = 0;
-            let y = 0;
-
-            if (index === 0) {
-              x = 100;
-              y = 100;
-            } else {
-              x = index * 50;
-              y = index * 50;
-            }
-
-            if (elem.position.x === 0 || elem.position.x === -x) {
-              new TWEEN.Tween(elem.position)
-              .to({ x: x }, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }
-
-            if (elem.position.x === x) {
-              new TWEEN.Tween(elem.position)
-              .to({ x: -x }, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }
-
-            if (elem.position.y === 0 || elem.position.y === -y) {
-              new TWEEN.Tween(elem.position)
-              .to({ y: y}, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }
-
-            if (elem.position.y === y) {
-              new TWEEN.Tween(elem.position)
-              .to({ y: -y }, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }
-
-            elem.rotation.y += (0.001 * (6 - index));
-            elem.children[0].rotation.x += 0.01;
-            elem.children[0].rotation.y += 0.01;
-          });
           
           var delta = this.clock.getDelta();
         
@@ -655,7 +744,7 @@ export default {
     onDocumentMouseUp: function(event) {
       event.preventDefault();
 
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         let catchTarget = document.getElementById('target_capture_inner_circle');
         let catchTargetLogo = document.getElementById('target_capture_logo');
 
@@ -666,7 +755,7 @@ export default {
     onDocumentMouseDown: function(event) {
       event.preventDefault();
 
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         let catchTarget = document.getElementById('target_capture_inner_circle');
         let catchTargetLogo = document.getElementById('target_capture_logo');
 
@@ -676,7 +765,20 @@ export default {
         if (this.complete) {
           this.complete = false;
           this.score = 0;
-          this.restartScene();
+          this.tunnelAnim = true;
+          this.secondLevelTunnel();
+            
+          setTimeout(() => {
+            while(this.scene.children.length > 2){
+              this.scene.remove(this.scene.children[2]);
+              this.scene.remove(this.scene.children[3]);
+            }
+            this.tunnelAnim = false;
+            this.params.bloomStrength = 0.5;
+            this.bloomPass.strength = this.params.bloomStrength;
+            this.restartScene();
+          }, 10000);
+          
           return;
         }
         // calculate mouse position in normalized device coordinates
@@ -701,6 +803,7 @@ export default {
           let bMesh = this.badgeMesh;
           let bCamera = this.badgeCamera;
           let bIndex = 0;
+          
           this.holder.children.forEach(function (elem, index, array) {
             let intersects = raycaster.intersectObjects(elem.children);
           
@@ -839,11 +942,11 @@ export default {
         this.animateText = false
       },2500)
       this.scene.remove(this.holder);
-      this.scene.remove(this.sphereBg);
       //this.scene.remove(this.pointer);
-      if (this. level == 1) {
+      if (this.level == 1) {
         this.badgeScenes = [];
       }
+      
       this.scene.remove(this.particles);
       this.scene.remove(this.gSMesh);
       this.addHolder();
@@ -876,7 +979,7 @@ export default {
       this.oldY = event.pageY;
       this.oldX = event.pageX;
 
-      if (!this.intro) {
+      if (!this.intro && !this.tunnelAnim) {
         this.pointerMouse.x = (event.clientX / window.innerWidth) * 2 - 1;
         this.pointerMouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
         this.mouseX = event.clientX - this.windowHalfX;
@@ -1040,6 +1143,8 @@ export default {
       this.scene.remove(this.scene.children[2]);
       this.addHolder();
       this.gameStart = true;
+      this.params.bloomStrength = 0.5;
+      this.bloomPass.strength = this.params.bloomStrength;
     }, 3000);
   },
   beforeDestroy () {
@@ -1461,6 +1566,7 @@ export default {
     bottom: 0px;
     width: 100%;
     height: 100vh;
+    background-image: require('../assets/circle2.png');
   }
   .hit {
     font-weight: bold;

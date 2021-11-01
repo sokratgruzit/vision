@@ -213,6 +213,7 @@ export default {
       audio: null,
       mainTrack: false,
       audioExplosion: null,
+      audioTunnel: null,
       spinnerDelta: 0,
       controls: null,
       colors: [
@@ -293,13 +294,18 @@ export default {
 
       var listener = new THREE.AudioListener();
       var listener2 = new THREE.AudioListener();
+      var listener3 = new THREE.AudioListener();
       this.camera.add(listener);
       this.camera.add(listener2);
+      this.camera.add(listener3);
       
       var audioLoader = new THREE.AudioLoader();
       var audioLoader2 = new THREE.AudioLoader();
+      var audioLoader3 = new THREE.AudioLoader();
+      
       let lAudio = new THREE.Audio(listener);
       let explosion = new THREE.Audio(listener2);
+      let tunnelWhoop = new THREE.Audio(listener3);
 
       audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
         lAudio.setBuffer(buffer);
@@ -334,8 +340,26 @@ export default {
         }
       );
 
+      audioLoader3.load( './three_sounds/portal.mp3', function(buffer) {
+        tunnelWhoop.setBuffer(buffer);
+        tunnelWhoop.setLoop(true);
+        tunnelWhoop.setVolume(1);
+        tunnelWhoop.playbackRate = 5;
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+
       this.audio = lAudio;
       this.audioExplosion = explosion;
+      this.audioTunnel = tunnelWhoop;
 
       this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
       this.renderer.setSize(width, height);
@@ -393,7 +417,7 @@ export default {
       const radius = 600;
 
       const loader = new THREE.TextureLoader();
-	    const sprite = loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/circle.png');
+	    const sprite = loader.load(require('../assets/spiral_circle.png'));
       this.spiralUniform = {
         map: {
           value: sprite
@@ -434,9 +458,9 @@ export default {
         times.push(i / particleCount);
       }
       
-      geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-      geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
-      geometry.addAttribute('time', new THREE.Float32BufferAttribute(times, 1));
+      geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geometry.setAttribute('time', new THREE.Float32BufferAttribute(times, 1));
 
       function getRandomPointOnSphere(r, v) {
         var angle = Math.random() * Math.PI * 2;
@@ -476,7 +500,7 @@ export default {
       const spaceLoader = new THREE.TextureLoader();
       const space = spaceLoader.load(require("../assets/space.jpg"));
       
-      const tunnelGeo = new THREE.CylinderGeometry(100, 100, 2000, 32, 1, true);
+      const tunnelGeo = new THREE.CylinderGeometry(100, 100, 1800, 32, 1, true);
       const tunnelMat = new THREE.MeshBasicMaterial({
         color: 0xffff00,
         transparent: true,
@@ -485,12 +509,12 @@ export default {
       });
       const tunnel = new THREE.Mesh(tunnelGeo, tunnelMat);
       tunnel.rotation.x = 1.57;
-      tunnel.position.z = -5000;
+      tunnel.position.z = -4000;
       this.scene.add(tunnel);
 
       let step = 2200;
       let colorStep = 0;
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 18; i++) {
         let pGeo = new THREE.RingGeometry(98, 100, 10);
         let pMat = new THREE.MeshBasicMaterial({
           color: this.colors[colorStep]
@@ -507,13 +531,16 @@ export default {
       }
 
       new TWEEN.Tween(this.stars.position)
-      .to({ z: 2000 }, 10000)
+      .to({ z: 2000 }, 15000)
       .easing(TWEEN.Easing.Linear.None)
       .start();
 
       new TWEEN.Tween(tunnel.position)
-      .to({ z: 500 }, 8000)
+      .to({ z: 100 }, 12000)
       .easing(TWEEN.Easing.Linear.None)
+      .onComplete(() => {
+        this.audioTunnel.stop();
+      })
       .start();
 
       let A = new TWEEN.Tween(this.bloomPass)
@@ -521,11 +548,15 @@ export default {
       .easing(TWEEN.Easing.Linear.None);
 
       let B = new TWEEN.Tween(this.bloomPass)
-      .to({ strength: 0.5 }, 4000)
+      .to({ strength: 0.5 }, 6000)
       .easing(TWEEN.Easing.Linear.None);
 
       A.chain(B);
       A.start();
+
+      setTimeout(() => {
+        this.audioTunnel.play();
+      }, 6100);
     },
     randomPointSphere: function (radius) {
       if (!this.intro && !this.tunnelAnim) {
@@ -614,6 +645,7 @@ export default {
         this.scene.add(this.particles);
         this.galaxy();
         this.spiralParticles();
+        console.log(this.scene.children)
       }
     },
     animate: function() {
@@ -637,14 +669,14 @@ export default {
 
             if (this.spiralParticlesMesh.position.z === -2000) {
               new TWEEN.Tween(this.spiralParticlesMesh.position)
-              .to({ z: -1000 }, 5000)
+              .to({ z: -1000, x: 500 }, 5000)
               .easing(TWEEN.Easing.Cubic.InOut)
               .start();
             }
 
             if (this.spiralParticlesMesh.position.z === -1000) {
               new TWEEN.Tween(this.spiralParticlesMesh.position)
-              .to({ z: -2000 }, 5000)
+              .to({ z: -2000, x: 0 }, 5000)
               .easing(TWEEN.Easing.Cubic.InOut)
               .start();
             }
@@ -659,8 +691,8 @@ export default {
 				  this.particles.material.color.setHSL(h, 0.5, 0.5);
 
           if (!this.tunnelAnim) {
-            this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.05;
-            this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.05;
+            this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.005;
+            this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.005;
             this.camera.lookAt(this.scene.position);
 
             for (let i = 0; i < this.scene.children.length; i++) {
@@ -864,7 +896,7 @@ export default {
               this.params.bloomStrength = 0.5;
               this.bloomPass.strength = this.params.bloomStrength;
               this.restartScene();
-            }, 10000);
+            }, 13000);
           } else {
             this.tunnelAnim = false;
             this.restartScene();
@@ -1230,6 +1262,7 @@ export default {
     });
     window.addEventListener( 'resize', this.onWindowResize, false );
     setTimeout(() => {
+      document.getElementById('target_capture').style['opacity'] = 1;
       this.intro = false;
       this.scene.remove(this.scene.children[2]);
       this.addHolder();
@@ -1286,6 +1319,7 @@ export default {
     position: absolute;
     transform: translate3d(-50%,-50%,0);
     pointer-events: none; 
+    opacity: 0;
   }
   #target_capture_outer_circle{
     width: 100%;

@@ -113,12 +113,14 @@ import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPa
 import {
   target_vertex,
   wave_vertex,
-  galaxy_vertex
+  galaxy_vertex,
+  spiral_part_vertex
 } from '../assets/shaders/vertex.js';
 import {
   target_fragment,
   wave_fragment,
-  galaxy_fragment
+  galaxy_fragment,
+  spiral_part_fragment
 } from '../assets/shaders/fragment.js';
 const TWEEN = require('@tweenjs/tween.js');
 export default {
@@ -220,7 +222,9 @@ export default {
         new THREE.Color(0x5910C5),
         new THREE.Color(0x3F057E)
       ],
-      tunnelAnim: false
+      tunnelAnim: false,
+      spiralUniform: null,
+      spiralParticlesMesh: null
     }
   },
   methods: {
@@ -384,6 +388,70 @@ export default {
         this.scene.add(this.stars);
       }
     },
+    spiralParticles: function () {
+      const particleCount = 20000;
+      const radius = 600;
+
+      const loader = new THREE.TextureLoader();
+	    const sprite = loader.load( 'https://raw.githubusercontent.com/mrdoob/three.js/master/examples/textures/sprites/circle.png');
+      this.spiralUniform = {
+        map: {
+          value: sprite
+        },
+        globalTime: {
+          value: 0
+        },
+        baseColor: {
+          value: new THREE.Color( 0xffffff )
+        }
+      };
+
+      const material = new THREE.ShaderMaterial( { 
+        uniforms: this.spiralUniform,
+        vertexShader: spiral_part_vertex,
+        fragmentShader: spiral_part_fragment,
+        blending: THREE.AdditiveBlending, 
+        depthTest: false, 
+        transparent : true,
+        vertexColors: THREE.VertexColors
+      });
+
+      const geometry = new THREE.BufferGeometry();
+      const vertices = [];
+      const colors = [];
+      const times = [];
+      
+      const point = new THREE.Vector3();
+      const color = new THREE.Color();
+
+      for (let i = 0; i < particleCount; i++) {
+        getRandomPointOnSphere(radius, point);
+        
+        color.setHSL(i / particleCount, 0.7, 0.7);
+        
+        vertices.push(point.x, point.y, point.z);
+        colors.push(color.r, color.g, color.b);
+        times.push(i / particleCount);
+      }
+      
+      geometry.addAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
+      geometry.addAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      geometry.addAttribute('time', new THREE.Float32BufferAttribute(times, 1));
+
+      function getRandomPointOnSphere(r, v) {
+        var angle = Math.random() * Math.PI * 2;
+        var u = Math.random() * 2 - 1;
+            
+        v.x = Math.cos( angle ) * Math.sqrt( 1 - Math.pow( u, 2 ) ) * r;
+        v.y = Math.sin( angle ) * Math.sqrt( 1 - Math.pow( u, 2 ) ) * r;
+        v.z = u * r;
+      }
+	
+      this.spiralParticlesMesh = new THREE.Points(geometry, material);
+      this.spiralParticlesMesh.position.z = -2000;
+      this.spiralParticlesMesh.position.x = 500;
+      this.scene.add(this.spiralParticlesMesh);
+    },
     secondLevelTunnel: function () {
       let starsGeometry = new THREE.BufferGeometry();
       const vertices = [];
@@ -545,6 +613,7 @@ export default {
         this.particles = new THREE.Points(starsGeometry, starsMaterial);
         this.scene.add(this.particles);
         this.galaxy();
+        this.spiralParticles();
       }
     },
     animate: function() {
@@ -562,6 +631,25 @@ export default {
     render: function () {
       if (this.$store.state.stopGalaxyGarbage == false){
         if (!this.intro) {
+          if (this.spiralParticlesMesh !== null) {
+            this.spiralUniform.globalTime.value += this.clock.getDelta() * 0.1;
+            this.spiralParticlesMesh.rotation.z += 0.0005;
+
+            if (this.spiralParticlesMesh.position.z === -2000) {
+              new TWEEN.Tween(this.spiralParticlesMesh.position)
+              .to({ z: -1000 }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+
+            if (this.spiralParticlesMesh.position.z === -1000) {
+              new TWEEN.Tween(this.spiralParticlesMesh.position)
+              .to({ z: -2000 }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
+          }
+
           const time = Date.now() * 0.00005;
           const dTime = Date.now() * 0.001;
           this.galMesh.rotation.z += -0.01;
@@ -630,7 +718,6 @@ export default {
             this.camera.position.x = 0;
             this.camera.position.y = 0;
             this.camera.position.z = 500;
-            console.log(this.scene.children)
           }
           
           var delta = this.clock.getDelta();
@@ -766,18 +853,22 @@ export default {
           this.complete = false;
           this.score = 0;
           this.tunnelAnim = true;
-          this.secondLevelTunnel();
-            
-          setTimeout(() => {
-            while(this.scene.children.length > 2){
-              this.scene.remove(this.scene.children[2]);
-              this.scene.remove(this.scene.children[3]);
-            }
+          if (this.level == 1) {
+            this.secondLevelTunnel();
+            setTimeout(() => {
+              while(this.scene.children.length > 2){
+                this.scene.remove(this.scene.children[2]);
+                this.scene.remove(this.scene.children[3]);
+              }
+              this.tunnelAnim = false;
+              this.params.bloomStrength = 0.5;
+              this.bloomPass.strength = this.params.bloomStrength;
+              this.restartScene();
+            }, 10000);
+          } else {
             this.tunnelAnim = false;
-            this.params.bloomStrength = 0.5;
-            this.bloomPass.strength = this.params.bloomStrength;
             this.restartScene();
-          }, 10000);
+          }
           
           return;
         }
@@ -1194,7 +1285,7 @@ export default {
     border-radius: 50%;
     position: absolute;
     transform: translate3d(-50%,-50%,0);
-    pointer-events: none;
+    pointer-events: none; 
   }
   #target_capture_outer_circle{
     width: 100%;
@@ -1288,9 +1379,6 @@ export default {
   }
   .timer{
     display: flex;
-  }
-  .hud p{
-
   }
   .level__container{
     display: flex;
@@ -1566,7 +1654,7 @@ export default {
     bottom: 0px;
     width: 100%;
     height: 100vh;
-    background-image: require('../assets/circle2.png');
+    cursor: none;
   }
   .hit {
     font-weight: bold;

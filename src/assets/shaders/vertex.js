@@ -1428,3 +1428,36 @@ void main() {
   gl_Position = projectionMatrix * mvPosition;
 }
 `;
+
+export let spiral_part_vertex = `
+attribute float time;
+uniform float globalTime;
+
+varying vec3 vColor;
+varying float vAlpha;
+
+void main() {
+
+  vColor = color;
+
+  vec3 pos = position; 
+
+  // time
+  float localTime = time + globalTime;
+  float f = fract( localTime );
+  float accTime = f * f;
+
+  // animation
+  float angle = accTime * 40.0;
+  vec2 pulse = vec2( sin( angle ) * 20.0, cos( angle ) * 20.0 );
+  vec3 animated = vec3( pos.x * accTime + pulse.x, pos.y * accTime + pulse.y, pos.z * accTime * 1.75 );
+  vAlpha = ( 1.0 - f ) * 2.0;
+
+  vec4 mvPosition = modelViewMatrix * vec4( animated, 1.0 );
+
+  gl_PointSize = min( 100.0, ( accTime * 100.0 ) * ( 150.0 / length( mvPosition.xyz ) ) );
+
+  gl_Position = projectionMatrix * mvPosition;
+
+}
+`;

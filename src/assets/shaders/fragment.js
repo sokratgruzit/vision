@@ -562,3 +562,18 @@ void main() {
   if(gl_FragColor.r<0.7 && gl_FragColor.b<0.7 && gl_FragColor.g<0.7) discard;
 }
 `;
+
+export let spiral_part_fragment = `
+uniform vec3 baseColor;
+uniform sampler2D map;
+
+varying vec3 vColor;
+varying float vAlpha;
+
+void main() {
+
+  gl_FragColor = vec4( baseColor * vColor, vAlpha );
+  gl_FragColor *= texture2D( map, gl_PointCoord );
+
+}
+`;

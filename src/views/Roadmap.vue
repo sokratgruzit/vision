@@ -1,6 +1,7 @@
 <template>
   <div class="main-roadmap" :class="filterVisible ? 'filterActive' : ''">
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
+    <div id="music-sound">Sound</div>
     <div id="filters-container" class="filters" :class="[$store.state.navigation ? 'activeNav' : '']">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
         <span></span>
@@ -210,6 +211,8 @@ export default {
         bloomThreshold: 0,
         bloomRadius: 0
       },
+      audio: null,
+      mainTrack: false,
     }
   },
   methods: {
@@ -223,6 +226,15 @@ export default {
       setTimeout(() => {
         this.help = null;
       },12000);
+    },
+    playMainTrack: function () {
+      this.mainTrack = !this.mainTrack;
+
+      if (this.mainTrack) {
+        this.audio.play();
+      } else {
+        this.audio.stop();
+      }
     },
     roadmapScene: function() {
       var container = document.getElementById('roadmap-container');
@@ -238,6 +250,30 @@ export default {
       this.camera.position.z = 100;
 
       this.scene = new THREE.Scene();
+
+      var listener = new THREE.AudioListener();
+      this.camera.add(listener);
+      
+      var audioLoader = new THREE.AudioLoader();
+      let lAudio = new THREE.Audio(listener);
+
+      audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
+        lAudio.setBuffer(buffer);
+        lAudio.setLoop(true);
+        lAudio.setVolume(1);
+        lAudio.play();
+      },
+        // onProgress callback
+        function (xhr) {
+          console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+        },
+
+        // onError callback
+        function (err) {
+          console.log('Un error ha ocurrido');
+        }
+      );
+      this.audio = lAudio;
 
       var sLight = new THREE.SpotLight(0xffffff);
       this.scene.add(sLight);
@@ -789,7 +825,7 @@ export default {
     this.roadmapScene();
     this.animate();
     
-    this.$store.commit('stopRoadmap', false);
+    document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);
@@ -804,6 +840,7 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
+    document.getElementById("music-sound").removeEventListener('mousedown', this.playMainTrack, false);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
@@ -816,6 +853,7 @@ export default {
       this.scene.remove(this.scene.children[0]);
     }
     this.threeMounted = false;
+    this.audio.stop();
   },
   watch: {
     '$store.state.scrollOffset': function () {
@@ -825,6 +863,16 @@ export default {
 }
 </script>
 <style>
+  #music-sound{
+    width: 100px;
+    height: 30px;
+    border: 1px solid #FFFFFF;
+    position: absolute;
+    right: 1%;
+    top: 7%;
+    cursor: pointer;
+    z-index: 1000;
+  }
   #roadmap-container{
     position: relative;
     z-index: 1;

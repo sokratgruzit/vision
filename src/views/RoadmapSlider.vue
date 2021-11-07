@@ -223,7 +223,8 @@
         prevBtnInner: 0,
         nextBtnYear: 0,
         nextBtnInner: 0,
-        anim: true
+        anim: true,
+        threeMounted: true
       }
     },
     methods: {
@@ -244,7 +245,6 @@
         this.camera.position.z = 5000;
         this.scene = new THREE.Scene();
         this.camera.lookAt(this.scene.position);
-
 
         THREE.Mesh.prototype.raycast = acceleratedRaycast;
         THREE.BufferGeometry.prototype.computeBoundsTree = computeBoundsTree;
@@ -502,40 +502,38 @@
         A.start();
       },
       animate: function () {
-        this.time += 0.05;
-        const theTime = performance.now() * 0.001;
-        this.uniforms.time.value = this.time;
-        this.leftUniforms.time.value = this.time;
-        this.rightUniforms.time.value = this.time;
-        this.sliderMesh.rotation.y = Math.sin(this.time) / 50;
-        this.leftMesh.rotateX(Math.sin(this.time / 2) / 30);
-        this.leftMesh.rotateY(Math.sin(this.time / 2) / 30);
-        this.leftMesh.rotateZ(Math.sin(this.time / 2) / 30);
-
-        this.rightMesh.rotateX(-Math.sin(this.time / 2) / 30);
-        this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
-        this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
-
-        let partZSin = Math.sin(theTime);
-        this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
-        this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
-        this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
-
-        if (this.$store.state.stopRoadmapInner == false){
+        if (this.threeMounted) {
           requestAnimationFrame(this.animate);
-        }
 
-        TWEEN.update();
-        this.render();
+          this.time += 0.05;
+          const theTime = performance.now() * 0.001;
+          this.uniforms.time.value = this.time;
+          this.leftUniforms.time.value = this.time;
+          this.rightUniforms.time.value = this.time;
+          this.sliderMesh.rotation.y = Math.sin(this.time) / 50;
+          this.leftMesh.rotateX(Math.sin(this.time / 2) / 30);
+          this.leftMesh.rotateY(Math.sin(this.time / 2) / 30);
+          this.leftMesh.rotateZ(Math.sin(this.time / 2) / 30);
+
+          this.rightMesh.rotateX(-Math.sin(this.time / 2) / 30);
+          this.rightMesh.rotateY(-Math.sin(this.time / 2) / 30);
+          this.rightMesh.rotateZ(-Math.sin(this.time / 2) / 30);
+
+          let partZSin = Math.sin(theTime);
+          this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
+          this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
+          this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
+
+          TWEEN.update();
+          this.render();
+        }
       },
       render: function () {
-        if (this.$store.state.stopRoadmapInner == false) {
-          this.renderer.render(this.scene, this.camera);
-          this.renderer.setPixelRatio(window.devicePixelRatio);
-          this.raycaster.setFromCamera(this.mouse, this.camera);
-          this.raycaster.firstHitOnly = true;
-          this.composer.render();
-        }
+        this.renderer.render(this.scene, this.camera);
+        this.renderer.setPixelRatio(window.devicePixelRatio);
+        this.raycaster.setFromCamera(this.mouse, this.camera);
+        this.raycaster.firstHitOnly = true;
+        this.composer.render();
       },
       onWindowResize: function () {
         this.windowHalfX = window.innerWidth / 2;
@@ -551,9 +549,7 @@
       },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
-        if(this.$store.state.stopRoadmapInner == true){
-          return false
-        }
+        
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -739,8 +735,7 @@
         this.activeSlider = true;
       },2500)
       this.helper();
-      this.$store.commit('setRoadmapInnerRoute', true);
-      let test;
+      
       if (this.$route.params.id >= 4 && this.$route.params.id < 9) {
         this.activeYear = 1;
       }
@@ -763,32 +758,29 @@
       if (this.$route.params.id == 8 || this.$route.params.id == 13) {
         this.activeStat = 4
       }
+
       this.syncButtons();
       this.sliderScene();
       this.animate();
       this.loadSlider();
+
       document.addEventListener('click', this.updateUiData);
       window.addEventListener('pointermove', this.onPointerMove);
       document.addEventListener('wheel', this.wheelScroll, false);
       window.addEventListener('resize', this.onWindowResize, false);
-      this.$store.commit('stopRoadmapInner', false);
     },
-    destroyed () {
+    beforeDestroy () {
       window.removeEventListener('resize', this.onWindowResize, false);
       document.removeEventListener('click', this.updateUiData);
       window.removeEventListener('pointermove', this.onPointerMove);
       document.removeEventListener('wheel', this.wheelScroll, false);
-      this.raycaster = null;
-      this.$store.commit('stopRoadmapInner', true)
-      this.scene.remove(this.scene.children[0]);
-      //this.renderer = null;
+
+      while(this.scene.children.length > 0) {
+        this.scene.remove(this.scene.children[0]);
+      }
+      this.threeMounted = false;
     },
     watch: {
-      '$store.state.stopRoadmapInner': function () {
-        if (this.$store.state.stopRoadmapInner == false) {
-          this.animate();
-        }
-      }
     }
   }
 </script>

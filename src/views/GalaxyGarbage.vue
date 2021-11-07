@@ -104,7 +104,6 @@
 <script>
 import * as THREE from 'three';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
-//import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { OBJLoader } from 'three/examples/jsm/loaders/OBJLoader.js';
 import { computeBoundsTree, disposeBoundsTree, acceleratedRaycast } from 'three-mesh-bvh';
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
@@ -646,7 +645,6 @@ export default {
         this.scene.add(this.particles);
         this.galaxy();
         this.spiralParticles();
-        console.log(this.scene.children)
       }
     },
     animate: function() {
@@ -1275,6 +1273,7 @@ export default {
     document.removeEventListener('pointermove', this.onPointerMove);
     window.removeEventListener('resize', this.onWindowResize, false);
     this.threeMounted = false;
+    this.audio.stop();
 
     while(this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
@@ -1288,13 +1287,6 @@ export default {
       if(this.badgeIndex !== 4 && this.oldBadgeIndex + 1 == this.badgeIndex){
         this.oldBadgeIndex++;
         this.badgeAnimation = true;
-      }
-    },
-    '$store.state.stopGalaxyGarbage': function () {
-      if (this.$store.state.stopGalaxyGarbage == false) {
-        this.animate();
-      }else{
-        this.renderer = null;
       }
     }
   }

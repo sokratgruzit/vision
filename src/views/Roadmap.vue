@@ -513,16 +513,13 @@ export default {
 
         this.roadmapMat.uniforms.time.value = theTime / 15;
 
-        let partZSin = Math.sin(theTime);
-        this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
-        this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
-        this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
-        this.particles.rotation.y += 0.003;
-        this.particles.rotation.z += 0.001;
+        let partZSin = Math.sin(theTime / 10);
+        this.particles.position.z = this.particles.position.z / 1.01 + partZSin / 2;
+        this.particles.position.y = this.particles.position.y / 1.01 + partZSin / 2;
+        this.particles.position.x = this.particles.position.x / 1.01 + partZSin / 2;
 
-        if (this.$store.state.stopRoadmap == false){
-          requestAnimationFrame(this.animate);
-        }
+        requestAnimationFrame(this.animate);
+        
         this.controls.update();
         TWEEN.update();
         this.render();
@@ -683,32 +680,6 @@ export default {
 
       this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
       this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
-
-      var pointAlphas = this.particles.geometry.attributes.alpha;
-
-      if (this.direction === "up") {
-        for (let i = 0; i < pointAlphas.count / 2; i++) {
-          pointAlphas.array[i] = 0.1;
-        }
-
-        if (this.itemAlpha > 0) {
-          this.itemAlpha -= 0.00005;
-        }
-      }
-
-      if (this.direction === "down") {
-        for (let i = 0; i < pointAlphas.count / 2; i++) {
-          if (this.itemAlpha < 0.5) {
-            pointAlphas.array[i] += this.itemAlpha;
-          }
-        }
-
-        if (this.itemAlpha < 0.1) {
-          this.itemAlpha += 0.00001;
-        }
-      }
-
-      pointAlphas.needsUpdate = true;
 
       this.mouseX = event.clientX - this.windowHalfX;
       this.mouseY = event.clientY - this.windowHalfY;

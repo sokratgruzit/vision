@@ -253,7 +253,7 @@ export default {
 
       var listener = new THREE.AudioListener();
       this.camera.add(listener);
-      
+
       var audioLoader = new THREE.AudioLoader();
       let lAudio = new THREE.Audio(listener);
 
@@ -575,7 +575,6 @@ export default {
           .onComplete(() => {
             setTimeout(() => {
                 this.$router.push({ name: 'roadmapInner', params: { id: i }});
-                this.$router.push({ name: 'roadmapInner', params: { id: 1 }});
             },500)
           })
           .start();
@@ -824,7 +823,7 @@ export default {
     this.helper();
     this.roadmapScene();
     this.animate();
-    
+
     document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
@@ -846,7 +845,7 @@ export default {
     document.removeEventListener('mousedown', this.route,false);
     window.removeEventListener('resize', this.onWindowResize, false);
     window.removeEventListener('mousedown', this.onPointerMove);
-    
+
     this.$store.commit('setRoadmapInnerRoute', false);
 
     while(this.scene.children.length > 0) {

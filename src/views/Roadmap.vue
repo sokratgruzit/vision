@@ -77,6 +77,7 @@ export default {
   name: 'Roadmap',
   data () {
     return {
+      threeMounted: true,
       scene: null,
       camera: null,
       controls: null,
@@ -470,58 +471,58 @@ export default {
       }, 1000);
     },
     animate: function () {
-      const theTime = performance.now() * 0.001;
-      const delta = 5 * this.clock.getDelta();
+      if (this.threeMounted) {
+        const theTime = performance.now() * 0.001;
+        const delta = 5 * this.clock.getDelta();
 
-      this.roadmapMat.uniforms.time.value = theTime / 15;
+        this.roadmapMat.uniforms.time.value = theTime / 15;
 
-      let partZSin = Math.sin(theTime);
-      this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
-      this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
-      this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
-      this.particles.rotation.y += 0.003;
-      this.particles.rotation.z += 0.001;
+        let partZSin = Math.sin(theTime);
+        this.particles.position.z = this.particles.position.z / 1.1 + partZSin / 2;
+        this.particles.position.y = this.particles.position.y / 1.1 + partZSin / 2;
+        this.particles.position.x = this.particles.position.x / 1.1 + partZSin / 2;
+        this.particles.rotation.y += 0.003;
+        this.particles.rotation.z += 0.001;
 
-      if (this.$store.state.stopRoadmap == false){
-        requestAnimationFrame(this.animate);
+        if (this.$store.state.stopRoadmap == false){
+          requestAnimationFrame(this.animate);
+        }
+        this.controls.update();
+        TWEEN.update();
+        this.render();
       }
-      this.controls.update();
-      TWEEN.update();
-      this.render();
     },
     render: function () {
-      if (this.$store.state.stopRoadmap == false) {
-        //this.renderer.render(this.scene, this.camera);
-        this.labelRenderer.render(this.scene, this.camera);
-        this.raycaster.setFromCamera(this.mouse, this.camera);
-        this.composer.render();
+      //this.renderer.render(this.scene, this.camera);
+      this.labelRenderer.render(this.scene, this.camera);
+      this.raycaster.setFromCamera(this.mouse, this.camera);
+      this.composer.render();
 
-        this.alphas = this.roadmapGeo.attributes.alpha;
-        this.lineAlphas = this.roadmapGeo.attributes.alpha2;
-        var count = this.alphas.count;
+      this.alphas = this.roadmapGeo.attributes.alpha;
+      this.lineAlphas = this.roadmapGeo.attributes.alpha2;
+      var count = this.alphas.count;
 
-        for(var i = 0; i < count; i++) {
-          this.alphas.array[i] *= 0.95;
-          this.lineAlphas.array[i] *=0.985;
+      for(var i = 0; i < count; i++) {
+        this.alphas.array[i] *= 0.95;
+        this.lineAlphas.array[i] *=0.985;
 
-          if (this.lineAlphas.array[i] < 0.05) {
-            this.lineAlphas.array[i] = 1;
-          }
-
-          if (this.alphas.array[i] < 0.2) {
-            if (this.anim) {
-              this.alphas.array[i] = 0;
-            } else {
-              this.alphas.array[i] = 1.0;
-            }
-          }
+        if (this.lineAlphas.array[i] < 0.05) {
+          this.lineAlphas.array[i] = 1;
         }
 
-        this.alphas.needsUpdate = true; // important!
-        this.lineAlphas.needsUpdate = true; // important!
-
-        this.renderer.setPixelRatio(window.devicePixelRatio);
+        if (this.alphas.array[i] < 0.2) {
+          if (this.anim) {
+            this.alphas.array[i] = 0;
+          } else {
+            this.alphas.array[i] = 1.0;
+          }
+        }
       }
+
+      this.alphas.needsUpdate = true; // important!
+      this.lineAlphas.needsUpdate = true; // important!
+
+      this.renderer.setPixelRatio(window.devicePixelRatio);
     },
     route: function (id) {
       for (let i = 0; i < 17; i++) {
@@ -627,9 +628,6 @@ export default {
     },
     onPointerMove: function (event) {
       if (event.isPrimary === false) return;
-      if(this.$store.state.stopRoadmap == true){
-        return false
-      }
 
       if (event.pageY < this.oldY) {
         this.direction = "up";
@@ -788,12 +786,9 @@ export default {
     let filter5 = document.getElementById('list-itemf5');
 
     this.helper();
-    const promise = new Promise((resolve, reject) => {
-      resolve (this.roadmapScene())
-    });
-    promise.then((value) => {
-      this.animate();
-    });
+    this.roadmapScene();
+    this.animate();
+    
     this.$store.commit('stopRoadmap', false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
@@ -809,29 +804,20 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-      document.removeEventListener('mouseup', this.onPointerUp, false);
-      document.removeEventListener('mousedown', this.onPointerDown, false);
-      document.removeEventListener('mousedown', this.route,false);
+    document.removeEventListener('mouseup', this.onPointerUp, false);
+    document.removeEventListener('mousedown', this.onPointerDown, false);
+    document.removeEventListener('mousedown', this.route,false);
+    window.removeEventListener('resize', this.onWindowResize, false);
+    window.removeEventListener('mousedown', this.onPointerMove);
+    
+    this.$store.commit('setRoadmapInnerRoute', false);
 
-      window.removeEventListener('resize', this.onWindowResize, false);
-      window.removeEventListener('mousedown', this.onPointerMove);
-      this.loadFilter = null;
-      //this.raycaster = null;
-      //this.renderer = null;
-      this.$store.commit('stopRoadmap', true);
-      this.$store.commit('setRoadmapInnerRoute', false);
-
-      while(this.scene.children.length > 0) {
-        this.scene.remove(this.scene.children[0]);
-      }
-
+    while(this.scene.children.length > 0) {
+      this.scene.remove(this.scene.children[0]);
+    }
+    this.threeMounted = false;
   },
   watch: {
-    '$store.state.stopRoadmap': function () {
-      if (this.$store.state.stopRoadmap == false) {
-        this.animate();
-      }
-    },
     '$store.state.scrollOffset': function () {
       this.roadmapMesh.position.x = 600 - this.$store.state.scrollOffset
     }

@@ -15,7 +15,7 @@
     name: 'MainSlide',
     data () {
       return {
-        requestAnimation: null,
+        threeMounted: true,
         scene: null,
         galaxyMesh: null,
         camera: null,
@@ -52,13 +52,6 @@
       }
     },
     watch: {
-      '$store.state.stopGalactic': function () {
-        if (this.$store.state.stopGalactic == false) {
-          this.animate();
-        }else{
-          this.renderer = null;
-        }
-      },
       '$store.state.currentSlide': function () {
         var text1 = this.scene.getObjectByName("CORE");
         var textMat1 = text1 === undefined ? false : text1.material;
@@ -600,66 +593,66 @@
         A.start();
       },
       animate: function () {
-        if (this.$store.state.stopGalactic == false){
+        if (this.threeMounted) {
           requestAnimationFrame(this.animate);
-        }
-        // this.requestAnimation;
-        var plRot = 0.01;
+          
+          var plRot = 0.01;
 
-        var planet0 = this.scene.getObjectByName("planet0");
-        var planet1 = this.scene.getObjectByName("planet1");
-        var planet2 = this.scene.getObjectByName("planet2");
+          var planet0 = this.scene.getObjectByName("planet0");
+          var planet1 = this.scene.getObjectByName("planet1");
+          var planet2 = this.scene.getObjectByName("planet2");
 
-        planet0.rotation.z += plRot;
-        planet1.rotation.z += plRot;
-        planet2.rotation.z += plRot;
+          planet0.rotation.z += plRot;
+          planet1.rotation.z += plRot;
+          planet2.rotation.z += plRot;
 
-        var zRot = 0.01;
+          var zRot = 0.01;
 
-        if (this.particles.position.y < -790) {
-          this.translateGalaxy = false;
-          zRot = 0.0015;
-        }
+          if (this.particles.position.y < -790) {
+            this.translateGalaxy = false;
+            zRot = 0.0015;
+          }
 
-        var xRot = 0.01;
-        var zPos = 4;
-        var yPos = 3;
-        var xPos = 1.5;
+          var xRot = 0.01;
+          var zPos = 4;
+          var yPos = 3;
+          var xPos = 1.5;
 
-        this.particles.rotation.z -= zRot;
+          this.particles.rotation.z -= zRot;
 
-        if (this.moveGalaxy) {
-          this.particles.position.y -= yPos;
-          this.particles.position.z += zPos;
-          this.particles.position.x -= xPos;
-        }
-
-        if (this.particles.position.x < -280) {
-          this.moveGalaxy = false;
-
-          if (this.rotateGalaxy) {
+          if (this.moveGalaxy) {
             this.particles.position.y -= yPos;
-            this.particles.rotation.x -= xRot;
+            this.particles.position.z += zPos;
+            this.particles.position.x -= xPos;
           }
 
-          if (this.translateGalaxy) {
-            this.particles.position.y -= yPos * 2;
+          if (this.particles.position.x < -280) {
+            this.moveGalaxy = false;
+
+            if (this.rotateGalaxy) {
+              this.particles.position.y -= yPos;
+              this.particles.rotation.x -= xRot;
+            }
+
+            if (this.translateGalaxy) {
+              this.particles.position.y -= yPos * 2;
+            }
           }
+
+          if (this.particles.rotation.x < -0.6) {
+            this.$store.commit('setFirstAnimation', true);
+            this.rotateGalaxy = false;
+            if (this.isPointerDown) {
+              this.particles.rotation.z += (this.targetRotation - this.particles.rotation.z) * 0.05;
+            } else {
+              this.particles.rotation.z -= zRot;
+            }
+          }
+
+          TWEEN.update();
+          this.camera.lookAt(this.scene.position);
+          this.render();
         }
-
-        if (this.particles.rotation.x < -0.6) {
-          this.$store.commit('setFirstAnimation', true);
-          this.rotateGalaxy = false;
-          if (this.isPointerDown) {
-            this.particles.rotation.z += (this.targetRotation - this.particles.rotation.z) * 0.05;
-          } else {
-            this.particles.rotation.z -= zRot;
-          }
-        }
-
-        TWEEN.update();
-        this.camera.lookAt(this.scene.position);
-        this.render();
       },
       planetClick: function () {
         this.int0 = this.raycaster.intersectObjects([this.particles.children[0]]);
@@ -887,12 +880,9 @@
       },
     },
     mounted () {
-      const promise = new Promise((resolve, reject) => {
-        resolve ( this.myScene())
-      });
-      promise.then((value) => {
-        this.animate()
-      });
+      this.myScene();
+      this.animate();
+      
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
       document.addEventListener('mousedown', this.planetClick, false);
@@ -901,14 +891,16 @@
       this.$store.commit('setHeader', true);
     },
     beforeDestroy () {
-      this.scene.remove(this.scene.children[0]);
+      while(this.scene.children.length > 0) {
+        this.scene.remove(this.scene.children[0]);
+      }
       this.$store.commit('stopGalactic', true);
       document.removeEventListener('mouseup', this.onPointerUp, false);
       document.removeEventListener('mousedown', this.onPointerDown, false);
       document.removeEventListener('mousedown', this.planetClick, false);
       document.removeEventListener('pointermove', this.onPointerMove);
       window.removeEventListener('resize', this.onWindowResize, false);
-      //this.renderer = null;
+      this.threeMounted = false;
     }
   }
 </script>

@@ -127,6 +127,7 @@ export default {
   name: 'ThreeTest',
   data () {
     return {
+      threeMounted: true,
       animateText: false,
       animateText2: false,
       maxScore: 20,
@@ -649,7 +650,7 @@ export default {
       }
     },
     animate: function() {
-      if (this.$store.state.stopGalaxyGarbage == false && this.scene.children.length !== 0) {
+      if (this.threeMounted) {
         if (this.intro) {
           this.scene.children[2].position.z += 20;
         }
@@ -1248,19 +1249,15 @@ export default {
     document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.getElementById("webgl-container").addEventListener('mouseup', this.onDocumentMouseUp, false);
     document.addEventListener('pointermove', this.onPointerMove);
+    window.addEventListener('resize', this.onWindowResize, false);
+
     this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
-    const promise = new Promise((resolve, reject) => {
-      resolve (this.myScene())
-    });
-    promise.then((value) => {
-      this.addHolder();
-    });
-    promise.then((value) => {
-      this.$store.commit('stopRoadmap', false);
-      this.animate();
-    });
-    window.addEventListener( 'resize', this.onWindowResize, false );
+    
+    this.myScene();
+    this.addHolder();
+    this.animate();
+    
     setTimeout(() => {
       document.getElementById('target_capture').style['opacity'] = 1;
       this.intro = false;
@@ -1272,14 +1269,16 @@ export default {
     }, 3000);
   },
   beforeDestroy () {
-    this.$store.commit('stopGalaxyGarbage', true);
-    //document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
-    //document.removeEventListener('pointermove', this.onPointerMove);
-    while(this.scene.children.length > 0){
+    document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
+    document.getElementById("music-sound").removeEventListener('mousedown', this.playMainTrack, false);
+    document.getElementById("webgl-container").removeEventListener('mouseup', this.onDocumentMouseUp, false);
+    document.removeEventListener('pointermove', this.onPointerMove);
+    window.removeEventListener('resize', this.onWindowResize, false);
+    this.threeMounted = false;
+
+    while(this.scene.children.length > 0) {
       this.scene.remove(this.scene.children[0]);
     }
-    // this.scene.remove(this.scene.children[0]);
-    this.renderer = null;
   },
   watch: {
     'badgeIndex': function () {

@@ -549,7 +549,7 @@
       },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
-        
+
         this.mouse.x = ( event.clientX / window.innerWidth ) * 2 - 1;
         this.mouse.y = - ( event.clientY / window.innerHeight ) * 2 + 1;
 
@@ -735,7 +735,7 @@
         this.activeSlider = true;
       },2500)
       this.helper();
-      
+      this.$store.commit('setRoadmapInnerRoute', true);
       if (this.$route.params.id >= 4 && this.$route.params.id < 9) {
         this.activeYear = 1;
       }

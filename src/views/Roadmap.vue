@@ -519,7 +519,7 @@ export default {
         this.particles.position.x = this.particles.position.x / 1.01 + partZSin / 2;
 
         requestAnimationFrame(this.animate);
-        
+
         this.controls.update();
         TWEEN.update();
         this.render();
@@ -570,6 +570,7 @@ export default {
           .to({ z: 5 }, 500)
           .easing(TWEEN.Easing.Linear.None)
           .onComplete(() => {
+            // this.$store.commit('setRoadmapInnerRoute', true);
             setTimeout(() => {
                 this.$router.push({ name: 'roadmapInner', params: { id: i }});
             },500)

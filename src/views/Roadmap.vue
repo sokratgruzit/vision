@@ -1,7 +1,6 @@
 <template>
   <div class="main-roadmap" :class="filterVisible ? 'filterActive' : ''">
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
-    <div id="music-sound" v-if="true">Sound</div>
     <div id="filters-container" class="filters" :class="[$store.state.navigation ? 'activeNav' : '']">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
         <span></span>
@@ -211,8 +210,7 @@ export default {
         bloomThreshold: 0,
         bloomRadius: 0
       },
-      audio: null,
-      mainTrack: false,
+      audio: null
     }
   },
   methods: {
@@ -226,15 +224,6 @@ export default {
       setTimeout(() => {
         this.help = null;
       },12000);
-    },
-    playMainTrack: function () {
-      this.mainTrack = !this.mainTrack;
-
-      if (this.mainTrack) {
-        this.audio.play();
-      } else {
-        this.audio.stop();
-      }
     },
     roadmapScene: function() {
       var container = document.getElementById('roadmap-container');
@@ -535,7 +524,7 @@ export default {
       this.lineAlphas = this.roadmapGeo.attributes.alpha2;
       var count = this.alphas.count;
 
-      for(var i = 0; i < count; i++) {
+      for (var i = 0; i < count; i++) {
         this.alphas.array[i] *= 0.95;
         this.lineAlphas.array[i] *=0.985;
 
@@ -734,7 +723,7 @@ export default {
       }
     },
     swipeHandler (direction, event) {
-      if(window.innerWidth < 1023){
+      if (window.innerWidth < 1023) {
         if (direction == 'left' && this.roadmapMesh.position.x > -600) {
           this.roadmapMesh.position.x = this.roadmapMesh.position.x - 7;
           new TWEEN.Tween(this.camera.rotation)
@@ -796,7 +785,6 @@ export default {
     this.roadmapScene();
     this.animate();
 
-    document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.addEventListener('mouseup', this.onPointerUp, false);
     document.addEventListener('mousedown', this.onPointerDown, false);
     document.addEventListener('mousedown', this.route, false);
@@ -811,7 +799,6 @@ export default {
     window.addEventListener('pointermove', this.onPointerMove);
   },
   beforeDestroy () {
-    document.getElementById("music-sound").removeEventListener('mousedown', this.playMainTrack, false);
     document.removeEventListener('mouseup', this.onPointerUp, false);
     document.removeEventListener('mousedown', this.onPointerDown, false);
     document.removeEventListener('mousedown', this.route,false);
@@ -829,6 +816,13 @@ export default {
   watch: {
     '$store.state.scrollOffset': function () {
       this.roadmapMesh.position.x = 600 - this.$store.state.scrollOffset
+    },
+    '$store.state.sound': function () {
+      if (this.$store.state.sound) {
+        this.audio.play();
+      } else {
+        this.audio.stop();
+      }
     }
   }
 }

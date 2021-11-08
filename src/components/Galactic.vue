@@ -595,7 +595,7 @@
       animate: function () {
         if (this.threeMounted) {
           requestAnimationFrame(this.animate);
-          
+
           var plRot = 0.01;
 
           var planet0 = this.scene.getObjectByName("planet0");
@@ -670,9 +670,6 @@
       },
       onPointerMove: function (event) {
         if (event.isPrimary === false) return;
-        if(this.$store.state.stopGalactic){
-          return false
-        }
 
         this.pointerX = event.clientX - this.windowHalfX;
         this.targetRotation = this.targetRotationOnPointerDown + (this.pointerX - this.pointerXOnPointerDown) * 0.02;
@@ -882,7 +879,7 @@
     mounted () {
       this.myScene();
       this.animate();
-      
+
       document.addEventListener('mouseup', this.onPointerUp, false);
       document.addEventListener('mousedown', this.onPointerDown, false);
       document.addEventListener('mousedown', this.planetClick, false);
@@ -894,7 +891,6 @@
       while(this.scene.children.length > 0) {
         this.scene.remove(this.scene.children[0]);
       }
-      this.$store.commit('stopGalactic', true);
       document.removeEventListener('mouseup', this.onPointerUp, false);
       document.removeEventListener('mousedown', this.onPointerDown, false);
       document.removeEventListener('mousedown', this.planetClick, false);

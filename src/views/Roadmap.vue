@@ -1,7 +1,7 @@
 <template>
   <div class="main-roadmap" :class="filterVisible ? 'filterActive' : ''">
     <div id="roadmap-container" v-touch:swipe="swipeHandler" v-touch:longtap="swipeHandler"></div>
-    <div id="music-sound">Sound</div>
+    <div id="music-sound" v-if="true">Sound</div>
     <div id="filters-container" class="filters" :class="[$store.state.navigation ? 'activeNav' : '']">
       <div class="clearFilter" id="clear-filter" @click="closeFilters" :class="closeFilter ? 'active' : ''">
         <span></span>

@@ -19,9 +19,13 @@ export default new Vuex.Store({
     roadmapIndex: null,
     header: false,
     roadmapInnerRoute: false,
-    scrollOffset: 0
+    scrollOffset: 0,
+    sound: true
   },
   mutations: {
+    setSound (state, data) {
+      state.sound = data
+    },
     setScrollOffset (state, data) {
       state.scrollOffset = data
     },
@@ -45,18 +49,6 @@ export default new Vuex.Store({
     },
     playGame (state, data) {
       state.playGame = data
-    },
-    stopGalaxyGarbage (state, data) {
-      state.galaxyGarbage = data
-    },
-    stopRoadmapInner (state, data) {
-      state.stopRoadmapInner = data
-    },
-    stopRoadmap (state, data) {
-      state.stopRoadmap = data
-    },
-    stopGalactic (state, data) {
-      state.stopGalactic = data
     },
     stopStatistic (state, data) {
       state.stopStatistic = data

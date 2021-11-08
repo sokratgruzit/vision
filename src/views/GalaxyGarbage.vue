@@ -298,11 +298,11 @@ export default {
       this.camera.add(listener);
       this.camera.add(listener2);
       this.camera.add(listener3);
-      
+
       var audioLoader = new THREE.AudioLoader();
       var audioLoader2 = new THREE.AudioLoader();
       var audioLoader3 = new THREE.AudioLoader();
-      
+
       let lAudio = new THREE.Audio(listener);
       let explosion = new THREE.Audio(listener2);
       let tunnelWhoop = new THREE.Audio(listener3);
@@ -386,7 +386,7 @@ export default {
       this.scene.add(sLight);
       var aLight = new THREE.AmbientLight( 0xffffff );
       this.scene.add(aLight);
-      
+
       var directionalLight = new THREE.DirectionalLight("#fff", 2);
       directionalLight.position.set(0, 50, -20);
       //Intro Strars Field
@@ -430,12 +430,12 @@ export default {
         }
       };
 
-      const material = new THREE.ShaderMaterial( { 
+      const material = new THREE.ShaderMaterial( {
         uniforms: this.spiralUniform,
         vertexShader: spiral_part_vertex,
         fragmentShader: spiral_part_fragment,
-        blending: THREE.AdditiveBlending, 
-        depthTest: false, 
+        blending: THREE.AdditiveBlending,
+        depthTest: false,
         transparent : true,
         vertexColors: THREE.VertexColors
       });
@@ -444,20 +444,20 @@ export default {
       const vertices = [];
       const colors = [];
       const times = [];
-      
+
       const point = new THREE.Vector3();
       const color = new THREE.Color();
 
       for (let i = 0; i < particleCount; i++) {
         getRandomPointOnSphere(radius, point);
-        
+
         color.setHSL(i / particleCount, 0.7, 0.7);
-        
+
         vertices.push(point.x, point.y, point.z);
         colors.push(color.r, color.g, color.b);
         times.push(i / particleCount);
       }
-      
+
       geometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
       geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
       geometry.setAttribute('time', new THREE.Float32BufferAttribute(times, 1));
@@ -465,12 +465,12 @@ export default {
       function getRandomPointOnSphere(r, v) {
         var angle = Math.random() * Math.PI * 2;
         var u = Math.random() * 2 - 1;
-            
+
         v.x = Math.cos( angle ) * Math.sqrt( 1 - Math.pow( u, 2 ) ) * r;
         v.y = Math.sin( angle ) * Math.sqrt( 1 - Math.pow( u, 2 ) ) * r;
         v.z = u * r;
       }
-	
+
       this.spiralParticlesMesh = new THREE.Points(geometry, material);
       this.spiralParticlesMesh.position.z = -2000;
       this.spiralParticlesMesh.position.x = 500;
@@ -499,7 +499,7 @@ export default {
 
       const spaceLoader = new THREE.TextureLoader();
       const space = spaceLoader.load(require("../assets/space.jpg"));
-      
+
       const tunnelGeo = new THREE.CylinderGeometry(100, 100, 1800, 32, 1, true);
       const tunnelMat = new THREE.MeshBasicMaterial({
         color: 0xffff00,
@@ -579,7 +579,7 @@ export default {
         this.holder = new THREE.Object3D();
         this.holder.name = "holder"
         let loader = new OBJLoader();
-        
+
         for (var i = 0; i < this.totalTargets; i++) {
           this.geometry = new THREE.IcosahedronGeometry(15, 16);
           var targetTexLoader = new THREE.TextureLoader();
@@ -615,7 +615,7 @@ export default {
           this.holder.add(spinner);
         }
         this.scene.add(this.holder);
-        
+
         const partLoader = new THREE.TextureLoader();
         const partTexture = partLoader.load(require("../assets/circle2.png"));
 
@@ -629,7 +629,7 @@ export default {
           vertices.push(x, y, z);
         }
         starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(vertices, 3));
-        
+
         const starsMaterial = new THREE.PointsMaterial({
           size: 0.7,
           blending: THREE.AdditiveBlending,
@@ -660,7 +660,6 @@ export default {
       }
     },
     render: function () {
-      if (this.$store.state.stopGalaxyGarbage == false){
         if (!this.intro) {
           if (this.spiralParticlesMesh !== null) {
             this.spiralUniform.globalTime.value += this.clock.getDelta() * 0.1;
@@ -750,9 +749,9 @@ export default {
             this.camera.position.y = 0;
             this.camera.position.z = 500;
           }
-          
+
           var delta = this.clock.getDelta();
-        
+
           this.renderer.autoClear = false;
           this.renderer.clear();
           this.renderer.setScissorTest(true);
@@ -792,19 +791,17 @@ export default {
           this.renderer.render(this.scene, this.camera);
           this.composer.render();
         }
-
         this.renderer.setPixelRatio(window.devicePixelRatio);
         this.renderer.physicallyCorrectLights = true;
-      }
     },
     addExplosion: function (point) {
       //Object Explosion
       var geometry = new THREE.IcosahedronGeometry(1.5, 60);
       var timeNow = this.clock.getElapsedTime();
-      
+
       var targetTexLoader = new THREE.TextureLoader();
       var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
-      
+
       this.uniforms = {
         targetTex: { type: "t", value: targetTexture },
         time: { type: "f", value: 0.0 },
@@ -856,7 +853,7 @@ export default {
       setTimeout(() => {
         this.audioExplosion.stop();
       }, 3000);
-      
+
       //End of Object Explosion
     },
     onDocumentMouseUp: function(event) {
@@ -900,7 +897,7 @@ export default {
             this.tunnelAnim = false;
             this.restartScene();
           }
-          
+
           return;
         }
         // calculate mouse position in normalized device coordinates
@@ -925,10 +922,10 @@ export default {
           let bMesh = this.badgeMesh;
           let bCamera = this.badgeCamera;
           let bIndex = 0;
-          
+
           this.holder.children.forEach(function (elem, index, array) {
             let intersects = raycaster.intersectObjects(elem.children);
-          
+
             if (intersects.length > 0 && intersects[0].object.visible) {
               intersects[0].object.visible = false;
               addExplosion(intersects[0].point);
@@ -969,7 +966,7 @@ export default {
                   bCamera = new THREE.PerspectiveCamera(50, 1, 1, 10);
                   bCamera.position.z = 4;
                   bScene.userData.camera = bCamera;
-                  
+
                   const badgeLoader = new THREE.TextureLoader();
                   const badgeTex = badgeLoader.load(badgeTextures[i]);
                   bMat = new THREE.MeshBasicMaterial({
@@ -1068,7 +1065,7 @@ export default {
       if (this.level == 1) {
         this.badgeScenes = [];
       }
-      
+
       this.scene.remove(this.particles);
       this.scene.remove(this.gSMesh);
       this.addHolder();
@@ -1113,14 +1110,14 @@ export default {
         let pos = this.camera.position.clone().add(dir.multiplyScalar(distance));
         this.vectors.push(pos);
         this.drawCurve(this.vectors);
-        
+
         let x = event.clientX;
         let y = event.clientY;
         let targetCapture = document.getElementById('target_capture');
 
         let newposX = x - 40;
-        let newposY = y - 40; 
-        
+        let newposY = y - 40;
+
         targetCapture.style['transform'] = 'translate3d(' + newposX + 'px,' + newposY + 'px,0px)';
       }
     },
@@ -1251,11 +1248,11 @@ export default {
 
     this.$store.commit('setHeader', false);
     // this.myLevel.innerText = this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels;
-    
+
     this.myScene();
     this.addHolder();
     this.animate();
-    
+
     setTimeout(() => {
       document.getElementById('target_capture').style['opacity'] = 1;
       this.intro = false;
@@ -1309,7 +1306,7 @@ export default {
     border-radius: 50%;
     position: absolute;
     transform: translate3d(-50%,-50%,0);
-    pointer-events: none; 
+    pointer-events: none;
     opacity: 0;
   }
   #target_capture_outer_circle{

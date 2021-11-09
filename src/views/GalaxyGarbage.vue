@@ -881,6 +881,7 @@ export default {
           this.complete = false;
           this.score = 0;
           this.tunnelAnim = true;
+          this.badgeAnimation = false;
           if (this.level == 1) {
             this.secondLevelTunnel();
             setTimeout(() => {
@@ -1050,7 +1051,6 @@ export default {
         this.totalTargets = 3;
         this.level = 1;
       }
-      this.badgeAnimation = false;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
       this.animateText = true;
       setTimeout(() => {

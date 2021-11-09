@@ -125,11 +125,11 @@ export default {
       bubleData: [
         {
           title: 'Inception',
-          category: false
+          category: 'Category'
         },
         {
           title: '2021',
-          category: false
+          category: 'Category'
         },
         {
           title: 'Q3',
@@ -141,7 +141,7 @@ export default {
         },
         {
           title: '2022',
-          category: false
+          category: 'Category'
         },
         {
           title: 'Q1',
@@ -161,7 +161,7 @@ export default {
         },
         {
           title: '2023',
-          category: false
+          category: 'Category'
         },
         {
           title: 'Q1',
@@ -181,7 +181,7 @@ export default {
         },
         {
           title: '2024',
-          category: false
+          category: 'Category'
         },
         {
           title: 'Q1',
@@ -370,17 +370,12 @@ export default {
         toolDiv.id = 'buble-tooltip' + i;
         toolDiv.className = 'buble-tooltip';
 
-        if (i == 0 || i == 1 || i == 4 || i == 9 || i == 14) {
-          toolDiv.className = 'active';
-        }
 
         toolDiv.appendChild(toolTitle);
         toolTitle.textContent = this.bubleData[i].title;
-        if(this.bubleData[i].category){
-          const toolSubTitle = document.createElement('span');
-          toolSubTitle.textContent = this.bubleData[i].category;
-          toolDiv.appendChild(toolSubTitle);
-        }
+        const toolSubTitle = document.createElement('span');
+        toolSubTitle.textContent = this.bubleData[i].category;
+        toolDiv.appendChild(toolSubTitle);
 
         const bubleTooltip = new CSS2DObject(toolDiv);
         bubleTooltip.position.z = -10;
@@ -838,6 +833,29 @@ export default {
 }
 </script>
 <style>
+  /*colors: [*/
+  /*      new THREE.Color(0xFF7152),*/
+  /*new THREE.Color(0xF59337),*/
+  /*new THREE.Color(0xE10FEC),*/
+  /*new THREE.Color(0x5910C5),*/
+  /*new THREE.Color(0x3F057E),*/
+  /*new THREE.Color(0xffffff)*/
+  /*],*/
+  .buble-tooltip:nth-child(1) span{
+    color: #FF7152;
+  }
+  .buble-tooltip:nth-child(2) span,.buble-tooltip:nth-child(3) span,.buble-tooltip:nth-child(4) span{
+    color: #F59337;
+  }
+  .buble-tooltip:nth-child(5) span,.buble-tooltip:nth-child(6) span,.buble-tooltip:nth-child(7) span,.buble-tooltip:nth-child(8) span,.buble-tooltip:nth-child(9) span{
+    color: #E10FEC;
+  }
+  .buble-tooltip:nth-child(10) span,.buble-tooltip:nth-child(11) span,.buble-tooltip:nth-child(12) span,.buble-tooltip:nth-child(13) span,.buble-tooltip:nth-child(14) span{
+    color: #5910C5;
+  }
+  .buble-tooltip:nth-child(15) span,.buble-tooltip:nth-child(16) span,.buble-tooltip:nth-child(17) span,.buble-tooltip:nth-child(18) span,.buble-tooltip:nth-child(19) span{
+    color: #3F057E;
+  }
   #music-sound{
     width: 100px;
     height: 30px;
@@ -1039,12 +1057,10 @@ export default {
   }
   .buble-tooltip div{
     transition: .2s cubic-bezier(.79,.01,.15,.99)!important;
-    opacity: 0;
     transition-delay: .2s;
     transform: translateY(10px);
   }
   .buble-tooltip.active div{
-    opacity: 1;
     transition-delay: .5s;
     transform: translateY(0px);
   }

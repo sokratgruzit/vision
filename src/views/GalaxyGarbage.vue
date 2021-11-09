@@ -588,14 +588,44 @@ export default {
         this.scene.add(tube);
       }
 
-      /*var geometry = new THREE.TubeGeometry(this.tubePath, 64, 2, 8, true);
-      var material = new THREE.MeshLambertMaterial({
-        color: 0xff0000,
-        side: THREE.BackSide,
-        wireframe: true
-      });
-      var tube = new THREE.Mesh(geometry, material);
-      this.scene.add(tube);*/
+      this.tubeLight = new THREE.PointLight(0xffffff,1, 50);
+      this.scene.add(this.tubeLight);
+    },
+    fourthLevelTunnel: function () {
+      var points = [
+        [68.5,185.5],
+        [1,262.5],
+        [270.9,281.9],
+        [345.5,212.8],
+        [178,155.7],
+        [240.3,72.3],
+        [153.4,0.6],
+        [52.6,53.3],
+        [68.5,185.5]
+      ];
+
+      for (var i = 0; i < points.length; i++) {
+        var x = points[i][0];
+        var y = 0;
+        var z = points[i][1];
+        points[i] = new THREE.Vector3(x, y, z);
+      }
+      
+      this.tubePath = new THREE.CatmullRomCurve3(points);
+
+      var colors = [0xFF6138,0xFFFF9D,0xBEEB9F,0x79BD8F,0x00A388];
+
+      for (var i = 0; i < colors.length; i++) {
+        var geometry = new THREE.TubeBufferGeometry(this.tubePath, 100, (i * 2) + 4, 10, true);
+        var material = new THREE.MeshBasicMaterial({
+          color: colors[i],
+          transparent: true,
+          wireframe: false,
+          opacity: ((1 - i / 5) * 0.5 + 0.1)
+        });
+        var tube = new THREE.Mesh(geometry, material);
+        this.scene.add(tube);
+      }
 
       this.tubeLight = new THREE.PointLight(0xffffff,1, 50);
       this.scene.add(this.tubeLight);
@@ -793,7 +823,7 @@ export default {
             this.camera.position.z = 500;
           }
 
-          if (this.level == 2) {
+          if (this.level == 2 || this.level == 3) {
             if (this.tubePath !== null) {
               this.tubePercentage += 0.003;
               var p1 = this.tubePath.getPointAt(this.tubePercentage % 1);
@@ -950,6 +980,18 @@ export default {
             }, 13000);
           } else if (this.level == 2) {
             this.thirdLevelTunnel();
+            setTimeout(() => {
+              while(this.scene.children.length > 2){
+                this.scene.remove(this.scene.children[2]);
+                this.scene.remove(this.scene.children[3]);
+              }
+              this.tunnelAnim = false;
+              this.params.bloomStrength = 0.5;
+              this.bloomPass.strength = this.params.bloomStrength;
+              this.restartScene();
+            }, 13000);
+          } else if (this.level == 3) {
+            this.fourthLevelTunnel();
             setTimeout(() => {
               while(this.scene.children.length > 2){
                 this.scene.remove(this.scene.children[2]);

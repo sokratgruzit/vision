@@ -225,7 +225,10 @@ export default {
       ],
       tunnelAnim: false,
       spiralUniform: null,
-      spiralParticlesMesh: null
+      spiralParticlesMesh: null,
+      tubePercentage: 0,
+      tubePath: null,
+      tubeLight: null
     }
   },
   methods: {
@@ -313,14 +316,11 @@ export default {
         lAudio.setVolume(1);
         lAudio.play();
       },
-        // onProgress callback
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
-
-        // onError callback
         function (err) {
-          console.log('Un error ha ocurrido');
+          console.log('Error: ' + err);
         }
       );
 
@@ -329,14 +329,11 @@ export default {
         explosion.setLoop(true);
         explosion.setVolume(1);
       },
-        // onProgress callback
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
-
-        // onError callback
         function (err) {
-          console.log('Un error ha ocurrido');
+          console.log('Error: ' + err);
         }
       );
 
@@ -346,14 +343,11 @@ export default {
         tunnelWhoop.setVolume(1);
         tunnelWhoop.playbackRate = 5;
       },
-        // onProgress callback
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
         },
-
-        // onError callback
         function (err) {
-          console.log('Un error ha ocurrido');
+          console.log('Error: ' + err);
         }
       );
 
@@ -558,6 +552,84 @@ export default {
         this.audioTunnel.play();
       }, 6100);
     },
+    thirdLevelTunnel: function () {
+      var points = [
+        [68.5,185.5],
+        [1,262.5],
+        [270.9,281.9],
+        [345.5,212.8],
+        [178,155.7],
+        [240.3,72.3],
+        [153.4,0.6],
+        [52.6,53.3],
+        [68.5,185.5]
+      ];
+
+      for (var i = 0; i < points.length; i++) {
+        var x = points[i][0];
+        var y = 0;
+        var z = points[i][1];
+        points[i] = new THREE.Vector3(x, y, z);
+      }
+      
+      this.tubePath = new THREE.CatmullRomCurve3(points);
+
+      var colors = [0xFF6138,0xFFFF9D,0xBEEB9F,0x79BD8F,0x00A388];
+
+      for (var i = 0; i < colors.length; i++) {
+        var geometry = new THREE.TubeBufferGeometry(this.tubePath, 100, (i * 2) + 4, 10, true);
+        var material = new THREE.MeshBasicMaterial({
+          color: colors[i],
+          transparent: true,
+          wireframe: true,
+          opacity: ((1 - i / 5) * 0.5 + 0.1)
+        });
+        var tube = new THREE.Mesh(geometry, material);
+        this.scene.add(tube);
+      }
+
+      this.tubeLight = new THREE.PointLight(0xffffff,1, 50);
+      this.scene.add(this.tubeLight);
+    },
+    fourthLevelTunnel: function () {
+      var points = [
+        [68.5,185.5],
+        [1,262.5],
+        [270.9,281.9],
+        [345.5,212.8],
+        [178,155.7],
+        [240.3,72.3],
+        [153.4,0.6],
+        [52.6,53.3],
+        [68.5,185.5]
+      ];
+
+      for (var i = 0; i < points.length; i++) {
+        var x = points[i][0];
+        var y = 0;
+        var z = points[i][1];
+        points[i] = new THREE.Vector3(x, y, z);
+      }
+      
+      this.tubePath = new THREE.CatmullRomCurve3(points);
+
+      var colors = [0xFF6138,0xFFFF9D,0xBEEB9F,0x79BD8F,0x00A388];
+
+      for (var i = 0; i < colors.length; i++) {
+        var geometry = new THREE.TubeBufferGeometry(this.tubePath, 100, (i * 2) + 4, 10, true);
+        var material = new THREE.MeshBasicMaterial({
+          color: colors[i],
+          transparent: true,
+          wireframe: false,
+          opacity: ((1 - i / 5) * 0.5 + 0.1)
+        });
+        var tube = new THREE.Mesh(geometry, material);
+        this.scene.add(tube);
+      }
+
+      this.tubeLight = new THREE.PointLight(0xffffff,1, 50);
+      this.scene.add(this.tubeLight);
+    },
     randomPointSphere: function (radius) {
       if (!this.intro && !this.tunnelAnim) {
         let theta = 2 * Math.PI * Math.random();
@@ -660,139 +732,152 @@ export default {
       }
     },
     render: function () {
-        if (!this.intro) {
-          if (this.spiralParticlesMesh !== null) {
-            this.spiralUniform.globalTime.value += this.clock.getDelta() * 0.1;
-            this.spiralParticlesMesh.rotation.z += 0.0005;
+      if (!this.intro) {
+        if (this.spiralParticlesMesh !== null) {
+          this.spiralUniform.globalTime.value += this.clock.getDelta() * 0.1;
+          this.spiralParticlesMesh.rotation.z += 0.0005;
 
-            if (this.spiralParticlesMesh.position.z === -2000) {
-              new TWEEN.Tween(this.spiralParticlesMesh.position)
-              .to({ z: -1000, x: 500 }, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
-            }
+          if (this.spiralParticlesMesh.position.z === -2000) {
+            new TWEEN.Tween(this.spiralParticlesMesh.position)
+            .to({ z: -1000, x: 500 }, 5000)
+            .easing(TWEEN.Easing.Cubic.InOut)
+            .start();
+          }
 
-            if (this.spiralParticlesMesh.position.z === -1000) {
-              new TWEEN.Tween(this.spiralParticlesMesh.position)
-              .to({ z: -2000, x: 0 }, 5000)
-              .easing(TWEEN.Easing.Cubic.InOut)
-              .start();
+          if (this.spiralParticlesMesh.position.z === -1000) {
+            new TWEEN.Tween(this.spiralParticlesMesh.position)
+            .to({ z: -2000, x: 0 }, 5000)
+            .easing(TWEEN.Easing.Cubic.InOut)
+            .start();
+          }
+        }
+
+        const time = Date.now() * 0.00005;
+        const dTime = Date.now() * 0.001;
+        this.galMesh.rotation.z += -0.01;
+        this.galMesh.position.x = Math.sin(time);
+
+        const h = (360 * (1.0 + time * 2) % 360) / 360;
+        this.particles.material.color.setHSL(h, 0.5, 0.5);
+
+        if (!this.tunnelAnim) {
+          this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.005;
+          this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.005;
+          this.camera.lookAt(this.scene.position);
+
+          for (let i = 0; i < this.scene.children.length; i++) {
+          const object = this.scene.children[i];
+            if (object instanceof THREE.Points) {
+              object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
             }
           }
 
-          const time = Date.now() * 0.00005;
-          const dTime = Date.now() * 0.001;
-          this.galMesh.rotation.z += -0.01;
-          this.galMesh.position.x = Math.sin(time);
+          this.holder.children.forEach(function (elem, index, array) {
+            let x = 0;
+            let y = 0;
 
-          const h = (360 * (1.0 + time * 2) % 360) / 360;
-				  this.particles.material.color.setHSL(h, 0.5, 0.5);
-
-          if (!this.tunnelAnim) {
-            this.camera.position.x += (this.mouseX - this.camera.position.x) * 0.005;
-            this.camera.position.y += (- this.mouseY - this.camera.position.y) * 0.005;
-            this.camera.lookAt(this.scene.position);
-
-            for (let i = 0; i < this.scene.children.length; i++) {
-            const object = this.scene.children[i];
-              if (object instanceof THREE.Points) {
-                object.rotation.y = time * ( i < 4 ? i + 1 : - ( i + 1 ) );
-              }
+            if (index === 0) {
+              x = 100;
+              y = 100;
+            } else {
+              x = index * 50;
+              y = index * 50;
             }
 
-            this.holder.children.forEach(function (elem, index, array) {
-              let x = 0;
-              let y = 0;
+            if (elem.position.x === 0 || elem.position.x === -x) {
+              new TWEEN.Tween(elem.position)
+              .to({ x: x }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
 
-              if (index === 0) {
-                x = 100;
-                y = 100;
-              } else {
-                x = index * 50;
-                y = index * 50;
-              }
+            if (elem.position.x === x) {
+              new TWEEN.Tween(elem.position)
+              .to({ x: -x }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
 
-              if (elem.position.x === 0 || elem.position.x === -x) {
-                new TWEEN.Tween(elem.position)
-                .to({ x: x }, 5000)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .start();
-              }
+            if (elem.position.y === 0 || elem.position.y === -y) {
+              new TWEEN.Tween(elem.position)
+              .to({ y: y}, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
 
-              if (elem.position.x === x) {
-                new TWEEN.Tween(elem.position)
-                .to({ x: -x }, 5000)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .start();
-              }
+            if (elem.position.y === y) {
+              new TWEEN.Tween(elem.position)
+              .to({ y: -y }, 5000)
+              .easing(TWEEN.Easing.Cubic.InOut)
+              .start();
+            }
 
-              if (elem.position.y === 0 || elem.position.y === -y) {
-                new TWEEN.Tween(elem.position)
-                .to({ y: y}, 5000)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .start();
-              }
-
-              if (elem.position.y === y) {
-                new TWEEN.Tween(elem.position)
-                .to({ y: -y }, 5000)
-                .easing(TWEEN.Easing.Cubic.InOut)
-                .start();
-              }
-
-              elem.rotation.y += (0.001 * (6 - index));
-              elem.children[0].rotation.x += 0.01;
-              elem.children[0].rotation.y += 0.01;
-            });
-          } else {
+            elem.rotation.y += (0.001 * (6 - index));
+            elem.children[0].rotation.x += 0.01;
+            elem.children[0].rotation.y += 0.01;
+          });
+        } else {
+          if (this.level == 1) {
             this.camera.position.x = 0;
             this.camera.position.y = 0;
             this.camera.position.z = 500;
           }
 
-          var delta = this.clock.getDelta();
+          if (this.level == 2 || this.level == 3) {
+            if (this.tubePath !== null) {
+              this.tubePercentage += 0.003;
+              var p1 = this.tubePath.getPointAt(this.tubePercentage % 1);
+              var p2 = this.tubePath.getPointAt((this.tubePercentage + 0.01) % 1);
+              this.camera.position.set(p1.x,p1.y,p1.z);
+              this.camera.lookAt(p2);
+              this.tubeLight.position.set(p2.x, p2.y, p2.z);
+            }
+          }
+        }
 
-          this.renderer.autoClear = false;
-          this.renderer.clear();
-          this.renderer.setScissorTest(true);
-          this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
-          this.renderer.render(this.scene, this.camera);
-          this.composer.render();
-          let badgesParent = document.getElementById('badges-container');
-          badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
+        var delta = this.clock.getDelta();
 
-          if (this.badgeScenes.length > 0 && badgesParent) {
-            for (let i = 0; i < this.badgeScenes.length; i++) {
-              const badgeCont = document.getElementById('list-item' + i);
-              const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
+        this.renderer.autoClear = false;
+        this.renderer.clear();
+        this.renderer.setScissorTest(true);
+        this.renderer.setScissor(0, 0, window.innerWidth, window.innerHeight);
+        this.renderer.render(this.scene, this.camera);
+        this.composer.render();
+        let badgesParent = document.getElementById('badges-container');
+        badgesParent = badgesParent.hasChildNodes() === null ? false : badgesParent.hasChildNodes();
 
-              if (rect !== false) {
-                this.badgeScenes[i].rotation.y += 0.02;
+        if (this.badgeScenes.length > 0 && badgesParent) {
+          for (let i = 0; i < this.badgeScenes.length; i++) {
+            const badgeCont = document.getElementById('list-item' + i);
+            const rect = badgeCont.getBoundingClientRect() !== null ? badgeCont.getBoundingClientRect() : false;
 
-                if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
-                  rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
-                  return; // it's off screen
-                }
-                const width = rect.right - rect.left;
-                const height = rect.bottom - rect.top;
-                const left = rect.left;
-                const bottom = this.renderer.domElement.clientHeight - rect.bottom;
-                this.renderer.clearDepth();
+            if (rect !== false) {
+              this.badgeScenes[i].rotation.y += 0.02;
 
-                if (this.badgeScenes.length > 0) {
-                  this.renderer.setViewport(left, bottom, width, height);
-                  this.renderer.setScissor(left, bottom, width, height);
-                  this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
-                }
+              if (rect.bottom < 0 || rect.top > this.renderer.domElement.clientHeight ||
+                rect.right < 0 || rect.left > this.renderer.domElement.clientWidth) {
+                return; // it's off screen
+              }
+              const width = rect.right - rect.left;
+              const height = rect.bottom - rect.top;
+              const left = rect.left;
+              const bottom = this.renderer.domElement.clientHeight - rect.bottom;
+              this.renderer.clearDepth();
+
+              if (this.badgeScenes.length > 0) {
+                this.renderer.setViewport(left, bottom, width, height);
+                this.renderer.setScissor(left, bottom, width, height);
+                this.renderer.render(this.badgeScenes[i], this.badgeScenes[i].userData.camera);
               }
             }
           }
-        } else {
-          this.renderer.render(this.scene, this.camera);
-          this.composer.render();
         }
-        this.renderer.setPixelRatio(window.devicePixelRatio);
-        this.renderer.physicallyCorrectLights = true;
+      } else {
+        this.renderer.render(this.scene, this.camera);
+        this.composer.render();
+      }
+      this.renderer.setPixelRatio(window.devicePixelRatio);
+      this.renderer.physicallyCorrectLights = true;
     },
     addExplosion: function (point) {
       //Object Explosion
@@ -884,6 +969,30 @@ export default {
           this.badgeAnimation = false;
           if (this.level == 1) {
             this.secondLevelTunnel();
+            setTimeout(() => {
+              while(this.scene.children.length > 2){
+                this.scene.remove(this.scene.children[2]);
+                this.scene.remove(this.scene.children[3]);
+              }
+              this.tunnelAnim = false;
+              this.params.bloomStrength = 0.5;
+              this.bloomPass.strength = this.params.bloomStrength;
+              this.restartScene();
+            }, 13000);
+          } else if (this.level == 2) {
+            this.thirdLevelTunnel();
+            setTimeout(() => {
+              while(this.scene.children.length > 2){
+                this.scene.remove(this.scene.children[2]);
+                this.scene.remove(this.scene.children[3]);
+              }
+              this.tunnelAnim = false;
+              this.params.bloomStrength = 0.5;
+              this.bloomPass.strength = this.params.bloomStrength;
+              this.restartScene();
+            }, 13000);
+          } else if (this.level == 3) {
+            this.fourthLevelTunnel();
             setTimeout(() => {
               while(this.scene.children.length > 2){
                 this.scene.remove(this.scene.children[2]);

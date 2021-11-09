@@ -381,13 +381,13 @@ export default {
         bubleTooltip.position.z = -10;
         bubleTooltip.position.y = -3;
 
-        let lGeo = new THREE.SphereBufferGeometry(10, 30, 30);
-        let lMat = new THREE.MeshBasicMaterial({
+        let bubleGeo = new THREE.SphereBufferGeometry(10, 30, 30);
+        let bubleMat = new THREE.MeshBasicMaterial({
           color: this.colors[0],
           transparent: true,
           opacity: 0
         });
-        this.bubleMesh = new THREE.Mesh(lGeo, lMat);
+        this.bubleMesh = new THREE.Mesh(bubleGeo, bubleMat);
         this.bubleMesh.add(bubleTooltip);
 
         this.bubleMesh.position.setY(this.yD[i]);

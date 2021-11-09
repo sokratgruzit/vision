@@ -460,8 +460,8 @@
           colors[i * 3 + 1] = 1.0;
           colors[i * 3 + 2] = 1.0;
 
-          alphas[i] = 0.05 + Math.random() * 0.01;
-          sizes[i] = (Math.random() * Math.random() * 100.0) * 2;
+          alphas[i] = 0.05 + Math.random() * 0.8;
+          sizes[i] = (Math.random() * Math.random() * 3.0) * 2;
         }
 
         this.partGeo = new THREE.BufferGeometry();

@@ -246,11 +246,14 @@ export default {
       var audioLoader = new THREE.AudioLoader();
       let lAudio = new THREE.Audio(listener);
 
+      let sound = this.$store.state.sound;
       audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
         lAudio.setBuffer(buffer);
         lAudio.setLoop(true);
         lAudio.setVolume(1);
-        lAudio.play();
+        if (sound) {
+          lAudio.play();
+        }
       },
         // onProgress callback
         function (xhr) {
@@ -380,6 +383,9 @@ export default {
         }
 
         const bubleTooltip = new CSS2DObject(toolDiv);
+        bubleTooltip.position.z = -13;
+        bubleTooltip.position.y = -5;
+
         let lGeo = new THREE.SphereBufferGeometry(10, 30, 30);
         let lMat = new THREE.MeshBasicMaterial({
           color: this.colors[0],
@@ -677,13 +683,14 @@ export default {
         return false;
       } else {
         let int = this.raycaster.intersectObjects(this.scene.children[3].children);
-
         if (int.length > 0) {
           if (this.INTERSECTED != int[0].object) {
             this.roadmapMat.uniforms.displayCurve.value = true;
             let intId = int[0].object.children[0].element.id;
-
             if (!this.holdRoadmapPath) {
+              if (int[0].object.children[0].element.classList.contains('buble-tooltip')) {
+                int[0].object.children[0].element.classList.add('active');
+              }
               if (intId === 'buble-tooltip0') {
                 this.roadmapUniforms.curveColor.value = this.colors[0];
               }
@@ -712,7 +719,10 @@ export default {
           if (!this.holdRoadmapPath) {
             this.roadmapMat.uniforms.displayCurve.value = false;
           }
-
+          let tooltips = document.getElementsByClassName('buble-tooltip');
+          for (var element of tooltips) {
+            element.classList.remove('active');
+          }
           if (this.roadmapMesh.position.z == 8) {
             new TWEEN.Tween(this.roadmapMesh.position)
             .to({ z: 0 }, 700)
@@ -928,7 +938,7 @@ export default {
     transform: scaleX(0);
   }
   .filter-item {
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
     cursor: pointer;
     position: relative;
     z-index: 10;
@@ -941,7 +951,7 @@ export default {
   .main-roadmap.filterActive .filter-item{
     transform: translateY(0px)!important;
     opacity: 1!important;
-    transition-delay: .6s;
+    /*transition-delay: .4s;*/
   }
   #list-itemf0{
     display: flex!important;
@@ -954,7 +964,7 @@ export default {
     right: 120px;
     border: 1px solid rgba(255, 255, 255, 0.1);
     padding: 5px 10px;
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
     opacity: 0;
   }
   #filters-container.active{
@@ -969,10 +979,10 @@ export default {
     height: 100%;
     z-index: 0;
     background-color: #1B1D33;
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
     transform: scaleY(0);
     transform-origin: top;
-    transition-delay: .6s;
+    transition-delay: .4s;
   }
   .main-roadmap.filterActive #filters-container:after{
     transform: scaleY(1);
@@ -999,8 +1009,11 @@ export default {
     align-items: flex-start;
     max-height: 34px;
     overflow: hidden;
-    transition: .6s cubic-bezier(.79,.01,.15,.99);
+    transition: .4s cubic-bezier(.79,.01,.15,.99);
     transition-delay: .6s;
+  }
+  .filter-item:hover{
+    transition-delay: 0s!important;
   }
   .main-roadmap.filterActive #filterToogle{
     max-height: 500px;

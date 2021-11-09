@@ -383,8 +383,8 @@ export default {
         }
 
         const bubleTooltip = new CSS2DObject(toolDiv);
-        bubleTooltip.position.z = -13;
-        bubleTooltip.position.y = -5;
+        bubleTooltip.position.z = -10;
+        bubleTooltip.position.y = -3;
 
         let lGeo = new THREE.SphereBufferGeometry(10, 30, 30);
         let lMat = new THREE.MeshBasicMaterial({

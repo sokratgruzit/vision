@@ -816,7 +816,10 @@ export default {
       this.scene.remove(this.scene.children[0]);
     }
     this.threeMounted = false;
-    this.audio.stop();
+    if (this.audio && this.$store.state.sound) {
+      console.log(this.audio)
+      this.audio.stop();
+    }
   },
   watch: {
     '$store.state.scrollOffset': function () {
@@ -826,7 +829,9 @@ export default {
       if (this.$store.state.sound) {
         this.audio.play();
       } else {
-        this.audio.stop();
+        if (this.audio) {
+          this.audio.stop();
+        }
       }
     }
   }

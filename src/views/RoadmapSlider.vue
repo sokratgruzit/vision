@@ -292,14 +292,15 @@
         .start();
       },
       createSliderImage: function() {
-        if (window.innerWidth >=768) {
+        if (window.innerWidth >= 768) {
           this.sliderGeo = new THREE.PlaneBufferGeometry(
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5,
             this.windowHalfX * 0.5
           );
-        } else {
+        }
+        else {
           this.sliderGeo = new THREE.PlaneBufferGeometry(
             this.windowHalfX * 1,
             this.windowHalfX * 1,
@@ -348,7 +349,12 @@
         });
 
         this.sliderMesh = new THREE.Points(this.sliderGeo, this.sliderMat);
-        this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
+        if (window.innerWidth >= 1024) {
+          this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
+        }
+        else {
+          this.sliderMesh.position.set( 0, -this.windowHalfY * -0.1, 0);
+        }
         this.scene.add(this.sliderMesh);
       },
       createSliderButtons: function () {
@@ -402,14 +408,45 @@
         this.leftMesh = new THREE.Points(this.leftGeo, this.leftMat);
         this.rightMesh = new THREE.Points(this.rightGeo, this.rightMat);
 
-        this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
-        this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
+        this.setButtonSizes();
 
         this.scene.add(this.leftMesh);
         this.leftMesh.add(subLeftMesh);
 
         this.scene.add(this.rightMesh);
         this.rightMesh.add(subRightMesh);
+      },
+      setButtonSizes: function () {
+        if (window.innerWidth >= 1024) {
+          this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 0, -450);
+          this.rightMesh.position.set(window.innerWidth * 0.9, 0, -450);
+          this.leftMesh.scale.setX(1);
+          this.leftMesh.scale.setY(1);
+          this.leftMesh.scale.setZ(1);
+          this.rightMesh.scale.setX(1);
+          this.rightMesh.scale.setY(1);
+          this.rightMesh.scale.setZ(1);
+        }
+        if (window.innerWidth < 1024 && window.innerWidth > 767) {
+          this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 150, -450);
+          this.rightMesh.position.set(window.innerWidth * 0.9, 150, -450);
+          this.leftMesh.scale.setX(1);
+          this.leftMesh.scale.setY(1);
+          this.leftMesh.scale.setZ(1);
+          this.rightMesh.scale.setX(1);
+          this.rightMesh.scale.setY(1);
+          this.rightMesh.scale.setZ(1);
+        }
+        if (window.innerWidth < 767){
+          this.leftMesh.position.set(window.innerWidth / window.innerHeight - (window.innerWidth) * 0.9, 120, -470);
+          this.rightMesh.position.set(window.innerWidth * 0.9, 120, -470);
+          this.leftMesh.scale.setX(0.6);
+          this.leftMesh.scale.setY(0.6);
+          this.leftMesh.scale.setZ(0.6);
+          this.rightMesh.scale.setX(0.6);
+          this.rightMesh.scale.setY(0.6);
+          this.rightMesh.scale.setZ(0.6);
+        }
       },
       createBubleParticles: function () {
         const partLoader = new THREE.TextureLoader();
@@ -536,6 +573,14 @@
         this.composer.render();
       },
       onWindowResize: function () {
+        this.setButtonSizes();
+        if (window.innerWidth >= 1024) {
+          this.sliderMesh.position.set(-this.windowHalfX * 0.35, -this.windowHalfY * 0.1, 0);
+        }
+        else {
+          this.sliderMesh.position.set( 0, -this.windowHalfY * -0.1, 0);
+        }
+
         this.windowHalfX = window.innerWidth / 2;
         this.windowHalfY = window.innerHeight / 2;
 
@@ -943,6 +988,14 @@
   }
   /*Ipad 768*/
   @media (max-width: 1023px){
+    #prev-slider-btn{
+      top: 24%;
+      left: 3%;
+    }
+    #next-slider-btn{
+      top: 24%;
+      right: 3%;
+    }
     .roadmap-main{
       display: flex;
       flex-direction: column;
@@ -964,9 +1017,30 @@
     .to_roadmap{
       right: 40px;
     }
+    .roadmap__socials{
+      left: 45px;
+    }
+    .roadmap__about{
+      right: 45px;
+    }
   }
   /*Mobile*/
   @media (max-width: 767px){
+    #prev-slider-btn {
+      top: 32%;
+      left: 15px;
+    }
+    #next-slider-btn {
+      top: 32%;
+      right: 15px;
+    }
+    #prev-slider-btn div,#next-slider-btn div{
+      display: flex;
+    }
+    #prev-slider-btn span,#next-slider-btn span{
+      font-size: 12px;
+      line-height: 16px;
+    }
     .roadmap-text__container{
       right: 15px;
       width: calc(100% - 30px);
@@ -992,6 +1066,27 @@
       margin-top: 50px;
       margin-left: 15px;
       margin-right: auto;
+    }
+    .roadmap-text__main-ttl{
+      font-size: 50px;
+      line-height: 60px;
+      margin-top: 35px;
+    }
+    .roadmap-text__ttl{
+      margin-top: 10px;
+      font-size: 28px;
+      line-height: 30px;
+    }
+    .roadmap-text__block {
+      position: absolute;
+      height: calc(100% - 85px);
+    }
+    .roadmap-text__li{
+      font-size: 13px;
+      line-height: 23px;
+    }
+    .roadmap-text__li:after{
+      top: 8px;
     }
   }
 </style>

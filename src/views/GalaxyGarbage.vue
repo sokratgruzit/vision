@@ -561,9 +561,7 @@ export default {
       A.start();
 
       setTimeout(() => {
-        if (this.$store.state.sound) {
-          this.audioTunnel.play();
-        }
+        this.audioTunnel.play();
       }, 6100);
     },
     thirdLevelTunnel: function () {
@@ -947,9 +945,7 @@ export default {
         this.scene.remove(part);
       }, 1200);
 
-      if (this.$store.state.sound) {
-        this.audioExplosion.play();
-      }
+      this.audioExplosion.play();
 
       setTimeout(() => {
         this.audioExplosion.stop();

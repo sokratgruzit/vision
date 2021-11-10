@@ -1,6 +1,16 @@
 <template>
   <div class="game__container" :class="gameStart ? 'active' : ''">
-    <div id="music-sound">Sound</div>
+    <div class="game-sound-button" @click="soundFunc()">
+      <svg class="volume__icon" v-if="$store.state.sound" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M26.5145 13.3979C26.3826 13.4817 26.2684 13.5906 26.1787 13.7185C26.0889 13.8464 26.0252 13.9907 25.9913 14.1433C25.9573 14.2958 25.9538 14.4535 25.9809 14.6074C26.008 14.7613 26.0651 14.9084 26.1491 15.0401C27.2899 16.8299 27.8998 18.9065 27.908 21.0289C27.9161 23.1514 27.3223 25.2326 26.1953 27.0311C26.0282 27.2985 25.9742 27.6212 26.045 27.9284C26.1159 28.2356 26.3059 28.5021 26.5733 28.6691C26.8406 28.8362 27.1634 28.8903 27.4706 28.8194C27.7778 28.7485 28.0442 28.5585 28.2113 28.2911C29.5742 26.1127 30.2921 23.5926 30.2817 21.0229C30.2713 18.4533 29.533 15.9391 28.1525 13.7717C27.9849 13.5086 27.7205 13.3218 27.4164 13.2519C27.1123 13.182 26.7928 13.2344 26.5271 13.3979H26.5145ZM36.4769 5.27514C36.2803 5.02841 35.9937 4.86988 35.6802 4.83444C35.3667 4.799 35.052 4.88953 34.8053 5.08614C34.5586 5.28274 34.4 5.56931 34.3646 5.8828C34.3291 6.19628 34.4197 6.51101 34.6163 6.75774C37.8484 10.8127 39.6133 15.842 39.624 21.0275C39.6347 26.213 37.8905 31.2495 34.6751 35.3177C34.5662 35.4387 34.4834 35.5808 34.4316 35.7351C34.3799 35.8894 34.3604 36.0527 34.3744 36.2148C34.3884 36.377 34.4355 36.5345 34.5128 36.6777C34.5902 36.8209 34.6961 36.9467 34.8241 37.0473C34.952 37.1479 35.0993 37.2211 35.2567 37.2625C35.4141 37.3038 35.5783 37.3124 35.7392 37.2876C35.9001 37.2629 36.0541 37.2054 36.1919 37.1187C36.3296 37.032 36.448 36.9179 36.5399 36.7835C40.0865 32.2951 42.0105 26.7389 41.999 21.0184C41.9876 15.2978 40.0414 9.74938 36.4769 5.27514ZM32.4701 9.34074C32.3771 9.21526 32.2604 9.10932 32.1265 9.02896C31.9926 8.94859 31.8442 8.89539 31.6898 8.87238C31.5354 8.84937 31.3779 8.857 31.2264 8.89485C31.0749 8.93269 30.9324 9 30.8069 9.09294C30.6814 9.18588 30.5755 9.30262 30.4951 9.4365C30.4147 9.57038 30.3615 9.71878 30.3385 9.87322C30.3155 10.0277 30.3231 10.1851 30.361 10.3366C30.3988 10.4881 30.4661 10.6307 30.5591 10.7561C32.7584 13.7273 33.95 17.3238 33.9599 21.0204C33.9697 24.7169 32.7972 28.3198 30.6137 31.3025C30.5167 31.428 30.4458 31.5715 30.4051 31.7248C30.3644 31.878 30.3548 32.0379 30.3769 32.1949C30.3989 32.3519 30.4521 32.5029 30.5334 32.6391C30.6147 32.7752 30.7224 32.8937 30.8502 32.9876C30.978 33.0814 31.1233 33.1488 31.2775 33.1857C31.4317 33.2226 31.5917 33.2282 31.7481 33.2023C31.9046 33.1764 32.0542 33.1194 32.1883 33.0348C32.3224 32.9502 32.4382 32.8396 32.5289 32.7095C35.0133 29.3176 36.3477 25.2199 36.3372 21.0155C36.3266 16.811 34.9715 12.7201 32.4701 9.34074Z" fill="#FF7152"/>
+        <path d="M10.7772 15.1766H11.1497L11.4315 14.9329L21.7045 6.04526C21.7049 6.04488 21.7053 6.04451 21.7058 6.04414C21.7327 6.02153 21.7654 6.0069 21.8003 6.00191C21.8345 5.99701 21.8693 6.00159 21.901 6.01512C21.9327 6.03039 21.9594 6.05421 21.9783 6.08392C21.9978 6.11467 22.008 6.15041 22.0076 6.18682L22.0076 6.18682V6.19661V36.4366H22.0075L22.0077 36.4467C22.008 36.483 21.9979 36.5186 21.9785 36.5493L22.824 37.0833L21.9785 36.5493C21.9591 36.58 21.9313 36.6044 21.8984 36.6197C21.8655 36.635 21.8288 36.6404 21.7929 36.6354C21.757 36.6303 21.7232 36.615 21.6958 36.5913L11.2802 27.5827L10.9985 27.339H10.626H1.1886C1.13858 27.339 1.09061 27.3191 1.05524 27.2838C1.01987 27.2484 1 27.2004 1 27.1504V15.3602C1.00129 15.3116 1.02129 15.2654 1.05589 15.2311C1.0912 15.1962 1.13887 15.1766 1.18855 15.1766H1.1886H10.7772Z" stroke="white" stroke-width="2"/>
+      </svg>
+      <svg class="volume__icon" v-if="!$store.state.sound" width="42" height="42" viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M10.7772 15.1766H11.1497L11.4315 14.9329L21.7045 6.04526C21.7049 6.04488 21.7053 6.04451 21.7058 6.04414C21.7327 6.02153 21.7654 6.0069 21.8003 6.00191C21.8345 5.99701 21.8693 6.00159 21.901 6.01512C21.9327 6.03039 21.9594 6.05421 21.9783 6.08392C21.9978 6.11467 22.008 6.15041 22.0076 6.18682L22.0076 6.18682V6.19661V36.4366H22.0075L22.0077 36.4467C22.008 36.483 21.9979 36.5186 21.9785 36.5493L22.824 37.0833L21.9785 36.5493C21.9591 36.58 21.9313 36.6044 21.8984 36.6197C21.8655 36.635 21.8288 36.6404 21.7929 36.6354C21.757 36.6303 21.7232 36.615 21.6958 36.5913L11.2802 27.5827L10.9985 27.339H10.626H1.1886C1.13858 27.339 1.09061 27.3191 1.05524 27.2838C1.01987 27.2484 1 27.2004 1 27.1504V15.3602C1.00129 15.3116 1.02129 15.2654 1.05589 15.2311C1.0912 15.1962 1.13887 15.1766 1.18855 15.1766H1.1886H10.7772Z" stroke="white" stroke-width="2"/>
+        <path d="M27 14L41 28" stroke="#FF7152" stroke-width="2" stroke-linecap="round"/>
+        <path d="M41 14L27 28" stroke="#FF7152" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+    </div>
     <div id="target_capture">
       <div id="target_capture_outer_circle"></div>
       <div id="target_capture_inner_circle"></div>
@@ -232,7 +242,15 @@ export default {
     }
   },
   methods: {
-    mainTimerStart() {
+    soundFunc () {
+      if(this.$store.state.sound) {
+        this.$store.commit('setSound',false);
+      }
+      else{
+        this.$store.commit('setSound',true);
+      }
+    },
+    mainTimerStart () {
       setTimeout(() => {
         this.mainTaimer = 2;
       }, 1000);
@@ -274,15 +292,6 @@ export default {
       vm.buttonTxt = 'Resend';
       vac.attrs.disabled = false;
     },
-    playMainTrack: function () {
-      this.mainTrack = !this.mainTrack;
-
-      if (this.mainTrack) {
-        this.audio.play();
-      } else {
-        this.audio.stop();
-      }
-    },
     myScene: function () {
       this.scene = new THREE.Scene();
       var light = new THREE.AmbientLight(0xffffff);
@@ -310,11 +319,14 @@ export default {
       let explosion = new THREE.Audio(listener2);
       let tunnelWhoop = new THREE.Audio(listener3);
 
+      let sound = this.$store.state.sound;
       audioLoader.load( './three_sounds/main_track.mp3', function(buffer) {
         lAudio.setBuffer(buffer);
         lAudio.setLoop(true);
         lAudio.setVolume(1);
-        lAudio.play();
+          if (sound) {
+            lAudio.play();
+          }
       },
         function (xhr) {
           console.log((xhr.loaded / xhr.total * 100) + '% loaded');
@@ -571,7 +583,7 @@ export default {
         var z = points[i][1];
         points[i] = new THREE.Vector3(x, y, z);
       }
-      
+
       this.tubePath = new THREE.CatmullRomCurve3(points);
 
       var colors = [0xFF6138,0xFFFF9D,0xBEEB9F,0x79BD8F,0x00A388];
@@ -610,7 +622,7 @@ export default {
         var z = points[i][1];
         points[i] = new THREE.Vector3(x, y, z);
       }
-      
+
       this.tubePath = new THREE.CatmullRomCurve3(points);
       var colors = [0xFF7152,0xF59337,0xE10FEC,0x5910C5,0x3F057E];
 
@@ -991,6 +1003,7 @@ export default {
           this.complete = false;
           this.score = 0;
           this.tunnelAnim = true;
+          this.badgeAnimation = false;
           if (this.level == 1) {
             this.secondLevelTunnel();
             setTimeout(() => {
@@ -1184,7 +1197,6 @@ export default {
         this.totalTargets = 3;
         this.level = 1;
       }
-      this.badgeAnimation = false;
       console.log(this.comments[this.level-1] +  ": Level " + this.level + " of " + this.totalLevels)
       this.animateText = true;
       setTimeout(() => {
@@ -1375,7 +1387,6 @@ export default {
     // firstAnimation
     setInterval(this.setTime, 1000);
     document.getElementById("webgl-container").addEventListener('mousedown', this.onDocumentMouseDown, false);
-    document.getElementById("music-sound").addEventListener('mousedown', this.playMainTrack, false);
     document.getElementById("webgl-container").addEventListener('mouseup', this.onDocumentMouseUp, false);
     document.addEventListener('pointermove', this.onPointerMove);
     window.addEventListener('resize', this.onWindowResize, false);
@@ -1399,7 +1410,6 @@ export default {
   },
   beforeDestroy () {
     document.getElementById("webgl-container").removeEventListener('mousedown', this.onDocumentMouseDown, false);
-    document.getElementById("music-sound").removeEventListener('mousedown', this.playMainTrack, false);
     document.getElementById("webgl-container").removeEventListener('mouseup', this.onDocumentMouseUp, false);
     document.removeEventListener('pointermove', this.onPointerMove);
     window.removeEventListener('resize', this.onWindowResize, false);
@@ -1419,12 +1429,29 @@ export default {
         this.oldBadgeIndex++;
         this.badgeAnimation = true;
       }
+    },
+    '$store.state.sound': function () {
+      if (this.$store.state.sound) {
+        this.audio.play();
+      } else {
+        this.audio.stop();
+      }
     }
   }
 }
 </script>
 
 <style scoped>
+  .game-sound-button{
+    position: absolute;
+    z-index: 5;
+    left: 40px;
+    top: 40px;
+    cursor: pointer;
+  }
+  .game-sound-button svg{
+    width: 16px;
+  }
   #music-sound{
     width: 100px;
     height: 30px;

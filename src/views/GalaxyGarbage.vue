@@ -612,8 +612,7 @@ export default {
       }
       
       this.tubePath = new THREE.CatmullRomCurve3(points);
-
-      var colors = [0xFF6138,0xFFFF9D,0xBEEB9F,0x79BD8F,0x00A388];
+      var colors = [0xFF7152,0xF59337,0xE10FEC,0x5910C5,0x3F057E];
 
       for (var i = 0; i < colors.length; i++) {
         var geometry = new THREE.TubeBufferGeometry(this.tubePath, 100, (i * 2) + 4, 10, true);
@@ -655,11 +654,20 @@ export default {
         for (var i = 0; i < this.totalTargets; i++) {
           this.geometry = new THREE.IcosahedronGeometry(15, 16);
           var targetTexLoader = new THREE.TextureLoader();
-          var targetTexture = targetTexLoader.load(require("../assets/moon.png"));
+          var targetTexture = targetTexLoader.load(require("../assets/water.jpg"));
+          var targetTexture2 = targetTexLoader.load(require("../assets/fire.jpg"));
+          var targetMat = new THREE.MeshLambertMaterial({
+            map: targetTexture 
+          });
+          var targetMat2 = new THREE.MeshLambertMaterial({
+            map: targetTexture2 
+          });
+
           this.uniforms = {
             targetTex: { type: "t", value: targetTexture },
             amplitude: { value: 0.0 }
           };
+
           const material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: this.vertex,
@@ -669,12 +677,29 @@ export default {
             depthWrite: false,
             wireframe: true
           });
+
           var cube = new THREE.Mesh(this.geometry, material);
           cube.position.x = i === 0 ? 100 : i * Math.random() * 50;
           cube.position.y = i === 0 ? 100 : i * Math.random() * 50;
           cube.name = "cubeName" + i;
           let objInst = cube;
-          loader.load('./three_models/man.obj', function(obj){
+          let objectFile = './three_models/man.obj';
+          let nodeMat = targetMat;
+
+          if (i == 1 || i == 3 || i == 5 || i == 7) {
+            objectFile = './three_models/spider.obj';
+            nodeMat = targetMat2;
+          }
+
+          let index = i;
+
+          loader.load(objectFile, function(obj) {
+            if (index == 1 || index == 3 || index == 5 || index == 7) {
+              obj.scale.set(0.1, 0.1, 0.1);
+            }
+            obj.traverse(function (node) {
+              if (node.isMesh) node.material = nodeMat;
+            });
             obj.position.y = -5;
             objInst.add(obj);
           });

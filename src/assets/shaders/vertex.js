@@ -1265,7 +1265,7 @@ vec3 curlNoise( vec3 p ){
 void main() {
   vec3 distortion1 = vec3(position.x*2.,position.y,1.)*curlNoise(vec3(
     position.x*0.002 + time*0.1, 
-    position.y*0.008 + time*0.1, 
+    position.y*1.008 + time*0.1, 
     (position.x + position.y)*0.02
   ))*distortion;
 
